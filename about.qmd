@@ -1,0 +1,11 @@
+---
+title: "About Steve"
+---
+
+*Unleashing the Power of Data for Healthcare Accessibility*
+
+As a biochemistry enthusiast, Steve's insatiable curiosity led him to explore the world of data analysis. He pursued a comprehensive education in Biochemistry, equipping him with a profound understanding of the subject. It was during this journey that he discovered his true passion for unraveling patterns and insights from complex data sets.
+
+![Steven](images/Headshot.jpg){width=65%}
+
+Currently, Steven serves as a key contributor at [39 North Labs](https://39n.io/steven-frato.html), where he pioneers groundbreaking approaches in healthcare accessibility analysis. Through his unwavering dedication and innovative thinking, he strives to revolutionize the evaluation and enhancement of healthcare accessibility. 
