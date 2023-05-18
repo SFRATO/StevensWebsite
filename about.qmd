@@ -1,15 +1,16 @@
 ---
 title: "About Steve"
+oage-layout: article
 ---
 
 &nbsp;
 
-*Unleashing the Power of Data for Healthcare Accessibility*
-![Steven](images/Wide%20hiking%20photo.png)
 
+![Steven](images/Wide%20hiking%20photo.png)
+*Unleashing the Power of Data for Healthcare Accessibility*
 &nbsp;
 
-::: {style="background-color: black; height: 5px;"}
+::: {style="background-color: purple; height: 7px;"}
 :::
 
 &nbsp;
@@ -22,8 +23,7 @@ Currently, Steve plays a pivotal role as a contributor at [39 North Labs](https:
 
 &nbsp;
 
-::: {style="background-color: black; height: 5px;"}
+::: {style="background-color: purple; height: 7px;"}
 :::
 
-Currently, Steven serves as a key contributor at [39 North Labs](https://39n.io/steven-frato.html), where he pioneers groundbreaking approaches in healthcare accessibility analysis. Through his unwavering dedication and innovative thinking, he strives to revolutionize the evaluation and enhancement of healthcare accessibility. 
 

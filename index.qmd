@@ -1,7 +1,27 @@
 ---
 title: ""
+page-layout: full
 ---
+![](images/Headshot.jpg){width=50%}
 
-This is a Quarto website.
+## **Education**
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+::: {style="background-color: purple; height: 3px;"}
+:::
+
+&nbsp;
+
+<div style="display: flex; align-items: center;">
+  <img src="images/stockton.png" alt="Stockton University Logo" width="10%">
+  <div>
+<p style="margin-left: 10px;"><strong>Stockton University</strong><br>
+ Bachelor of Science (BS) in Biochemistry and Molecular Biology<br>
+ 2020 - *present*</p>
+  </div>
+</div>
+
+
+
+
+
+
