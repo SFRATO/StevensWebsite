@@ -6,11 +6,13 @@ oage-layout: article
 &nbsp;
 
 
-![Steven](images/Wide%20hiking%20photo.png)
-*Unleashing the Power of Data for Healthcare Accessibility*
+![](images/Wide%20hiking%20photo.png)
+
+ 
+
 &nbsp;
 
-::: {style="background-color: purple; height: 7px;"}
+::: {style="background-color: #3a0358; height: 7px;"}
 :::
 
 &nbsp;
@@ -23,7 +25,7 @@ Currently, Steve plays a pivotal role as a contributor at [39 North Labs](https:
 
 &nbsp;
 
-::: {style="background-color: purple; height: 7px;"}
+::: {style="background-color: #3a0358; height: 7px;"}
 :::
 
 
