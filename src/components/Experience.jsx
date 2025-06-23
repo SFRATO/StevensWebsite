@@ -58,7 +58,7 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="company-logo">
-                <img src="images/39n.png" alt="39 North Labs" />
+                <img src="/images/39n.png" alt="39 North Labs" />
               </div>
               <div className="experience-details">
                 <h3>Data Analysis Intern</h3>
@@ -82,14 +82,14 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="school-logo">
-                <img src="images/stockton.png" alt="Stockton University" />
+                <img src="/images/stockton.png" alt="Stockton University" />
               </div>
               <div className="education-details">
                 <h3>Bachelor of Science in Biochemistry and Molecular Biology</h3>
                 <h4>Stockton University</h4>
                 <p className="date-range">2020 - Present</p>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       </div>
