@@ -7,7 +7,7 @@ function App() {
       <div className="hero-section">
         <div className="profile-container">
           <div className="profile-image">
-            <img src="/images/headshot.jpg" alt="Steven Frato" />
+            <img src="https://via.placeholder.com/200x200/6f42c1/ffffff?text=SF" alt="Steven Frato" />
           </div>
           <div className="profile-content">
             <h1 className="name-title">Steven Frato</h1>
