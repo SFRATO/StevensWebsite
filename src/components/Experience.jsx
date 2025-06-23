@@ -89,7 +89,7 @@ const Experience = () => {
                 <h4>Stockton University</h4>
                 <p className="date-range">2020 - Present</p>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </motion.div>
       </div>
