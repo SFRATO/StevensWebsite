@@ -58,7 +58,7 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="company-logo">
-                <img src="/images/39north-logo.png" alt="39 North Labs" />
+                <img src="/images/39n.png" alt="39 North Labs" />
               </div>
               <div className="experience-details">
                 <h3>Data Analysis Intern</h3>
