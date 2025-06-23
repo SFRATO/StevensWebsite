@@ -7,7 +7,7 @@ function App() {
       <div className="hero-section">
         <div className="profile-container">
           <div className="profile-image">
-            <img src="/images/headshot.jpg" alt="Steven Frato" />
+            <img src="images/headshot.jpg" alt="Steven Frato" />
           </div>
           <div className="profile-content">
             <h1 className="name-title">Steven Frato</h1>
