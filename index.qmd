@@ -2,93 +2,53 @@
 title: ""
 page-layout: full
 ---
-<div style="display: flex; align-items: center;">
-  <img src="images/headshot.jpg" alt="headshot" width="40%" style="margin-right: 140px;">
-  <ul style="list-style-type: none; padding: 0; margin: 0;">
-    <li style="display: flex; align-items: center;">
-      <img src="images/linkedin.png" alt="linkedin" width="13%" style="margin-right: 5px;">
-      <p><strong><a href="https://www.linkedin.com/in/steven-frato-a21371135/">Linkedin.com/StevenFrato</a></strong></p>
-    </li>
-    <li style="display: flex; align-items: center;">
-      <img src="images/github.jpg" alt="GitHub" width="15%" style="margin-right: 5px;">
-      <p><strong>[Github.com/SFRATO](github.com/SFRATO)</strong></p>
-    </li>
-  </ul>
-</div>
 
-  
-
-## **Education**
-
-::: {style="background-color: #3a0358; height: 3px;"}
-:::
-
-&nbsp;
-
-<div style="display: flex; align-items: center;">
-  <img src="images/stockton.png" alt="Stockton University Logo" width="10%">
-  <div>
-<p style="margin-left: 10px;"><strong>Stockton University</strong><br>
- Bachelor of Science (BS) in Biochemistry and Molecular Biology<br>
- 2020 - *present*</p>
+<div class="hero-section">
+  <div class="profile-container">
+    <div class="profile-image">
+      <img src="images/headshot.jpg" alt="Steven Frato" />
+    </div>
+    <div class="profile-content">
+      <h1 class="name-title">Steven Frato</h1>
+      <p class="professional-summary">
+        Biochemistry student with a passion for data analysis and healthcare accessibility research. 
+        Currently contributing to innovative spatial health analytics at 39 North Labs, combining 
+        scientific expertise with data-driven insights to improve healthcare outcomes.
+      </p>
+    </div>
   </div>
 </div>
 
-&nbsp;
-
-## **Experience**
-
-::: {style="background-color: #3a0358; height: 3px;"}
-:::
-
-&nbsp;
-
-
-<div style="display: flex; align-items: center;">
-  <img src="images/39n.png" alt="39 North Labs" width="10%">
-  <div>
-<p style="margin-left: 10px;"><strong>[39 North Labs](https://39n.io)</strong><br>
- Data Analysis Intern <br>
- April 2023 - *present*</p>
+<div class="navigation-section">
+  <div class="nav-buttons">
+    <a href="experience.html" class="nav-button">
+      <div class="button-content">
+        <i class="bi bi-briefcase"></i>
+        <span>Experience</span>
+      </div>
+    </a>
+    
+    <a href="projects.html" class="nav-button">
+      <div class="button-content">
+        <i class="bi bi-code-square"></i>
+        <span>Projects</span>
+      </div>
+    </a>
+    
+    <a href="media.html" class="nav-button">
+      <div class="button-content">
+        <i class="bi bi-camera"></i>
+        <span>Media</span>
+      </div>
+    </a>
   </div>
 </div>
 
-&nbsp;
-
-## **Projects**
-
-::: {style="background-color: #3a0358; height: 3px;"}
-:::
-
-&nbsp;
-
-
-<div style="display: flex; align-items: center;">
-  <img src="images/project.png" alt="Project" width="20%">
-  <div>
-<p style="margin-left: 10px;"><strong>[Spatial Analysis of Healthcare Accesibility in New Jersey](https://39n.io/posts/spatial-analysis-nj-healthcare-accessibility/)</strong><br>
- Data Analysis Intern <br>
- April 2023 - *present*</p>
-  </div>
+<div class="social-links">
+  <a href="https://www.linkedin.com/in/steven-frato-a21371135/" target="_blank" class="social-link">
+    <i class="bi bi-linkedin"></i>
+  </a>
+  <a href="https://github.com/SFRATO" target="_blank" class="social-link">
+    <i class="bi bi-github"></i>
+  </a>
 </div>
-
-&nbsp;
-
-<div style="display: flex; align-items: center;">
-  <img src="images/lab.png" alt="Lab" width="20%">
-  <div>
-<p style="margin-left: 10px;">
-      <strong>Serine, Metallo, and Aspartyl Protease Extraction from Beef and Plants</strong><br>
-      May 2023: Ongoing<br>
-      * Determine levels of protein in different food sources<br>
-      * Use zymography to determine which proteases act on these proteins<br>
-      * Determine whether proteases in carnivores or herbivores differ in function</p>
-  </div>
-</div>
-
-
-
-
-
-
-

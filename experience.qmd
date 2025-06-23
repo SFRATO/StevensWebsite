@@ -1,0 +1,39 @@
+---
+title: "Experience"
+page-layout: article
+---
+
+# Professional Experience
+
+<div class="experience-container">
+  <div class="experience-item">
+    <div class="company-logo">
+      <img src="images/39n.png" alt="39 North Labs" />
+    </div>
+    <div class="experience-details">
+      <h3>Data Analysis Intern</h3>
+      <h4>39 North Labs</h4>
+      <p class="date-range">April 2023 - Present</p>
+      <ul>
+        <li>Spearhead innovative approaches in spatial health analytics</li>
+        <li>Contribute to healthcare accessibility research and analysis</li>
+        <li>Work on revolutionizing the evaluation and improvement of healthcare accessibility</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+## Education
+
+<div class="education-container">
+  <div class="education-item">
+    <div class="school-logo">
+      <img src="images/stockton.png" alt="Stockton University" />
+    </div>
+    <div class="education-details">
+      <h3>Bachelor of Science in Biochemistry and Molecular Biology</h3>
+      <h4>Stockton University</h4>
+      <p class="date-range">2020 - Present</p>
+    </div>
+  </div>
+</div>

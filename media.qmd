@@ -1,0 +1,50 @@
+---
+title: "Media"
+page-layout: article
+---
+
+# Media & Personal Interests
+
+<div class="media-container">
+  <div class="media-section">
+    <h2>Photography & Outdoor Adventures</h2>
+    <div class="media-grid">
+      <div class="media-item">
+        <img src="images/Wide hiking photo.png" alt="Hiking Adventure" />
+        <p>Exploring nature through hiking and outdoor photography</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="media-section">
+    <h2>Music & Performance</h2>
+    <div class="music-content">
+      <p>
+        Passionate drummer since age 13, performing at local venues and bars on weekends. 
+        Music provides a creative outlet that complements my analytical work in data science and research.
+      </p>
+    </div>
+  </div>
+
+  <div class="media-section">
+    <h2>Interests</h2>
+    <div class="interests-grid">
+      <div class="interest-item">
+        <i class="bi bi-water"></i>
+        <span>Swimming</span>
+      </div>
+      <div class="interest-item">
+        <i class="bi bi-mountain"></i>
+        <span>Hiking</span>
+      </div>
+      <div class="interest-item">
+        <i class="bi bi-music-note"></i>
+        <span>Drumming</span>
+      </div>
+      <div class="interest-item">
+        <i class="bi bi-camera"></i>
+        <span>Photography</span>
+      </div>
+    </div>
+  </div>
+</div>

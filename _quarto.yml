@@ -2,18 +2,20 @@ project:
   type: website
 
 website:
-  title: <strong>Frato</strong>
+  title: <strong>Steven Frato</strong>
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: experience.qmd
+        text: Experience
+      - href: projects.qmd
+        text: Projects
+      - href: media.qmd
+        text: Media
 
 format:
   html:
     theme: pulse
     css: styles.css
-    toc: true
-
-
-
+    toc: false
