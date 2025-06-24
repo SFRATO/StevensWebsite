@@ -58,26 +58,6 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="company-logo">
-                <img src="images/39n.png" alt="39 North Labs" />
-              </div>
-              <div className="experience-details">
-                <h3>Data Analysis Intern</h3>
-                <h4>39 North Labs</h4>
-                <p className="date-range">April 2023 - Present</p>
-                <ul>
-                  <li>Spearhead innovative approaches in spatial health analytics</li>
-                  <li>Contribute to healthcare accessibility research and analysis</li>
-                  <li>Work on revolutionizing the evaluation and improvement of healthcare accessibility</li>
-                </ul>
-              </div>
-            </motion.div>
-
-            <motion.div 
-              className="experience-item"
-              whileHover={{ scale: 1.02, y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <div className="company-logo">
                 <img src="images/njdep.png" alt="NJ Department of Environmental Protection" />
               </div>
               <div className="experience-details">
@@ -89,6 +69,26 @@ const Experience = () => {
                   <li>Enforce New Jersey's Radiation Protection Program in accordance with N.J.A.C. Title 7, Chapter 28, ensuring compliance with state regulations.</li>
                   <li>Document inspection findings in state databases, issue violation notices, and provide facilities with available corrective action options based on regulatory requirements.</li>
                   <li>Investigate overdue payments, suspected non-compliance and enforce administrative orders, including notices of prosecution.</li>
+                </ul>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="experience-item"
+              whileHover={{ scale: 1.02, y: -5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="company-logo">
+                <img src="images/39n.png" alt="39 North Labs" />
+              </div>
+              <div className="experience-details">
+                <h3>Data Analysis Intern</h3>
+                <h4>39 North Labs</h4>
+                <p className="date-range">April 2023 - Present</p>
+                <ul>
+                  <li>Spearhead innovative approaches in spatial health analytics</li>
+                  <li>Contribute to healthcare accessibility research and analysis</li>
+                  <li>Work on revolutionizing the evaluation and improvement of healthcare accessibility</li>
                 </ul>
               </div>
             </motion.div>
