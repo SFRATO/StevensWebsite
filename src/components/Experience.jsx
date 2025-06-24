@@ -49,8 +49,6 @@ const Experience = () => {
           initial="hidden"
           animate="visible"
         >
-          <motion.h2 variants={itemVariants}>Professional Experience</motion.h2>
-          
           <motion.div className="experience-container" variants={itemVariants}>
             <motion.div 
               className="experience-item"
