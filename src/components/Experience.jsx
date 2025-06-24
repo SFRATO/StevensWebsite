@@ -108,7 +108,7 @@ const Experience = () => {
               <div className="education-details">
                 <h3>Bachelor of Science in Biochemistry and Molecular Biology</h3>
                 <h4>Stockton University</h4>
-                <p className="date-range">2020 - Present</p>
+                <p className="date-range">2020 - 2024</p>
               </div>
             </motion.div>
           </motion.div>
