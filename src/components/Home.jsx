@@ -66,7 +66,7 @@ const Home = () => {
               className="professional-summary"
               variants={itemVariants}
             >
-              Biochemistry student with a passion for data analysis and healthcare accessibility research. 
+              Government professional with a passion for data analysis to influence policy change in the state of New Jersey. 
               Currently contributing to innovative spatial health analytics at 39 North Labs, combining 
               scientific expertise with data-driven insights to improve healthcare outcomes.
             </motion.p>
