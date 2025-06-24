@@ -285,6 +285,19 @@ body {
   margin-bottom: 1rem;
 }
 
+/* Bullet list formatting */
+.bullet-list {
+  list-style-position: outside;
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.bullet-list li {
+  padding-left: 0.3rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
 /* Projects Page Styles */
 .projects-container {
   max-width: 1000px;
@@ -341,11 +354,13 @@ body {
 .project-objectives {
   margin-top: 1rem;
   padding-left: 1rem;
+  list-style-position: outside;
 }
 
 .project-objectives li {
   margin-bottom: 0.5rem;
   color: var(--dark-gray);
+  padding-left: 0.3rem;
 }
 
 /* Media Page Styles */
@@ -459,6 +474,10 @@ body {
   .experience-item, .education-item {
     flex-direction: column;
     text-align: center;
+  }
+
+  .bullet-list {
+    text-align: left;
   }
   
   .interests-grid {
