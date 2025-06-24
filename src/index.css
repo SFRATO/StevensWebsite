@@ -242,6 +242,19 @@ body {
   color: var(--white);
 }
 
+/* Bullet list formatting */
+.bullet-list {
+  list-style-position: outside;
+  padding-left: 1.2rem;
+  margin: 0;
+}
+
+.bullet-list li {
+  padding-left: 0.3rem;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
 /* Experience Page Styles */
 .experience-container, .education-container {
   max-width: 800px;
@@ -283,19 +296,6 @@ body {
   color: var(--dark-gray);
   font-style: italic;
   margin-bottom: 1rem;
-}
-
-/* Bullet list formatting */
-.bullet-list {
-  list-style-position: outside;
-  padding-left: 1.2rem;
-  margin: 0;
-}
-
-.bullet-list li {
-  padding-left: 0.3rem;
-  margin-bottom: 0.5rem;
-  text-align: left;
 }
 
 /* Projects Page Styles */

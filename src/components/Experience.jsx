@@ -40,7 +40,7 @@ const Experience = () => {
           <Link to="/" className="back-button">
             <i className="bi bi-arrow-left"></i> Back to Home
           </Link>
-          <h1 className="page-title">Experience</h1>
+          <h1 className="page-title" style={{ textAlign: 'center', width: '100%' }}>Experience</h1>
         </motion.div>
 
         <motion.div 
