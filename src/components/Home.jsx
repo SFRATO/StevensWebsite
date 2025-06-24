@@ -67,7 +67,7 @@ const Home = () => {
               variants={itemVariants}
             >
               Government professional with a passion for data analysis to influence policy change in the state of New Jersey. 
-              Currently contributing to spatial health and accessibility analytics at 39 North Labs.
+              Currently contributing to spatial health and accessibility analytics at 39 North Labs as well as the New Jersey Department of Environmental Protection's Bureau of X-Ray Compliance.
             </motion.p>
           </motion.div>
         </motion.div>
