@@ -40,7 +40,7 @@ const Experience = () => {
           <Link to="/" className="back-button">
             <i className="bi bi-arrow-left"></i> Back to Home
           </Link>
-          <h1 className="page-title" style={{ textAlign: 'center', width: '100%' }}>Experience</h1>
+          <h1 className="page-title" style={{ textAlign: 'center', width: '100%', margin: '0 auto' }}>Experience</h1>
         </motion.div>
 
         <motion.div 
@@ -92,7 +92,7 @@ const Experience = () => {
             </motion.div>
           </motion.div>
 
-          <motion.h2 variants={itemVariants}>Education</motion.h2>
+          <motion.h2 variants={itemVariants} style={{ textAlign: 'center', width: '100%', margin: '2rem auto 1rem' }}>Education</motion.h2>
           
           <motion.div className="education-container" variants={itemVariants}>
             <motion.div 
