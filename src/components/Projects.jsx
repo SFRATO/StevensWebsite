@@ -40,7 +40,6 @@ const Projects = () => {
           <Link to="/" className="back-button">
             <i className="bi bi-arrow-left"></i> Back to Home
           </Link>
-          <h1 className="page-title">Projects</h1>
         </motion.div>
 
         <motion.div 
@@ -49,6 +48,21 @@ const Projects = () => {
           initial="hidden"
           animate="visible"
         >
+          <motion.h1 
+            variants={itemVariants} 
+            className="page-title" 
+            style={{ 
+              textAlign: 'center', 
+              width: '100%', 
+              margin: '0 auto 2rem',
+              fontSize: '3rem',
+              fontWeight: '700',
+              color: 'var(--primary-purple)'
+            }}
+          >
+            Projects
+          </motion.h1>
+          
           <motion.div 
             className="project-item"
             variants={itemVariants}
