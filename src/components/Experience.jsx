@@ -92,7 +92,20 @@ const Experience = () => {
             </motion.div>
           </motion.div>
 
-          <motion.h2 variants={itemVariants} style={{ textAlign: 'center', width: '100%', margin: '2rem auto 1rem' }}>Education</motion.h2>
+          <motion.h2 
+            variants={itemVariants} 
+            className="page-title" 
+            style={{ 
+              textAlign: 'center', 
+              width: '100%', 
+              margin: '2rem auto 1rem',
+              fontSize: '3rem',
+              fontWeight: '700',
+              color: 'var(--primary-purple)'
+            }}
+          >
+            Education
+          </motion.h2>
           
           <motion.div className="education-container" variants={itemVariants}>
             <motion.div 
