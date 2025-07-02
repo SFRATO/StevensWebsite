@@ -99,6 +99,25 @@ const Projects = () => {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <div className="project-image">
+              <img src="images/project.png" alt="Transit Accessibility Project" />
+            </div>
+            <div className="project-details">
+              <h3>Transit Accessibility vs. Housing Affordability</h3>
+              <p className="project-date">November 2024</p>
+              <p className="project-description">
+                Compared housing affordability to train rail access in New Jersey, mapping accessible and affordable and non-accessible, 
+                unaffordable regions of New Jersey.
+              </p>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="project-item"
+            variants={itemVariants}
+            whileHover={{ scale: 1.02, y: -8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <div className="project-image">
               <img src="images/lab.png" alt="Protease Research" />
             </div>
             <div className="project-details">
