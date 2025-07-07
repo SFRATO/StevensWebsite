@@ -73,9 +73,32 @@ const Experience = () => {
                 <img src="images/njdep.png" alt="NJ Department of Environmental Protection" />
               </div>
               <div className="experience-details">
+                <h3>Environmental Specialist 1 (Promoted from Trainee)</h3>
+                <h4>NJ Department of Environmental Protection – Bureau of X-Ray Compliance</h4>
+                <p className="date-range">July 2024 - Present</p>
+                <ul className="bullet-list">
+                  <li>Conduct technical inspections and document compliance with state regulations using agency data systems and inspection platforms.</li>
+                  <li>Identify operational issues during inspections and recommend corrective measures aligned with N.J.A.C. Title 7, Chapter 28.</li>
+                  <li>Prepare formal written documentation including inspection reports, violation notices, and corrective action recommendations.</li>
+                  <li>Analyze inspection trends and track enforcement actions to support policy decisions and system improvements.</li>
+                  <li>Liaise with regulated entities to ensure clear understanding of system and process requirements.</li>
+                  <li>Collaborate with internal teams to improve inspection workflows and optimize database inputs.</li>
+                </ul>
+              </div>
+            </motion.div>
+
+            <motion.div 
+              className="experience-item"
+              whileHover={{ scale: 1.02, y: -5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="company-logo">
+                <img src="images/njdep.png" alt="NJ Department of Environmental Protection" />
+              </div>
+              <div className="experience-details">
                 <h3>Environmental Services Trainee</h3>
                 <h4>NJ Department of Environmental Protection</h4>
-                <p className="date-range">Jul 2024 - Present</p>
+                <p className="date-range">July 2024 - July 2025</p>
                 <ul className="bullet-list">
                   <li>Conduct inspections of facilities with radiation-producing equipment, including dental practices, urgent care centers, hospitals, veterinary clinics, pain management centers, and chiropractic offices.</li>
                   <li>Enforce New Jersey's Radiation Protection Program in accordance with N.J.A.C. Title 7, Chapter 28, ensuring compliance with state regulations.</li>
