@@ -70,11 +70,38 @@ const Projects = () => {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <div className="project-image">
+              <img src="images/project.png" alt="Transit Accessibility Project" />
+            </div>
+            <div className="project-details">
+              <h3>Transit Accessibility vs. Housing Affordability</h3>
+              <p className="project-date">November 2024</p>
+              <p className="project-description">
+                Analyzed the relationship between housing affordability and proximity to rail transit across New Jersey, classifying census tracts based on whether they are affordable and accessible, affordable but lacking transit access, transit-accessible but unaffordable, or both unaffordable and inaccessible.
+              </p>
+              <motion.a 
+                href="/path/to/transit-analysis.pdf" 
+                download="Transit_Accessibility_Housing_Affordability_Analysis.pdf"
+                className="project-link"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View Project <i className="bi bi-arrow-up-right"></i>
+              </motion.a>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="project-item"
+            variants={itemVariants}
+            whileHover={{ scale: 1.02, y: -8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            <div className="project-image">
               <img src="images/project.png" alt="Healthcare Accessibility Project" />
             </div>
             <div className="project-details">
               <h3>Spatial Analysis of Healthcare Accessibility in New Jersey</h3>
-              <p className="project-date">April 2023 - Present</p>
+              <p className="project-date">April 2023</p>
               <p className="project-description">
                 Comprehensive spatial analysis project examining healthcare accessibility patterns across New Jersey. 
                 This research aims to identify gaps in healthcare coverage and inform policy decisions for improved 
@@ -99,40 +126,16 @@ const Projects = () => {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <div className="project-image">
-              <img src="images/project.png" alt="Transit Accessibility Project" />
-            </div>
-            <div className="project-details">
-              <h3>Transit Accessibility vs. Housing Affordability</h3>
-              <p className="project-date">November 2024</p>
-              <p className="project-description">
-                Compared housing affordability to train rail access in New Jersey, mapping accessible and affordable and non-accessible, 
-                unaffordable regions of New Jersey.
-              </p>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            className="project-item"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02, y: -8 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <div className="project-image">
               <img src="images/lab.png" alt="Protease Research" />
             </div>
             <div className="project-details">
               <h3>Serine, Metallo, and Aspartyl Protease Extraction from Beef and Plants</h3>
-              <p className="project-date">May 2023 - Ongoing</p>
+              <p className="project-date">May 2023</p>
               <p className="project-description">
                 Research project focused on determining protein levels in different food sources and using zymography 
                 to analyze protease activity. Investigating differences in protease function between carnivorous and 
                 herbivorous organisms.
               </p>
-              <ul className="project-objectives">
-                <li>Determine levels of protein in different food sources</li>
-                <li>Use zymography to determine which proteases act on these proteins</li>
-                <li>Determine whether proteases in carnivores or herbivores differ in function</li>
-              </ul>
             </div>
           </motion.div>
         </motion.div>
