@@ -222,6 +222,12 @@ body {
   height: auto;       /* keep aspect ratio */
 }
 
+/* one-off override for 39 North Labs */
+.company-logo img[src$="39n.png"] {
+  width: 120px;
+  height: auto;
+}
+
 .experience-details h3, .education-details h3 {
   color: var(--primary-purple);
   margin: 0 0 0.5rem 0;
