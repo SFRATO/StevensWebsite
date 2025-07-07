@@ -70,7 +70,7 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="company-logo">
-                <img src="images/njdep.png" alt="NJ Department of Environmental Protection" />
+                <img src="images/NJDEP.jpg" alt="NJ Department of Environmental Protection" />
               </div>
               <div className="experience-details">
                 <h3>Environmental Specialist 1 (Promoted from Trainee)</h3>
@@ -93,7 +93,7 @@ const Experience = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <div className="company-logo">
-                <img src="images/njdep.png" alt="NJ Department of Environmental Protection" />
+                <img src="images/NJDEP.jpg" alt="NJ Department of Environmental Protection" />
               </div>
               <div className="experience-details">
                 <h3>Environmental Services Trainee</h3>
