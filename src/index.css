@@ -356,8 +356,8 @@ body {
 }
 
 .company-logo img, .school-logo img {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   border-radius: 8px;
 }
