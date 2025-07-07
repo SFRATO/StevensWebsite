@@ -12,7 +12,7 @@ page-layout: article
     </div>
     <div class="project-details">
       <h3>Spatial Analysis of Healthcare Accessibility in New Jersey</h3>
-      <p class="project-date">April 2023 - Present</p>
+      <p class="project-date">April 2023</p>
       <p class="project-description">
         Comprehensive spatial analysis project examining healthcare accessibility patterns across New Jersey. 
         This research aims to identify gaps in healthcare coverage and inform policy decisions for improved 
@@ -30,7 +30,7 @@ page-layout: article
     </div>
     <div class="project-details">
       <h3>Serine, Metallo, and Aspartyl Protease Extraction from Beef and Plants</h3>
-      <p class="project-date">May 2023 - Ongoing</p>
+      <p class="project-date">May 2023</p>
       <p class="project-description">
         Research project focused on determining protein levels in different food sources and using zymography 
         to analyze protease activity. Investigating differences in protease function between carnivorous and 
