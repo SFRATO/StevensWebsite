@@ -362,6 +362,11 @@ body {
   border-radius: 8px;
 }
 
+.company-logo img[alt="NJ Department of Environmental Protection"] {
+  width: 120px;
+  height: 120px;
+}
+
 .experience-details h3, .education-details h3 {
   color: var(--neon-fuchsia);
   margin: 0 0 0.5rem 0;
