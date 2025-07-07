@@ -119,11 +119,13 @@ const Experience = () => {
               <div className="experience-details">
                 <h3>Data Analysis Intern</h3>
                 <h4>39 North Labs</h4>
-                <p className="date-range">April 2023 - Present</p>
+                <p className="date-range">April 2022 - July 2024</p>
                 <ul className="bullet-list">
-                  <li>Spearhead innovative approaches in spatial health analytics</li>
-                  <li>Contribute to healthcare accessibility research and analysis</li>
-                  <li>Work on revolutionizing the evaluation and improvement of healthcare accessibility</li>
+                  <li>Collected, cleaned, and analyzed operational data to improve client business practices and workflows.</li>
+                  <li>Developed R programs to automate analysis pipelines, simulate system performance, and generate internal reports.</li>
+                  <li>Built custom visualizations and dashboards to support strategic planning and decision-making.</li>
+                  <li>Applied QA/QC techniques to validate internal systems and procedures, identifying areas for improvement.</li>
+                  <li>Drafted internal technical documentation and supported process enhancements.</li>
                 </ul>
               </div>
             </motion.div>
