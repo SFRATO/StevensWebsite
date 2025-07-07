@@ -95,7 +95,7 @@ const Media = () => {
             >
               {[
                 { icon: "bi-water", text: "Swimming" },
-                { icon: "bi-mountain", text: "Hiking" },
+                { icon: "bi-tree", text: "Hiking" },
                 { icon: "bi-music-note", text: "Drumming" },
                 { icon: "bi-camera", text: "Photography" }
               ].map((interest, index) => (
