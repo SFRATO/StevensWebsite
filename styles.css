@@ -217,11 +217,6 @@ body {
   border-radius: 8px;
 }
 
-.logo-39n {
-  width: 120px;
-  height: auto;       /* keep aspect ratio */
-}
-
 /* one-off override for 39 North Labs */
 .company-logo img[src$="39n.png"] {
   width: 120px;
