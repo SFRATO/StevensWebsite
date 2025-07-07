@@ -1,2 +1,6 @@
 /.quarto/
 .env
+
+_site/
+dist/
+public/
