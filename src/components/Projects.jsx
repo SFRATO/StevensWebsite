@@ -70,7 +70,7 @@ const Projects = () => {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <div className="project-image">
-              <img src="images/project.png" alt="Transit Accessibility Project" />
+              <img src="images/Transit.png" alt="Transit Accessibility Project" />
             </div>
             <div className="project-details">
               <h3>Transit Accessibility vs. Housing Affordability</h3>
