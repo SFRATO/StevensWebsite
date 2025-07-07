@@ -80,8 +80,7 @@ const Media = () => {
             <h2>Music & Performance</h2>
             <div className="music-content">
               <p>
-                Passionate drummer since age 13, performing at local venues and bars on weekends. 
-                Music provides a creative outlet that complements my analytical work in data science and research.
+                Passionate drummer since age 13. Music provides a creative outlet that complements my analytical work in data science and research.
               </p>
             </div>
           </motion.div>
