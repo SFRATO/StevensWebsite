@@ -211,10 +211,15 @@ body {
 }
 
 .company-logo img, .school-logo img {
-  width: 120px;
-  height: 120px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   border-radius: 8px;
+}
+
+.logo-39n {
+  width: 120px;
+  height: auto;       /* keep aspect ratio */
 }
 
 .experience-details h3, .education-details h3 {
