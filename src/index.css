@@ -4,7 +4,7 @@
   /* Neon Color Palette with Sharp Contrast */
   --void: #0a0a0a;                  /* HEX: #0a0a0a, RGB: 10, 10, 10 - Deep void black */
   --stark-white: #ffffff;           /* HEX: #ffffff, RGB: 255, 255, 255 - Pure stark white */
-  --neon-fuchsia: #ff0080;          /* HEX: #ff0080, RGB: 255, 0, 128 - Electric fuchsia */
+  --neon-fuchsia: #B026FF;          /* HEX: #B026FF, RGB: 176, 38, 255 - Neon purple */
   --neon-cyan: #00ffff;             /* HEX: #00ffff, RGB: 0, 255, 255 - Bright cyan */
   --neon-purple: #8000ff;           /* HEX: #8000ff, RGB: 128, 0, 255 - Electric purple */
   --jewel-emerald: #00ff80;         /* HEX: #00ff80, RGB: 0, 255, 128 - Jewel emerald */
@@ -16,7 +16,7 @@
   --text-medium: #b0b0b0;           /* HEX: #b0b0b0, RGB: 176, 176, 176 - Medium text */
   
   /* Neon Shadows and Effects */
-  --shadow-neon-fuchsia: 0 0 20px rgba(255, 0, 128, 0.5), 0 0 40px rgba(255, 0, 128, 0.3);
+  --shadow-neon-fuchsia: 0 0 20px rgba(176, 38, 255, 0.5), 0 0 40px rgba(176, 38, 255, 0.3);
   --shadow-neon-cyan: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
   --shadow-neon-purple: 0 0 20px rgba(128, 0, 255, 0.5), 0 0 40px rgba(128, 0, 255, 0.3);
   --shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.8);
