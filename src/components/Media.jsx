@@ -71,7 +71,6 @@ const Media = () => {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <img src="images/Wide hiking photo.png" alt="Hiking Adventure" />
-                <p>Exploring nature through hiking and outdoor photography</p>
               </motion.div>
             </div>
           </motion.div>
