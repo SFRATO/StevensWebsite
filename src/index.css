@@ -717,3 +717,23 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Disclaimer Footer */
+.disclaimer-footer {
+  background: var(--void);
+  padding: 1rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--dark-gray);
+}
+
+.disclaimer-text {
+  color: #FFFFFF;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: normal;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+  max-width: 800px;
+  margin: 0 auto;
+}
