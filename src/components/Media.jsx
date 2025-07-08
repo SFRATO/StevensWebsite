@@ -66,10 +66,6 @@ const Media = () => {
             <div className="banner-section">
               <div className="banner-image">
                 <img src="images/Wide hiking photo.png" alt="Hiking Adventure" />
-                <div className="banner-overlay">
-                  <h2>Outdoor Adventures</h2>
-                  <p>Exploring nature through hiking and outdoor activities</p>
-                </div>
               </div>
             </div>
           </motion.div>
