@@ -53,7 +53,7 @@ const Media = () => {
           <Link to="/" className="back-button">
             <i className="bi bi-arrow-left"></i> Back to Home
           </Link>
-          <h1 className="page-title">Media & Personal Interests</h1>
+          <h1 className="page-title">Personal Interests</h1>
         </motion.div>
 
         <motion.div 
@@ -63,15 +63,14 @@ const Media = () => {
           animate="visible"
         >
           <motion.div className="media-section" variants={itemVariants}>
-            <h2>Photography & Outdoor Adventures</h2>
-            <div className="media-grid">
-              <motion.div 
-                className="media-item"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
+            <div className="banner-section">
+              <div className="banner-image">
                 <img src="images/Wide hiking photo.png" alt="Hiking Adventure" />
-              </motion.div>
+                <div className="banner-overlay">
+                  <h2>Outdoor Adventures</h2>
+                  <p>Exploring nature through hiking and outdoor activities</p>
+                </div>
+              </div>
             </div>
           </motion.div>
 
