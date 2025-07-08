@@ -368,11 +368,10 @@ body {
 }
 
 .experience-details h3, .education-details h3 {
-  color: var(--stark-white);
+  color: var(--neon-fuchsia);
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
-  text-shadow: none;
-  font-weight: 600;
+  text-shadow: 0 0 10px var(--neon-fuchsia);
 }
 
 .experience-details h4, .education-details h4 {
@@ -425,11 +424,10 @@ body {
 }
 
 .project-details h3 {
-  color: var(--stark-white);
+  color: var(--neon-fuchsia);
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
-  text-shadow: none;
-  font-weight: 600;
+  text-shadow: 0 0 10px var(--neon-fuchsia);
 }
 
 .project-date {
