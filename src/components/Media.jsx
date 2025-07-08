@@ -98,6 +98,8 @@ const Media = () => {
                 { icon: "bi-tree", text: "Hiking" },
                 { icon: "bi-music-note", text: "Drumming" },
                 { icon: "bi-camera", text: "Photography" }
+                { icon: "bi-controller", text: "Gaming" }
+                { icon: "bi-person", text: "Martial Arts" }
               ].map((interest, index) => (
                 <motion.div 
                   key={index}
