@@ -368,10 +368,11 @@ body {
 }
 
 .experience-details h3, .education-details h3 {
-  color: var(--neon-fuchsia);
+  color: #ffffff;
   margin: 0 0 0.5rem 0;
   font-size: 1.5rem;
-  text-shadow: 0 0 10px var(--neon-fuchsia);
+  text-shadow: none;
+  font-weight: 600;
 }
 
 .experience-details h4, .education-details h4 {
@@ -424,10 +425,11 @@ body {
 }
 
 .project-details h3 {
-  color: var(--neon-fuchsia);
+  color: #ffffff;
   margin: 0 0 1rem 0;
   font-size: 1.5rem;
-  text-shadow: 0 0 10px var(--neon-fuchsia);
+  text-shadow: none;
+  font-weight: 600;
 }
 
 .project-date {
@@ -493,10 +495,11 @@ body {
 }
 
 .media-section h2 {
-  color: var(--neon-fuchsia);
+  color: #ffffff;
   margin-bottom: 1.5rem;
   font-size: 2rem;
-  text-shadow: 0 0 10px var(--neon-fuchsia);
+  text-shadow: none;
+  font-weight: 600;
 }
 
 .music-content p {
@@ -552,7 +555,7 @@ body {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 700;
-  color: var(--stark-white);
+  color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
