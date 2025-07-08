@@ -39,6 +39,7 @@ const itemVariants = {
 
 const Home = () => {
   return (
+    <>
     <PageTransition className="App">
       <div className="hero-section">
         <motion.div 
@@ -161,7 +162,16 @@ const Home = () => {
       </motion.div>
     </PageTransition>
 
-      <footer className="disclaimer-footer">
+    <footer className="disclaimer-footer">
+      <p className="disclaimer-text">
+        Content on this page does not represent the New Jersey Government in any capacity. This is an independent website and is not affiliated with, endorsed by, or connected to the State of New Jersey or any of its agencies.
+      </p>
+    </footer>
+    </>
+  );
+};
+
+export default Home;
         <p className="disclaimer-text">
           Content on this page does not represent the New Jersey Government in any capacity. This is an independent website and is not affiliated with, endorsed by, or connected to the State of New Jersey or any of its agencies.
         </p>
