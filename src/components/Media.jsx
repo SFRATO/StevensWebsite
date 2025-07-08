@@ -95,11 +95,10 @@ const Media = () => {
             >
               {[
                 { icon: "bi-water", text: "Swimming" },
-                { icon: "bi-tree", text: "Hiking" },
+                { icon: "bi-person", text: "Martial Arts" },
                 { icon: "bi-music-note", text: "Drumming" },
-                { icon: "bi-camera", text: "Photography" }
                 { icon: "bi-controller", text: "Gaming" }
-                { icon: "bi-person", text: "Martial Arts" }
+              
               ].map((interest, index) => (
                 <motion.div 
                   key={index}
