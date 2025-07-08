@@ -126,7 +126,7 @@ const Projects = () => {
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
             <div className="project-image">
-              <img src="images/lab.png" alt="Protease Research" />
+              <img src="images/lab.jpeg" alt="Protease Research" />
             </div>
             <div className="project-details">
               <h3>Serine, Metallo, and Aspartyl Protease Extraction from Beef and Plants</h3>
