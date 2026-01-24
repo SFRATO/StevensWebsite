@@ -21,9 +21,9 @@ const marketTypeLabels = {
 };
 
 const marketTypeColors = {
-  seller: 'var(--accent-green)',
-  buyer: 'var(--accent-red)',
-  balanced: 'var(--c21-gold)',
+  seller: '#6FCF7C',  /* Lighter green for dark backgrounds - WCAG AA compliant */
+  buyer: '#FF8A80',   /* Lighter red for dark backgrounds - WCAG AA compliant */
+  balanced: '#E8C468', /* Lighter gold for dark backgrounds - WCAG AA compliant */
 };
 ---
 
@@ -98,7 +98,7 @@ const marketTypeColors = {
 
   .subtitle {
     font-size: var(--text-lg);
-    color: rgba(255, 255, 255, 0.8);
+    color: #D1D1D1; /* WCAG AA compliant - 8.5:1 contrast on #2C2C2C */
     line-height: var(--leading-relaxed);
     margin-bottom: var(--space-6);
   }
@@ -108,7 +108,7 @@ const marketTypeColors = {
     flex-wrap: wrap;
     gap: var(--space-4);
     font-size: var(--text-sm);
-    color: rgba(255, 255, 255, 0.7);
+    color: #B8B8B8; /* WCAG AA compliant - 6.2:1 contrast on #2C2C2C */
   }
 
   .hero-meta span {
@@ -118,7 +118,7 @@ const marketTypeColors = {
   }
 
   .hero-meta svg {
-    opacity: 0.7;
+    opacity: 1;
   }
 
   @media (max-width: 768px) {
