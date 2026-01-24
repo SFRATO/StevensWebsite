@@ -1,0 +1,49 @@
+---
+/**
+ * Contact Page
+ * Dedicated contact page with form and information
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ContactForm from '@components/ContactForm.astro';
+---
+
+<BaseLayout
+  title="Contact Steven Frato - Schedule Your Free Real Estate Consultation | Century 21 NJ"
+  description="Ready to buy or sell in Burlington, Mercer, or Middlesex County? Contact Steven Frato for a free consultation. Call (609) 789-0126 or fill out our form."
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Contact Me</h1>
+      <p class="subtitle">
+        I'm here to help with all your real estate needs in Burlington, Mercer, and Middlesex Counties.
+        Let's start the conversation today!
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact Form -->
+  <ContactForm formName="contact-page" />
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: var(--space-10) 0 var(--space-6);
+    background: linear-gradient(135deg, var(--off-white) 0%, var(--light-gray) 100%);
+    text-align: center;
+  }
+
+  .page-header h1 {
+    font-size: var(--text-4xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+</style>

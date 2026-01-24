@@ -1,0 +1,368 @@
+---
+/**
+ * Footer Component
+ * Site-wide footer with contact info, links, and compliance
+ */
+
+const currentYear = new Date().getFullYear();
+
+// Contact information
+const contactInfo = {
+  phone: '(609) 789-0126',
+  phoneHref: 'tel:+16097890126',
+  email: 'sf@stevenfrato.com',
+  emailHref: 'mailto:sf@stevenfrato.com',
+  address: {
+    street: '136 Farnsworth Ave',
+    city: 'Bordentown',
+    state: 'NJ',
+    zip: '08505',
+  },
+};
+
+const serviceAreas = [
+  'Mount Laurel',
+  'Moorestown',
+  'Medford',
+  'Cherry Hill',
+  'Princeton',
+  'Trenton',
+  'Hamilton',
+  'Edison',
+  'Woodbridge',
+];
+
+const quickLinks = [
+  { href: '/about', label: 'About' },
+  { href: '/listings', label: 'Listings' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/privacy', label: 'Privacy Policy' },
+];
+
+const socialLinks = [
+  { href: 'https://www.linkedin.com/in/steven-frato/', label: 'LinkedIn', icon: 'linkedin' },
+  // Add more social links when available
+];
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Contact Information -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Contact</h3>
+        <div class="contact-info">
+          <a href={contactInfo.phoneHref} class="contact-link">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" fill="currentColor"/>
+            </svg>
+            {contactInfo.phone}
+          </a>
+
+          <a href={contactInfo.emailHref} class="contact-link">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" fill="currentColor"/>
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" fill="currentColor"/>
+            </svg>
+            {contactInfo.email}
+          </a>
+
+          <div class="address">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" fill="currentColor"/>
+            </svg>
+            <div>
+              <div>{contactInfo.address.street}</div>
+              <div>{contactInfo.address.city}, {contactInfo.address.state} {contactInfo.address.zip}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Quick Links</h3>
+        <ul class="footer-links">
+          {quickLinks.map((link) => (
+            <li>
+              <a href={link.href} class="footer-link">{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Service Areas -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Service Areas</h3>
+        <ul class="service-areas">
+          {serviceAreas.map((area) => (
+            <li class="service-area">{area}</li>
+          ))}
+        </ul>
+        <p class="service-note">Serving Burlington, Mercer & Middlesex Counties</p>
+      </div>
+
+      <!-- Social Media & Branding -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Connect</h3>
+        <div class="social-links">
+          {socialLinks.map((social) => (
+            <a
+              href={social.href}
+              class="social-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={social.label}
+            >
+              {social.label}
+            </a>
+          ))}
+        </div>
+
+        <div class="footer-branding">
+          <div class="century21-badge">
+            <span class="badge-text">Proud member of</span>
+            <span class="badge-logo">CENTURY 21</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Bottom -->
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p class="copyright">
+          © {currentYear} Steven Frato. All rights reserved.
+        </p>
+
+        <div class="footer-logos">
+          <div class="equal-housing" title="Equal Housing Opportunity">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" fill="var(--text-primary)"/>
+              <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="white"/>
+            </svg>
+          </div>
+        </div>
+
+        <p class="disclaimer">
+          <small>
+            Each office is independently owned and operated. Information deemed reliable but not guaranteed.
+          </small>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background-color: var(--charcoal);
+    color: var(--white);
+    padding: var(--space-10) 0 var(--space-6);
+    margin-top: var(--space-12);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .footer-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .footer-heading {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    margin-bottom: var(--space-4);
+  }
+
+  /* Contact Info */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--white);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .contact-link:hover {
+    color: var(--c21-gold);
+    text-decoration: none;
+  }
+
+  .address {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    color: var(--white);
+  }
+
+  .icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Quick Links */
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .footer-link {
+    color: var(--white);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .footer-link:hover {
+    color: var(--c21-gold);
+    text-decoration: underline;
+  }
+
+  /* Service Areas */
+  .service-areas {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .service-area {
+    font-size: var(--text-sm);
+    color: var(--light-gray);
+  }
+
+  .service-area:not(:last-child)::after {
+    content: '•';
+    margin-left: var(--space-2);
+    color: var(--c21-gold);
+  }
+
+  .service-note {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--c21-gold);
+    font-weight: var(--font-medium);
+  }
+
+  /* Social Links */
+  .social-links {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .social-link {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    transition: color var(--transition-base);
+  }
+
+  .social-link:hover {
+    color: var(--c21-gold);
+  }
+
+  /* Footer Branding */
+  .footer-branding {
+    margin-top: var(--space-4);
+  }
+
+  .century21-badge {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .badge-text {
+    font-size: var(--text-xs);
+    color: var(--light-gray);
+  }
+
+  .badge-logo {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    letter-spacing: 1px;
+  }
+
+  /* Footer Bottom */
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: var(--space-6);
+  }
+
+  .footer-bottom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    text-align: center;
+  }
+
+  .copyright {
+    font-size: var(--text-sm);
+    color: var(--light-gray);
+    margin: 0;
+  }
+
+  .footer-logos {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .equal-housing {
+    display: flex;
+    align-items: center;
+  }
+
+  .disclaimer {
+    font-size: var(--text-xs);
+    color: var(--dark-gray);
+    max-width: 600px;
+    margin: 0;
+  }
+
+  @media (min-width: 768px) {
+    .footer-bottom-content {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+
+    .disclaimer {
+      text-align: right;
+    }
+  }
+</style>

@@ -1,0 +1,180 @@
+---
+/**
+ * TestimonialsSection Component
+ * Client testimonials with ratings
+ */
+
+const testimonials = [
+  {
+    quote: "Steven's analytical approach and attention to detail made our first home purchase smooth and stress-free. He explained every step clearly and negotiated a great price for us.",
+    author: "Sarah & Mike T.",
+    location: "Mount Laurel, NJ",
+    rating: 5,
+    initials: "SM",
+  },
+  {
+    quote: "As first-time buyers, we had so many questions. Steven was patient, knowledgeable, and always available. He found us the perfect home in our dream neighborhood!",
+    author: "Jessica R.",
+    location: "Princeton, NJ",
+    rating: 5,
+    initials: "JR",
+  },
+  {
+    quote: "Steven's deep knowledge of the Burlington County market was invaluable. His data-driven insights helped us price our home perfectly. Sold in just 12 days!",
+    author: "Robert & Linda C.",
+    location: "Moorestown, NJ",
+    rating: 5,
+    initials: "RC",
+  },
+];
+---
+
+<section class="testimonials">
+  <div class="container">
+    <div class="section-header">
+      <h2>What Clients Say</h2>
+      <p class="section-subtitle">
+        Don't just take my word for it—here's what my clients have to say about their experience.
+      </p>
+    </div>
+
+    <div class="testimonials-grid">
+      {testimonials.map((testimonial) => (
+        <div class="testimonial-card">
+          <!-- Rating Stars -->
+          <div class="rating">
+            {Array.from({ length: testimonial.rating }).map(() => (
+              <svg class="star" width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            ))}
+          </div>
+
+          <!-- Quote -->
+          <blockquote class="quote">
+            "{testimonial.quote}"
+          </blockquote>
+
+          <!-- Author -->
+          <div class="author">
+            <div class="author-avatar">
+              {testimonial.initials}
+            </div>
+            <div class="author-info">
+              <div class="author-name">{testimonial.author}</div>
+              <div class="author-location">{testimonial.location}</div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .testimonials {
+    padding: var(--space-12) 0;
+    background-color: var(--off-white);
+  }
+
+  .section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto var(--space-10);
+  }
+
+  .section-header h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .section-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .testimonials-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .testimonials-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .testimonial-card {
+    background: var(--white);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .rating {
+    display: flex;
+    gap: var(--space-1);
+  }
+
+  .star {
+    color: var(--c21-gold);
+  }
+
+  .quote {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    line-height: var(--leading-relaxed);
+    font-style: italic;
+    margin: 0;
+    flex: 1;
+  }
+
+  .author {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .author-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-bold);
+    font-size: var(--text-base);
+    flex-shrink: 0;
+  }
+
+  .author-info {
+    flex: 1;
+  }
+
+  .author-name {
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+  }
+
+  .author-location {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+</style>

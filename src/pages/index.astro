@@ -1,0 +1,248 @@
+---
+/**
+ * Landing Page - Steven Frato Century 21 Real Estate
+ * Complete homepage with hero, value propositions, testimonials, service areas, and contact
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import HeroSection from '@components/HeroSection.astro';
+import ValuePropositionCards from '@components/ValuePropositionCards.astro';
+import MarketInsightsDashboard from '@components/MarketInsightsDashboard.astro';
+import ServiceAreasSection from '@components/ServiceAreasSection.astro';
+import ContactForm from '@components/ContactForm.astro';
+---
+
+<BaseLayout
+  title="Steven Frato - Century 21 Real Estate Agent | Burlington, Mercer & Middlesex County NJ"
+  description="Experienced Century 21 real estate agent serving Burlington, Mercer, and Middlesex Counties, NJ. Specializing in first-time homebuyers. Call today for your free consultation."
+  ogImage="/images/headshot.jpg"
+>
+  <!-- Hero Section with Headshot -->
+  <HeroSection />
+
+  <!-- Value Proposition Cards -->
+  <ValuePropositionCards />
+
+  <!-- Quick Contact Bar (Sticky) -->
+  <div class="quick-contact-bar">
+    <div class="container">
+      <div class="quick-contact-content">
+        <span class="quick-contact-text">Ready to get started?</span>
+        <div class="quick-contact-actions">
+          <a href="tel:+16097890126" class="quick-contact-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+            </svg>
+            Call Now
+          </a>
+          <a href="#contact" class="quick-contact-btn primary">
+            Schedule Consultation
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Market Insights Dashboard -->
+  <MarketInsightsDashboard />
+
+  <!-- Service Areas -->
+  <ServiceAreasSection />
+
+  <!-- First-Time Homebuyer Resources Preview -->
+  <section class="resources-preview">
+    <div class="container">
+      <div class="resources-content">
+        <div class="resources-text">
+          <h2>First-Time Homebuyer?</h2>
+          <p>
+            I specialize in helping first-time buyers navigate the home buying process with confidence.
+            From understanding mortgages to finding the perfect neighborhood, I'm here to guide you every step of the way.
+          </p>
+          <ul class="resources-list">
+            <li>Pre-approval guidance and lender recommendations</li>
+            <li>Step-by-step walkthrough of the buying process</li>
+            <li>Neighborhood tours and school district information</li>
+            <li>Negotiation support to get the best price</li>
+          </ul>
+        </div>
+        <div class="resources-image">
+          <div class="image-placeholder">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 10L10 35v40h25V60h30v15h25V35L50 10z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <p class="text-center" style="margin-top: 1rem; color: var(--text-secondary);">
+              Helping families find their dream homes
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <ContactForm />
+</BaseLayout>
+
+<style>
+  /* Quick Contact Bar (Sticky) */
+  .quick-contact-bar {
+    position: sticky;
+    top: 73px; /* Below header */
+    z-index: var(--z-sticky);
+    background: var(--c21-gold);
+    border-bottom: 2px solid var(--c21-gold-dark);
+    box-shadow: var(--shadow-md);
+  }
+
+  .quick-contact-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    gap: var(--space-4);
+  }
+
+  .quick-contact-text {
+    font-weight: var(--font-semibold);
+    color: var(--white);
+    font-size: var(--text-base);
+  }
+
+  .quick-contact-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+
+  .quick-contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--white);
+    color: var(--c21-gold);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-base);
+  }
+
+  .quick-contact-btn:hover {
+    background: var(--off-white);
+    text-decoration: none;
+    transform: translateY(-1px);
+  }
+
+  .quick-contact-btn.primary {
+    background: var(--charcoal);
+    color: var(--white);
+  }
+
+  .quick-contact-btn.primary:hover {
+    background: var(--text-primary);
+  }
+
+  @media (max-width: 767px) {
+    .quick-contact-bar {
+      top: 61px; /* Adjust for mobile header height */
+    }
+
+    .quick-contact-content {
+      flex-direction: column;
+      text-align: center;
+      padding: var(--space-4) 0;
+    }
+
+    .quick-contact-actions {
+      width: 100%;
+      flex-direction: column;
+    }
+
+    .quick-contact-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .quick-contact-text {
+      display: none;
+    }
+  }
+
+  /* First-Time Homebuyer Resources Preview */
+  .resources-preview {
+    padding: var(--space-12) 0;
+    background: linear-gradient(135deg, var(--white) 0%, var(--light-gray) 100%);
+  }
+
+  .resources-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .resources-content {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+
+  .resources-text h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .resources-text p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+  }
+
+  .resources-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .resources-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+  }
+
+  .resources-list li::before {
+    content: '✓';
+    color: var(--c21-gold);
+    font-weight: var(--font-bold);
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+  }
+
+  .resources-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-placeholder {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+    border: 3px dashed var(--border-color);
+    color: var(--c21-gold);
+    padding: var(--space-8);
+  }
+</style>

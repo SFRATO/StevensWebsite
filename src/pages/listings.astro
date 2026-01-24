@@ -1,0 +1,217 @@
+---
+/**
+ * Listings Page (Placeholder)
+ * Will be enhanced with MLS/IDX integration or content collections
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Homes for Sale in Burlington, Mercer & Middlesex County NJ | Steven Frato Century 21"
+  description="Browse current real estate listings in Burlington, Mercer, and Middlesex Counties with Century 21 agent Steven Frato. Find your dream home in South Jersey today."
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Current Listings</h1>
+      <p class="subtitle">
+        Browse homes for sale in Burlington, Mercer, and Middlesex Counties
+      </p>
+    </div>
+  </section>
+
+  <!-- Coming Soon -->
+  <section class="listings-placeholder">
+    <div class="container">
+      <div class="placeholder-card">
+        <svg class="placeholder-icon" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 10L10 35v40h25V60h30v15h25V35L50 10z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <h2>Listings Coming Soon</h2>
+        <p>
+          I'm currently setting up my property listings on this site. In the meantime,
+          I have full access to all MLS listings in Burlington, Mercer, and Middlesex Counties.
+        </p>
+        <p>
+          <strong>Contact me directly to:</strong>
+        </p>
+        <ul class="benefits-list">
+          <li>Search all available properties in your desired area</li>
+          <li>Get instant notifications of new listings</li>
+          <li>Schedule private showings</li>
+          <li>Receive detailed market analysis</li>
+        </ul>
+        <div class="cta-buttons">
+          <a href="tel:+16097890126" class="btn btn-primary btn-large">
+            Call (609) 789-0126
+          </a>
+          <a href="/contact" class="btn btn-secondary btn-large">
+            Send Message
+          </a>
+        </div>
+      </div>
+
+      <!-- Featured Areas -->
+      <div class="featured-areas">
+        <h3>Popular Areas I Serve</h3>
+        <div class="areas-grid">
+          <div class="area-card">
+            <h4>Burlington County</h4>
+            <p>Mount Laurel, Moorestown, Medford, Cherry Hill, Marlton, Evesham</p>
+          </div>
+          <div class="area-card">
+            <h4>Mercer County</h4>
+            <p>Princeton, Trenton, Hamilton, Lawrence, Hopewell, Ewing</p>
+          </div>
+          <div class="area-card">
+            <h4>Middlesex County</h4>
+            <p>Edison, Woodbridge, Perth Amboy, East Brunswick, Piscataway</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: var(--space-10) 0 var(--space-6);
+    background: linear-gradient(135deg, var(--off-white) 0%, var(--light-gray) 100%);
+    text-align: center;
+  }
+
+  .page-header h1 {
+    font-size: var(--text-4xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .listings-placeholder {
+    padding: var(--space-12) 0;
+  }
+
+  .placeholder-card {
+    max-width: 700px;
+    margin: 0 auto var(--space-12);
+    text-align: center;
+    background: var(--white);
+    padding: var(--space-10);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .placeholder-icon {
+    color: var(--c21-gold);
+    margin-bottom: var(--space-6);
+  }
+
+  .placeholder-card h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .placeholder-card p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-4);
+  }
+
+  .benefits-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .benefits-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    text-align: left;
+  }
+
+  .benefits-list li::before {
+    content: '✓';
+    color: var(--c21-gold);
+    font-weight: var(--font-bold);
+    font-size: var(--text-xl);
+    flex-shrink: 0;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    margin-top: var(--space-8);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 767px) {
+    .cta-buttons {
+      flex-direction: column;
+    }
+
+    .btn-large {
+      width: 100%;
+    }
+  }
+
+  /* Featured Areas */
+  .featured-areas {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .featured-areas h3 {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--space-6);
+  }
+
+  .areas-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .areas-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .area-card {
+    background: var(--light-gray);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+  }
+
+  .area-card h4 {
+    font-size: var(--text-lg);
+    color: var(--c21-gold);
+    margin-bottom: var(--space-3);
+  }
+
+  .area-card p {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: var(--leading-normal);
+    margin: 0;
+  }
+</style>

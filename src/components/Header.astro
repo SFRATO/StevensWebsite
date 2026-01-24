@@ -1,0 +1,322 @@
+---
+/**
+ * Header Component
+ * Site-wide navigation with Century 21 branding
+ * Features responsive hamburger menu for mobile
+ */
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/listings', label: 'Listings' },
+  { href: '/contact', label: 'Contact' },
+];
+
+// Phone number
+const phone = '(609) 789-0126';
+const phoneHref = 'tel:+16097890126';
+---
+
+<header class="header">
+  <div class="container header-container">
+    <!-- Logo/Branding -->
+    <div class="header-brand">
+      <a href="/" class="logo-link">
+        <div class="logo">
+          <span class="logo-text-name">Steven Frato</span>
+          <span class="logo-text-company">Century 21</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="nav-desktop hide-mobile" aria-label="Main navigation">
+      <ul class="nav-list">
+        {navLinks.map((link) => (
+          <li class="nav-item">
+            <a
+              href={link.href}
+              class:list={['nav-link', { active: currentPath === link.href }]}
+              aria-current={currentPath === link.href ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Contact Info & CTA (Desktop) -->
+    <div class="header-actions hide-mobile">
+      <a href={phoneHref} class="phone-link">
+        <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" fill="currentColor"/>
+        </svg>
+        <span>{phone}</span>
+      </a>
+      <a href="/#contact" class="btn btn-primary">Schedule Consultation</a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button
+      class="mobile-menu-button hide-desktop"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      id="mobile-menu-toggle"
+    >
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  <nav class="nav-mobile hide-desktop" id="mobile-menu" aria-label="Mobile navigation">
+    <ul class="nav-mobile-list">
+      {navLinks.map((link) => (
+        <li class="nav-mobile-item">
+          <a
+            href={link.href}
+            class:list={['nav-mobile-link', { active: currentPath === link.href }]}
+          >
+            {link.label}
+          </a>
+        </li>
+      ))}
+      <li class="nav-mobile-item">
+        <a href={phoneHref} class="nav-mobile-link phone">
+          {phone}
+        </a>
+      </li>
+      <li class="nav-mobile-item">
+        <a href="/#contact" class="btn btn-primary btn-block">
+          Schedule Consultation
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .header {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-5);
+  }
+
+  /* Logo/Branding */
+  .logo-link {
+    text-decoration: none;
+  }
+
+  .logo-link:focus-visible {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+  }
+
+  .logo-text-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+  }
+
+  .logo-text-company {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--c21-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Desktop Navigation */
+  .nav-desktop {
+    flex: 1;
+    max-width: 600px;
+    margin: 0 var(--space-8);
+  }
+
+  .nav-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: var(--space-6);
+    justify-content: center;
+  }
+
+  .nav-item {
+    margin: 0;
+  }
+
+  .nav-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    padding: var(--space-2) var(--space-3);
+    transition: color var(--transition-base);
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav-link:hover {
+    color: var(--c21-gold);
+    text-decoration: none;
+  }
+
+  .nav-link.active {
+    color: var(--c21-gold);
+    border-bottom-color: var(--c21-gold);
+  }
+
+  /* Header Actions */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .phone-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    transition: color var(--transition-base);
+  }
+
+  .phone-link:hover {
+    color: var(--c21-gold);
+    text-decoration: none;
+  }
+
+  .icon {
+    flex-shrink: 0;
+  }
+
+  /* Mobile Menu Button */
+  .mobile-menu-button {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: var(--space-2);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .hamburger-line {
+    width: 25px;
+    height: 3px;
+    background-color: var(--text-primary);
+    transition: all var(--transition-base);
+  }
+
+  .mobile-menu-button:hover .hamburger-line {
+    background-color: var(--c21-gold);
+  }
+
+  /* Mobile Navigation */
+  .nav-mobile {
+    display: none;
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .nav-mobile.active {
+    display: block;
+  }
+
+  .nav-mobile-list {
+    list-style: none;
+    padding: var(--space-4);
+    margin: 0;
+  }
+
+  .nav-mobile-item {
+    margin: 0;
+  }
+
+  .nav-mobile-link {
+    display: block;
+    padding: var(--space-3);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .nav-mobile-link:hover {
+    background-color: var(--light-gray);
+    color: var(--c21-gold);
+    text-decoration: none;
+  }
+
+  .nav-mobile-link.active {
+    color: var(--c21-gold);
+  }
+
+  .nav-mobile-link.phone {
+    color: var(--c21-gold);
+  }
+
+  .btn-block {
+    display: block;
+    width: 100%;
+    margin-top: var(--space-2);
+  }
+
+  /* Responsive */
+  @media (max-width: 767px) {
+    .hide-mobile {
+      display: none !important;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .hide-desktop {
+      display: none !important;
+    }
+
+    .header-container {
+      padding-top: var(--space-5);
+      padding-bottom: var(--space-5);
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggleButton = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (toggleButton && mobileMenu) {
+      toggleButton.addEventListener('click', () => {
+        const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+        toggleButton.setAttribute('aria-expanded', (!isExpanded).toString());
+        mobileMenu.classList.toggle('active');
+      });
+    }
+  });
+</script>

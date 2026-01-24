@@ -1,0 +1,146 @@
+---
+/**
+ * ValuePropositionCards Component
+ * Four key value propositions for Steven's real estate services
+ */
+
+const valueProps = [
+  {
+    icon: 'laptop',
+    title: 'Cutting-Edge Marketing & Technology',
+    description: 'Your home deserves maximum exposure. I leverage the latest digital marketing tools, professional photography, virtual tours, and targeted social media campaigns to reach qualified buyers quickly. In today\'s market, modern technology isn\'t optional—it\'s essential.',
+  },
+  {
+    icon: 'chart',
+    title: 'Analytics-Backed Pricing Strategy',
+    description: 'With a background in government data analysis, I bring a unique analytical approach to real estate. I use comprehensive market data, neighborhood trends, and comparative analysis to price your home competitively or negotiate the best deal on your purchase.',
+  },
+  {
+    icon: 'clock',
+    title: 'Dedicated Attention When You Need It',
+    description: 'As a full-time agent building my practice on excellent service, you\'re not just another transaction—you\'re a priority. I respond to calls and texts promptly, accommodate your schedule for showings, and guide you through every step with patience and clarity.',
+  },
+  {
+    icon: 'building',
+    title: 'Century 21\'s Proven System & Support',
+    description: 'You get the best of both worlds: personalized service from a dedicated agent plus the backing of one of the world\'s most recognized real estate brands. Access to exclusive training, marketing resources, and a network of professionals ensures your transaction is smooth from start to finish.',
+  },
+];
+
+// Icon SVG paths
+const icons = {
+  'laptop': 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+  'chart': 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  'clock': 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  'building': 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+};
+---
+
+<section class="value-props">
+  <div class="container">
+    <div class="section-header">
+      <h2>Why Choose Steven Frato?</h2>
+      <p class="section-subtitle">
+        Your success is my priority. Here's what sets me apart in the South Jersey real estate market.
+      </p>
+    </div>
+
+    <div class="cards-grid">
+      {valueProps.map((prop) => (
+        <div class="value-card">
+          <div class="card-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d={icons[prop.icon]} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="card-title">{prop.title}</h3>
+          <p class="card-description">{prop.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .value-props {
+    padding: var(--space-12) 0;
+    background-color: var(--white);
+  }
+
+  .section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto var(--space-10);
+  }
+
+  .section-header h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .section-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .cards-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .value-card {
+    background: var(--white);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-base);
+    text-align: center;
+  }
+
+  .value-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+
+  .card-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    border-radius: var(--radius-full);
+    color: var(--white);
+    margin-bottom: var(--space-4);
+  }
+
+  .card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .card-description {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+  }
+</style>
