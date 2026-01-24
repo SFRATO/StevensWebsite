@@ -95,12 +95,17 @@ Create a `.env` file with:
 # Required for AI insight generation
 ANTHROPIC_API_KEY=your_key_here
 
-# Required for email sending
-RESEND_API_KEY=your_key_here
+# Required for email sending (Amazon SES)
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
+AWS_REGION=us-east-1
+SES_SENDER_EMAIL=reports@stevenfrato.com
 
 # Netlify build hook (for GitHub Actions)
 NETLIFY_BUILD_HOOK=your_hook_url
 ```
+
+**Note**: The sender email must be verified in Amazon SES before sending.
 
 ## Lead Capture Flow
 
@@ -108,7 +113,7 @@ NETLIFY_BUILD_HOOK=your_hook_url
 2. User fills out Market Report Form
 3. Netlify Function handles submission
 4. PDF report is generated
-5. 7-email drip campaign is triggered via Resend
+5. 7-email drip campaign is triggered via Amazon SES
 
 ### Email Sequence
 
@@ -138,7 +143,7 @@ Manual trigger available in GitHub Actions UI.
 
 - **Framework**: Astro 5
 - **Styling**: CSS Variables + Scoped Styles
-- **Email**: React Email + Resend
+- **Email**: React Email + Amazon SES
 - **Functions**: Netlify Functions
 - **Automation**: GitHub Actions
 - **Data Source**: Redfin Data Center

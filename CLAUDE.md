@@ -166,7 +166,8 @@ Located in `src/emails/templates/`. Each template:
 Forms use Netlify Forms with a serverless function handler:
 - Form submits to Netlify Forms (built-in)
 - `handle-market-report.ts` processes submission
-- Triggers PDF generation and email sequence
+- `generate-pdf.ts` creates personalized market report PDF
+- `trigger-email-sequence.ts` sends welcome email via Amazon SES and initiates the 7-email drip campaign
 
 ### Function Pattern
 
@@ -235,8 +236,13 @@ Required for full functionality:
 | Variable | Purpose | Required For |
 |----------|---------|--------------|
 | `ANTHROPIC_API_KEY` | AI insight generation | `data:insights` |
-| `RESEND_API_KEY` | Email sending | Lead nurturing |
+| `AWS_ACCESS_KEY_ID` | AWS authentication | Email sending |
+| `AWS_SECRET_ACCESS_KEY` | AWS authentication | Email sending |
+| `AWS_REGION` | AWS region (default: us-east-1) | Email sending |
+| `SES_SENDER_EMAIL` | Verified sender email | Email sending |
 | `NETLIFY_BUILD_HOOK` | Auto-rebuild trigger | GitHub Actions |
+
+**Note**: The `SES_SENDER_EMAIL` must be verified in Amazon SES console before sending emails.
 
 ## Gotchas
 

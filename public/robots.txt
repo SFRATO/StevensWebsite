@@ -1,0 +1,15 @@
+# robots.txt for stevenfrato.com
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Allow: /
+
+# Sitemap location for search engines
+Sitemap: https://stevenfrato.com/sitemap-index.xml
+
+# Crawl-delay suggestion (optional, not all bots respect this)
+Crawl-delay: 1
+
+# Disallow admin/api paths (if any)
+Disallow: /api/
+Disallow: /_astro/

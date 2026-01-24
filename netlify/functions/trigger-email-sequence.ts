@@ -2,11 +2,11 @@
  * Trigger Email Sequence
  *
  * Initiates the 7-email nurture campaign for market report leads.
- * Uses Resend for email delivery.
+ * Uses Amazon SES for email delivery.
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
-import { Resend } from "resend";
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
 interface EmailSequenceRequest {
   email: string;
@@ -15,7 +15,17 @@ interface EmailSequenceRequest {
   propertyAddress: string;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize SES client
+const sesClient = new SESClient({
+  region: process.env.AWS_REGION || "us-east-1",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+});
+
+// Verified sender email (must be verified in SES)
+const SENDER_EMAIL = process.env.SES_SENDER_EMAIL || "reports@stevenfrato.com";
 
 // Email sequence configuration
 const EMAIL_SEQUENCE = [
@@ -36,9 +46,9 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     };
   }
 
-  // Check for API key
-  if (!process.env.RESEND_API_KEY) {
-    console.error("RESEND_API_KEY not configured");
+  // Check for AWS credentials
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    console.error("AWS credentials not configured");
     return {
       statusCode: 500,
       body: JSON.stringify({ error: "Email service not configured" }),
@@ -60,13 +70,31 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     const subject = firstEmail.subject.replace("{location}", body.location);
 
     try {
-      await resend.emails.send({
-        from: "Steven Frato <reports@stevenfrato.com>",
-        to: body.email,
-        subject: subject,
-        html: generateWelcomeEmail(body),
+      const sendCommand = new SendEmailCommand({
+        Source: `Steven Frato <${SENDER_EMAIL}>`,
+        Destination: {
+          ToAddresses: [body.email],
+        },
+        Message: {
+          Subject: {
+            Data: subject,
+            Charset: "UTF-8",
+          },
+          Body: {
+            Html: {
+              Data: generateWelcomeEmail(body),
+              Charset: "UTF-8",
+            },
+            Text: {
+              Data: generateWelcomeEmailText(body),
+              Charset: "UTF-8",
+            },
+          },
+        },
+        ReplyToAddresses: ["sf@stevenfrato.com"],
       });
 
+      await sesClient.send(sendCommand);
       console.log("Welcome email sent to:", body.email);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
@@ -74,9 +102,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     }
 
     // In a production environment, you would:
-    // 1. Store the lead in a database
-    // 2. Schedule the remaining emails using a job queue (e.g., QStash, Temporal)
-    // 3. Or use Resend's audience/broadcast features for drip campaigns
+    // 1. Store the lead in a database (DynamoDB, etc.)
+    // 2. Schedule the remaining emails using:
+    //    - AWS EventBridge Scheduler
+    //    - AWS Step Functions
+    //    - SQS with delay queues
+    //    - A cron job service
 
     // For now, log the sequence that would be triggered
     console.log("Email sequence initiated:", {
@@ -169,6 +200,40 @@ function generateWelcomeEmail(data: EmailSequenceRequest): string {
 </body>
 </html>
   `;
+}
+
+/**
+ * Generate plain text version of welcome email
+ */
+function generateWelcomeEmailText(data: EmailSequenceRequest): string {
+  return `
+Your ${data.location} Market Report is Ready
+
+Thank you for your interest in the ${data.location} real estate market. I've prepared a personalized market analysis based on your property at:
+
+${data.propertyAddress}
+
+What's in Your Report:
+- Current market conditions for ${data.location}
+- Recent comparable sales in your area
+- Estimated value range for your property
+- Personalized selling recommendations
+
+View Latest Market Data: https://stevenfrato.com/market/
+
+I'll be sending you more insights about the ${data.location} market over the coming weeks. In the meantime, feel free to reach out if you have any questions.
+
+Best regards,
+Steven Frato
+Century 21
+(609) 789-0126
+sf@stevenfrato.com
+
+---
+136 Farnsworth Ave, Bordentown, NJ 08505
+You're receiving this email because you requested a market report from stevenfrato.com
+https://stevenfrato.com
+  `.trim();
 }
 
 export { handler };
