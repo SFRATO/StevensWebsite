@@ -1,0 +1,91 @@
+---
+/**
+ * UrgencyBanner Component
+ * Displays data freshness and market conditions context
+ * Psychology: Recency effect + scarcity (conditions change)
+ */
+
+interface Props {
+  location: string;
+  lastUpdated: string;
+  priceChangeYoY?: number | null;
+  marketType?: 'seller' | 'buyer' | 'balanced';
+}
+
+const { location, lastUpdated, priceChangeYoY, marketType } = Astro.props;
+
+const urgencyMessage = marketType === 'seller'
+  ? 'Market conditions currently favor sellers'
+  : marketType === 'buyer'
+  ? 'Strategic pricing essential in current conditions'
+  : 'Market conditions are balanced';
+---
+
+<div class="urgency-banner">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div class="banner-content">
+    <strong>Data updated {lastUpdated}</strong>
+    <span class="separator">|</span>
+    <span>{urgencyMessage}</span>
+    {priceChangeYoY !== null && priceChangeYoY !== undefined && (
+      <span class="price-change">
+        — Prices {priceChangeYoY >= 0 ? 'up' : 'down'} {Math.abs(priceChangeYoY).toFixed(1)}% YoY
+      </span>
+    )}
+  </div>
+</div>
+
+<style>
+  .urgency-banner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: linear-gradient(90deg, rgba(201, 156, 51, 0.15) 0%, rgba(201, 156, 51, 0.05) 100%);
+    border-left: 3px solid var(--c21-gold);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .urgency-banner svg {
+    color: var(--c21-gold);
+    flex-shrink: 0;
+  }
+
+  .banner-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .separator {
+    color: var(--border-color);
+    margin: 0 var(--space-1);
+  }
+
+  .price-change {
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 600px) {
+    .urgency-banner {
+      flex-direction: column;
+      text-align: center;
+      gap: var(--space-2);
+    }
+
+    .separator {
+      display: none;
+    }
+
+    .banner-content {
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+  }
+</style>

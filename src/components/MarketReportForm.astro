@@ -2,26 +2,60 @@
 /**
  * MarketReportForm Component
  * Lead capture form for gated market reports
+ *
+ * CRO Psychology Applied:
+ * - Loss aversion in headline
+ * - Urgency through data recency
+ * - Social proof strip
+ * - Value anchoring ($250 value)
+ * - Reduced activation energy (time estimate)
+ * - Trust signals addressing privacy + commitment objections
+ * - Testimonial for social proof
  */
+import SocialProofStrip from './SocialProofStrip.astro';
+import FormTestimonial from './FormTestimonial.astro';
+import UrgencyBanner from './UrgencyBanner.astro';
 
 interface Props {
   location: string;
   formName?: string;
+  lastUpdated?: string;
+  priceChangeYoY?: number | null;
+  marketType?: 'seller' | 'buyer' | 'balanced';
 }
 
-const { location, formName = 'market-report' } = Astro.props;
+const {
+  location,
+  formName = 'market-report',
+  lastUpdated,
+  priceChangeYoY,
+  marketType
+} = Astro.props;
 ---
 
-<div class="report-form-wrapper">
+<div class="report-form-wrapper" id="lead-capture">
   <div class="form-header">
     <div class="form-icon">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
         <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <h3>Get Your Free {location} Market Report</h3>
-    <p>Receive a personalized PDF report with detailed market analysis, comparable sales, and pricing recommendations for your property.</p>
+    <h3>See What Your {location} Home Could Sell For</h3>
+    <p>Most homeowners underestimate their property value by $15,000-$40,000. Get the real number.</p>
   </div>
+
+  {lastUpdated && (
+    <div class="urgency-wrapper">
+      <UrgencyBanner
+        location={location}
+        lastUpdated={lastUpdated}
+        priceChangeYoY={priceChangeYoY}
+        marketType={marketType}
+      />
+    </div>
+  )}
+
+  <SocialProofStrip />
 
   <form
     name={formName}
@@ -89,50 +123,89 @@ const { location, formName = 'market-report' } = Astro.props;
     </div>
 
     <div class="form-footer">
+      <p class="time-estimate">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Takes 30 seconds to complete
+      </p>
+
       <button type="submit" class="btn btn-primary btn-large">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Get My Free Report
+        Send My Free Report Now
       </button>
-      <p class="privacy-note">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-          <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <p class="delivery-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Your information is secure and will never be shared.
+        Delivered to your inbox within 24 hours
       </p>
+
+      <div class="trust-signals">
+        <p class="privacy-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Your information is 100% secure and will never be sold or shared.
+        </p>
+        <p class="no-obligation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          No strings attached - free service, no purchase required.
+        </p>
+      </div>
     </div>
   </form>
 
   <div class="report-preview">
-    <div class="preview-header">What's Included:</div>
+    <div class="preview-header">
+      <span>Your Report Includes:</span>
+      <span class="value-tag">$250 Value - FREE</span>
+    </div>
     <ul class="preview-list">
       <li>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Current market conditions for {location}
+        <span><strong>Current {location} market snapshot</strong> (updated monthly)</span>
       </li>
       <li>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Recent comparable sales in your area
+        <span><strong>3-5 comparable sales</strong> within 0.5 miles of your property</span>
       </li>
       <li>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Estimated value range for your home
+        <span><strong>Estimated value range</strong> based on current buyer activity</span>
       </li>
       <li>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Personalized selling recommendations
+        <span><strong>Personalized timing recommendations</strong></span>
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span><strong>Bonus: "Is Now a Good Time to Sell?"</strong> analysis</span>
       </li>
     </ul>
   </div>
+
+  <FormTestimonial
+    quote="Steven's report was spot-on. We listed at his recommended price and sold in 12 days!"
+    author="Robert C."
+    location="Moorestown"
+    result="Sold in 12 days"
+  />
 </div>
 
 <style>
@@ -175,8 +248,13 @@ const { location, formName = 'market-report' } = Astro.props;
     margin: 0 auto;
   }
 
+  .urgency-wrapper {
+    padding: var(--space-4) var(--space-6) 0;
+  }
+
   .report-form {
     padding: var(--space-6);
+    padding-top: var(--space-4);
   }
 
   .hidden {
@@ -239,6 +317,16 @@ const { location, formName = 'market-report' } = Astro.props;
     text-align: center;
   }
 
+  .time-estimate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+  }
+
   .btn-large {
     display: inline-flex;
     align-items: center;
@@ -255,14 +343,37 @@ const { location, formName = 'market-report' } = Astro.props;
     }
   }
 
-  .privacy-note {
+  .delivery-note {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
     margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--c21-gold);
+    font-weight: var(--font-medium);
+  }
+
+  .trust-signals {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .privacy-note,
+  .no-obligation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
     font-size: var(--text-xs);
     color: var(--text-secondary);
+  }
+
+  .privacy-note svg,
+  .no-obligation svg {
+    flex-shrink: 0;
   }
 
   .report-preview {
@@ -272,10 +383,24 @@ const { location, formName = 'market-report' } = Astro.props;
   }
 
   .preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
     color: var(--text-primary);
     margin-bottom: var(--space-3);
+  }
+
+  .value-tag {
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    color: var(--white);
+    background: var(--c21-gold);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
   }
 
   .preview-list {
@@ -283,25 +408,25 @@ const { location, formName = 'market-report' } = Astro.props;
     padding: 0;
     margin: 0;
     display: grid;
-    gap: var(--space-2);
-  }
-
-  @media (min-width: 480px) {
-    .preview-list {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    gap: var(--space-3);
   }
 
   .preview-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-2);
     font-size: var(--text-sm);
     color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
   }
 
   .preview-list svg {
     color: var(--accent-green);
     flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .preview-list strong {
+    color: var(--text-primary);
   }
 </style>

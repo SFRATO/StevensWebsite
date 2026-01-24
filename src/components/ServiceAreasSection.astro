@@ -7,14 +7,17 @@
 const serviceAreas = [
   {
     county: 'Burlington County',
+    slug: 'burlington-county',
     towns: ['Mount Laurel', 'Moorestown', 'Medford', 'Cherry Hill', 'Marlton', 'Evesham'],
   },
   {
     county: 'Mercer County',
+    slug: 'mercer-county',
     towns: ['Princeton', 'Trenton', 'Hamilton', 'Lawrence', 'Hopewell', 'Ewing'],
   },
   {
     county: 'Middlesex County',
+    slug: 'middlesex-county',
     towns: ['Edison', 'Woodbridge', 'Perth Amboy', 'East Brunswick', 'Piscataway', 'New Brunswick'],
   },
 ];
@@ -31,8 +34,13 @@ const serviceAreas = [
 
     <div class="areas-grid">
       {serviceAreas.map((area) => (
-        <div class="area-card">
-          <h3 class="area-county">{area.county}</h3>
+        <a href={`/market/${area.slug}/`} class="area-card">
+          <h3 class="area-county">
+            {area.county}
+            <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </h3>
           <ul class="towns-list">
             {area.towns.map((town) => (
               <li class="town-item">
@@ -43,7 +51,8 @@ const serviceAreas = [
               </li>
             ))}
           </ul>
-        </div>
+          <span class="view-market-link">View market data</span>
+        </a>
       ))}
     </div>
 
@@ -93,17 +102,51 @@ const serviceAreas = [
   }
 
   .area-card {
+    display: block;
     background: var(--light-gray);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     border: 2px solid var(--border-color);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-base);
+  }
+
+  .area-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
 
   .area-county {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: var(--text-xl);
     font-weight: var(--font-bold);
     color: var(--c21-gold);
     margin-bottom: var(--space-4);
+  }
+
+  .arrow-icon {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all var(--transition-base);
+  }
+
+  .area-card:hover .arrow-icon {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .view-market-link {
+    display: block;
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--c21-gold);
   }
 
   .towns-list {

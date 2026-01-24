@@ -1,0 +1,64 @@
+---
+/**
+ * FormTestimonial Component
+ * Compact testimonial displayed near the lead capture form
+ * Psychology: Social proof from specific customer outcomes
+ */
+
+interface Props {
+  quote: string;
+  author: string;
+  location: string;
+  result?: string;
+}
+
+const { quote, author, location, result } = Astro.props;
+---
+
+<div class="form-testimonial">
+  <blockquote>"{quote}"</blockquote>
+  <footer>
+    <cite>— {author}, {location}</cite>
+    {result && <span class="result-badge">{result}</span>}
+  </footer>
+</div>
+
+<style>
+  .form-testimonial {
+    padding: var(--space-4);
+    background: var(--off-white);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+  }
+
+  blockquote {
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-2);
+    line-height: var(--leading-relaxed);
+  }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  cite {
+    font-size: var(--text-xs);
+    font-style: normal;
+    color: var(--text-secondary);
+  }
+
+  .result-badge {
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+</style>

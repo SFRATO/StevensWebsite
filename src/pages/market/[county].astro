@@ -225,11 +225,14 @@ const description = `${county.region}, NJ housing market data: median home price
   )}
 
   <!-- Lead Capture Form -->
-  <section class="lead-capture">
+  <section class="lead-capture" id="lead-capture">
     <div class="container">
       <MarketReportForm
         location={county.region}
         formName={`market-report-${county.slug}`}
+        lastUpdated={formatDate(county.period_end)}
+        priceChangeYoY={county.median_sale_price_yoy}
+        marketType={county.market_type}
       />
     </div>
   </section>

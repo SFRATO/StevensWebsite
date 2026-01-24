@@ -209,6 +209,9 @@ const description = `${locationName} real estate market: median price ${formatCu
                   {zipData.sold_above_list_pct?.toFixed(0)}% of homes selling above asking,
                   sellers currently have strong negotiating power in {locationName}.
                 </p>
+                <p class="urgency-note">
+                  <strong>Consider:</strong> Market supply is {zipData.inventory_yoy && zipData.inventory_yoy > 0 ? 'increasing' : 'decreasing'} — conditions may shift.
+                </p>
               </>
             )}
             {zipData.market_type === 'buyer' && (
@@ -217,6 +220,9 @@ const description = `${locationName} real estate market: median price ${formatCu
                 <p>
                   With higher inventory levels, sellers should focus on competitive pricing
                   and property presentation to stand out in the current market.
+                </p>
+                <p class="urgency-note">
+                  <strong>Strategy matters:</strong> Well-priced homes are still selling — get the data to price competitively.
                 </p>
               </>
             )}
@@ -227,8 +233,14 @@ const description = `${locationName} real estate market: median price ${formatCu
                   The {locationName} market is balanced, giving neither buyers nor sellers
                   a distinct advantage. Strategic pricing and timing remain important.
                 </p>
+                <p class="urgency-note">
+                  <strong>Opportunity:</strong> Balanced markets reward well-prepared sellers with accurate pricing data.
+                </p>
               </>
             )}
+            <a href="#lead-capture" class="btn btn-primary btn-block">
+              See What Your Home Could Sell For
+            </a>
           </div>
         </div>
       </div>
@@ -253,11 +265,14 @@ const description = `${locationName} real estate market: median price ${formatCu
   )}
 
   <!-- Lead Capture -->
-  <section class="lead-capture">
+  <section class="lead-capture" id="lead-capture">
     <div class="container">
       <MarketReportForm
         location={locationName}
         formName={`market-report-${zipData.zipcode}`}
+        lastUpdated={formatDate(zipData.period_end)}
+        priceChangeYoY={zipData.median_sale_price_yoy}
+        marketType={zipData.market_type}
       />
     </div>
   </section>
@@ -465,6 +480,25 @@ const description = `${locationName} real estate market: median price ${formatCu
   .recommendation p {
     color: var(--text-secondary);
     line-height: var(--leading-relaxed);
+  }
+
+  .urgency-note {
+    font-size: var(--text-sm);
+    padding: var(--space-3);
+    background: rgba(201, 156, 51, 0.1);
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-2);
+  }
+
+  .urgency-note strong {
+    color: var(--c21-gold);
+  }
+
+  .recommendation .btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: var(--space-4);
   }
 
   /* AI Insight */

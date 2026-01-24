@@ -5,6 +5,7 @@
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import MarketCard from '@components/MarketCard.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
 import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
 
 // Import market data
@@ -93,6 +94,28 @@ const description = `Current real estate market trends for Burlington, Mercer, a
             Data-Driven Insights
           </span>
         </div>
+
+        <!-- Data Authority Section -->
+        <div class="data-authority">
+          <div class="authority-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Data from Redfin + MLS</span>
+          </div>
+          <div class="authority-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Analysis by former government data analyst</span>
+          </div>
+          <div class="authority-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Updated monthly</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -164,17 +187,10 @@ const description = `Current real estate market trends for Burlington, Mercer, a
     </div>
   </section>
 
-  <!-- CTA Section -->
-  <section class="cta-section">
+  <!-- Lead Capture Section -->
+  <section class="lead-capture-section">
     <div class="container">
-      <div class="cta-content">
-        <h2>Want a Personalized Market Analysis?</h2>
-        <p>
-          Get a free, detailed report for your specific property with comparable sales,
-          pricing recommendations, and market timing insights.
-        </p>
-        <a href="/contact/" class="btn btn-primary">Request Your Free Analysis</a>
-      </div>
+      <MarketReportForm location="New Jersey" formName="market-report-hub" />
     </div>
   </section>
 
@@ -395,37 +411,33 @@ const description = `Current real estate market trends for Burlington, Mercer, a
     color: var(--text-secondary);
   }
 
-  /* CTA Section */
-  .cta-section {
+  /* Data Authority Section */
+  .data-authority {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    padding-top: var(--space-6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .authority-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .authority-badge svg {
+    color: var(--c21-gold);
+    flex-shrink: 0;
+  }
+
+  /* Lead Capture Section */
+  .lead-capture-section {
     padding: var(--space-12) 0;
-    background: linear-gradient(135deg, var(--c21-gold) 0%, var(--c21-gold-dark) 100%);
-    color: var(--white);
-  }
-
-  .cta-content {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .cta-content h2 {
-    font-size: var(--text-2xl);
-    margin-bottom: var(--space-3);
-  }
-
-  .cta-content p {
-    font-size: var(--text-lg);
-    opacity: 0.9;
-    margin-bottom: var(--space-6);
-  }
-
-  .cta-content .btn-primary {
     background: var(--white);
-    color: var(--c21-gold-dark);
-  }
-
-  .cta-content .btn-primary:hover {
-    background: var(--off-white);
   }
 
   /* Data Note */
