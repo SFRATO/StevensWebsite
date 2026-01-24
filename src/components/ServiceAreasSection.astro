@@ -1,229 +1,109 @@
 ---
 /**
  * ServiceAreasSection Component
- * Display counties and towns served
+ * Compact display of service areas with link to full directory
  */
 
-const serviceAreas = [
-  {
-    county: 'Burlington County',
-    slug: 'burlington-county',
-    towns: [
-      { name: 'Mount Laurel', zipcode: '08054' },
-      { name: 'Moorestown', zipcode: '08057' },
-      { name: 'Medford', zipcode: '08055' },
-      { name: 'Cherry Hill', zipcode: '08002' },
-      { name: 'Marlton', zipcode: '08053' },
-      { name: 'Evesham', zipcode: '08053' },
-    ],
-  },
-  {
-    county: 'Mercer County',
-    slug: 'mercer-county',
-    towns: [
-      { name: 'Princeton', zipcode: '08540' },
-      { name: 'Trenton', zipcode: '08608' },
-      { name: 'Hamilton', zipcode: '08610' },
-      { name: 'Lawrence', zipcode: '08648' },
-      { name: 'Hopewell', zipcode: '08525' },
-      { name: 'Ewing', zipcode: '08618' },
-    ],
-  },
-  {
-    county: 'Middlesex County',
-    slug: 'middlesex-county',
-    towns: [
-      { name: 'Edison', zipcode: '08817' },
-      { name: 'Woodbridge', zipcode: '07095' },
-      { name: 'Perth Amboy', zipcode: '08861' },
-      { name: 'East Brunswick', zipcode: '08816' },
-      { name: 'Piscataway', zipcode: '08854' },
-      { name: 'New Brunswick', zipcode: '08901' },
-    ],
-  },
+const counties = [
+  { name: 'Burlington County', slug: 'burlington-county' },
+  { name: 'Mercer County', slug: 'mercer-county' },
+  { name: 'Middlesex County', slug: 'middlesex-county' },
 ];
 ---
 
 <section class="service-areas">
   <div class="container">
-    <div class="section-header">
-      <h2>Where I Serve</h2>
-      <p class="section-subtitle">
-        Proudly serving Burlington, Mercer, and Middlesex Counties in New Jersey
-      </p>
-    </div>
-
-    <div class="areas-grid">
-      {serviceAreas.map((area) => (
-        <a href={`/market/${area.slug}/`} class="area-card">
-          <h3 class="area-county">
-            {area.county}
-            <svg class="arrow-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </h3>
-          <ul class="towns-list">
-            {area.towns.map((town) => (
-              <li class="town-item">
-                <svg class="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13.5 4.5l-7 7-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <a href={`/market/${town.zipcode}/`} class="town-link">{town.name}</a>
-              </li>
-            ))}
-          </ul>
-          <span class="view-market-link">View market data</span>
-        </a>
-      ))}
-    </div>
-
-    <div class="cta-box">
-      <p class="cta-text">
-        Not sure if I serve your area? <a href="#contact" class="cta-link">Contact me</a> and let's talk!
-      </p>
+    <div class="areas-content">
+      <div class="areas-text">
+        <h2>Where I Serve</h2>
+        <p>Local expertise across Central and South Jersey.</p>
+        <div class="county-links">
+          {counties.map((county, i) => (
+            <>
+              <a href={`/market/${county.slug}/`}>{county.name}</a>
+              {i < counties.length - 1 && <span class="divider">•</span>}
+            </>
+          ))}
+        </div>
+      </div>
+      <a href="/areas/" class="btn btn-primary">
+        View All Towns
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
     </div>
   </div>
 </section>
 
 <style>
   .service-areas {
-    padding: var(--space-12) 0;
-    background-color: var(--white);
+    padding: var(--space-8) 0;
+    background: var(--off-white);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
   }
 
-  .section-header {
+  .areas-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
     text-align: center;
-    max-width: 700px;
-    margin: 0 auto var(--space-10);
-  }
-
-  .section-header h2 {
-    font-size: var(--text-3xl);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-  }
-
-  .section-subtitle {
-    font-size: var(--text-lg);
-    color: var(--text-secondary);
-    line-height: var(--leading-relaxed);
-  }
-
-  .areas-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-    margin-bottom: var(--space-10);
   }
 
   @media (min-width: 768px) {
-    .areas-grid {
-      grid-template-columns: repeat(3, 1fr);
+    .areas-content {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
     }
   }
 
-  .area-card {
-    display: block;
-    background: var(--light-gray);
-    padding: var(--space-6);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--border-color);
-    text-decoration: none;
-    color: inherit;
-    transition: all var(--transition-base);
-  }
-
-  .area-card:hover {
-    border-color: var(--c21-gold);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .area-county {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .areas-text h2 {
     font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--c21-gold);
-    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
   }
 
-  .arrow-icon {
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: all var(--transition-base);
-  }
-
-  .area-card:hover .arrow-icon {
-    opacity: 1;
-    transform: translateX(0);
-  }
-
-  .view-market-link {
-    display: block;
-    margin-top: var(--space-4);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--border-color);
+  .areas-text p {
     font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--c21-gold);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
   }
 
-  .towns-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .county-links {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--space-2);
+    justify-content: center;
   }
 
-  .town-item {
-    display: flex;
+  @media (min-width: 768px) {
+    .county-links {
+      justify-content: flex-start;
+    }
+  }
+
+  .county-links a {
+    color: var(--c21-gold);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+  }
+
+  .county-links a:hover {
+    text-decoration: underline;
+  }
+
+  .divider {
+    color: var(--text-secondary);
+  }
+
+  .btn {
+    display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--text-primary);
-    font-size: var(--text-base);
-  }
-
-  .check-icon {
-    color: var(--c21-gold);
-    flex-shrink: 0;
-  }
-
-  .town-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    transition: color var(--transition-base);
-  }
-
-  .town-link:hover {
-    color: var(--c21-gold);
-    text-decoration: underline;
-  }
-
-  .cta-box {
-    text-align: center;
-    padding: var(--space-6);
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
-    border-radius: var(--radius-lg);
-  }
-
-  .cta-text {
-    font-size: var(--text-lg);
-    color: var(--white);
-    font-weight: var(--font-medium);
-    margin: 0;
-  }
-
-  .cta-link {
-    color: var(--white);
-    text-decoration: underline;
-    font-weight: var(--font-bold);
-  }
-
-  .cta-link:hover {
-    text-decoration: none;
+    white-space: nowrap;
   }
 </style>

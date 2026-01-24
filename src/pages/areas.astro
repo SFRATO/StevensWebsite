@@ -1,0 +1,250 @@
+---
+/**
+ * Service Areas Page
+ * Alphabetical directory of all towns and counties served with links to market data
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { generateBreadcrumbSchema } from '@utils/schema';
+
+// Town to zip code mapping for market data links
+const serviceAreas = {
+  'Burlington County': [
+    { name: 'Beverly', zipcode: '08010' },
+    { name: 'Bordentown', zipcode: '08505' },
+    { name: 'Browns Mills', zipcode: '08015' },
+    { name: 'Burlington', zipcode: '08016' },
+    { name: 'Cherry Hill', zipcode: '08002' },
+    { name: 'Cinnaminson', zipcode: '08077' },
+    { name: 'Delran', zipcode: '08075' },
+    { name: 'Eastampton', zipcode: '08060' },
+    { name: 'Edgewater Park', zipcode: '08010' },
+    { name: 'Evesham', zipcode: '08053' },
+    { name: 'Florence', zipcode: '08518' },
+    { name: 'Hainesport', zipcode: '08036' },
+    { name: 'Lumberton', zipcode: '08048' },
+    { name: 'Maple Shade', zipcode: '08052' },
+    { name: 'Marlton', zipcode: '08053' },
+    { name: 'Medford', zipcode: '08055' },
+    { name: 'Medford Lakes', zipcode: '08055' },
+    { name: 'Moorestown', zipcode: '08057' },
+    { name: 'Mount Holly', zipcode: '08060' },
+    { name: 'Mount Laurel', zipcode: '08054' },
+    { name: 'Palmyra', zipcode: '08065' },
+    { name: 'Pemberton', zipcode: '08068' },
+    { name: 'Riverside', zipcode: '08075' },
+    { name: 'Riverton', zipcode: '08077' },
+    { name: 'Shamong', zipcode: '08088' },
+    { name: 'Southampton', zipcode: '08088' },
+    { name: 'Tabernacle', zipcode: '08088' },
+    { name: 'Westampton', zipcode: '08060' },
+    { name: 'Willingboro', zipcode: '08046' },
+    { name: 'Woodland Township', zipcode: '08019' },
+  ],
+  'Mercer County': [
+    { name: 'East Windsor', zipcode: '08520' },
+    { name: 'Ewing', zipcode: '08618' },
+    { name: 'Hamilton', zipcode: '08610' },
+    { name: 'Hightstown', zipcode: '08520' },
+    { name: 'Hopewell', zipcode: '08525' },
+    { name: 'Lawrence', zipcode: '08648' },
+    { name: 'Pennington', zipcode: '08534' },
+    { name: 'Princeton', zipcode: '08540' },
+    { name: 'Princeton Junction', zipcode: '08550' },
+    { name: 'Robbinsville', zipcode: '08691' },
+    { name: 'Trenton', zipcode: '08608' },
+    { name: 'West Windsor', zipcode: '08550' },
+  ],
+  'Middlesex County': [
+    { name: 'Carteret', zipcode: '07008' },
+    { name: 'Colonia', zipcode: '07067' },
+    { name: 'Cranbury', zipcode: '08512' },
+    { name: 'Dunellen', zipcode: '08812' },
+    { name: 'East Brunswick', zipcode: '08816' },
+    { name: 'Edison', zipcode: '08817' },
+    { name: 'Helmetta', zipcode: '08828' },
+    { name: 'Highland Park', zipcode: '08904' },
+    { name: 'Iselin', zipcode: '08830' },
+    { name: 'Jamesburg', zipcode: '08831' },
+    { name: 'Metuchen', zipcode: '08840' },
+    { name: 'Middlesex', zipcode: '08846' },
+    { name: 'Milltown', zipcode: '08850' },
+    { name: 'Monroe Township', zipcode: '08831' },
+    { name: 'New Brunswick', zipcode: '08901' },
+    { name: 'North Brunswick', zipcode: '08902' },
+    { name: 'Old Bridge', zipcode: '08857' },
+    { name: 'Perth Amboy', zipcode: '08861' },
+    { name: 'Piscataway', zipcode: '08854' },
+    { name: 'Plainsboro', zipcode: '08536' },
+    { name: 'Sayreville', zipcode: '08872' },
+    { name: 'South Amboy', zipcode: '08879' },
+    { name: 'South Brunswick', zipcode: '08852' },
+    { name: 'South Plainfield', zipcode: '07080' },
+    { name: 'South River', zipcode: '08882' },
+    { name: 'Spotswood', zipcode: '08884' },
+    { name: 'Woodbridge', zipcode: '07095' },
+  ],
+};
+
+// Sort counties alphabetically
+const sortedCounties = Object.keys(serviceAreas).sort();
+
+// Generate breadcrumb schema
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Service Areas', url: 'https://stevenfrato.com/areas/' },
+]);
+
+const title = 'Service Areas | Burlington, Mercer & Middlesex Counties, NJ';
+const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Counties in New Jersey. View local market data for towns throughout Central and South Jersey.';
+---
+
+<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <section class="areas-hero">
+    <div class="container">
+      <h1>Service Areas</h1>
+      <p class="subtitle">
+        Local market expertise across Burlington, Mercer, and Middlesex Counties.
+        Click any town to view current market data.
+      </p>
+    </div>
+  </section>
+
+  <section class="areas-directory">
+    <div class="container">
+      <div class="counties-grid">
+        {sortedCounties.map((county) => (
+          <div class="county-section">
+            <h2>
+              <a href={`/market/${county.toLowerCase().replace(/\s+/g, '-')}/`} class="county-link">
+                {county}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </h2>
+            <ul class="towns-grid">
+              {serviceAreas[county].sort((a, b) => a.name.localeCompare(b.name)).map((town) => (
+                <li>
+                  <a href={`/market/${town.zipcode}/`}>{town.name}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div class="cta-box">
+        <p>Don't see your town? I likely still serve your area.</p>
+        <a href="/contact/" class="btn btn-primary">Contact Me</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .areas-hero {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: var(--space-10) 0;
+    text-align: center;
+  }
+
+  .areas-hero h1 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.8);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .areas-directory {
+    padding: var(--space-10) 0;
+    background: var(--white);
+  }
+
+  .counties-grid {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .counties-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .county-section h2 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--c21-gold);
+  }
+
+  .county-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .county-link:hover {
+    color: var(--c21-gold);
+  }
+
+  .county-link svg {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all var(--transition-base);
+  }
+
+  .county-link:hover svg {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .towns-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .towns-grid li {
+    font-size: var(--text-sm);
+  }
+
+  .towns-grid a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+    display: inline-block;
+    padding: var(--space-1) 0;
+  }
+
+  .towns-grid a:hover {
+    color: var(--c21-gold);
+  }
+
+  .cta-box {
+    margin-top: var(--space-10);
+    padding: var(--space-6);
+    background: var(--off-white);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+
+  .cta-box p {
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+  }
+</style>
