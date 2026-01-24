@@ -9,7 +9,10 @@
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@utils/*": ["src/utils/*"],
-      "@styles/*": ["src/styles/*"]
-    }
+      "@styles/*": ["src/styles/*"],
+      "@data/*": ["data/*"]
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   }
 }

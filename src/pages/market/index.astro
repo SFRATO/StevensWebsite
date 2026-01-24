@@ -1,0 +1,455 @@
+---
+/**
+ * Market Hub Page
+ * Overview of all NJ market areas served
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketCard from '@components/MarketCard.astro';
+import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
+
+// Import market data
+import countiesData from '../../../data/processed/counties.json';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+interface CountyData {
+  region: string;
+  slug: string;
+  state_code: string;
+  period_end: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  inventory: number | null;
+  inventory_yoy: number | null;
+  months_of_supply: number | null;
+  median_dom: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  ai_insight?: string;
+}
+
+interface ZipData {
+  zipcode: string;
+  city: string;
+  county: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  market_type: string;
+}
+
+const counties = countiesData as CountyData[];
+const zipcodes = zipcodesData as ZipData[];
+
+// Format currency
+const formatCurrency = (value: number | null): string => {
+  if (value === null) return 'N/A';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+// Format date
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+};
+
+// Get current month/year for title
+const currentDate = new Date();
+const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+// Generate breadcrumb schema
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
+]);
+
+// Page meta
+const title = `New Jersey Real Estate Market Data | ${currentMonthYear}`;
+const description = `Current real estate market trends for Burlington, Mercer, and Middlesex Counties in New Jersey. View median home prices, inventory levels, and market insights updated monthly.`;
+---
+
+<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <!-- Hero Section -->
+  <section class="market-hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>New Jersey Real Estate Market Data</h1>
+        <p class="subtitle">
+          Real-time market insights for homeowners in Burlington, Mercer, and Middlesex Counties.
+          Data-driven guidance to help you make informed selling decisions.
+        </p>
+        <div class="hero-meta">
+          <span class="badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Updated Monthly
+          </span>
+          <span class="badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Data-Driven Insights
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Counties Overview -->
+  <section class="counties-section">
+    <div class="container">
+      <h2>Markets by County</h2>
+      <p class="section-intro">
+        Select a county to view detailed market statistics, trends, and neighborhood-level data.
+      </p>
+
+      <div class="counties-grid">
+        {counties.map((county) => (
+          <a href={`/market/${county.slug}/`} class="county-card">
+            <div class="county-header">
+              <h3>{county.region}</h3>
+              <span class={`market-badge badge-${county.market_type}`}>
+                {county.market_type === 'seller' ? "Seller's Market" :
+                 county.market_type === 'buyer' ? "Buyer's Market" : 'Balanced'}
+              </span>
+            </div>
+
+            <div class="county-stats">
+              <div class="stat">
+                <span class="stat-label">Median Price</span>
+                <span class="stat-value">{formatCurrency(county.median_sale_price)}</span>
+                {county.median_sale_price_yoy && (
+                  <span class={`stat-change ${county.median_sale_price_yoy >= 0 ? 'positive' : 'negative'}`}>
+                    {county.median_sale_price_yoy >= 0 ? '+' : ''}{county.median_sale_price_yoy.toFixed(1)}% YoY
+                  </span>
+                )}
+              </div>
+
+              <div class="stat">
+                <span class="stat-label">Active Listings</span>
+                <span class="stat-value">{county.inventory ?? 'N/A'}</span>
+              </div>
+
+              <div class="stat">
+                <span class="stat-label">Days on Market</span>
+                <span class="stat-value">{county.median_dom ?? 'N/A'} days</span>
+              </div>
+
+              <div class="stat">
+                <span class="stat-label">Months of Supply</span>
+                <span class="stat-value">{county.months_of_supply?.toFixed(1) ?? 'N/A'}</span>
+              </div>
+            </div>
+
+            {county.ai_insight && (
+              <p class="county-insight">{county.ai_insight}</p>
+            )}
+
+            <div class="county-footer">
+              <span class="view-details">
+                View {county.region} Details
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="zip-count">
+                {zipcodes.filter(z => z.county === county.region).length} zip codes
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Want a Personalized Market Analysis?</h2>
+        <p>
+          Get a free, detailed report for your specific property with comparable sales,
+          pricing recommendations, and market timing insights.
+        </p>
+        <a href="/contact/" class="btn btn-primary">Request Your Free Analysis</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Source Note -->
+  <section class="data-note">
+    <div class="container">
+      <p>
+        <strong>Data Sources:</strong> Market data compiled from Redfin Data Center and local MLS statistics.
+        Updated monthly. Past performance does not guarantee future results. Contact Steven Frato for
+        the most current information specific to your property.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero */
+  .market-hero {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: var(--white);
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: var(--font-bold);
+    line-height: 1.1;
+    margin-bottom: var(--space-4);
+  }
+
+  .subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Counties Section */
+  .counties-section {
+    padding: var(--space-12) 0;
+    background-color: var(--off-white);
+  }
+
+  .counties-section h2 {
+    font-size: var(--text-3xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-intro {
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-8);
+  }
+
+  .counties-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .counties-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .counties-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .county-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: all var(--transition-base);
+  }
+
+  .county-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+
+  .county-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .county-header h3 {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .market-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .badge-seller {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--accent-green);
+  }
+
+  .badge-buyer {
+    background-color: rgba(229, 57, 53, 0.1);
+    color: var(--accent-red);
+  }
+
+  .badge-balanced {
+    background-color: rgba(201, 156, 51, 0.1);
+    color: var(--c21-gold);
+  }
+
+  .county-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .stat-value {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+  }
+
+  .stat-change {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+  }
+
+  .stat-change.positive {
+    color: var(--accent-green);
+  }
+
+  .stat-change.negative {
+    color: var(--accent-red);
+  }
+
+  .county-insight {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    padding: var(--space-4);
+    background-color: var(--off-white);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    flex: 1;
+  }
+
+  .county-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .view-details {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--c21-gold);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+  }
+
+  .zip-count {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  /* CTA Section */
+  .cta-section {
+    padding: var(--space-12) 0;
+    background: linear-gradient(135deg, var(--c21-gold) 0%, var(--c21-gold-dark) 100%);
+    color: var(--white);
+  }
+
+  .cta-content {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .cta-content h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-3);
+  }
+
+  .cta-content p {
+    font-size: var(--text-lg);
+    opacity: 0.9;
+    margin-bottom: var(--space-6);
+  }
+
+  .cta-content .btn-primary {
+    background: var(--white);
+    color: var(--c21-gold-dark);
+  }
+
+  .cta-content .btn-primary:hover {
+    background: var(--off-white);
+  }
+
+  /* Data Note */
+  .data-note {
+    padding: var(--space-6) 0;
+    background-color: var(--light-gray);
+  }
+
+  .data-note p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: var(--leading-relaxed);
+  }
+
+  @media (max-width: 768px) {
+    .market-hero {
+      padding: var(--space-8) 0;
+    }
+
+    .counties-section {
+      padding: var(--space-8) 0;
+    }
+  }
+</style>

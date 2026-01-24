@@ -1,0 +1,26 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redirects for form submissions to function
+[[redirects]]
+  from = "/api/market-report"
+  to = "/.netlify/functions/handle-market-report"
+  status = 200
+
+# Functions configuration
+[functions]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

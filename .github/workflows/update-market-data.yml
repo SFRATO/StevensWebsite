@@ -1,0 +1,102 @@
+name: Update Market Data
+
+on:
+  schedule:
+    # Run at 9 AM UTC on the 1st of each month
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub Actions UI
+    inputs:
+      skip_insights:
+        description: 'Skip AI insight generation'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch latest market data
+        run: npm run data:fetch
+        continue-on-error: false
+
+      - name: Process and filter NJ data
+        run: npm run data:process
+
+      - name: Generate AI insights
+        if: ${{ github.event.inputs.skip_insights != 'true' }}
+        run: npm run data:insights
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet data/processed/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit updated data
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add data/processed/
+          git commit -m "chore: update market data $(date +%Y-%m)"
+          git push
+
+      - name: Trigger Netlify rebuild
+        if: steps.changes.outputs.changed == 'true' && env.NETLIFY_BUILD_HOOK != ''
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          curl -X POST -d {} "$NETLIFY_BUILD_HOOK"
+
+      - name: Summary
+        run: |
+          echo "## Market Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Date**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changes detected**: ${{ steps.changes.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.changes.outputs.changed }}" == "true" ]; then
+            echo "- **Action taken**: Committed and pushed changes" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Action taken**: No changes to commit" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notify-on-failure:
+    needs: update-data
+    runs-on: ubuntu-latest
+    if: failure()
+
+    steps:
+      - name: Create failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Market Data Update Failed - ${date}`,
+              body: `The automated market data update workflow failed on ${date}.\n\nPlease check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`,
+              labels: ['bug', 'automation']
+            });

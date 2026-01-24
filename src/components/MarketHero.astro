@@ -1,0 +1,134 @@
+---
+/**
+ * MarketHero Component
+ * Hero section for market data pages
+ */
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  location: string;
+  lastUpdated?: string;
+  marketType?: 'seller' | 'buyer' | 'balanced';
+}
+
+const { title, subtitle, location, lastUpdated, marketType } = Astro.props;
+
+const marketTypeLabels = {
+  seller: "Seller's Market",
+  buyer: "Buyer's Market",
+  balanced: "Balanced Market",
+};
+
+const marketTypeColors = {
+  seller: 'var(--accent-green)',
+  buyer: 'var(--accent-red)',
+  balanced: 'var(--c21-gold)',
+};
+---
+
+<section class="market-hero">
+  <div class="container">
+    <div class="hero-content">
+      {marketType && (
+        <div class="market-badge" style={`--badge-color: ${marketTypeColors[marketType]}`}>
+          {marketTypeLabels[marketType]}
+        </div>
+      )}
+
+      <h1>{title}</h1>
+
+      {subtitle && <p class="subtitle">{subtitle}</p>}
+
+      <div class="hero-meta">
+        <span class="location">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {location}
+        </span>
+
+        {lastUpdated && (
+          <span class="updated">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Updated {lastUpdated}
+          </span>
+        )}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .market-hero {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: var(--white);
+  }
+
+  .hero-content {
+    max-width: 800px;
+  }
+
+  .market-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--badge-color);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--badge-color);
+    margin-bottom: var(--space-4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: var(--font-bold);
+    line-height: 1.1;
+    margin-bottom: var(--space-4);
+  }
+
+  .subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .hero-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .hero-meta svg {
+    opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    .market-hero {
+      padding: var(--space-8) 0;
+    }
+
+    .hero-meta {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+  }
+</style>

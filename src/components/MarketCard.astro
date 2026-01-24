@@ -1,0 +1,143 @@
+---
+/**
+ * MarketCard Component
+ * Displays a single market metric with trend indicator
+ */
+
+interface Props {
+  label: string;
+  value: string;
+  change?: number | null;
+  changeLabel?: string;
+  icon?: 'price' | 'inventory' | 'time' | 'sale';
+}
+
+const { label, value, change, changeLabel, icon = 'price' } = Astro.props;
+
+const icons = {
+  price: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  inventory: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z',
+  time: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  sale: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+};
+
+const getTrendClass = (val: number | null | undefined): string => {
+  if (val === null || val === undefined) return '';
+  if (val > 0) return 'trend-up';
+  if (val < 0) return 'trend-down';
+  return 'trend-neutral';
+};
+
+const formatChange = (val: number | null | undefined): string => {
+  if (val === null || val === undefined) return 'N/A';
+  const sign = val >= 0 ? '+' : '';
+  return `${sign}${val.toFixed(1)}%`;
+};
+---
+
+<div class="market-card">
+  <div class="card-icon">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d={icons[icon]} stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <div class="card-content">
+    <div class="card-label">{label}</div>
+    <div class="card-value">{value}</div>
+
+    {change !== undefined && (
+      <div class={`card-change ${getTrendClass(change)}`}>
+        {change !== null && change > 0 && (
+          <svg class="trend-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M5 15l7-7 7 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        )}
+        {change !== null && change < 0 && (
+          <svg class="trend-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none">
+            <path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        )}
+        <span>{formatChange(change)} {changeLabel || 'YoY'}</span>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .market-card {
+    background: var(--white);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    transition: all var(--transition-base);
+  }
+
+  .market-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    border-radius: var(--radius-full);
+    color: var(--white);
+  }
+
+  .card-content {
+    flex: 1;
+  }
+
+  .card-label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-weight: var(--font-medium);
+    margin-bottom: var(--space-1);
+  }
+
+  .card-value {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    font-weight: var(--font-bold);
+    line-height: 1.2;
+  }
+
+  .card-change {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    margin-top: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+
+  .trend-arrow {
+    flex-shrink: 0;
+  }
+
+  .trend-up {
+    color: var(--accent-green);
+    background-color: rgba(76, 175, 80, 0.1);
+  }
+
+  .trend-down {
+    color: var(--accent-red);
+    background-color: rgba(229, 57, 53, 0.1);
+  }
+
+  .trend-neutral {
+    color: var(--text-secondary);
+    background-color: var(--light-gray);
+  }
+</style>

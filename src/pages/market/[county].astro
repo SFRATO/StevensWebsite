@@ -1,0 +1,620 @@
+---
+/**
+ * County Market Page
+ * Dynamic page for county-level market data
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketHero from '@components/MarketHero.astro';
+import MarketCard from '@components/MarketCard.astro';
+import TrendIndicator from '@components/TrendIndicator.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
+
+// Import market data
+import countiesData from '../../../data/processed/counties.json';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+interface CountyData {
+  region: string;
+  slug: string;
+  state: string;
+  state_code: string;
+  period_end: string;
+  last_updated: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  median_list_price: number | null;
+  inventory: number | null;
+  inventory_yoy: number | null;
+  months_of_supply: number | null;
+  months_of_supply_yoy: number | null;
+  median_dom: number | null;
+  median_dom_yoy: number | null;
+  homes_sold: number | null;
+  homes_sold_yoy: number | null;
+  sold_above_list_pct: number | null;
+  sold_above_list_yoy: number | null;
+  price_drops_pct: number | null;
+  price_drops_yoy: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  trend_direction: 'up' | 'down' | 'stable';
+  ai_insight?: string;
+}
+
+interface ZipData {
+  zipcode: string;
+  city: string;
+  county: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  market_type: string;
+}
+
+// Generate static paths for all counties
+export function getStaticPaths() {
+  const counties = countiesData as CountyData[];
+  return counties.map((county) => ({
+    params: { county: county.slug },
+    props: { county },
+  }));
+}
+
+const { county } = Astro.props as { county: CountyData };
+const counties = countiesData as CountyData[];
+const zipcodes = (zipcodesData as ZipData[]).filter((z) => z.county === county.region);
+
+// Helper functions
+const formatCurrency = (value: number | null): string => {
+  if (value === null) return 'N/A';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+const formatDate = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+};
+
+// Get current month/year for title
+const currentDate = new Date();
+const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+// Other counties for internal linking
+const otherCounties = counties.filter((c) => c.slug !== county.slug);
+
+// Generate schema
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
+  { name: county.region, url: `https://stevenfrato.com/market/${county.slug}/` },
+]);
+
+const marketDataSchema = generateMarketDataSchema({
+  location: county.region,
+  locationType: 'county',
+  state: county.state,
+  medianPrice: county.median_sale_price,
+  priceChange: county.median_sale_price_yoy,
+  inventory: county.inventory,
+  lastUpdated: county.last_updated,
+});
+
+// Combine schemas
+const combinedSchema = [breadcrumbSchema, marketDataSchema];
+
+// Page meta
+const title = `${county.region} Real Estate Market Report | ${currentMonthYear}`;
+const description = `${county.region}, NJ housing market data: median home price ${formatCurrency(county.median_sale_price)}, ${county.inventory} active listings, ${county.median_dom} days on market. Updated ${formatDate(county.period_end)}.`;
+---
+
+<BaseLayout title={title} description={description} schema={combinedSchema}>
+  <MarketHero
+    title={`${county.region} Real Estate Market`}
+    subtitle={`Comprehensive market data and trends for home sellers in ${county.region}, New Jersey.`}
+    location={`${county.region}, NJ`}
+    lastUpdated={formatDate(county.period_end)}
+    marketType={county.market_type}
+  />
+
+  <!-- Market Snapshot -->
+  <section class="market-snapshot">
+    <div class="container">
+      <h2>Market Snapshot</h2>
+      <div class="cards-grid">
+        <MarketCard
+          label="Median Sale Price"
+          value={formatCurrency(county.median_sale_price)}
+          change={county.median_sale_price_yoy}
+          icon="price"
+        />
+        <MarketCard
+          label="Active Inventory"
+          value={county.inventory?.toString() ?? 'N/A'}
+          change={county.inventory_yoy}
+          changeLabel="YoY"
+          icon="inventory"
+        />
+        <MarketCard
+          label="Median Days on Market"
+          value={county.median_dom ? `${county.median_dom} days` : 'N/A'}
+          change={county.median_dom_yoy}
+          icon="time"
+        />
+        <MarketCard
+          label="Months of Supply"
+          value={county.months_of_supply?.toFixed(1) ?? 'N/A'}
+          change={county.months_of_supply_yoy}
+          icon="inventory"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Trend Analysis -->
+  <section class="trend-analysis">
+    <div class="container">
+      <h2>Market Trend Analysis</h2>
+      <div class="trends-grid">
+        <div class="trend-item">
+          <h3>Pricing Trends</h3>
+          <div class="trend-stats">
+            <div class="trend-stat">
+              <span class="label">Median List Price</span>
+              <span class="value">{formatCurrency(county.median_list_price)}</span>
+            </div>
+            <div class="trend-stat">
+              <span class="label">Sold Above List</span>
+              <span class="value">{county.sold_above_list_pct?.toFixed(0) ?? 'N/A'}%</span>
+              {county.sold_above_list_yoy !== null && (
+                <TrendIndicator value={county.sold_above_list_yoy} size="sm" />
+              )}
+            </div>
+            <div class="trend-stat">
+              <span class="label">Price Drops</span>
+              <span class="value">{county.price_drops_pct?.toFixed(0) ?? 'N/A'}%</span>
+              {county.price_drops_yoy !== null && (
+                <TrendIndicator value={county.price_drops_yoy} size="sm" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div class="trend-item">
+          <h3>Sales Activity</h3>
+          <div class="trend-stats">
+            <div class="trend-stat">
+              <span class="label">Homes Sold (Monthly)</span>
+              <span class="value">{county.homes_sold ?? 'N/A'}</span>
+              {county.homes_sold_yoy !== null && (
+                <TrendIndicator value={county.homes_sold_yoy} size="sm" />
+              )}
+            </div>
+            <div class="trend-stat">
+              <span class="label">Market Balance</span>
+              <span class={`value market-type-${county.market_type}`}>
+                {county.market_type === 'seller' ? "Seller's Market" :
+                 county.market_type === 'buyer' ? "Buyer's Market" : 'Balanced Market'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Insight -->
+  {county.ai_insight && (
+    <section class="market-insight">
+      <div class="container">
+        <div class="insight-card">
+          <div class="insight-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="insight-content">
+            <h3>What This Means for Sellers</h3>
+            <p>{county.ai_insight}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Lead Capture Form -->
+  <section class="lead-capture">
+    <div class="container">
+      <MarketReportForm
+        location={county.region}
+        formName={`market-report-${county.slug}`}
+      />
+    </div>
+  </section>
+
+  <!-- Zip Codes Directory -->
+  <section class="zip-directory">
+    <div class="container">
+      <h2>Neighborhoods in {county.region}</h2>
+      <p class="section-intro">
+        Explore detailed market data for specific zip codes within {county.region}.
+      </p>
+
+      <div class="zip-grid">
+        {zipcodes.slice(0, 12).map((zip) => (
+          <a href={`/market/${zip.zipcode}/`} class="zip-card">
+            <div class="zip-header">
+              <span class="zipcode">{zip.zipcode}</span>
+              <span class="city">{zip.city || 'View Details'}</span>
+            </div>
+            <div class="zip-stats">
+              <span class="price">{formatCurrency(zip.median_sale_price)}</span>
+              {zip.median_sale_price_yoy !== null && (
+                <TrendIndicator value={zip.median_sale_price_yoy} size="sm" />
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+
+      {zipcodes.length > 12 && (
+        <p class="more-zips">
+          + {zipcodes.length - 12} more zip codes in {county.region}
+        </p>
+      )}
+    </div>
+  </section>
+
+  <!-- Related Counties -->
+  <section class="related-counties">
+    <div class="container">
+      <h2>Explore Other Markets</h2>
+      <div class="related-grid">
+        {otherCounties.map((c) => (
+          <a href={`/market/${c.slug}/`} class="related-card">
+            <h3>{c.region}</h3>
+            <span class="price">{formatCurrency(c.median_sale_price)}</span>
+            <span class="link">View Market Data</span>
+          </a>
+        ))}
+        <a href="/market/" class="related-card back-link">
+          <h3>All Markets</h3>
+          <span class="link">Back to Overview</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Disclaimer -->
+  <section class="disclaimer">
+    <div class="container">
+      <p>
+        <strong>Data Source:</strong> Redfin Data Center, updated {formatDate(county.period_end)}.
+        Market statistics are based on all residential property types. Past performance does not guarantee
+        future results. Contact Steven Frato for personalized guidance specific to your property.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Market Snapshot */
+  .market-snapshot {
+    padding: var(--space-10) 0;
+    background: var(--off-white);
+  }
+
+  .market-snapshot h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .cards-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .cards-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Trend Analysis */
+  .trend-analysis {
+    padding: var(--space-10) 0;
+  }
+
+  .trend-analysis h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .trends-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .trends-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .trend-item {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+
+  .trend-item h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+  }
+
+  .trend-stats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .trend-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .trend-stat:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .trend-stat .label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .trend-stat .value {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+  }
+
+  .market-type-seller { color: var(--accent-green); }
+  .market-type-buyer { color: var(--accent-red); }
+  .market-type-balanced { color: var(--c21-gold); }
+
+  /* Market Insight */
+  .market-insight {
+    padding: var(--space-8) 0;
+    background: linear-gradient(135deg, var(--c21-gold-light) 0%, var(--c21-gold) 100%);
+  }
+
+  .insight-card {
+    display: flex;
+    gap: var(--space-5);
+    background: var(--white);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .insight-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    border-radius: var(--radius-full);
+    color: var(--white);
+  }
+
+  .insight-content h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+  }
+
+  .insight-content p {
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  @media (max-width: 600px) {
+    .insight-card {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .insight-icon {
+      margin: 0 auto;
+    }
+  }
+
+  /* Lead Capture */
+  .lead-capture {
+    padding: var(--space-10) 0;
+    background: var(--off-white);
+  }
+
+  /* Zip Directory */
+  .zip-directory {
+    padding: var(--space-10) 0;
+  }
+
+  .zip-directory h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-intro {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+  }
+
+  .zip-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .zip-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .zip-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .zip-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-base);
+  }
+
+  .zip-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: var(--shadow-md);
+  }
+
+  .zip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .zipcode {
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+  }
+
+  .city {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .zip-stats {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .zip-stats .price {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--c21-gold);
+  }
+
+  .more-zips {
+    text-align: center;
+    margin-top: var(--space-4);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  /* Related Counties */
+  .related-counties {
+    padding: var(--space-10) 0;
+    background: var(--off-white);
+  }
+
+  .related-counties h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-6);
+  }
+
+  .related-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .related-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .related-card {
+    padding: var(--space-5);
+    background: var(--white);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-base);
+    border: 1px solid var(--border-color);
+  }
+
+  .related-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--c21-gold);
+  }
+
+  .related-card h3 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-2);
+  }
+
+  .related-card .price {
+    display: block;
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    margin-bottom: var(--space-2);
+  }
+
+  .related-card .link {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .back-link {
+    background: var(--charcoal);
+    border-color: var(--charcoal);
+    color: var(--white);
+  }
+
+  .back-link:hover {
+    background: #2a2a2a;
+  }
+
+  .back-link .link {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    padding: var(--space-6) 0;
+    background: var(--light-gray);
+  }
+
+  .disclaimer p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+</style>

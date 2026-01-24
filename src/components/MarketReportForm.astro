@@ -1,0 +1,307 @@
+---
+/**
+ * MarketReportForm Component
+ * Lead capture form for gated market reports
+ */
+
+interface Props {
+  location: string;
+  formName?: string;
+}
+
+const { location, formName = 'market-report' } = Astro.props;
+---
+
+<div class="report-form-wrapper">
+  <div class="form-header">
+    <div class="form-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Get Your Free {location} Market Report</h3>
+    <p>Receive a personalized PDF report with detailed market analysis, comparable sales, and pricing recommendations for your property.</p>
+  </div>
+
+  <form
+    name={formName}
+    method="POST"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+    class="report-form"
+  >
+    <input type="hidden" name="form-name" value={formName} />
+    <input type="hidden" name="source-location" value={location} />
+
+    <!-- Honeypot field for spam protection -->
+    <p class="hidden">
+      <label>
+        Don't fill this out: <input name="bot-field" />
+      </label>
+    </p>
+
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="property-address">Property Address <span class="required">*</span></label>
+        <input
+          type="text"
+          id="property-address"
+          name="property-address"
+          placeholder="123 Main Street, City, NJ"
+          required
+          aria-required="true"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="your@email.com"
+          required
+          aria-required="true"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          placeholder="(609) 555-1234"
+        />
+      </div>
+
+      <div class="form-group full-width">
+        <label for="timeline">When are you considering selling?</label>
+        <select id="timeline" name="timeline">
+          <option value="">Select a timeframe...</option>
+          <option value="immediately">Immediately / ASAP</option>
+          <option value="1-3-months">Within 1-3 months</option>
+          <option value="3-6-months">Within 3-6 months</option>
+          <option value="6-12-months">Within 6-12 months</option>
+          <option value="just-curious">Just curious about value</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button type="submit" class="btn btn-primary btn-large">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Get My Free Report
+      </button>
+      <p class="privacy-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Your information is secure and will never be shared.
+      </p>
+    </div>
+  </form>
+
+  <div class="report-preview">
+    <div class="preview-header">What's Included:</div>
+    <ul class="preview-list">
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Current market conditions for {location}
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Recent comparable sales in your area
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Estimated value range for your home
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Personalized selling recommendations
+      </li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .report-form-wrapper {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: var(--space-6);
+    text-align: center;
+  }
+
+  .form-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--c21-gold);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-4);
+  }
+
+  .form-header h3 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+
+  .form-header p {
+    font-size: var(--text-sm);
+    opacity: 0.9;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .report-form {
+    padding: var(--space-6);
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 480px) {
+    .form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .form-group label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+  }
+
+  .required {
+    color: var(--accent-red);
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    transition: all var(--transition-base);
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--c21-gold);
+    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+  }
+
+  .form-group input::placeholder {
+    color: var(--dark-gray);
+  }
+
+  .form-footer {
+    margin-top: var(--space-6);
+    text-align: center;
+  }
+
+  .btn-large {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--text-lg);
+    width: 100%;
+  }
+
+  @media (min-width: 480px) {
+    .btn-large {
+      width: auto;
+    }
+  }
+
+  .privacy-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  .report-preview {
+    padding: var(--space-5) var(--space-6);
+    background: var(--off-white);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .preview-header {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .preview-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 480px) {
+    .preview-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .preview-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .preview-list svg {
+    color: var(--accent-green);
+    flex-shrink: 0;
+  }
+</style>

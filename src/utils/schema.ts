@@ -210,6 +210,73 @@ export function generateOrganizationSchema() {
 }
 
 /**
+ * Generate Market Data schema for programmatic SEO pages
+ */
+export function generateMarketDataSchema(data: {
+  location: string;
+  locationType: 'county' | 'zipcode';
+  state: string;
+  medianPrice: number | null;
+  priceChange: number | null;
+  inventory: number | null;
+  lastUpdated: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: `${data.location} Real Estate Market Data`,
+    description: `Current real estate market statistics for ${data.location}, ${data.state} including median home prices, inventory levels, and market trends.`,
+    keywords: [
+      `${data.location} real estate`,
+      `${data.location} housing market`,
+      `${data.location} home prices`,
+      `${data.location} homes for sale`,
+    ],
+    url: `https://stevenfrato.com/market/${data.locationType === 'county' ? data.location.toLowerCase().replace(/\s+/g, '-') : data.location}/`,
+    dateModified: data.lastUpdated,
+    spatialCoverage: {
+      '@type': 'Place',
+      name: `${data.location}, ${data.state}`,
+      geo: {
+        '@type': 'GeoCoordinates',
+        // Central NJ coordinates
+        latitude: '40.2171',
+        longitude: '-74.7429',
+      },
+    },
+    creator: {
+      '@type': 'RealEstateAgent',
+      name: 'Steven Frato',
+      url: 'https://stevenfrato.com',
+    },
+    distribution: {
+      '@type': 'DataDownload',
+      contentUrl: `https://stevenfrato.com/market/${data.locationType === 'county' ? data.location.toLowerCase().replace(/\s+/g, '-') : data.location}/`,
+      encodingFormat: 'text/html',
+    },
+    variableMeasured: [
+      {
+        '@type': 'PropertyValue',
+        name: 'Median Sale Price',
+        value: data.medianPrice,
+        unitCode: 'USD',
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Year-over-Year Price Change',
+        value: data.priceChange,
+        unitCode: 'P1',
+      },
+      {
+        '@type': 'PropertyValue',
+        name: 'Active Inventory',
+        value: data.inventory,
+      },
+    ],
+  };
+}
+
+/**
  * Helper to stringify schema for <script type="application/ld+json">
  */
 export function stringifySchema(schema: any): string {
