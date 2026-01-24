@@ -45,7 +45,6 @@ const serviceAreas = {
     { name: 'Ewing', zipcode: '08618' },
     { name: 'Hamilton', zipcode: '08610' },
     { name: 'Hightstown', zipcode: '08520' },
-    { name: 'Hopewell', zipcode: '08525' },
     { name: 'Lawrence', zipcode: '08648' },
     { name: 'Pennington', zipcode: '08534' },
     { name: 'Princeton', zipcode: '08540' },
@@ -55,7 +54,6 @@ const serviceAreas = {
     { name: 'West Windsor', zipcode: '08550' },
   ],
   'Middlesex County': [
-    { name: 'Carteret', zipcode: '07008' },
     { name: 'Colonia', zipcode: '07067' },
     { name: 'Cranbury', zipcode: '08512' },
     { name: 'Dunellen', zipcode: '08812' },
@@ -214,8 +212,14 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-1);
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-1) var(--space-3);
+  }
+
+  @media (max-width: 767px) {
+    .towns-grid {
+      grid-template-columns: 1fr;
+    }
   }
 
   .towns-grid li {
