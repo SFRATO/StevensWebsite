@@ -17,11 +17,22 @@ const { formName = 'contact' } = Astro.props;
     <div class="contact-grid">
       <!-- Form Introduction -->
       <div class="contact-intro">
-        <h2>Get in Touch</h2>
-        <p class="intro-text">
-          Ready to find your dream home in Burlington, Mercer, or Middlesex County?
-          Fill out the form and I'll get back to you within 24 hours.
-        </p>
+        <div class="intro-with-headshot">
+          <img
+            src="/images/headshot.jpg"
+            alt="Steven Frato - Century 21 Real Estate Agent"
+            class="contact-headshot"
+            width="120"
+            height="120"
+          />
+          <div class="intro-text-wrapper">
+            <h2>Get in Touch</h2>
+            <p class="intro-text">
+              Ready to find your dream home in Burlington, Mercer, or Middlesex County?
+              Fill out the form and I'll get back to you within 24 hours.
+            </p>
+          </div>
+        </div>
 
         <!-- Contact Info -->
         <div class="contact-info">
@@ -198,6 +209,45 @@ const { formName = 'contact' } = Astro.props;
   }
 
   /* Contact Intro */
+  .intro-with-headshot {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  .contact-headshot {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--c21-gold);
+    flex-shrink: 0;
+  }
+
+  .intro-text-wrapper h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .intro-text-wrapper .intro-text {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 640px) {
+    .intro-with-headshot {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .contact-headshot {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
   .contact-intro h2 {
     font-size: var(--text-3xl);
     color: var(--text-primary);
