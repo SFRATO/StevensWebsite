@@ -99,11 +99,8 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
 <BaseLayout title={title} description={description} schema={breadcrumbSchema}>
   <section class="areas-hero">
     <div class="container">
-      <h1>Towns by County</h1>
-      <p class="hero-subtitle">Find Your Town</p>
-      <p class="subtitle">
-        Your guide to real estate in Central New Jersey. Select a town to explore market trends and data.
-      </p>
+      <h1>Find Your Town</h1>
+      <h2>Select a town to explore market trends and data</h2>
     </div>
   </section>
 
@@ -154,15 +151,9 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
     line-height: 1.2;
   }
 
-  .hero-subtitle {
-    font-size: var(--text-xl);
-    color: var(--c21-gold);
-    font-weight: var(--font-medium);
-    margin-bottom: var(--space-3);
-  }
-
-  .subtitle {
+  .areas-hero h2 {
     font-size: var(--text-lg);
+    font-weight: var(--font-normal);
     color: rgba(255, 255, 255, 0.8);
     max-width: 600px;
     margin: 0 auto;
