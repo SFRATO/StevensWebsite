@@ -21,15 +21,15 @@ const contactInfo = {
 };
 
 const serviceAreas = [
-  'Mount Laurel',
-  'Moorestown',
-  'Medford',
-  'Cherry Hill',
-  'Princeton',
-  'Trenton',
-  'Hamilton',
-  'Edison',
-  'Woodbridge',
+  { name: 'Mount Laurel', zipcode: '08054' },
+  { name: 'Moorestown', zipcode: '08057' },
+  { name: 'Medford', zipcode: '08055' },
+  { name: 'Cherry Hill', zipcode: '08002' },
+  { name: 'Princeton', zipcode: '08540' },
+  { name: 'Trenton', zipcode: '08608' },
+  { name: 'Hamilton', zipcode: '08610' },
+  { name: 'Edison', zipcode: '08817' },
+  { name: 'Woodbridge', zipcode: '07095' },
 ];
 
 const quickLinks = [
@@ -97,7 +97,9 @@ const socialLinks = [
         <h3 class="footer-heading">Service Areas</h3>
         <ul class="service-areas">
           {serviceAreas.map((area) => (
-            <li class="service-area">{area}</li>
+            <li class="service-area">
+              <a href={`/market/${area.zipcode}/`}>{area.name}</a>
+            </li>
           ))}
         </ul>
         <p class="service-note">Serving Burlington, Mercer & Middlesex Counties</p>
@@ -261,6 +263,16 @@ const socialLinks = [
   .service-area {
     font-size: var(--text-sm);
     color: var(--light-gray);
+  }
+
+  .service-area a {
+    color: var(--light-gray);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .service-area a:hover {
+    color: var(--c21-gold);
   }
 
   .service-area:not(:last-child)::after {
