@@ -277,6 +277,24 @@ export function generateMarketDataSchema(data: {
 }
 
 /**
+ * Generate FAQPage schema for market pages
+ */
+export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+/**
  * Helper to stringify schema for <script type="application/ld+json">
  */
 export function stringifySchema(schema: any): string {

@@ -1,0 +1,59 @@
+---
+/**
+ * MarketTypeBadge Component
+ * Displays a small badge indicating market type: seller, buyer, or balanced
+ */
+
+interface Props {
+  type: 'seller' | 'buyer' | 'balanced';
+  size?: 'sm' | 'md';
+}
+
+const { type, size = 'sm' } = Astro.props;
+
+const labels: Record<string, string> = {
+  seller: "Seller's",
+  buyer: "Buyer's",
+  balanced: 'Balanced',
+};
+
+const label = labels[type] || 'Balanced';
+---
+
+<span class:list={['market-badge', `badge-${type}`, `badge-${size}`]}>
+  {label}
+</span>
+
+<style>
+  .market-badge {
+    display: inline-block;
+    font-weight: var(--font-semibold);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  .badge-sm {
+    font-size: var(--text-xs);
+    padding: 2px 8px;
+  }
+
+  .badge-md {
+    font-size: var(--text-sm);
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .badge-seller {
+    background: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+  }
+
+  .badge-buyer {
+    background: rgba(229, 57, 53, 0.15);
+    color: #c62828;
+  }
+
+  .badge-balanced {
+    background: rgba(201, 156, 51, 0.15);
+    color: var(--c21-gold-dark);
+  }
+</style>

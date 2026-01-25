@@ -1,0 +1,173 @@
+---
+/**
+ * TownPreviewCard Component
+ * Card showing town name, median price, YoY change, and market type badge
+ * Used in areas page directory and Movers & Shakers sections
+ */
+import MarketTypeBadge from './MarketTypeBadge.astro';
+import TrendIndicator from './TrendIndicator.astro';
+
+interface Props {
+  name: string;
+  zipcode: string;
+  county: string;
+  medianPrice: number | null;
+  priceYoY: number | null;
+  marketType: 'seller' | 'buyer' | 'balanced';
+  /** Optional: highlight a specific metric (for Movers & Shakers) */
+  highlightMetric?: 'price' | 'dom' | 'inventory';
+  highlightValue?: number | null;
+  highlightLabel?: string;
+}
+
+const {
+  name,
+  zipcode,
+  county,
+  medianPrice,
+  priceYoY,
+  marketType,
+  highlightMetric,
+  highlightValue,
+  highlightLabel,
+} = Astro.props;
+
+const formatCurrency = (value: number | null): string => {
+  if (value === null) return 'N/A';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+const href = `/market/${zipcode}/`;
+---
+
+<a href={href} class="town-card">
+  <div class="card-header">
+    <span class="town-name">{name}</span>
+    <MarketTypeBadge type={marketType} size="sm" />
+  </div>
+
+  <div class="card-body">
+    {highlightMetric && highlightValue !== undefined ? (
+      <div class="highlight-metric">
+        <span class="metric-value">
+          {highlightMetric === 'dom' ? `${highlightValue} days` : highlightMetric === 'price' ? formatCurrency(highlightValue) : `${highlightValue}%`}
+        </span>
+        {highlightLabel && <span class="metric-label">{highlightLabel}</span>}
+      </div>
+    ) : (
+      <div class="price-info">
+        <span class="price">{formatCurrency(medianPrice)}</span>
+        {priceYoY !== null && <TrendIndicator value={priceYoY} size="sm" />}
+      </div>
+    )}
+  </div>
+
+  <div class="card-footer">
+    <span class="county-name">{county.replace(' County', '')}</span>
+    <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</a>
+
+<style>
+  .town-card {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: all var(--transition-base);
+  }
+
+  .town-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .town-name {
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .card-body {
+    flex: 1;
+    margin-bottom: var(--space-3);
+  }
+
+  .price-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+  }
+
+  .price {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+  }
+
+  .highlight-metric {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .metric-value {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+  }
+
+  .metric-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+  }
+
+  .county-name {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  .arrow {
+    color: var(--text-secondary);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all var(--transition-base);
+  }
+
+  .town-card:hover .arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--c21-gold);
+  }
+</style>

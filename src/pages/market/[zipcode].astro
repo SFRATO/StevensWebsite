@@ -8,7 +8,8 @@ import MarketHero from '@components/MarketHero.astro';
 import MarketCard from '@components/MarketCard.astro';
 import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
-import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
+import { generateBreadcrumbSchema, generateMarketDataSchema, generateFAQSchema } from '@utils/schema';
+import { getTownNameByZipcode } from '../../data/town-mappings';
 
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
@@ -90,8 +91,39 @@ const formatDate = (dateStr: string): string => {
 const currentDate = new Date();
 const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-// Location name
+// Get curated town name from our mapping, fallback to city from data
+const curatedTownName = getTownNameByZipcode(zipData.zipcode);
+const townDisplayName = curatedTownName || zipData.city || `Zip ${zipData.zipcode}`;
 const locationName = zipData.city ? `${zipData.city} (${zipData.zipcode})` : zipData.zipcode;
+
+// Build hero subtitle with key metrics
+const heroSubtitleParts: string[] = [];
+if (zipData.median_sale_price) {
+  heroSubtitleParts.push(formatCurrency(zipData.median_sale_price) + ' median');
+}
+if (zipData.market_type) {
+  const marketLabels = { seller: "Seller's Market", buyer: "Buyer's Market", balanced: "Balanced Market" };
+  heroSubtitleParts.push(marketLabels[zipData.market_type]);
+}
+if (zipData.median_dom) {
+  heroSubtitleParts.push(`${Math.round(zipData.median_dom)} days average`);
+}
+const heroSubtitle = heroSubtitleParts.join(' | ');
+
+// Generate dynamic context for lead form
+const getFormContext = (): string | null => {
+  if (zipData.market_type === 'seller' && zipData.median_dom && zipData.median_dom < 30) {
+    return `Homes here are selling in just ${Math.round(zipData.median_dom)} days on average`;
+  }
+  if (zipData.median_sale_price_yoy && zipData.median_sale_price_yoy > 5) {
+    return `Prices are up ${zipData.median_sale_price_yoy.toFixed(1)}% from last year`;
+  }
+  if (zipData.market_type === 'seller') {
+    return `Currently a seller's market with strong demand`;
+  }
+  return null;
+};
+const formContextLine = getFormContext();
 
 // Generate schema
 const breadcrumbSchema = generateBreadcrumbSchema([
@@ -111,7 +143,45 @@ const marketDataSchema = generateMarketDataSchema({
   lastUpdated: zipData.last_updated,
 });
 
-const combinedSchema = [breadcrumbSchema, marketDataSchema];
+// Generate FAQ schema for "Is Now a Good Time to Sell?" section
+const faqContent = (() => {
+  const faqs = [];
+
+  if (zipData.market_type === 'seller') {
+    faqs.push({
+      question: `Is now a good time to sell my home in ${townDisplayName}?`,
+      answer: `Yes, ${townDisplayName} is currently a seller's market with only ${zipData.months_of_supply?.toFixed(1) || 'low'} months of supply and ${zipData.sold_above_list_pct?.toFixed(0) || 'many'}% of homes selling above asking price. Sellers have strong negotiating power right now.`,
+    });
+  } else if (zipData.market_type === 'buyer') {
+    faqs.push({
+      question: `Is now a good time to sell my home in ${townDisplayName}?`,
+      answer: `${townDisplayName} is currently a buyer's market with higher inventory levels. Sellers should focus on competitive pricing and property presentation to stand out. Well-priced homes are still selling successfully.`,
+    });
+  } else {
+    faqs.push({
+      question: `Is now a good time to sell my home in ${townDisplayName}?`,
+      answer: `${townDisplayName} has a balanced market, giving neither buyers nor sellers a distinct advantage. Strategic pricing and timing are important for maximizing your sale price.`,
+    });
+  }
+
+  faqs.push({
+    question: `What is the median home price in ${townDisplayName}?`,
+    answer: `The median home price in ${townDisplayName} is ${formatCurrency(zipData.median_sale_price)}${zipData.median_sale_price_yoy ? `, which is ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year` : ''}.`,
+  });
+
+  if (zipData.median_dom) {
+    faqs.push({
+      question: `How long do homes take to sell in ${townDisplayName}?`,
+      answer: `Homes in ${townDisplayName} typically sell in ${Math.round(zipData.median_dom)} days on average.`,
+    });
+  }
+
+  return faqs;
+})();
+
+const faqSchema = generateFAQSchema(faqContent);
+
+const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 
 // Page meta
 const title = `${locationName}, NJ Housing Market | ${currentMonthYear}`;
@@ -120,8 +190,8 @@ const description = `${locationName} real estate market: median price ${formatCu
 
 <BaseLayout title={title} description={description} schema={combinedSchema}>
   <MarketHero
-    title={`${locationName} Housing Market`}
-    subtitle={`Local market data for home sellers in ${zipData.city || `zip code ${zipData.zipcode}`}, ${zipData.county}, New Jersey.`}
+    title={`What's Your ${townDisplayName} Home Worth?`}
+    subtitle={heroSubtitle}
     location={`${zipData.zipcode}, ${zipData.county}`}
     lastUpdated={formatDate(zipData.period_end)}
     marketType={zipData.market_type}

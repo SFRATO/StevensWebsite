@@ -1,0 +1,195 @@
+---
+/**
+ * MoversAndShakersSection Component
+ * Displays featured markets in three categories:
+ * - Hottest Markets (price appreciation)
+ * - Selling Fastest (lowest DOM)
+ * - Most Competitive (shrinking inventory)
+ */
+import TownPreviewCard from './TownPreviewCard.astro';
+import type { EnrichedTown } from '@utils/market-analysis';
+
+interface Props {
+  hotMarkets: EnrichedTown[];
+  fastMarkets: EnrichedTown[];
+  competitiveMarkets: EnrichedTown[];
+}
+
+const { hotMarkets, fastMarkets, competitiveMarkets } = Astro.props;
+
+// Only show categories that have data
+const categories = [
+  {
+    title: 'Hottest Markets',
+    subtitle: 'Strongest price appreciation',
+    icon: 'flame',
+    towns: hotMarkets,
+    metric: 'price' as const,
+    getHighlightValue: (t: EnrichedTown) => t.priceYoY,
+    highlightLabel: 'YoY price change',
+  },
+  {
+    title: 'Selling Fastest',
+    subtitle: 'Lowest days on market',
+    icon: 'clock',
+    towns: fastMarkets,
+    metric: 'dom' as const,
+    getHighlightValue: (t: EnrichedTown) => t.medianDom,
+    highlightLabel: 'avg days on market',
+  },
+  {
+    title: 'Most Competitive',
+    subtitle: 'Shrinking inventory',
+    icon: 'trend',
+    towns: competitiveMarkets,
+    metric: 'inventory' as const,
+    getHighlightValue: (t: EnrichedTown) => t.inventoryYoY,
+    highlightLabel: 'inventory change',
+  },
+].filter((cat) => cat.towns.length > 0);
+---
+
+{categories.length > 0 && (
+  <section class="movers-shakers">
+    <div class="container">
+      <div class="section-header">
+        <h2>Market Movers & Shakers</h2>
+        <p>See which towns are making waves right now</p>
+      </div>
+
+      <div class="categories-grid">
+        {categories.map((category) => (
+          <div class="category">
+            <div class="category-header">
+              <div class="category-icon">
+                {category.icon === 'flame' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2c.5 5-2.5 7.5-2.5 11a5 5 0 0010 0c0-3.5-3-6-2.5-11M8.5 8.5c1.5 1.5 2 3 2 4.5a1.5 1.5 0 103 0c0-1.5.5-3 2-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                )}
+                {category.icon === 'clock' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                )}
+                {category.icon === 'trend' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 3v18h18M18 9l-5 5-4-4-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <div>
+                <h3>{category.title}</h3>
+                <span class="category-subtitle">{category.subtitle}</span>
+              </div>
+            </div>
+
+            <div class="towns-list">
+              {category.towns.slice(0, 4).map((town) => (
+                <TownPreviewCard
+                  name={town.name}
+                  zipcode={town.zipcode}
+                  county={town.county}
+                  medianPrice={town.medianPrice}
+                  priceYoY={town.priceYoY}
+                  marketType={town.marketType}
+                  highlightMetric={category.metric}
+                  highlightValue={category.getHighlightValue(town)}
+                  highlightLabel={category.highlightLabel}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .movers-shakers {
+    padding: var(--space-10) 0;
+    background: var(--off-white);
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .section-header h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-header p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+  }
+
+  .categories-grid {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .categories-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .category {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 2px solid var(--c21-gold);
+  }
+
+  .category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--c21-gold) 0%, var(--c21-gold-dark) 100%);
+    border-radius: var(--radius-md);
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .category-header h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .category-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .towns-list {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .towns-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

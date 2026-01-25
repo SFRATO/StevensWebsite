@@ -1,90 +1,28 @@
 ---
 /**
  * Service Areas Page
- * Alphabetical directory of all towns and counties served with links to market data
+ * Interactive town discovery experience with search, market movers,
+ * and data-rich town directory.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
+import TownSearchIsland from '@components/TownSearchIsland.tsx';
+import MoversAndShakersSection from '@components/MoversAndShakersSection.astro';
+import TownPreviewCard from '@components/TownPreviewCard.astro';
+import MarketTypeBadge from '@components/MarketTypeBadge.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
 import { generateBreadcrumbSchema } from '@utils/schema';
+import {
+  getEnrichedTownsByCounty,
+  computeMoversAndShakers,
+  getTownSearchData,
+} from '@utils/market-analysis';
+import { getSortedCounties } from '../data/town-mappings';
 
-// Town to zip code mapping for market data links
-const serviceAreas = {
-  'Burlington County': [
-    { name: 'Beverly', zipcode: '08010' },
-    { name: 'Bordentown', zipcode: '08505' },
-    { name: 'Browns Mills', zipcode: '08015' },
-    { name: 'Burlington', zipcode: '08016' },
-    { name: 'Cherry Hill', zipcode: '08002' },
-    { name: 'Cinnaminson', zipcode: '08077' },
-    { name: 'Delran', zipcode: '08075' },
-    { name: 'Eastampton', zipcode: '08060' },
-    { name: 'Edgewater Park', zipcode: '08010' },
-    { name: 'Evesham', zipcode: '08053' },
-    { name: 'Florence', zipcode: '08518' },
-    { name: 'Hainesport', zipcode: '08036' },
-    { name: 'Lumberton', zipcode: '08048' },
-    { name: 'Maple Shade', zipcode: '08052' },
-    { name: 'Marlton', zipcode: '08053' },
-    { name: 'Medford', zipcode: '08055' },
-    { name: 'Medford Lakes', zipcode: '08055' },
-    { name: 'Moorestown', zipcode: '08057' },
-    { name: 'Mount Holly', zipcode: '08060' },
-    { name: 'Mount Laurel', zipcode: '08054' },
-    { name: 'Palmyra', zipcode: '08065' },
-    { name: 'Pemberton', zipcode: '08068' },
-    { name: 'Riverside', zipcode: '08075' },
-    { name: 'Riverton', zipcode: '08077' },
-    { name: 'Shamong', zipcode: '08088' },
-    { name: 'Southampton', zipcode: '08088' },
-    { name: 'Tabernacle', zipcode: '08088' },
-    { name: 'Westampton', zipcode: '08060' },
-    { name: 'Willingboro', zipcode: '08046' },
-    { name: 'Woodland Township', zipcode: '08019' },
-  ],
-  'Mercer County': [
-    { name: 'East Windsor', zipcode: '08520' },
-    { name: 'Ewing', zipcode: '08618' },
-    { name: 'Hamilton', zipcode: '08610' },
-    { name: 'Hightstown', zipcode: '08520' },
-    { name: 'Lawrence', zipcode: '08648' },
-    { name: 'Pennington', zipcode: '08534' },
-    { name: 'Princeton', zipcode: '08540' },
-    { name: 'Princeton Junction', zipcode: '08550' },
-    { name: 'Robbinsville', zipcode: '08691' },
-    { name: 'Trenton', zipcode: '08608' },
-    { name: 'West Windsor', zipcode: '08550' },
-  ],
-  'Middlesex County': [
-    { name: 'Colonia', zipcode: '07067' },
-    { name: 'Cranbury', zipcode: '08512' },
-    { name: 'Dunellen', zipcode: '08812' },
-    { name: 'East Brunswick', zipcode: '08816' },
-    { name: 'Edison', zipcode: '08817' },
-    { name: 'Helmetta', zipcode: '08828' },
-    { name: 'Highland Park', zipcode: '08904' },
-    { name: 'Iselin', zipcode: '08830' },
-    { name: 'Jamesburg', zipcode: '08831' },
-    { name: 'Metuchen', zipcode: '08840' },
-    { name: 'Middlesex', zipcode: '08846' },
-    { name: 'Milltown', zipcode: '08850' },
-    { name: 'Monroe Township', zipcode: '08831' },
-    { name: 'New Brunswick', zipcode: '08901' },
-    { name: 'North Brunswick', zipcode: '08902' },
-    { name: 'Old Bridge', zipcode: '08857' },
-    { name: 'Perth Amboy', zipcode: '08861' },
-    { name: 'Piscataway', zipcode: '08854' },
-    { name: 'Plainsboro', zipcode: '08536' },
-    { name: 'Sayreville', zipcode: '08872' },
-    { name: 'South Amboy', zipcode: '08879' },
-    { name: 'South Brunswick', zipcode: '08852' },
-    { name: 'South Plainfield', zipcode: '07080' },
-    { name: 'South River', zipcode: '08882' },
-    { name: 'Spotswood', zipcode: '08884' },
-    { name: 'Woodbridge', zipcode: '07095' },
-  ],
-};
-
-// Sort counties alphabetically
-const sortedCounties = Object.keys(serviceAreas).sort();
+// Get data at build time
+const enrichedTownsByCounty = getEnrichedTownsByCounty();
+const moversAndShakers = computeMoversAndShakers(6);
+const townSearchData = getTownSearchData();
+const sortedCounties = getSortedCounties();
 
 // Generate breadcrumb schema
 const breadcrumbSchema = generateBreadcrumbSchema([
@@ -92,44 +30,123 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   { name: 'Service Areas', url: 'https://stevenfrato.com/areas/' },
 ]);
 
-const title = 'Service Areas | Burlington, Mercer & Middlesex Counties, NJ';
-const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Counties in New Jersey. View local market data for towns throughout Central and South Jersey.';
+const title = 'Find Your Town | Burlington, Mercer & Middlesex Counties, NJ';
+const description = "What's your home worth? Search your town to discover local market data, trends, and what homes are selling for in Burlington, Mercer, and Middlesex Counties.";
 ---
 
 <BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <!-- Hero Section -->
   <section class="areas-hero">
     <div class="container">
-      <h1>Find Your Town</h1>
-      <h2>Select a town to explore market trends and data</h2>
+      <h1>What's Your Home Worth?</h1>
+      <p class="hero-subtitle">Find your town and discover what's happening in your local market</p>
+
+      <div class="search-wrapper">
+        <TownSearchIsland client:load towns={townSearchData} />
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">{Object.keys(enrichedTownsByCounty).length}</span>
+          <span class="stat-label">Counties</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{townSearchData.length}+</span>
+          <span class="stat-label">Towns</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">Monthly</span>
+          <span class="stat-label">Data Updates</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="areas-directory">
+  <!-- Movers & Shakers Section -->
+  <MoversAndShakersSection
+    hotMarkets={moversAndShakers.hotMarkets}
+    fastMarkets={moversAndShakers.fastMarkets}
+    competitiveMarkets={moversAndShakers.competitiveMarkets}
+  />
+
+  <!-- Browse by County Section -->
+  <section class="browse-counties">
     <div class="container">
-      <div class="counties-grid">
-        {sortedCounties.map((county) => (
-          <div class="county-section" id={county.toLowerCase().replace(/\s+/g, '-')}>
-            <h2>
-              <a href={`/market/${county.toLowerCase().replace(/\s+/g, '-')}/`} class="county-link">
-                {county}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </h2>
-            <ul class="towns-grid">
-              {serviceAreas[county].sort((a, b) => a.name.localeCompare(b.name)).map((town) => (
-                <li>
-                  <a href={`/market/${town.zipcode}/`}>{town.name}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div class="section-header">
+        <h2>Browse by County</h2>
+        <p>Explore market data for every town I serve</p>
       </div>
 
+      <div class="counties-grid">
+        {sortedCounties.map((county) => {
+          const towns = enrichedTownsByCounty[county] || [];
+          const sellerCount = towns.filter((t) => t.marketType === 'seller').length;
+          const avgPrice = towns.length > 0
+            ? towns.reduce((sum, t) => sum + (t.medianPrice || 0), 0) / towns.filter((t) => t.medianPrice).length
+            : null;
+
+          return (
+            <div class="county-section" id={county.toLowerCase().replace(/\s+/g, '-')}>
+              <div class="county-header">
+                <div class="county-title-row">
+                  <h3>
+                    <a href={`/market/${county.toLowerCase().replace(/\s+/g, '-')}/`} class="county-link">
+                      {county}
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </a>
+                  </h3>
+                  {sellerCount > towns.length / 2 && (
+                    <MarketTypeBadge type="seller" size="sm" />
+                  )}
+                </div>
+                <div class="county-meta">
+                  <span>{towns.length} towns</span>
+                  {avgPrice && (
+                    <>
+                      <span class="separator">|</span>
+                      <span>Avg. {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(avgPrice)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div class="towns-grid">
+                {towns.map((town) => (
+                  <TownPreviewCard
+                    name={town.name}
+                    zipcode={town.zipcode}
+                    county={town.county}
+                    medianPrice={town.medianPrice}
+                    priceYoY={town.priceYoY}
+                    marketType={town.marketType}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Capture Section -->
+  <section class="lead-capture-section" id="get-report">
+    <div class="container">
+      <MarketReportForm
+        location="Central New Jersey"
+        formName="market-report-areas"
+      />
+    </div>
+  </section>
+
+  <!-- CTA Box -->
+  <section class="cta-section">
+    <div class="container">
       <div class="cta-box">
-        <p>Don't see your town? I likely still serve your area.</p>
+        <h3>Don't see your town?</h3>
+        <p>I likely still serve your area. Contact me for a personalized market analysis.</p>
         <a href="/contact/" class="btn btn-primary">Contact Me</a>
       </div>
     </div>
@@ -137,10 +154,11 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
 </BaseLayout>
 
 <style>
+  /* Hero Section */
   .areas-hero {
     background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
     color: var(--white);
-    padding: var(--space-10) 0;
+    padding: var(--space-12) 0 var(--space-10);
     text-align: center;
   }
 
@@ -148,39 +166,92 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
     font-family: var(--font-heading);
     font-size: var(--text-4xl);
     margin-bottom: var(--space-3);
-    line-height: 1.2;
+    line-height: 1.1;
   }
 
-  .areas-hero h2 {
+  .hero-subtitle {
     font-size: var(--text-lg);
-    font-weight: var(--font-normal);
-    color: rgba(255, 255, 255, 0.8);
-    max-width: 600px;
-    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 500px;
+    margin: 0 auto var(--space-8);
   }
 
-  .areas-directory {
+  .search-wrapper {
+    max-width: 500px;
+    margin: 0 auto var(--space-8);
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    display: block;
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+  }
+
+  .stat-label {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Browse by County */
+  .browse-counties {
     padding: var(--space-10) 0;
     background: var(--white);
   }
 
+  .section-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .section-header h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-header p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+  }
+
   .counties-grid {
     display: grid;
-    gap: var(--space-8);
+    gap: var(--space-10);
   }
 
-  @media (min-width: 768px) {
-    .counties-grid {
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-6);
-    }
+  .county-section {
+    padding-top: var(--space-6);
+    border-top: 2px solid var(--c21-gold);
   }
 
-  .county-section h2 {
-    font-size: var(--text-lg);
-    margin-bottom: var(--space-4);
-    padding-bottom: var(--space-2);
-    border-bottom: 2px solid var(--c21-gold);
+  .county-header {
+    margin-bottom: var(--space-5);
+  }
+
+  .county-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .county-title-row h3 {
+    margin: 0;
+    font-size: var(--text-xl);
   }
 
   .county-link {
@@ -207,48 +278,82 @@ const description = 'Steven Frato serves Burlington, Mercer, and Middlesex Count
     transform: translateX(0);
   }
 
-  .towns-grid {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-1) var(--space-3);
+  .county-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
   }
 
-  @media (max-width: 767px) {
+  .county-meta .separator {
+    color: var(--border-color);
+  }
+
+  .towns-grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
     .towns-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 
-  .towns-grid li {
-    font-size: var(--text-sm);
+  @media (min-width: 1024px) {
+    .towns-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
   }
 
-  .towns-grid a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color var(--transition-base);
-    display: inline-block;
-    padding: var(--space-1) 0;
+  /* Lead Capture Section */
+  .lead-capture-section {
+    padding: var(--space-10) 0;
+    background: var(--off-white);
   }
 
-  .towns-grid a:hover {
-    color: var(--c21-gold);
+  /* CTA Section */
+  .cta-section {
+    padding: var(--space-8) 0 var(--space-12);
+    background: var(--white);
   }
 
   .cta-box {
-    margin-top: var(--space-10);
-    padding: var(--space-6);
-    background: var(--off-white);
+    padding: var(--space-8);
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
     border-radius: var(--radius-lg);
     text-align: center;
+    color: var(--white);
+  }
+
+  .cta-box h3 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--space-3);
   }
 
   .cta-box p {
-    font-size: var(--text-lg);
-    color: var(--text-primary);
-    margin-bottom: var(--space-4);
+    font-size: var(--text-base);
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: var(--space-6);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .hero-stats {
+      gap: var(--space-4);
+    }
+
+    .stat-value {
+      font-size: var(--text-xl);
+    }
+
+    .towns-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
