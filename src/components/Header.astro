@@ -57,7 +57,6 @@ const phoneHref = 'tel:+16097890126';
         </svg>
         <span>{phone}</span>
       </a>
-      <a href="/#contact" class="btn btn-primary">Schedule Consultation</a>
     </div>
 
     <!-- Mobile Menu Button -->
@@ -89,11 +88,6 @@ const phoneHref = 'tel:+16097890126';
       <li class="nav-mobile-item">
         <a href={phoneHref} class="nav-mobile-link phone">
           {phone}
-        </a>
-      </li>
-      <li class="nav-mobile-item">
-        <a href="/#contact" class="btn btn-primary btn-block">
-          Schedule Consultation
         </a>
       </li>
     </ul>
@@ -210,6 +204,7 @@ const phoneHref = 'tel:+16097890126';
     text-decoration: none;
     font-weight: var(--font-medium);
     transition: color var(--transition-base);
+    white-space: nowrap;
   }
 
   .phone-link:hover {
