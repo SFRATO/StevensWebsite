@@ -47,6 +47,15 @@ const formatCurrency = (value: number | null): string => {
   <!-- CTA Hero Section -->
   <section class="market-hero">
     <div class="container">
+      <div class="hero-agent">
+        <img
+          src="/images/headshot.jpg"
+          alt="Steven Frato, Century 21 Real Estate Agent"
+          class="hero-headshot"
+        />
+        <span class="hero-agent-name">Steven Frato</span>
+        <span class="hero-agent-tagline">Helping NJ Homeowners Get Top Dollar</span>
+      </div>
       <h1>Find Out What Your Home Is Worth in Today's Market</h1>
       <p class="hero-subtitle">
         Central New Jersey's real estate market is moving fast.
@@ -137,16 +146,6 @@ const formatCurrency = (value: number | null): string => {
             <li>Neighborhood tours and school district information</li>
             <li>Negotiation support to get the best price</li>
           </ul>
-        </div>
-        <div class="resources-image">
-          <div class="image-placeholder">
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 10L10 35v40h25V60h30v15h25V35L50 10z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            <p class="text-center" style="margin-top: 1rem; color: var(--text-secondary);">
-              Helping families find their dream homes
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -239,6 +238,54 @@ const formatCurrency = (value: number | null): string => {
     color: rgba(255, 255, 255, 0.6);
     font-size: var(--text-sm);
     margin: 0;
+  }
+
+  .hero-agent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .hero-headshot {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--c21-gold);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-agent-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--white);
+    letter-spacing: 0.02em;
+  }
+
+  .hero-agent-tagline {
+    font-size: var(--text-sm);
+    color: var(--c21-gold);
+    font-weight: var(--font-medium);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 768px) {
+    .hero-headshot {
+      width: 120px;
+      height: 120px;
+    }
+
+    .hero-agent-name {
+      font-size: var(--text-2xl);
+    }
+
+    .hero-agent-tagline {
+      font-size: var(--text-base);
+    }
   }
 
   @media (min-width: 640px) {
@@ -427,16 +474,8 @@ const formatCurrency = (value: number | null): string => {
   }
 
   .resources-content {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-8);
-    align-items: center;
-  }
-
-  @media (min-width: 1024px) {
-    .resources-content {
-      grid-template-columns: 1.5fr 1fr;
-    }
+    max-width: 800px;
+    margin: 0 auto;
   }
 
   .resources-text h2 {
@@ -475,26 +514,5 @@ const formatCurrency = (value: number | null): string => {
     font-weight: var(--font-bold);
     font-size: var(--text-xl);
     flex-shrink: 0;
-  }
-
-  .resources-image {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .image-placeholder {
-    width: 100%;
-    max-width: 400px;
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--white);
-    border-radius: var(--radius-xl);
-    border: 3px dashed var(--border-color);
-    color: var(--c21-gold);
-    padding: var(--space-8);
   }
 </style>
