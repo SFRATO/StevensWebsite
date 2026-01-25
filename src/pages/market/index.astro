@@ -52,18 +52,40 @@ const description = `Current real estate market trends for Burlington, Mercer, a
 ---
 
 <BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+  <!-- Hero Section: Primary CTA -->
+  <section class="market-hero">
+    <div class="container">
+      <h1>Find Out What Your Home Is Worth in Today's Market</h1>
+      <p class="hero-subtitle">
+        Central New Jersey's real estate market is moving fast.
+        Get a free, no-obligation home valuation from a local expert.
+      </p>
+
+      <div class="hero-cta">
+        <a href="tel:+16097890126" class="btn btn-primary btn-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+          Call (609) 789-0126
+        </a>
+        <span class="cta-divider">or</span>
+        <a href="/contact/" class="btn btn-secondary">Request Free Valuation</a>
+      </div>
+
+      <p class="trust-line">Century 21 | Serving Burlington, Mercer & Middlesex Counties</p>
+    </div>
+  </section>
+
+  <!-- County Market Data -->
   <section class="counties-section">
     <div class="container">
-      <h1>Markets by County</h1>
-      <p class="section-intro">
-        Select a county to view towns and neighborhoods in that area.
-      </p>
+      <h2 class="counties-heading">See what's happening in your local market:</h2>
 
       <div class="counties-grid">
         {counties.map((county) => (
           <a href={`/areas/#${county.slug}`} class="county-card">
             <div class="county-header">
-              <h2>{county.region}</h2>
+              <h3>{county.region}</h3>
               <span class={`market-badge badge-${county.market_type}`}>
                 {county.market_type === 'seller' ? "Seller's Market" :
                  county.market_type === 'buyer' ? "Buyer's Market" : 'Balanced'}
@@ -103,21 +125,131 @@ const description = `Current real estate market trends for Burlington, Mercer, a
 </BaseLayout>
 
 <style>
+  /* Hero Section */
+  .market-hero {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2d2d2d 100%);
+    padding: var(--space-16) 0;
+    text-align: center;
+  }
+
+  .market-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    color: var(--white);
+    margin-bottom: var(--space-4);
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+    line-height: 1.6;
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+    text-decoration: none;
+    transition: all var(--transition-base);
+    cursor: pointer;
+  }
+
+  .btn-primary {
+    background-color: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--c21-gold-dark);
+    transform: translateY(-2px);
+  }
+
+  .btn-lg {
+    padding: var(--space-5) var(--space-10);
+    font-size: var(--text-lg);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: var(--c21-gold);
+    border: 2px solid var(--c21-gold);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .cta-divider {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .trust-line {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  @media (min-width: 640px) {
+    .hero-cta {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .market-hero {
+      padding: var(--space-12) 0;
+    }
+
+    .market-hero h1 {
+      font-size: var(--text-2xl);
+    }
+
+    .hero-subtitle {
+      font-size: var(--text-base);
+    }
+
+    .btn-lg {
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+
   /* Counties Section */
   .counties-section {
     padding: var(--space-12) 0;
     background-color: var(--off-white);
   }
 
-  .counties-section h1 {
-    font-size: var(--text-3xl);
-    margin-bottom: var(--space-2);
-  }
-
-  .section-intro {
-    color: var(--text-secondary);
-    font-size: var(--text-lg);
-    margin-bottom: var(--space-8);
+  .counties-heading {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
   }
 
   .counties-grid {
@@ -162,7 +294,7 @@ const description = `Current real estate market trends for Burlington, Mercer, a
     margin-bottom: var(--space-4);
   }
 
-  .county-header h2 {
+  .county-header h3 {
     font-size: var(--text-xl);
     color: var(--text-primary);
     margin: 0;
