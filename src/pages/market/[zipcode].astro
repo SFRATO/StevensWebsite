@@ -9,7 +9,7 @@ import MarketCard from '@components/MarketCard.astro';
 import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
 import { generateBreadcrumbSchema, generateMarketDataSchema, generateFAQSchema } from '@utils/schema';
-import { getTownNameByZipcode } from '../../data/town-mappings';
+import { getTownsByZipcode } from '../../data/town-mappings';
 
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
@@ -91,9 +91,11 @@ const formatDate = (dateStr: string): string => {
 const currentDate = new Date();
 const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
-// Get curated town name from our mapping, fallback to city from data
-const curatedTownName = getTownNameByZipcode(zipData.zipcode);
-const townDisplayName = curatedTownName || zipData.city || `Zip ${zipData.zipcode}`;
+// Get all towns for this zipcode (handles shared zips like Medford/Medford Lakes)
+const matchingTowns = getTownsByZipcode(zipData.zipcode);
+const townDisplayName = matchingTowns.length > 0
+  ? matchingTowns.map(t => t.name).join(' / ')
+  : zipData.city || `Zip ${zipData.zipcode}`;
 const locationName = zipData.city ? `${zipData.city} (${zipData.zipcode})` : zipData.zipcode;
 
 // Build hero subtitle with key metrics
