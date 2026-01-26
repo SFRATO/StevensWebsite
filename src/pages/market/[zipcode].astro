@@ -87,6 +87,11 @@ const formatDate = (dateStr: string): string => {
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 };
 
+// Calculate sale-to-list ratio
+const saleToListRatio = (zipData.median_sale_price && zipData.median_list_price)
+  ? (zipData.median_sale_price / zipData.median_list_price * 100)
+  : null;
+
 // Get current month/year for title
 const currentDate = new Date();
 const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -95,7 +100,7 @@ const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long'
 const matchingTowns = getTownsByZipcode(zipData.zipcode);
 const townDisplayName = matchingTowns.length > 0
   ? matchingTowns.map(t => t.name).join(' / ')
-  : zipData.city || `Zip ${zipData.zipcode}`;
+  : zipData.city || zipData.region || zipData.zipcode;
 const locationName = zipData.city ? `${zipData.city} (${zipData.zipcode})` : zipData.zipcode;
 
 // Build hero subtitle with key metrics
@@ -250,22 +255,48 @@ const description = `${locationName} real estate market: median price ${formatCu
         <div class="detail-card">
           <h3>Additional Metrics</h3>
           <ul class="metric-list">
-            <li>
-              <span class="label">Median List Price</span>
-              <span class="value">{formatCurrency(zipData.median_list_price)}</span>
-            </li>
-            <li>
-              <span class="label">Months of Supply</span>
-              <span class="value">{zipData.months_of_supply?.toFixed(1) ?? 'N/A'}</span>
-            </li>
-            <li>
-              <span class="label">Price Reductions</span>
-              <span class="value">{zipData.price_drops_pct?.toFixed(0) ?? 'N/A'}%</span>
-            </li>
-            <li>
-              <span class="label">Homes Sold (Monthly)</span>
-              <span class="value">{zipData.homes_sold ?? 'N/A'}</span>
-            </li>
+            {zipData.median_list_price !== null && (
+              <li>
+                <span class="label">Median List Price</span>
+                <span class="value">
+                  {formatCurrency(zipData.median_list_price)}
+                  {zipData.median_list_price_yoy !== null && (
+                    <TrendIndicator value={zipData.median_list_price_yoy} size="sm" />
+                  )}
+                </span>
+              </li>
+            )}
+            {zipData.homes_sold !== null && (
+              <li>
+                <span class="label">Homes Sold (Monthly)</span>
+                <span class="value">
+                  {zipData.homes_sold}
+                  {zipData.homes_sold_yoy !== null && (
+                    <TrendIndicator value={zipData.homes_sold_yoy} size="sm" />
+                  )}
+                </span>
+              </li>
+            )}
+            {zipData.sold_above_list_pct !== null && (
+              <li>
+                <span class="label">Sold Above List</span>
+                <span class="value">{zipData.sold_above_list_pct.toFixed(0)}%</span>
+              </li>
+            )}
+            {saleToListRatio !== null && (
+              <li>
+                <span class="label">Sale-to-List Ratio</span>
+                <span class="value">{saleToListRatio.toFixed(1)}%</span>
+              </li>
+            )}
+            {zipData.inventory_yoy !== null && (
+              <li>
+                <span class="label">Inventory Change</span>
+                <span class="value">
+                  <TrendIndicator value={zipData.inventory_yoy} size="sm" />
+                </span>
+              </li>
+            )}
           </ul>
         </div>
 
@@ -336,6 +367,17 @@ const description = `${locationName} real estate market: median price ${formatCu
     </section>
   )}
 
+  <!-- Visual Break before Lead Capture -->
+  <div class="section-divider">
+    <div class="container">
+      <div class="divider-content">
+        <span class="divider-line"></span>
+        <span class="divider-text">Get Your Free Report</span>
+        <span class="divider-line"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- Lead Capture -->
   <section class="lead-capture" id="lead-capture">
     <div class="container">
@@ -391,16 +433,6 @@ const description = `${locationName} real estate market: median price ${formatCu
     </div>
   </section>
 
-  <!-- Disclaimer -->
-  <section class="disclaimer">
-    <div class="container">
-      <p>
-        <strong>Data Source:</strong> Redfin Data Center, updated {formatDate(zipData.period_end)}.
-        Statistics based on all residential property types. Market conditions vary by specific location
-        and property. Contact Steven Frato for a personalized home valuation.
-      </p>
-    </div>
-  </section>
 </BaseLayout>
 
 <style>
@@ -512,6 +544,9 @@ const description = `${locationName} real estate market: median price ${formatCu
   .metric-list .value {
     font-weight: var(--font-semibold);
     color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .detail-card.highlight {
@@ -599,6 +634,33 @@ const description = `${locationName} real estate market: median price ${formatCu
   .insight-box p {
     color: var(--text-secondary);
     line-height: var(--leading-relaxed);
+  }
+
+  /* Section Divider */
+  .section-divider {
+    padding: var(--space-8) 0;
+    background: var(--white);
+  }
+
+  .divider-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--c21-gold), transparent);
+  }
+
+  .divider-text {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--c21-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
   }
 
   /* Lead Capture */
@@ -730,17 +792,4 @@ const description = `${locationName} real estate market: median price ${formatCu
     color: var(--c21-gold);
   }
 
-  /* Disclaimer */
-  .disclaimer {
-    padding: var(--space-6) 0;
-    background: var(--light-gray);
-  }
-
-  .disclaimer p {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    text-align: center;
-    max-width: 800px;
-    margin: 0 auto;
-  }
 </style>
