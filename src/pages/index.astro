@@ -4,7 +4,6 @@
  * Homepage with CTA hero, county market data, value propositions, and contact
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import ValuePropositionCards from '@components/ValuePropositionCards.astro';
 import MarketInsightsDashboard from '@components/MarketInsightsDashboard.astro';
 import ContactForm from '@components/ContactForm.astro';
 
@@ -48,18 +47,11 @@ const formatCurrency = (value: number | null): string => {
   <section class="market-hero">
     <div class="container">
       <div class="hero-agent">
-        <img
-          src="/images/headshot.jpg"
-          alt="Steven Frato, Century 21 Real Estate Agent"
-          class="hero-headshot"
-        />
         <span class="hero-agent-name">Steven Frato</span>
-        <span class="hero-agent-tagline">Helping NJ Homeowners Get Top Dollar</span>
       </div>
-      <h1>Find Out What Your Home Is Worth in Today's Market</h1>
+      <h1>Navigate the NJ Real Estate Market with Confidence</h1>
       <p class="hero-subtitle">
-        Central New Jersey's real estate market is moving fast.
-        Get a free, no-obligation home valuation from a local expert.
+        Whether you're buying or selling, get expert guidance from a local agent who knows Burlington, Mercer, and Middlesex Counties.
       </p>
 
       <div class="hero-cta">
@@ -69,8 +61,6 @@ const formatCurrency = (value: number | null): string => {
           </svg>
           Call (609) 789-0126
         </a>
-        <span class="cta-divider">or</span>
-        <a href="#contact" class="btn btn-secondary">Request Free Valuation</a>
       </div>
 
       <p class="trust-line">Century 21 | Serving Burlington, Mercer & Middlesex Counties</p>
@@ -124,9 +114,6 @@ const formatCurrency = (value: number | null): string => {
     </div>
   </section>
 
-  <!-- Value Proposition Cards -->
-  <ValuePropositionCards />
-
   <!-- Market Insights Dashboard -->
   <MarketInsightsDashboard />
 
@@ -158,7 +145,7 @@ const formatCurrency = (value: number | null): string => {
 <style>
   /* Hero Section */
   .market-hero {
-    background: linear-gradient(135deg, var(--charcoal) 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
     padding: var(--space-16) 0;
     text-align: center;
   }
@@ -216,24 +203,6 @@ const formatCurrency = (value: number | null): string => {
     font-size: var(--text-lg);
   }
 
-  .btn-secondary {
-    background-color: transparent;
-    color: var(--c21-gold);
-    border: 2px solid var(--c21-gold);
-  }
-
-  .btn-secondary:hover {
-    background-color: var(--c21-gold);
-    color: var(--white);
-  }
-
-  .cta-divider {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
   .trust-line {
     color: rgba(255, 255, 255, 0.6);
     font-size: var(--text-sm);
@@ -248,43 +217,17 @@ const formatCurrency = (value: number | null): string => {
     margin-bottom: var(--space-6);
   }
 
-  .hero-headshot {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--c21-gold);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  }
-
   .hero-agent-name {
     font-family: var(--font-heading);
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
     font-weight: var(--font-bold);
     color: var(--white);
     letter-spacing: 0.02em;
   }
 
-  .hero-agent-tagline {
-    font-size: var(--text-sm);
-    color: var(--c21-gold);
-    font-weight: var(--font-medium);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
   @media (min-width: 768px) {
-    .hero-headshot {
-      width: 120px;
-      height: 120px;
-    }
-
     .hero-agent-name {
-      font-size: var(--text-2xl);
-    }
-
-    .hero-agent-tagline {
-      font-size: var(--text-base);
+      font-size: var(--text-3xl);
     }
   }
 
@@ -313,10 +256,6 @@ const formatCurrency = (value: number | null): string => {
       max-width: 300px;
     }
 
-    .btn-secondary {
-      width: 100%;
-      max-width: 300px;
-    }
   }
 
   /* Counties Section */

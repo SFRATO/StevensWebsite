@@ -6,14 +6,9 @@
  * CRO Psychology Applied:
  * - Loss aversion in headline
  * - Urgency through data recency
- * - Social proof strip
- * - Value anchoring ($250 value)
  * - Reduced activation energy (time estimate)
  * - Trust signals addressing privacy + commitment objections
- * - Testimonial for social proof
  */
-import SocialProofStrip from './SocialProofStrip.astro';
-import FormTestimonial from './FormTestimonial.astro';
 import UrgencyBanner from './UrgencyBanner.astro';
 
 interface Props {
@@ -54,8 +49,6 @@ const {
       />
     </div>
   )}
-
-  <SocialProofStrip />
 
   <form
     name={formName}
@@ -160,52 +153,6 @@ const {
       </div>
     </div>
   </form>
-
-  <div class="report-preview">
-    <div class="preview-header">
-      <span>Your Report Includes:</span>
-      <span class="value-tag">$250 Value - FREE</span>
-    </div>
-    <ul class="preview-list">
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span><strong>Current {location} market snapshot</strong> (updated monthly)</span>
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span><strong>3-5 comparable sales</strong> within 0.5 miles of your property</span>
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span><strong>Estimated value range</strong> based on current buyer activity</span>
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span><strong>Personalized timing recommendations</strong></span>
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span><strong>Bonus: "Is Now a Good Time to Sell?"</strong> analysis</span>
-      </li>
-    </ul>
-  </div>
-
-  <FormTestimonial
-    quote="Steven's report was spot-on. We listed at his recommended price and sold in 12 days!"
-    author="Robert C."
-    location="Moorestown"
-    result="Sold in 12 days"
-  />
 </div>
 
 <style>
@@ -374,59 +321,5 @@ const {
   .privacy-note svg,
   .no-obligation svg {
     flex-shrink: 0;
-  }
-
-  .report-preview {
-    padding: var(--space-5) var(--space-6);
-    background: var(--off-white);
-    border-top: 1px solid var(--border-color);
-  }
-
-  .preview-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-  }
-
-  .value-tag {
-    font-size: var(--text-xs);
-    font-weight: var(--font-bold);
-    color: var(--white);
-    background: var(--c21-gold);
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-  }
-
-  .preview-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .preview-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    line-height: var(--leading-relaxed);
-  }
-
-  .preview-list svg {
-    color: var(--accent-green);
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .preview-list strong {
-    color: var(--text-primary);
   }
 </style>

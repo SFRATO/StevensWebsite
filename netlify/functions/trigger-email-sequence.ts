@@ -1,7 +1,7 @@
 /**
  * Trigger Email Sequence
  *
- * Initiates the 7-email nurture campaign for market report leads.
+ * Initiates the 5-email nurture campaign for market report leads.
  * Uses Amazon SES for email delivery.
  */
 
@@ -32,10 +32,8 @@ const EMAIL_SEQUENCE = [
   { day: 0, templateId: "welcome-report", subject: "Your {location} Market Report is Ready" },
   { day: 3, templateId: "market-deep-dive", subject: "What {location}'s Market Data Means for You" },
   { day: 7, templateId: "pricing-strategy", subject: "How to Price Your Home in Today's {location} Market" },
-  { day: 11, templateId: "case-study", subject: "How I Helped a {location} Seller Get Top Dollar" },
-  { day: 15, templateId: "preparation-tips", subject: "5 Things {location} Buyers Are Looking For Right Now" },
-  { day: 18, templateId: "testimonial", subject: '"Steven made selling our home effortless"' },
-  { day: 21, templateId: "consultation-cta", subject: "Ready to Discuss Your Options?" },
+  { day: 11, templateId: "preparation-tips", subject: "5 Things {location} Buyers Are Looking For Right Now" },
+  { day: 14, templateId: "consultation-cta", subject: "Ready to Discuss Your Options?" },
 ];
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {

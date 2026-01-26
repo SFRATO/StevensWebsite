@@ -8,7 +8,7 @@ Built with [Astro](https://astro.build) for optimal performance and SEO.
 
 - **Programmatic SEO Pages** - Automated market data pages for counties and zip codes
 - **Lead Capture System** - Gated market reports with PDF generation
-- **Email Drip Campaign** - 7-email nurture sequence for leads
+- **Email Drip Campaign** - 5-email nurture sequence for leads
 - **Automated Data Pipeline** - Monthly market data updates via GitHub Actions
 - **Schema.org Markup** - Rich structured data for search engines
 - **Responsive Design** - Mobile-first Century 21 branded design
@@ -113,7 +113,7 @@ NETLIFY_BUILD_HOOK=your_hook_url
 2. User fills out Market Report Form
 3. Netlify Function handles submission
 4. PDF report is generated
-5. 7-email drip campaign is triggered via Amazon SES
+5. 5-email drip campaign is triggered via Amazon SES
 
 ### Email Sequence
 
@@ -122,10 +122,8 @@ NETLIFY_BUILD_HOOK=your_hook_url
 | 0 | Welcome + Report | "Your [Location] Market Report is Ready" |
 | 3 | Market Analysis | "What [Location]'s Market Data Means for You" |
 | 7 | Pricing Strategy | "How to Price Your Home in Today's Market" |
-| 11 | Case Study | "How I Helped a Seller Get Top Dollar" |
-| 15 | Buyer Trends | "5 Things Buyers Are Looking For" |
-| 18 | Testimonials | "Steven made selling effortless" |
-| 21 | Consultation CTA | "Ready to Discuss Your Options?" |
+| 11 | Buyer Trends | "5 Things Buyers Are Looking For" |
+| 14 | Consultation CTA | "Ready to Discuss Your Options?" |
 
 ## Automation
 

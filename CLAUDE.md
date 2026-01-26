@@ -150,14 +150,12 @@ Located in `src/emails/templates/`. Each template:
 
 ### Email Sequence
 
-7 emails over 21 days, triggered by form submission:
+5 emails over 14 days, triggered by form submission:
 1. Day 0: Welcome + PDF delivery
 2. Day 3: Market deep dive
 3. Day 7: Pricing strategy
-4. Day 11: Case study
-5. Day 15: Preparation tips
-6. Day 18: Testimonials
-7. Day 21: Consultation CTA
+4. Day 11: Preparation tips
+5. Day 14: Consultation CTA
 
 ## Netlify Functions
 
@@ -167,7 +165,7 @@ Forms use Netlify Forms with a serverless function handler:
 - Form submits to Netlify Forms (built-in)
 - `handle-market-report.ts` processes submission
 - `generate-pdf.ts` creates personalized market report PDF
-- `trigger-email-sequence.ts` sends welcome email via Amazon SES and initiates the 7-email drip campaign
+- `trigger-email-sequence.ts` sends welcome email via Amazon SES and initiates the 5-email drip campaign
 
 ### Function Pattern
 
