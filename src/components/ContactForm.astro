@@ -4,12 +4,18 @@
  * Lead capture form using Netlify Forms
  * Features: validation, spam protection (honeypot), accessible
  */
+import TownZipFieldIsland from './TownZipFieldIsland';
+import { getTownZipMappings, getAllValidZipcodes } from '../data/town-mappings';
 
 interface Props {
   formName?: string;
 }
 
 const { formName = 'contact' } = Astro.props;
+
+// Get data for town/zip autocomplete
+const townZipMappings = getTownZipMappings();
+const validZipcodes = getAllValidZipcodes();
 ---
 
 <section id="contact" class="contact-section">
@@ -127,6 +133,17 @@ const { formName = 'contact' } = Astro.props;
               required
               aria-required="true"
               placeholder="(555) 123-4567"
+            />
+          </div>
+
+          <!-- Town/Zip Fields -->
+          <div class="form-group-row">
+            <TownZipFieldIsland
+              client:load
+              mappings={townZipMappings}
+              validZipcodes={validZipcodes}
+              townRequired={false}
+              zipcodeRequired={false}
             />
           </div>
 
@@ -319,6 +336,18 @@ const { formName = 'contact' } = Astro.props;
   .form-textarea {
     resize: vertical;
     min-height: 120px;
+  }
+
+  .form-group-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 480px) {
+    .form-group-row {
+      grid-template-columns: 1fr;
+    }
   }
 
   .form-privacy {

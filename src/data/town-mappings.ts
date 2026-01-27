@@ -165,3 +165,70 @@ export function getTownsByZipcode(zipcode: string): TownMapping[] {
   }
   return towns;
 }
+
+// --- Autocomplete helper types and functions ---
+
+export interface TownZipMapping {
+  town: string;
+  zipcode: string;
+  county: string;
+  displayTown: string; // For shared zips, shows "Town1 / Town2"
+}
+
+// Get all mappings with shared-zip info for autocomplete
+// Note: For towns with multiple zipcodes (e.g., Hamilton has 08610, 08620, 08629),
+// we only keep the first zipcode to simplify selection
+export function getTownZipMappings(): TownZipMapping[] {
+  const mappings: TownZipMapping[] = [];
+  const seenTowns = new Set<string>();
+
+  for (const [county, countyTowns] of Object.entries(serviceAreas)) {
+    for (const town of countyTowns) {
+      // Skip if we've already added this town (use first zipcode for multi-zip towns)
+      if (seenTowns.has(town.name)) continue;
+      seenTowns.add(town.name);
+
+      // Find all towns that share this zipcode
+      const sharedTowns = getTownsByZipcode(town.zipcode);
+      const displayTown = sharedTowns.length > 1
+        ? sharedTowns.map(t => t.name).join(' / ')
+        : town.name;
+
+      mappings.push({
+        town: town.name,
+        zipcode: town.zipcode,
+        county,
+        displayTown,
+      });
+    }
+  }
+
+  return mappings.sort((a, b) => a.town.localeCompare(b.town));
+}
+
+// Get first zipcode for multi-zip towns (e.g., Hamilton → 08610)
+export function getFirstZipcodeForTown(townName: string): string | null {
+  for (const countyTowns of Object.values(serviceAreas)) {
+    const town = countyTowns.find((t) => t.name === townName);
+    if (town) return town.zipcode;
+  }
+  return null;
+}
+
+// Get all valid zipcodes for validation
+export function getAllValidZipcodes(): string[] {
+  const zipcodes = new Set<string>();
+  for (const countyTowns of Object.values(serviceAreas)) {
+    for (const town of countyTowns) {
+      zipcodes.add(town.zipcode);
+    }
+  }
+  return Array.from(zipcodes).sort();
+}
+
+// Get display name for a zipcode (joined town names if shared)
+export function getDisplayTownForZipcode(zipcode: string): string | null {
+  const towns = getTownsByZipcode(zipcode);
+  if (towns.length === 0) return null;
+  return towns.map(t => t.name).join(' / ');
+}
