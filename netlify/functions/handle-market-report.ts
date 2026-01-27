@@ -9,10 +9,12 @@ import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
 
 interface FormSubmission {
   "form-name": string;
-  "property-address": string;
+  name: string;
+  address: string;
+  town: string;
+  zipcode: string;
   email: string;
   phone?: string;
-  timeline?: string;
   "source-location": string;
 }
 
@@ -39,15 +41,17 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     const params = new URLSearchParams(body);
     const formData: FormSubmission = {
       "form-name": params.get("form-name") || "",
-      "property-address": params.get("property-address") || "",
+      name: params.get("name") || "",
+      address: params.get("address") || "",
+      town: params.get("town") || "",
+      zipcode: params.get("zipcode") || "",
       email: params.get("email") || "",
       phone: params.get("phone") || undefined,
-      timeline: params.get("timeline") || undefined,
       "source-location": params.get("source-location") || "",
     };
 
     // Validate required fields
-    if (!formData.email || !formData["property-address"]) {
+    if (!formData.email || !formData.name || !formData.address || !formData.town || !formData.zipcode) {
       return {
         statusCode: 400,
         body: JSON.stringify({ error: "Missing required fields" }),
@@ -56,9 +60,11 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
     // Log submission (in production, you'd store this)
     console.log("Market report request received:", {
+      name: formData.name,
       location: formData["source-location"],
       email: formData.email,
-      timeline: formData.timeline,
+      town: formData.town,
+      zipcode: formData.zipcode,
     });
 
     // Trigger PDF generation (call the generate-pdf function)
@@ -72,7 +78,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
         body: JSON.stringify({
           location: formData["source-location"],
           email: formData.email,
-          address: formData["property-address"],
+          name: formData.name,
+          address: formData.address,
+          town: formData.town,
+          zipcode: formData.zipcode,
         }),
       }
     );
@@ -91,9 +100,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
         },
         body: JSON.stringify({
           email: formData.email,
+          name: formData.name,
           location: formData["source-location"],
-          timeline: formData.timeline,
-          propertyAddress: formData["property-address"],
+          address: formData.address,
+          town: formData.town,
+          zipcode: formData.zipcode,
+          phone: formData.phone,
         }),
       }
     );

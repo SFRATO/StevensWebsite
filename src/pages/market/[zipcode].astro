@@ -383,9 +383,12 @@ const description = `${locationName} real estate market: median price ${formatCu
     <div class="container">
       <MarketReportForm
         location={locationName}
+        townName={townDisplayName}
         lastUpdated={formatDate(zipData.period_end)}
         priceChangeYoY={zipData.median_sale_price_yoy}
         marketType={zipData.market_type}
+        prefillTown={townDisplayName}
+        prefillZipcode={zipData.zipcode}
       />
     </div>
   </section>

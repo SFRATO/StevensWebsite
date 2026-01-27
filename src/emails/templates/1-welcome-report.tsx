@@ -13,16 +13,29 @@ import { Footer } from "../components/Footer";
 import { Button } from "../components/Button";
 
 interface WelcomeReportEmailProps {
-  location: string;
-  propertyAddress: string;
-  recipientName?: string;
+  name: string;
+  address: string;
+  town: string;
+  zipcode: string;
 }
 
 export const WelcomeReportEmail: React.FC<WelcomeReportEmailProps> = ({
-  location = "Burlington County",
-  propertyAddress = "123 Main Street, City, NJ",
-  recipientName,
+  name = "Homeowner",
+  address = "123 Main Street",
+  town = "Burlington",
+  zipcode = "08016",
 }) => {
+  // Generate the PDF download URL
+  const pdfParams = new URLSearchParams({
+    zipcode,
+    name,
+    address,
+    town,
+  });
+  const pdfUrl = `https://stevenfrato.com/.netlify/functions/generate-pdf?${pdfParams.toString()}`;
+
+  const fullAddress = `${address}, ${town}, NJ ${zipcode}`;
+
   return (
     <Html>
       <Head />
@@ -32,21 +45,23 @@ export const WelcomeReportEmail: React.FC<WelcomeReportEmailProps> = ({
 
           <Section style={content}>
             <Heading style={heading}>
-              Your {location} Market Report is Ready
+              Your {town} Market Report is Ready
             </Heading>
 
-            <Text style={paragraph}>
-              {recipientName ? `Hi ${recipientName},` : "Hello,"}
-            </Text>
+            <Text style={paragraph}>Hi {name},</Text>
 
             <Text style={paragraph}>
-              Thank you for your interest in the {location} real estate market.
+              Thank you for your interest in the {town}, NJ real estate market.
               I've prepared a personalized market analysis based on your
               property at:
             </Text>
 
             <Section style={addressBox}>
-              <Text style={addressText}>{propertyAddress}</Text>
+              <Text style={addressText}>{fullAddress}</Text>
+            </Section>
+
+            <Section style={ctaSection}>
+              <Button href={pdfUrl}>Download Your Market Report (PDF)</Button>
             </Section>
 
             <Heading as="h3" style={subheading}>
@@ -55,25 +70,31 @@ export const WelcomeReportEmail: React.FC<WelcomeReportEmailProps> = ({
 
             <ul style={list}>
               <li style={listItem}>
-                Current market conditions for {location}
+                Current market conditions for {town} ({zipcode})
               </li>
-              <li style={listItem}>Recent comparable sales in your area</li>
               <li style={listItem}>
-                Estimated value range for your property
+                Median sale price and year-over-year trends
               </li>
-              <li style={listItem}>Personalized selling recommendations</li>
+              <li style={listItem}>Days on market and inventory levels</li>
+              <li style={listItem}>
+                Whether it's a buyer's or seller's market
+              </li>
             </ul>
 
-            <Section style={ctaSection}>
-              <Button href="https://stevenfrato.com/market/">
-                View Latest Market Data
-              </Button>
+            <Section style={consultationBox}>
+              <Text style={consultationTitle}>
+                Want to discuss your options?
+              </Text>
+              <Text style={consultationText}>
+                I'm happy to provide a complimentary home value consultation.
+                Just reply to this email or call me directly.
+              </Text>
             </Section>
 
             <Text style={paragraph}>
-              I'll be sending you more insights about the {location} market over
-              the coming weeks. In the meantime, feel free to reach out if you
-              have any questions about your home's value or the selling process.
+              I'll be sending you more insights about the {town} market over the
+              coming weeks. In the meantime, feel free to reach out if you have
+              any questions about your home's value or the selling process.
             </Text>
 
             <Text style={signature}>
@@ -82,6 +103,8 @@ export const WelcomeReportEmail: React.FC<WelcomeReportEmailProps> = ({
               <strong>Steven Frato</strong>
               <br />
               Century 21
+              <br />
+              (609) 789-0126
             </Text>
           </Section>
 
@@ -158,6 +181,28 @@ const listItem: React.CSSProperties = {
 const ctaSection: React.CSSProperties = {
   textAlign: "center" as const,
   margin: "30px 0",
+};
+
+const consultationBox: React.CSSProperties = {
+  background: "linear-gradient(135deg, rgba(201, 156, 51, 0.1) 0%, rgba(201, 156, 51, 0.2) 100%)",
+  padding: "20px",
+  borderRadius: "8px",
+  borderLeft: "4px solid #C99C33",
+  margin: "25px 0",
+};
+
+const consultationTitle: React.CSSProperties = {
+  fontSize: "16px",
+  fontWeight: "600",
+  color: "#1a1a1a",
+  margin: "0 0 10px",
+};
+
+const consultationText: React.CSSProperties = {
+  fontSize: "14px",
+  color: "#666",
+  margin: "0",
+  lineHeight: "1.6",
 };
 
 const signature: React.CSSProperties = {
