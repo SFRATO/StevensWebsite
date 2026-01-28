@@ -123,6 +123,17 @@ const validZipcodes = getAllValidZipcodes();
           placeholder="(609) 555-1234"
         />
       </div>
+
+      <div class="form-group full-width">
+        <label for="interest">I'm interested in <span class="required">*</span></label>
+        <select id="interest" name="interest" required aria-required="true">
+          <option value="selling" selected>Selling a Home</option>
+          <option value="buying">Buying a Home</option>
+          <option value="both">Both Buying & Selling</option>
+          <option value="investment">Investment Property</option>
+          <option value="consultation">General Consultation</option>
+        </select>
+      </div>
     </div>
 
     <div class="form-footer">
