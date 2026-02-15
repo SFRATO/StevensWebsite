@@ -27,6 +27,120 @@ interface FormSubmissionPayload {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+
+  // Qualification fields from multi-step quiz
+  intent?: string;
+  timeline?: string;
+  "property-type"?: string;
+  "value-range"?: string;
+  "budget-range"?: string;
+  "important-factor"?: string;
+  "pre-approved"?: string;
+  "contact-preference"?: string;
+  "lead-score"?: string;
+  "lead-temperature"?: string;
+}
+
+// Lead scoring types
+type LeadTemperature = 'hot' | 'warm' | 'nurture' | 'cold';
+type LeadPriority = 'immediate' | 'same-day' | 'nurture' | 'drip';
+
+interface LeadScore {
+  score: number;
+  temperature: LeadTemperature;
+  priority: LeadPriority;
+}
+
+// Lead scoring calculation (mirrors TypeScript utility)
+function calculateLeadScore(data: {
+  intent?: string;
+  timeline?: string;
+  propertyType?: string;
+  valueRange?: string;
+  budgetRange?: string;
+  importantFactor?: string;
+  preApproved?: boolean | null;
+  contactPreference?: string;
+}): LeadScore {
+  let score = 0;
+
+  // Timeline scoring (max 40)
+  const timelineScores: Record<string, number> = {
+    'within-30-days': 40,
+    '1-3-months': 25,
+    '3-6-months': 15,
+    '6-plus-months': 5,
+  };
+  score += timelineScores[data.timeline || ''] || 0;
+
+  // Intent scoring (max 25)
+  const intentScores: Record<string, number> = {
+    'selling': 20,
+    'buying': 15,
+    'both': 25,
+    'home-value': 10,
+    'browsing': 0,
+  };
+  score += intentScores[data.intent || ''] || 0;
+
+  // Property type scoring
+  const propertyScores: Record<string, number> = {
+    'single-family': 10,
+    'townhouse': 10,
+    'condo': 8,
+    'multi-family': 12,
+  };
+  score += propertyScores[data.propertyType || ''] || 0;
+
+  // Important factor scoring
+  const factorScores: Record<string, number> = {
+    'speed': 8,
+    'price': 5,
+    'convenience': 3,
+  };
+  score += factorScores[data.importantFactor || ''] || 0;
+
+  // Pre-approval for buyers
+  if (data.intent === 'buying' || data.intent === 'both') {
+    if (data.preApproved === true) {
+      score += 15;
+    } else if (data.preApproved === false) {
+      score += 5;
+    }
+  }
+
+  // Value/budget range bonus
+  if (data.valueRange || data.budgetRange) {
+    score += 5;
+  }
+
+  // Contact preference scoring
+  const contactScores: Record<string, number> = {
+    'asap': 10,
+    'morning': 5,
+    'afternoon': 5,
+    'evening': 3,
+  };
+  score += contactScores[data.contactPreference || ''] || 0;
+
+  score = Math.min(100, Math.max(0, score));
+
+  // Determine temperature
+  const temperature: LeadTemperature = score >= 80 ? 'hot' : score >= 50 ? 'warm' : score >= 25 ? 'nurture' : 'cold';
+
+  // Determine priority
+  const priorityMap: Record<LeadTemperature, LeadPriority> = {
+    'hot': 'immediate',
+    'warm': 'same-day',
+    'nurture': 'nurture',
+    'cold': 'drip',
+  };
+
+  return {
+    score,
+    temperature,
+    priority: priorityMap[temperature],
+  };
 }
 
 interface ZipcodeData {
@@ -291,11 +405,83 @@ Unsubscribe: ${unsubscribeUrl}
   }
 }
 
+// Qualification data interface for lead notification
+interface QualificationNotificationData {
+  intent: string;
+  timeline?: string;
+  propertyType?: string;
+  valueRange?: string;
+  budgetRange?: string;
+  importantFactor?: string;
+  preApproved?: boolean | null;
+  contactPreference?: string;
+  leadScore: number;
+  leadTemperature: LeadTemperature;
+  leadPriority: LeadPriority;
+}
+
+// Temperature display config
+const temperatureConfig: Record<LeadTemperature, { emoji: string; label: string; action: string; color: string; bgColor: string }> = {
+  hot: {
+    emoji: '🔥',
+    label: 'HOT LEAD',
+    action: 'CALL NOW',
+    color: '#E53935',
+    bgColor: 'rgba(229, 57, 53, 0.1)',
+  },
+  warm: {
+    emoji: '🟠',
+    label: 'Warm Lead',
+    action: 'Follow Up Today',
+    color: '#FB8C00',
+    bgColor: 'rgba(251, 140, 0, 0.1)',
+  },
+  nurture: {
+    emoji: '🟡',
+    label: 'Nurture Lead',
+    action: 'Add to Drip',
+    color: '#F9A825',
+    bgColor: 'rgba(249, 168, 37, 0.1)',
+  },
+  cold: {
+    emoji: '⚪',
+    label: 'Cold Lead',
+    action: 'Auto-Nurture',
+    color: '#9E9E9E',
+    bgColor: 'rgba(158, 158, 158, 0.1)',
+  },
+};
+
+// Format timeline for display
+function formatTimeline(timeline: string | undefined): string {
+  if (!timeline) return 'Not specified';
+  const labels: Record<string, string> = {
+    'within-30-days': 'Within 30 days',
+    '1-3-months': '1-3 months',
+    '3-6-months': '3-6 months',
+    '6-plus-months': '6+ months',
+  };
+  return labels[timeline] || timeline;
+}
+
+// Format intent for display
+function formatIntent(intent: string): string {
+  const labels: Record<string, string> = {
+    'selling': 'Selling a Home',
+    'buying': 'Buying a Home',
+    'both': 'Buying & Selling',
+    'home-value': 'Home Value Inquiry',
+    'browsing': 'Just Browsing',
+  };
+  return labels[intent] || intent;
+}
+
 // Send lead notification to Steven
 async function sendLeadNotification(
   lead: { email: string; name: string; phone?: string; address: string; town: string; zipcode: string },
   interestType: string,
-  sourceUrl: string
+  sourceUrl: string,
+  qualification?: QualificationNotificationData
 ): Promise<void> {
   const submittedAt = new Date().toLocaleString("en-US", {
     dateStyle: "full",
@@ -311,28 +497,129 @@ async function sendLeadNotification(
     consultation: "General Consultation",
   }[interestType] || interestType;
 
+  // Get temperature config if qualification data is provided
+  const hasQualification = qualification && qualification.leadTemperature;
+  const config = hasQualification ? temperatureConfig[qualification.leadTemperature] : null;
+
+  // Build subject line based on lead temperature
+  const subject = hasQualification && qualification.leadTemperature === 'hot'
+    ? `🔥 HOT LEAD: ${lead.name} - ${lead.town || 'NJ'} (Score: ${qualification.leadScore})`
+    : hasQualification
+    ? `${config?.emoji} New Lead: ${lead.name} - ${lead.town || 'NJ'} (Score: ${qualification.leadScore})`
+    : `New Lead: ${lead.name} - ${lead.town}, NJ ${lead.zipcode}`;
+
+  // Build qualification section HTML
+  let qualificationHtml = '';
+  if (hasQualification) {
+    qualificationHtml = `
+    <!-- Lead Score Section -->
+    <div style="text-align: center; padding: 20px; border-bottom: 1px solid #eee; background: ${config?.bgColor || '#f5f5f5'};">
+      <div style="font-size: 48px; margin-bottom: 10px;">${config?.emoji || '📧'}</div>
+      <div style="display: inline-block; background: ${config?.color || '#666'}; color: #ffffff; padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">
+        ${config?.label || 'NEW LEAD'} - ${config?.action || 'Review'}
+      </div>
+      <div style="margin-top: 15px;">
+        <span style="font-size: 36px; font-weight: bold; color: ${config?.color || '#666'};">${qualification.leadScore}</span>
+        <span style="font-size: 14px; color: #666;"> / 100</span>
+      </div>
+    </div>
+
+    <!-- Qualification Details -->
+    <div style="padding: 25px; border-bottom: 2px solid #C99C33;">
+      <h3 style="color: #C99C33; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 15px;">Qualification Details</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="color: #666; padding: 8px 0; width: 120px;">Intent:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${formatIntent(qualification.intent)}</td>
+        </tr>
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Timeline:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">
+            ${formatTimeline(qualification.timeline)}
+            ${qualification.timeline === 'within-30-days' ? '<span style="background: rgba(229, 57, 53, 0.1); color: #E53935; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">URGENT</span>' : ''}
+          </td>
+        </tr>
+        ${qualification.propertyType ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Property Type:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${qualification.propertyType}</td>
+        </tr>
+        ` : ''}
+        ${qualification.valueRange ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Value Range:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${qualification.valueRange}</td>
+        </tr>
+        ` : ''}
+        ${qualification.budgetRange ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Budget:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${qualification.budgetRange}</td>
+        </tr>
+        ` : ''}
+        ${qualification.importantFactor ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Priority:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${qualification.importantFactor}</td>
+        </tr>
+        ` : ''}
+        ${qualification.preApproved !== null && qualification.preApproved !== undefined ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Pre-Approved:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${qualification.preApproved ? 'Yes' : 'Not yet'}</td>
+        </tr>
+        ` : ''}
+        ${qualification.contactPreference ? `
+        <tr>
+          <td style="color: #666; padding: 8px 0;">Best Time:</td>
+          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">
+            ${qualification.contactPreference}
+            ${qualification.contactPreference === 'asap' ? '<span style="background: rgba(76, 175, 80, 0.1); color: #4CAF50; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 8px;">Ready to Talk</span>' : ''}
+          </td>
+        </tr>
+        ` : ''}
+      </table>
+    </div>
+
+    <!-- Recommended Action -->
+    <div style="padding: 20px 25px; background: ${config?.bgColor || '#f5f5f5'};">
+      <p style="margin: 0; font-weight: 600; color: ${config?.color || '#333'};">
+        ${qualification.leadTemperature === 'hot'
+          ? `🔥 HOT LEAD - Call ${lead.phone ? 'at ' + lead.phone : 'immediately'}!`
+          : qualification.leadTemperature === 'warm'
+          ? '🟠 Follow up today with a personal call or email.'
+          : qualification.leadTemperature === 'nurture'
+          ? '🟡 Added to drip campaign. Consider personal touch in a few weeks.'
+          : '⚪ Added to auto-nurture sequence.'}
+      </p>
+    </div>
+    `;
+  }
+
   const htmlBody = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Lead: ${lead.name}</title>
+  <title>${subject}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f6f6f6;">
-  <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
+  <div style="background: #ffffff; border-radius: 8px; overflow: hidden; ${hasQualification ? `border-top: 4px solid ${config?.color || '#C99C33'};` : ''}">
+    ${hasQualification ? qualificationHtml : `
     <div style="text-align: center; padding: 25px; background: #1a1a1a;">
       <span style="display: inline-block; background: #4CAF50; color: #ffffff; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; letter-spacing: 1px;">NEW LEAD</span>
       <h1 style="color: #ffffff; margin: 15px 0 5px; font-size: 24px;">Market Report Request</h1>
       <p style="color: #999; margin: 0; font-size: 14px;">${submittedAt}</p>
     </div>
+    `}
 
     <div style="padding: 25px; border-bottom: 2px solid #C99C33;">
       <h3 style="color: #C99C33; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 15px;">Contact Information</h3>
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="color: #666; padding: 8px 0; width: 100px;">Name:</td>
-          <td style="color: #1a1a1a; font-weight: 500; padding: 8px 0;">${lead.name}</td>
+          <td style="color: #1a1a1a; font-weight: 600; padding: 8px 0; font-size: 18px;">${lead.name}</td>
         </tr>
         <tr>
           <td style="color: #666; padding: 8px 0;">Email:</td>
@@ -341,13 +628,20 @@ async function sendLeadNotification(
         ${lead.phone ? `
         <tr>
           <td style="color: #666; padding: 8px 0;">Phone:</td>
-          <td style="padding: 8px 0;"><a href="tel:${lead.phone}" style="color: #C99C33; text-decoration: none;">${lead.phone}</a></td>
+          <td style="padding: 8px 0;">
+            <a href="tel:${lead.phone}" style="color: #C99C33; text-decoration: none; font-weight: 500;">${lead.phone}</a>
+            ${hasQualification && qualification.leadTemperature === 'hot' ? `
+            <a href="tel:${lead.phone}" style="display: inline-block; background: #4CAF50; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; margin-left: 10px;">CALL NOW</a>
+            ` : ''}
+          </td>
         </tr>
         ` : ""}
+        ${!hasQualification ? `
         <tr>
           <td style="color: #666; padding: 8px 0;">Interest:</td>
           <td style="padding: 8px 0;"><span style="background: #f5f5f5; padding: 4px 10px; border-radius: 4px; font-size: 14px;">${interestLabel}</span></td>
         </tr>
+        ` : ''}
       </table>
     </div>
 
@@ -369,14 +663,16 @@ async function sendLeadNotification(
       </table>
     </div>
 
-    <div style="padding: 25px;">
-      <h3 style="color: #C99C33; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 15px;">Source</h3>
-      <p style="margin: 0;"><a href="${sourceUrl}" style="color: #C99C33; text-decoration: none;">${sourceUrl}</a></p>
+    <div style="padding: 15px 25px; border-top: 1px solid #eee;">
+      <p style="margin: 0; font-size: 13px; color: #666;">
+        Source: <a href="${sourceUrl}" style="color: #C99C33;">${sourceUrl}</a>
+      </p>
+      <p style="margin: 5px 0 0; font-size: 13px; color: #999;">${submittedAt}</p>
     </div>
   </div>
 
   <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
-    This is an automated notification from stevenfrato.com
+    Lead notification from stevenfrato.com
   </p>
 </body>
 </html>
@@ -390,7 +686,7 @@ async function sendLeadNotification(
       },
       Message: {
         Subject: {
-          Data: `New Lead: ${lead.name} - ${lead.town}, NJ ${lead.zipcode}`,
+          Data: subject,
           Charset: "UTF-8",
         },
         Body: {
@@ -401,7 +697,7 @@ async function sendLeadNotification(
     });
 
     await sesClient.send(command);
-    console.log("Lead notification sent to Steven");
+    console.log(`Lead notification sent to Steven (${hasQualification ? qualification.leadTemperature : 'no score'})`);
   } catch (error) {
     console.error("Failed to send lead notification:", error);
   }
@@ -464,8 +760,17 @@ serve(async (req) => {
       // If lead was unsubscribed/bounced, we could reactivate, but for now treat as duplicate
     }
 
-    // Determine interest type
-    const interestType = payload.interest || "selling";
+    // Determine interest type - prefer new intent field, fall back to interest
+    const intent = payload.intent || payload.interest || "selling";
+    // Map new intent values to old interest_type enum
+    const intentToInterestMap: Record<string, string> = {
+      'selling': 'selling',
+      'buying': 'buying',
+      'both': 'both',
+      'home-value': 'selling',  // Home value seekers are potential sellers
+      'browsing': 'consultation',
+    };
+    const interestType = intentToInterestMap[intent] || intent;
     const validInterestTypes = ["selling", "buying", "both", "investment", "consultation"];
     const finalInterestType = validInterestTypes.includes(interestType) ? interestType : "selling";
 
@@ -488,6 +793,31 @@ serve(async (req) => {
     // Determine county from zipcode data or default
     const county = zipData?.county || "Burlington County";
 
+    // Calculate lead score from qualification data
+    const preApprovedValue = payload["pre-approved"] === "yes" ? true :
+                             payload["pre-approved"] === "no" ? false :
+                             payload["pre-approved"] === "cash" ? true : null;
+
+    const leadScoreData = calculateLeadScore({
+      intent: payload.intent,
+      timeline: payload.timeline,
+      propertyType: payload["property-type"],
+      valueRange: payload["value-range"],
+      budgetRange: payload["budget-range"],
+      importantFactor: payload["important-factor"],
+      preApproved: preApprovedValue,
+      contactPreference: payload["contact-preference"],
+    });
+
+    // Use client-calculated score if provided, otherwise use server calculation
+    const finalLeadScore = payload["lead-score"]
+      ? parseInt(payload["lead-score"], 10)
+      : leadScoreData.score;
+    const finalLeadTemperature = (payload["lead-temperature"] as LeadTemperature) || leadScoreData.temperature;
+    const finalLeadPriority = leadScoreData.priority;
+
+    console.log(`Lead score calculated: ${finalLeadScore} (${finalLeadTemperature})`);
+
     // Insert lead (campaign will be auto-assigned via trigger)
     const { data: newLead, error: insertError } = await supabase
       .from("leads")
@@ -505,8 +835,19 @@ serve(async (req) => {
         utm_medium: payload.utm_medium || null,
         utm_campaign: payload.utm_campaign || null,
         status: "active",
+        // Qualification fields
+        timeline: payload.timeline || null,
+        property_type: payload["property-type"] || null,
+        value_range: payload["value-range"] || null,
+        budget_range: payload["budget-range"] || null,
+        pre_approved: preApprovedValue,
+        important_factor: payload["important-factor"] || null,
+        contact_preference: payload["contact-preference"] || null,
+        lead_score: finalLeadScore,
+        lead_temperature: finalLeadTemperature,
+        lead_priority: finalLeadPriority,
       })
-      .select("id, campaign_id")
+      .select("id, campaign_id, lead_score, lead_temperature, lead_priority")
       .single();
 
     if (insertError) {
@@ -610,18 +951,32 @@ serve(async (req) => {
       }
     }
 
-    // Send lead notification to Steven
+    // Send lead notification to Steven with enhanced qualification data
     await sendLeadNotification(
       {
         email: payload.email,
         name: payload.name,
         phone: payload.phone,
         address: payload.address || "Not provided",
-        town: payload.town || "Not provided",
+        town: payload.town || zipData?.town || "Not provided",
         zipcode: payload.zipcode || "Not provided",
       },
       finalInterestType,
-      sourceUrl
+      sourceUrl,
+      // Qualification data for enhanced notification
+      {
+        intent: payload.intent || finalInterestType,
+        timeline: payload.timeline,
+        propertyType: payload["property-type"],
+        valueRange: payload["value-range"],
+        budgetRange: payload["budget-range"],
+        importantFactor: payload["important-factor"],
+        preApproved: preApprovedValue,
+        contactPreference: payload["contact-preference"],
+        leadScore: newLead.lead_score || finalLeadScore,
+        leadTemperature: newLead.lead_temperature || finalLeadTemperature,
+        leadPriority: newLead.lead_priority || finalLeadPriority,
+      }
     );
 
     // Get campaign slug for response
@@ -638,6 +993,9 @@ serve(async (req) => {
         campaign_slug: campaign?.slug || "unknown",
         emails_scheduled: scheduledEmails.length,
         welcome_email_sent: !!welcomeEmailSesId,
+        lead_score: newLead.lead_score || finalLeadScore,
+        lead_temperature: newLead.lead_temperature || finalLeadTemperature,
+        lead_priority: newLead.lead_priority || finalLeadPriority,
       }),
       {
         status: 200,

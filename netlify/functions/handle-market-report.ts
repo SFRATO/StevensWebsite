@@ -18,6 +18,18 @@ interface FormSubmission {
   phone?: string;
   interest?: string;
   "source-location": string;
+
+  // Qualification fields from multi-step quiz
+  intent?: string;
+  timeline?: string;
+  "property-type"?: string;
+  "value-range"?: string;
+  "budget-range"?: string;
+  "important-factor"?: string;
+  "pre-approved"?: string;
+  "contact-preference"?: string;
+  "lead-score"?: string;
+  "lead-temperature"?: string;
 }
 
 // Supabase Edge Function URL for form handling
@@ -55,6 +67,18 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       phone: params.get("phone") || undefined,
       interest: params.get("interest") || "selling",
       "source-location": params.get("source-location") || "",
+
+      // Qualification fields
+      intent: params.get("intent") || undefined,
+      timeline: params.get("timeline") || undefined,
+      "property-type": params.get("property-type") || undefined,
+      "value-range": params.get("value-range") || undefined,
+      "budget-range": params.get("budget-range") || undefined,
+      "important-factor": params.get("important-factor") || undefined,
+      "pre-approved": params.get("pre-approved") || undefined,
+      "contact-preference": params.get("contact-preference") || undefined,
+      "lead-score": params.get("lead-score") || undefined,
+      "lead-temperature": params.get("lead-temperature") || undefined,
     };
 
     // Validate required fields
@@ -114,6 +138,17 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
               utm_source: utmSource,
               utm_medium: utmMedium,
               utm_campaign: utmCampaign,
+              // Qualification fields
+              intent: formData.intent,
+              timeline: formData.timeline,
+              "property-type": formData["property-type"],
+              "value-range": formData["value-range"],
+              "budget-range": formData["budget-range"],
+              "important-factor": formData["important-factor"],
+              "pre-approved": formData["pre-approved"],
+              "contact-preference": formData["contact-preference"],
+              "lead-score": formData["lead-score"],
+              "lead-temperature": formData["lead-temperature"],
             }),
           }
         );

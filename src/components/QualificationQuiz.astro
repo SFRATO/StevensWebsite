@@ -1,0 +1,1086 @@
+---
+/**
+ * QualificationQuiz Component
+ * Multi-step lead qualification form that scores leads based on responses
+ *
+ * Steps:
+ * 1. Interest & Timeline - Qualifies intent and urgency
+ * 2. Property Details - Gathers relevant property info based on intent
+ * 3. Contact Info - Collects contact details
+ *
+ * CRO Psychology Applied:
+ * - Progressive disclosure reduces perceived effort
+ * - Early questions are low-commitment (qualifying before asking for contact)
+ * - Progress indicator encourages completion
+ * - Personalized step 2 based on intent shows relevance
+ */
+import TownZipFieldIsland from './TownZipFieldIsland';
+import FormSuccess from './FormSuccess.astro';
+import { getTownZipMappings, getAllValidZipcodes } from '../data/town-mappings';
+
+interface Props {
+  location?: string;
+  townName?: string;
+  formName?: string;
+  prefillTown?: string;
+  prefillZipcode?: string;
+  variant?: 'full' | 'compact';  // compact for sidebar, full for standalone
+}
+
+const {
+  location = '',
+  townName = '',
+  formName = 'qualification-quiz',
+  prefillTown = '',
+  prefillZipcode = '',
+  variant = 'full',
+} = Astro.props;
+
+// Get data for town/zip autocomplete
+const townZipMappings = getTownZipMappings();
+const validZipcodes = getAllValidZipcodes();
+
+// Generate unique form ID for this instance
+const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<div class="quiz-wrapper" id={formId} data-variant={variant}>
+  <!-- Success State -->
+  <div class="quiz-success" id={`${formId}-success`} style="display: none;">
+    <FormSuccess formType="market-report" showEmailTimeline={true} />
+  </div>
+
+  <!-- Quiz Container -->
+  <div class="quiz-container" id={`${formId}-container`}>
+    <!-- Header -->
+    <div class="quiz-header">
+      <div class="quiz-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 class="quiz-title">Get Your Free Market Report</h3>
+      <p class="quiz-subtitle">Answer a few questions to get personalized insights</p>
+
+      <!-- Progress Indicator -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id={`${formId}-progress`} style="width: 33%;"></div>
+        </div>
+        <div class="progress-steps">
+          <span class="step-indicator active" data-step="1">1</span>
+          <span class="step-indicator" data-step="2">2</span>
+          <span class="step-indicator" data-step="3">3</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form
+      name={formName}
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="bot-field"
+      class="quiz-form"
+      id={`${formId}-form`}
+    >
+      <input type="hidden" name="form-name" value={formName} />
+      <input type="hidden" name="source-location" value={location} />
+      <input type="hidden" name="lead-score" id={`${formId}-lead-score`} value="0" />
+      <input type="hidden" name="lead-temperature" id={`${formId}-lead-temperature`} value="cold" />
+
+      <!-- Honeypot field for spam protection -->
+      <p class="hidden">
+        <label>Don't fill this out: <input name="bot-field" /></label>
+      </p>
+
+      <!-- Step 1: Interest & Timeline -->
+      <div class="quiz-step active" data-step="1" id={`${formId}-step-1`}>
+        <div class="step-content">
+          <div class="form-group">
+            <label class="form-label">What brings you here today?</label>
+            <div class="option-grid">
+              <label class="option-card">
+                <input type="radio" name="intent" value="selling" required />
+                <span class="option-content">
+                  <span class="option-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Selling my home</span>
+                </span>
+              </label>
+
+              <label class="option-card">
+                <input type="radio" name="intent" value="buying" />
+                <span class="option-content">
+                  <span class="option-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Buying a home</span>
+                </span>
+              </label>
+
+              <label class="option-card">
+                <input type="radio" name="intent" value="both" />
+                <span class="option-content">
+                  <span class="option-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Both buying & selling</span>
+                </span>
+              </label>
+
+              <label class="option-card">
+                <input type="radio" name="intent" value="home-value" />
+                <span class="option-content">
+                  <span class="option-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Know my home's value</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">When are you looking to move?</label>
+            <div class="option-grid timeline-grid">
+              <label class="option-card small">
+                <input type="radio" name="timeline" value="within-30-days" required />
+                <span class="option-content">
+                  <span class="option-text">Within 30 days</span>
+                  <span class="option-badge hot">Urgent</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="timeline" value="1-3-months" />
+                <span class="option-content">
+                  <span class="option-text">1-3 months</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="timeline" value="3-6-months" />
+                <span class="option-content">
+                  <span class="option-text">3-6 months</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="timeline" value="6-plus-months" />
+                <span class="option-content">
+                  <span class="option-text">6+ months / Just curious</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-primary btn-next" data-next="2">
+            Continue
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Property Details (Seller) -->
+      <div class="quiz-step" data-step="2" data-intent="selling,both,home-value" id={`${formId}-step-2-seller`}>
+        <div class="step-content">
+          <div class="form-group">
+            <label class="form-label">What type of property are you selling?</label>
+            <div class="option-grid">
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="single-family" />
+                <span class="option-content">
+                  <span class="option-text">Single Family</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="townhouse" />
+                <span class="option-content">
+                  <span class="option-text">Townhouse</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="condo" />
+                <span class="option-content">
+                  <span class="option-text">Condo</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="multi-family" />
+                <span class="option-content">
+                  <span class="option-text">Multi-Family</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for={`${formId}-value-range`}>Approximate value range</label>
+            <select id={`${formId}-value-range`} name="value-range" class="form-select">
+              <option value="">Select a range...</option>
+              <option value="under-300k">Under $300,000</option>
+              <option value="300k-500k">$300,000 - $500,000</option>
+              <option value="500k-750k">$500,000 - $750,000</option>
+              <option value="750k-1m">$750,000 - $1,000,000</option>
+              <option value="over-1m">Over $1,000,000</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What's most important to you?</label>
+            <div class="option-grid">
+              <label class="option-card small">
+                <input type="radio" name="important-factor" value="speed" />
+                <span class="option-content">
+                  <span class="option-icon small">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Speed</span>
+                  <span class="option-subtext">Sell quickly</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="important-factor" value="price" />
+                <span class="option-content">
+                  <span class="option-icon small">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Price</span>
+                  <span class="option-subtext">Maximize value</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="important-factor" value="convenience" />
+                <span class="option-content">
+                  <span class="option-icon small">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="option-text">Convenience</span>
+                  <span class="option-subtext">Minimal hassle</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary btn-back" data-back="1">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+          <button type="button" class="btn btn-primary btn-next" data-next="3">
+            Continue
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Property Details (Buyer) -->
+      <div class="quiz-step" data-step="2" data-intent="buying" id={`${formId}-step-2-buyer`}>
+        <div class="step-content">
+          <div class="form-group">
+            <label class="form-label">What type of property are you looking for?</label>
+            <div class="option-grid">
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="single-family" />
+                <span class="option-content">
+                  <span class="option-text">Single Family</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="townhouse" />
+                <span class="option-content">
+                  <span class="option-text">Townhouse</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="condo" />
+                <span class="option-content">
+                  <span class="option-text">Condo</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="property-type" value="multi-family" />
+                <span class="option-content">
+                  <span class="option-text">Multi-Family</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for={`${formId}-budget-range`}>Budget range</label>
+            <select id={`${formId}-budget-range`} name="budget-range" class="form-select">
+              <option value="">Select a range...</option>
+              <option value="under-300k">Under $300,000</option>
+              <option value="300k-500k">$300,000 - $500,000</option>
+              <option value="500k-750k">$500,000 - $750,000</option>
+              <option value="750k-1m">$750,000 - $1,000,000</option>
+              <option value="over-1m">Over $1,000,000</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Are you pre-approved for a mortgage?</label>
+            <div class="option-grid">
+              <label class="option-card small">
+                <input type="radio" name="pre-approved" value="yes" />
+                <span class="option-content">
+                  <span class="option-text">Yes, I'm pre-approved</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="pre-approved" value="no" />
+                <span class="option-content">
+                  <span class="option-text">Not yet</span>
+                </span>
+              </label>
+
+              <label class="option-card small">
+                <input type="radio" name="pre-approved" value="cash" />
+                <span class="option-content">
+                  <span class="option-text">Cash buyer</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary btn-back" data-back="1">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+          <button type="button" class="btn btn-primary btn-next" data-next="3">
+            Continue
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Contact Info -->
+      <div class="quiz-step" data-step="3" id={`${formId}-step-3`}>
+        <div class="step-content">
+          <p class="step-intro">Almost done! Where should we send your personalized market report?</p>
+
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label" for={`${formId}-name`}>Full Name <span class="required">*</span></label>
+              <input
+                type="text"
+                id={`${formId}-name`}
+                name="name"
+                placeholder="Your full name"
+                required
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for={`${formId}-email`}>Email <span class="required">*</span></label>
+              <input
+                type="email"
+                id={`${formId}-email`}
+                name="email"
+                placeholder="your@email.com"
+                required
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for={`${formId}-phone`}>Phone Number</label>
+              <input
+                type="tel"
+                id={`${formId}-phone`}
+                name="phone"
+                placeholder="(609) 555-1234"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group full-width seller-address" id={`${formId}-address-group`}>
+              <label class="form-label" for={`${formId}-address`}>Property Address <span class="required">*</span></label>
+              <input
+                type="text"
+                id={`${formId}-address`}
+                name="address"
+                placeholder="123 Main Street"
+                class="form-input"
+              />
+            </div>
+
+            <TownZipFieldIsland
+              client:load
+              mappings={townZipMappings}
+              validZipcodes={validZipcodes}
+              initialTown={prefillTown}
+              initialZipcode={prefillZipcode}
+              townRequired={true}
+              zipcodeRequired={true}
+            />
+
+            <div class="form-group full-width">
+              <label class="form-label">Best time to reach you?</label>
+              <div class="option-grid contact-pref-grid">
+                <label class="option-card tiny">
+                  <input type="radio" name="contact-preference" value="asap" />
+                  <span class="option-content">
+                    <span class="option-text">ASAP</span>
+                  </span>
+                </label>
+
+                <label class="option-card tiny">
+                  <input type="radio" name="contact-preference" value="morning" />
+                  <span class="option-content">
+                    <span class="option-text">Morning</span>
+                  </span>
+                </label>
+
+                <label class="option-card tiny">
+                  <input type="radio" name="contact-preference" value="afternoon" />
+                  <span class="option-content">
+                    <span class="option-text">Afternoon</span>
+                  </span>
+                </label>
+
+                <label class="option-card tiny">
+                  <input type="radio" name="contact-preference" value="evening" />
+                  <span class="option-content">
+                    <span class="option-text">Evening</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn-secondary btn-back" data-back="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M15 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+          <button type="submit" class="btn btn-primary btn-submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Get My Free Report
+          </button>
+        </div>
+
+        <div class="trust-signals">
+          <p class="privacy-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Your information is 100% secure and will never be sold.
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  import type { QualificationData } from '../utils/leadScoring';
+  import { calculateLeadScore } from '../utils/leadScoring';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const quizWrappers = document.querySelectorAll('.quiz-wrapper');
+
+    quizWrappers.forEach((wrapper) => {
+      const formId = wrapper.id;
+      const form = document.getElementById(`${formId}-form`) as HTMLFormElement;
+      const container = document.getElementById(`${formId}-container`);
+      const successWrapper = document.getElementById(`${formId}-success`);
+      const progressFill = document.getElementById(`${formId}-progress`);
+      const leadScoreInput = document.getElementById(`${formId}-lead-score`) as HTMLInputElement;
+      const leadTempInput = document.getElementById(`${formId}-lead-temperature`) as HTMLInputElement;
+
+      if (!form || !container || !successWrapper) return;
+
+      let currentStep = 1;
+      let selectedIntent = '';
+
+      // Step navigation
+      const showStep = (step: number) => {
+        currentStep = step;
+
+        // Update progress bar
+        const progressPercent = (step / 3) * 100;
+        if (progressFill) {
+          progressFill.style.width = `${progressPercent}%`;
+        }
+
+        // Update step indicators
+        wrapper.querySelectorAll('.step-indicator').forEach((indicator) => {
+          const indicatorStep = parseInt(indicator.getAttribute('data-step') || '0');
+          indicator.classList.toggle('active', indicatorStep <= step);
+          indicator.classList.toggle('completed', indicatorStep < step);
+        });
+
+        // Hide all steps
+        wrapper.querySelectorAll('.quiz-step').forEach((stepEl) => {
+          stepEl.classList.remove('active');
+        });
+
+        // Show appropriate step
+        if (step === 2) {
+          // Show the right step 2 based on intent
+          const sellerIntents = ['selling', 'both', 'home-value'];
+          const stepSelector = sellerIntents.includes(selectedIntent)
+            ? `#${formId}-step-2-seller`
+            : `#${formId}-step-2-buyer`;
+          const targetStep = wrapper.querySelector(stepSelector);
+          if (targetStep) {
+            targetStep.classList.add('active');
+          }
+
+          // Show/hide address field based on intent
+          const addressGroup = document.getElementById(`${formId}-address-group`);
+          if (addressGroup) {
+            const addressInput = addressGroup.querySelector('input');
+            if (sellerIntents.includes(selectedIntent)) {
+              addressGroup.style.display = 'flex';
+              if (addressInput) addressInput.required = true;
+            } else {
+              addressGroup.style.display = 'none';
+              if (addressInput) addressInput.required = false;
+            }
+          }
+        } else {
+          const targetStep = wrapper.querySelector(`#${formId}-step-${step}`);
+          if (targetStep) {
+            targetStep.classList.add('active');
+          }
+        }
+
+        // Scroll to top of quiz
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+
+      // Next button handlers
+      wrapper.querySelectorAll('.btn-next').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const nextStep = parseInt(btn.getAttribute('data-next') || '0');
+
+          // Validate current step
+          if (currentStep === 1) {
+            const intentInput = form.querySelector('input[name="intent"]:checked') as HTMLInputElement;
+            const timelineInput = form.querySelector('input[name="timeline"]:checked') as HTMLInputElement;
+
+            if (!intentInput || !timelineInput) {
+              alert('Please answer both questions to continue.');
+              return;
+            }
+
+            selectedIntent = intentInput.value;
+          }
+
+          showStep(nextStep);
+        });
+      });
+
+      // Back button handlers
+      wrapper.querySelectorAll('.btn-back').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const backStep = parseInt(btn.getAttribute('data-back') || '0');
+          showStep(backStep);
+        });
+      });
+
+      // Calculate lead score before submission
+      const calculateScore = (): void => {
+        const formData = new FormData(form);
+
+        const data: QualificationData = {
+          intent: (formData.get('intent') as any) || 'browsing',
+          timeline: (formData.get('timeline') as any) || '6-plus-months',
+          propertyType: formData.get('property-type') as any || undefined,
+          valueRange: formData.get('value-range') as string || undefined,
+          budgetRange: formData.get('budget-range') as string || undefined,
+          importantFactor: formData.get('important-factor') as any || undefined,
+          preApproved: formData.get('pre-approved') === 'yes' ? true :
+                       formData.get('pre-approved') === 'no' ? false : null,
+          contactPreference: formData.get('contact-preference') as any || undefined,
+        };
+
+        const score = calculateLeadScore(data);
+
+        if (leadScoreInput) {
+          leadScoreInput.value = score.score.toString();
+        }
+        if (leadTempInput) {
+          leadTempInput.value = score.temperature;
+        }
+      };
+
+      // Form submission
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Calculate score
+        calculateScore();
+
+        const submitBtn = form.querySelector('.btn-submit') as HTMLButtonElement;
+
+        // Show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+              <path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Processing...
+          `;
+        }
+
+        try {
+          const formData = new FormData(form);
+
+          const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData as any).toString(),
+          });
+
+          if (response.ok) {
+            // Show success state
+            container.style.display = 'none';
+            successWrapper.style.display = 'block';
+
+            // Scroll to success message
+            successWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Track conversion
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'form_submit', {
+                event_category: 'Lead',
+                event_label: 'Qualification Quiz',
+                value: parseInt(leadScoreInput?.value || '0'),
+              });
+            }
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          // Re-enable button on error
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Get My Free Report
+            `;
+          }
+          alert('There was an error submitting the form. Please try again or call us directly.');
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .quiz-wrapper {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .quiz-header {
+    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    color: var(--white);
+    padding: var(--space-6);
+    text-align: center;
+  }
+
+  .quiz-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--c21-gold);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-4);
+  }
+
+  .quiz-title {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+    color: var(--white);
+  }
+
+  .quiz-subtitle {
+    font-size: var(--text-sm);
+    opacity: 0.9;
+    margin-bottom: var(--space-5);
+  }
+
+  /* Progress bar */
+  .progress-container {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--space-3);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--c21-gold);
+    transition: width var(--transition-base);
+  }
+
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .step-indicator {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    transition: all var(--transition-base);
+  }
+
+  .step-indicator.active {
+    background: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .step-indicator.completed {
+    background: var(--success-green);
+    color: var(--white);
+  }
+
+  /* Form */
+  .quiz-form {
+    padding: var(--space-6);
+  }
+
+  .quiz-step {
+    display: none;
+  }
+
+  .quiz-step.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  .step-content {
+    margin-bottom: var(--space-6);
+  }
+
+  .step-intro {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-5);
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: var(--space-5);
+  }
+
+  .form-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+
+  .required {
+    color: var(--alert-red);
+  }
+
+  /* Option cards */
+  .option-grid {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 480px) {
+    .option-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .timeline-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .contact-pref-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .option-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .option-card input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .option-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: all var(--transition-base);
+  }
+
+  .option-card:hover .option-content {
+    border-color: var(--c21-gold);
+    background: rgba(201, 156, 51, 0.05);
+  }
+
+  .option-card input:checked + .option-content {
+    border-color: var(--c21-gold);
+    background: rgba(201, 156, 51, 0.1);
+  }
+
+  .option-card.small .option-content {
+    padding: var(--space-3);
+  }
+
+  .option-card.tiny .option-content {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--light-gray);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    transition: all var(--transition-base);
+  }
+
+  .option-icon.small {
+    width: 36px;
+    height: 36px;
+  }
+
+  .option-card input:checked + .option-content .option-icon {
+    background: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .option-text {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+  }
+
+  .option-subtext {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  .option-badge {
+    font-size: 10px;
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+  }
+
+  .option-badge.hot {
+    background: rgba(229, 57, 53, 0.1);
+    color: var(--alert-red);
+  }
+
+  /* Form inputs */
+  .form-grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 480px) {
+    .form-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
+    }
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    transition: all var(--transition-base);
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: var(--c21-gold);
+    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+  }
+
+  .form-input::placeholder {
+    color: var(--dark-gray);
+  }
+
+  /* Navigation buttons */
+  .step-nav {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--c21-gold-dark);
+  }
+
+  .btn-secondary {
+    background: var(--light-gray);
+    color: var(--text-primary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--medium-gray);
+  }
+
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Trust signals */
+  .trust-signals {
+    margin-top: var(--space-5);
+    text-align: center;
+  }
+
+  .privacy-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  /* Success state */
+  .quiz-success {
+    padding: var(--space-6);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Address field for sellers */
+  .seller-address {
+    display: flex;
+  }
+</style>
