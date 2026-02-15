@@ -1,0 +1,79 @@
+---
+/**
+ * Breadcrumb Component
+ * Navigation breadcrumbs for market pages
+ */
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb-list">
+      {items.map((item, index) => (
+        <li class="breadcrumb-item">
+          {item.href ? (
+            <a href={item.href}>{item.label}</a>
+          ) : (
+            <span class="current" aria-current="page">{item.label}</span>
+          )}
+          {index < items.length - 1 && (
+            <span class="separator" aria-hidden="true">/</span>
+          )}
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>
+
+<style>
+  .breadcrumb {
+    padding: var(--space-4) 0;
+    background: var(--off-white);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .breadcrumb-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .breadcrumb-item a {
+    color: var(--c21-gold);
+    text-decoration: none;
+    transition: color var(--transition-base);
+  }
+
+  .breadcrumb-item a:hover {
+    color: var(--c21-gold-dark);
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--text-secondary);
+  }
+
+  .current {
+    color: var(--text-secondary);
+  }
+</style>

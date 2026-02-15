@@ -8,6 +8,7 @@ import MarketHero from '@components/MarketHero.astro';
 import MarketCard from '@components/MarketCard.astro';
 import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
 import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
 
 // Import market data
@@ -117,6 +118,15 @@ const description = `${county.region}, NJ housing market data: median home price
     location={`${county.region}, NJ`}
     lastUpdated={formatDate(county.period_end)}
     marketType={county.market_type}
+  />
+
+  <!-- Breadcrumb Navigation -->
+  <Breadcrumb
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'Market Data', href: '/market/' },
+      { label: county.region }
+    ]}
   />
 
   <!-- Market Snapshot -->

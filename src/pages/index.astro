@@ -9,6 +9,7 @@ import ContactForm from '@components/ContactForm.astro';
 
 // Import market data
 import countiesData from '../../data/processed/counties.json';
+import zipcodesData from '../../data/processed/zipcodes.json';
 
 interface CountyData {
   region: string;
@@ -26,6 +27,15 @@ interface CountyData {
 }
 
 const counties = countiesData as CountyData[];
+const totalZipcodes = zipcodesData.length;
+
+// Calculate total homes tracked (sum of inventory across all zipcodes)
+const totalHomesTracked = zipcodesData.reduce((sum: number, zip: any) => sum + (zip.inventory || 0), 0);
+
+// Get last updated date
+const lastUpdatedDate = counties[0]?.period_end
+  ? new Date(counties[0].period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  : 'Recently';
 
 // Format currency
 const formatCurrency = (value: number | null): string => {
@@ -64,6 +74,33 @@ const formatCurrency = (value: number | null): string => {
       </div>
 
       <p class="trust-line">Century 21 | Serving Burlington, Mercer & Middlesex Counties</p>
+    </div>
+  </section>
+
+  <!-- Data-Based Social Proof -->
+  <section class="social-proof">
+    <div class="container">
+      <div class="proof-grid">
+        <div class="proof-item">
+          <span class="proof-number">{totalZipcodes}+</span>
+          <span class="proof-label">Zip Codes Tracked</span>
+        </div>
+        <div class="proof-divider" aria-hidden="true"></div>
+        <div class="proof-item">
+          <span class="proof-number">{totalHomesTracked.toLocaleString()}+</span>
+          <span class="proof-label">Active Listings Monitored</span>
+        </div>
+        <div class="proof-divider" aria-hidden="true"></div>
+        <div class="proof-item">
+          <span class="proof-number">{counties.length}</span>
+          <span class="proof-label">Counties Covered</span>
+        </div>
+        <div class="proof-divider" aria-hidden="true"></div>
+        <div class="proof-item">
+          <span class="proof-text">Data Updated</span>
+          <span class="proof-label">{lastUpdatedDate}</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -454,5 +491,74 @@ const formatCurrency = (value: number | null): string => {
     font-weight: var(--font-bold);
     font-size: var(--text-xl);
     flex-shrink: 0;
+  }
+
+  /* Social Proof Section */
+  .social-proof {
+    background: var(--white);
+    padding: var(--space-6) 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .proof-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-6);
+  }
+
+  .proof-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 120px;
+  }
+
+  .proof-number {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    line-height: 1;
+  }
+
+  .proof-text {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+  }
+
+  .proof-label {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: var(--space-1);
+  }
+
+  .proof-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border-color);
+  }
+
+  @media (max-width: 768px) {
+    .proof-grid {
+      gap: var(--space-4);
+    }
+
+    .proof-divider {
+      display: none;
+    }
+
+    .proof-item {
+      flex: 1 1 40%;
+      min-width: 100px;
+    }
+
+    .proof-number {
+      font-size: var(--text-xl);
+    }
   }
 </style>

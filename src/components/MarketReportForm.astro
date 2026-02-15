@@ -10,6 +10,7 @@
  * - Trust signals addressing privacy + commitment objections
  */
 import TownZipFieldIsland from './TownZipFieldIsland';
+import FormSuccess from './FormSuccess.astro';
 import { getTownZipMappings, getAllValidZipcodes } from '../data/town-mappings';
 
 interface Props {
@@ -37,9 +38,19 @@ const {
 // Get data for town/zip autocomplete
 const townZipMappings = getTownZipMappings();
 const validZipcodes = getAllValidZipcodes();
+
+// Generate unique form ID for this instance
+const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
-<div class="report-form-wrapper" id="lead-capture">
+<div class="report-form-wrapper" id="lead-capture" data-form-id={formId}>
+  <!-- Success State -->
+  <div class="form-success-wrapper" id={`${formId}-success`} style="display: none;">
+    <FormSuccess formType="market-report" showEmailTimeline={true} />
+  </div>
+
+  <!-- Form -->
+  <div class="form-container" id={`${formId}-container`}>
   <div class="form-header">
     <div class="form-icon">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -56,6 +67,7 @@ const validZipcodes = getAllValidZipcodes();
     data-netlify="true"
     netlify-honeypot="bot-field"
     class="report-form"
+    id={formId}
   >
     <input type="hidden" name="form-name" value={formName} />
     <input type="hidden" name="source-location" value={location} />
@@ -174,7 +186,84 @@ const validZipcodes = getAllValidZipcodes();
       </div>
     </div>
   </form>
+  </div>
 </div>
+
+<script>
+  // Handle form submission with success state
+  document.addEventListener('DOMContentLoaded', () => {
+    const formWrappers = document.querySelectorAll('.report-form-wrapper');
+
+    formWrappers.forEach((wrapper) => {
+      const formId = wrapper.getAttribute('data-form-id');
+      if (!formId) return;
+
+      const form = document.getElementById(formId) as HTMLFormElement;
+      const formContainer = document.getElementById(`${formId}-container`);
+      const successWrapper = document.getElementById(`${formId}-success`);
+
+      if (!form || !formContainer || !successWrapper) return;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        // Disable button and show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = `
+            <svg class="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25"/>
+              <path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Sending...
+          `;
+        }
+
+        try {
+          const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData as any).toString(),
+          });
+
+          if (response.ok) {
+            // Show success state
+            formContainer.style.display = 'none';
+            successWrapper.style.display = 'block';
+
+            // Scroll to success message
+            successWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Track conversion if GA is available
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'form_submit', {
+                event_category: 'Lead',
+                event_label: 'Market Report Request',
+              });
+            }
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          // Re-enable button on error
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Send My Free Report Now
+            `;
+          }
+          alert('There was an error submitting the form. Please try again or call us directly.');
+        }
+      });
+    });
+  });
+</script>
 
 <style>
   .report-form-wrapper {
@@ -340,5 +429,25 @@ const validZipcodes = getAllValidZipcodes();
   .privacy-note svg,
   .no-obligation svg {
     flex-shrink: 0;
+  }
+
+  /* Success state wrapper */
+  .form-success-wrapper {
+    padding: var(--space-6);
+  }
+
+  /* Loading spinner */
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 </style>

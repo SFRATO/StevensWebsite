@@ -5,6 +5,7 @@
  * Features: validation, spam protection (honeypot), accessible
  */
 import TownZipFieldIsland from './TownZipFieldIsland';
+import FormSuccess from './FormSuccess.astro';
 import { getTownZipMappings, getAllValidZipcodes } from '../data/town-mappings';
 
 interface Props {
@@ -16,6 +17,9 @@ const { formName = 'contact' } = Astro.props;
 // Get data for town/zip autocomplete
 const townZipMappings = getTownZipMappings();
 const validZipcodes = getAllValidZipcodes();
+
+// Generate unique form ID
+const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 ---
 
 <section id="contact" class="contact-section">
@@ -70,13 +74,21 @@ const validZipcodes = getAllValidZipcodes();
       </div>
 
       <!-- Contact Form -->
-      <div class="contact-form-wrapper">
+      <div class="contact-form-wrapper" data-form-id={formId}>
+        <!-- Success State -->
+        <div class="contact-success-wrapper" id={`${formId}-success`} style="display: none;">
+          <FormSuccess formType="contact" showEmailTimeline={true} />
+        </div>
+
+        <!-- Form -->
+        <div class="contact-form-container" id={`${formId}-container`}>
         <form
           name={formName}
           method="POST"
           data-netlify="true"
           netlify-honeypot="bot-field"
           class="contact-form"
+          id={formId}
         >
           <!-- Hidden fields for Netlify -->
           <input type="hidden" name="form-name" value={formName} />
@@ -190,10 +202,76 @@ const validZipcodes = getAllValidZipcodes();
             Send Message
           </button>
         </form>
+        </div>
       </div>
     </div>
   </div>
 </section>
+
+<script>
+  // Handle contact form submission with success state
+  document.addEventListener('DOMContentLoaded', () => {
+    const formWrappers = document.querySelectorAll('.contact-form-wrapper');
+
+    formWrappers.forEach((wrapper) => {
+      const formId = wrapper.getAttribute('data-form-id');
+      if (!formId) return;
+
+      const form = document.getElementById(formId) as HTMLFormElement;
+      const formContainer = document.getElementById(`${formId}-container`);
+      const successWrapper = document.getElementById(`${formId}-success`);
+
+      if (!form || !formContainer || !successWrapper) return;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        // Disable button and show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sending...';
+        }
+
+        try {
+          const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData as any).toString(),
+          });
+
+          if (response.ok) {
+            // Show success state
+            formContainer.style.display = 'none';
+            successWrapper.style.display = 'block';
+
+            // Scroll to success message
+            successWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Track conversion if GA is available
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'form_submit', {
+                event_category: 'Lead',
+                event_label: 'Contact Form',
+              });
+            }
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          // Re-enable button on error
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Message';
+          }
+          alert('There was an error submitting the form. Please try again or call us directly.');
+        }
+      });
+    });
+  });
+</script>
 
 <style>
   .contact-section {
@@ -364,23 +442,13 @@ const validZipcodes = getAllValidZipcodes();
     width: 100%;
   }
 
-  /* Success/Error States (will be shown via Netlify) */
-  .form-success,
-  .form-error {
+  /* Success state styling */
+  .contact-success-wrapper {
     padding: var(--space-4);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-4);
   }
 
-  .form-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-  }
-
-  .form-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+  button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 </style>

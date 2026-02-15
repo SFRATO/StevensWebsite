@@ -1,0 +1,215 @@
+---
+/**
+ * StickyCTA Component
+ * Persistent conversion bar that appears on scroll
+ * Shows phone number and main CTA
+ */
+interface Props {
+  hideOnPages?: string[];
+}
+
+const {
+  hideOnPages = ['/contact', '/thank-you'],
+} = Astro.props;
+
+const phone = '(609) 789-0126';
+const phoneHref = 'tel:+16097890126';
+
+// Check if current page should hide the sticky CTA
+const currentPath = Astro.url.pathname;
+const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
+---
+
+{!shouldHide && (
+  <div class="sticky-cta" id="sticky-cta" aria-hidden="true">
+    <div class="container sticky-cta-content">
+      <a href={phoneHref} class="sticky-phone" aria-label="Call Steven Frato">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span class="phone-number">{phone}</span>
+      </a>
+
+      <a href="/market/" class="sticky-btn">
+        Get Free Home Value
+      </a>
+    </div>
+  </div>
+)}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const stickyCta = document.getElementById('sticky-cta');
+    if (!stickyCta) return;
+
+    let lastScrollY = window.scrollY;
+    let isVisible = false;
+    const showThreshold = 300; // pixels scrolled before showing
+    const hideThreshold = 100; // pixels from top to hide
+
+    const updateVisibility = () => {
+      const currentScrollY = window.scrollY;
+
+      // Show after scrolling down past threshold
+      if (currentScrollY > showThreshold && !isVisible) {
+        isVisible = true;
+        stickyCta.classList.add('visible');
+        stickyCta.setAttribute('aria-hidden', 'false');
+      }
+      // Hide when scrolled back to top
+      else if (currentScrollY < hideThreshold && isVisible) {
+        isVisible = false;
+        stickyCta.classList.remove('visible');
+        stickyCta.setAttribute('aria-hidden', 'true');
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    // Throttle scroll events
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateVisibility();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // Track phone clicks
+    const phoneLink = stickyCta.querySelector('.sticky-phone');
+    if (phoneLink) {
+      phoneLink.addEventListener('click', () => {
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'phone_click', {
+            event_category: 'Contact',
+            event_label: 'Sticky CTA Phone',
+          });
+        }
+      });
+    }
+
+    // Track CTA clicks
+    const ctaBtn = stickyCta.querySelector('.sticky-btn');
+    if (ctaBtn) {
+      ctaBtn.addEventListener('click', () => {
+        if (typeof window.gtag === 'function') {
+          window.gtag('event', 'cta_click', {
+            event_category: 'Lead',
+            event_label: 'Sticky CTA Button',
+          });
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--charcoal);
+    padding: var(--space-3) 0;
+    z-index: var(--z-sticky);
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .sticky-cta.visible {
+    transform: translateY(0);
+  }
+
+  .sticky-cta-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .sticky-phone {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--white);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    transition: color var(--transition-base);
+  }
+
+  .sticky-phone:hover {
+    color: var(--c21-gold);
+  }
+
+  .sticky-phone svg {
+    flex-shrink: 0;
+  }
+
+  .sticky-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2) var(--space-5);
+    background-color: var(--c21-gold);
+    color: var(--white);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all var(--transition-base);
+  }
+
+  .sticky-btn:hover {
+    background-color: var(--c21-gold-dark);
+    transform: translateY(-1px);
+  }
+
+  /* Desktop: top bar instead of bottom */
+  @media (min-width: 768px) {
+    .sticky-cta {
+      top: 0;
+      bottom: auto;
+      transform: translateY(-100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .sticky-cta.visible {
+      transform: translateY(0);
+    }
+
+    .sticky-cta-content {
+      justify-content: center;
+      gap: var(--space-8);
+    }
+
+    .sticky-btn {
+      padding: var(--space-2) var(--space-6);
+      font-size: var(--text-base);
+    }
+  }
+
+  /* Mobile: hide phone text, just show icon */
+  @media (max-width: 479px) {
+    .phone-number {
+      display: none;
+    }
+
+    .sticky-phone {
+      width: 44px;
+      height: 44px;
+      background: var(--c21-gold);
+      border-radius: var(--radius-full);
+      justify-content: center;
+    }
+
+    .sticky-btn {
+      flex: 1;
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,582 @@
+---
+/**
+ * About Page
+ * Agent bio, credentials, and trust building without testimonials
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import ContactForm from '@components/ContactForm.astro';
+
+// Import market data for stats
+import countiesData from '../../data/processed/counties.json';
+import zipcodesData from '../../data/processed/zipcodes.json';
+
+const totalZipcodes = zipcodesData.length;
+const totalCounties = countiesData.length;
+
+// Get last updated date from data
+const lastUpdated = countiesData[0]?.period_end
+  ? new Date(countiesData[0].period_end).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  : 'Monthly';
+
+const phone = '(609) 789-0126';
+const phoneHref = 'tel:+16097890126';
+const email = 'sf@stevenfrato.com';
+---
+
+<BaseLayout
+  title="About Steven Frato | Century 21 Real Estate Agent"
+  description="Learn about Steven Frato, your local Century 21 real estate agent serving Burlington, Mercer, and Middlesex Counties, NJ. Data-driven guidance for buyers and sellers."
+>
+  <!-- Hero Section -->
+  <section class="about-hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-image">
+          <img
+            src="/images/headshot.jpg"
+            alt="Steven Frato - Century 21 Real Estate Agent"
+            width="300"
+            height="300"
+            loading="eager"
+          />
+        </div>
+
+        <div class="hero-text">
+          <h1>Steven Frato</h1>
+          <p class="hero-subtitle">Century 21 Real Estate Agent</p>
+          <p class="hero-tagline">
+            Data-driven guidance for sellers who want to price right and sell faster.
+            Step-by-step support for first-time homebuyers.
+          </p>
+
+          <div class="hero-cta">
+            <a href={phoneHref} class="btn btn-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              Call {phone}
+            </a>
+            <a href={`mailto:${email}`} class="btn btn-secondary">
+              Send Email
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Credentials Section -->
+  <section class="credentials">
+    <div class="container">
+      <div class="credentials-grid">
+        <div class="credential-card">
+          <div class="credential-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Licensed NJ Agent</h3>
+          <p>New Jersey Real Estate License</p>
+        </div>
+
+        <div class="credential-card">
+          <div class="credential-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Century 21 Network</h3>
+          <p>Backed by a global real estate brand</p>
+        </div>
+
+        <div class="credential-card">
+          <div class="credential-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Data Analyst Background</h3>
+          <p>Bringing analytical precision to real estate</p>
+        </div>
+
+        <div class="credential-card">
+          <div class="credential-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>Local Expert</h3>
+          <p>Burlington, Mercer & Middlesex Counties</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story Section -->
+  <section class="story">
+    <div class="container">
+      <div class="story-content">
+        <h2>Why I Became a Real Estate Agent</h2>
+
+        <p>
+          Before real estate, I worked as a data analyst. I spent years turning complex data
+          into clear insights that helped people make better decisions. When I transitioned
+          to real estate, I brought that same analytical approach with me.
+        </p>
+
+        <p>
+          I saw an opportunity to help people navigate one of the biggest financial decisions
+          of their lives using actual data, not just gut feelings. Too many homeowners price
+          their homes incorrectly because they don't have access to the right information.
+          Too many buyers miss opportunities because they don't understand market timing.
+        </p>
+
+        <p>
+          That's why I built this website. Every market page you see is backed by real data
+          from Redfin, updated regularly, and analyzed to give you genuine insights into
+          what's happening in your specific area. No fluff, no pressure tactics, just
+          the information you need to make confident decisions.
+        </p>
+
+        <h3>My Approach</h3>
+
+        <ul class="approach-list">
+          <li>
+            <strong>Data First:</strong> I start every conversation with the numbers.
+            What are homes actually selling for in your neighborhood? How long are they
+            taking to sell? What's the trend?
+          </li>
+          <li>
+            <strong>Education Over Pressure:</strong> My job is to help you understand
+            your options, not to push you into a decision. Whether you're ready to move
+            tomorrow or thinking about next year, I'm here to provide clarity.
+          </li>
+          <li>
+            <strong>Local Knowledge:</strong> I live and work in this area. I know the
+            neighborhoods, the school districts, and the subtle differences between towns
+            that don't show up in the data.
+          </li>
+          <li>
+            <strong>Transparent Process:</strong> From our first conversation to closing
+            day, you'll always know where we are in the process and what comes next.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Stats Section -->
+  <section class="data-stats">
+    <div class="container">
+      <h2>Market Data at Your Fingertips</h2>
+      <p class="section-intro">
+        I track real estate data across Central New Jersey to give you accurate,
+        up-to-date information for your home buying or selling decision.
+      </p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">{totalZipcodes}+</span>
+          <span class="stat-label">Zip Codes Tracked</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-number">{totalCounties}</span>
+          <span class="stat-label">Counties Covered</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-number">Monthly</span>
+          <span class="stat-label">Data Updates</span>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-number">Free</span>
+          <span class="stat-label">Market Reports</span>
+        </div>
+      </div>
+
+      <p class="data-source">
+        Market data sourced from Redfin Data Center. Last updated: {lastUpdated}
+      </p>
+    </div>
+  </section>
+
+  <!-- Service Areas -->
+  <section class="service-areas">
+    <div class="container">
+      <h2>Areas I Serve</h2>
+
+      <div class="areas-grid">
+        <div class="area-card">
+          <h3>Burlington County</h3>
+          <p>
+            Mount Laurel, Moorestown, Medford, Marlton, Cherry Hill, Cinnaminson,
+            Delran, Bordentown, and surrounding communities.
+          </p>
+        </div>
+
+        <div class="area-card">
+          <h3>Mercer County</h3>
+          <p>
+            Princeton, Trenton, Hamilton, Ewing, Lawrence, Hopewell, Pennington,
+            West Windsor, and surrounding communities.
+          </p>
+        </div>
+
+        <div class="area-card">
+          <h3>Middlesex County</h3>
+          <p>
+            Edison, Woodbridge, East Brunswick, South Brunswick, Monroe Township,
+            Old Bridge, and surrounding communities.
+          </p>
+        </div>
+      </div>
+
+      <p class="service-note">
+        Looking for a different area? I'm happy to help connect you with a
+        trusted colleague if I'm not the right fit for your location.
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <ContactForm />
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .about-hero {
+    padding: var(--space-16) 0;
+    background: linear-gradient(135deg, var(--white) 0%, var(--off-white) 100%);
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-8);
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .hero-content {
+      flex-direction: row;
+      text-align: left;
+      gap: var(--space-12);
+    }
+  }
+
+  .hero-image img {
+    width: 200px;
+    height: 200px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 4px solid var(--c21-gold);
+    box-shadow: var(--shadow-lg);
+  }
+
+  @media (min-width: 768px) {
+    .hero-image img {
+      width: 280px;
+      height: 280px;
+    }
+  }
+
+  .hero-text h1 {
+    font-size: var(--text-4xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-xl);
+    color: var(--c21-gold);
+    font-weight: var(--font-semibold);
+    margin-bottom: var(--space-4);
+  }
+
+  .hero-tagline {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-6);
+    max-width: 500px;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .hero-cta {
+      justify-content: flex-start;
+    }
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    text-decoration: none;
+    transition: all var(--transition-base);
+  }
+
+  .btn-primary {
+    background-color: var(--c21-gold);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--c21-gold-dark);
+  }
+
+  .btn-secondary {
+    background-color: var(--white);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--c21-gold);
+    color: var(--c21-gold);
+  }
+
+  /* Credentials */
+  .credentials {
+    padding: var(--space-10) 0;
+    background: var(--charcoal);
+  }
+
+  .credentials-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .credentials-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .credential-card {
+    text-align: center;
+    color: var(--white);
+  }
+
+  .credential-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--c21-gold);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-3);
+    color: var(--white);
+  }
+
+  .credential-card h3 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-1);
+    color: var(--white);
+  }
+
+  .credential-card p {
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Story */
+  .story {
+    padding: var(--space-12) 0;
+    background: var(--white);
+  }
+
+  .story-content {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .story h2 {
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .story h3 {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
+  }
+
+  .story p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-4);
+  }
+
+  .approach-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .approach-list li {
+    padding-left: var(--space-6);
+    position: relative;
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .approach-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    background: var(--c21-gold);
+    border-radius: var(--radius-full);
+  }
+
+  .approach-list strong {
+    color: var(--text-primary);
+  }
+
+  /* Data Stats */
+  .data-stats {
+    padding: var(--space-12) 0;
+    background: var(--off-white);
+    text-align: center;
+  }
+
+  .data-stats h2 {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-intro {
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+  }
+
+  .stats-grid {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    margin: 0 auto var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat-card {
+    background: var(--white);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-number {
+    display: block;
+    font-size: var(--text-3xl);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    margin-bottom: var(--space-1);
+  }
+
+  .stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .data-source {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  /* Service Areas */
+  .service-areas {
+    padding: var(--space-12) 0;
+    background: var(--white);
+  }
+
+  .service-areas h2 {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-8);
+    text-align: center;
+  }
+
+  .areas-grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .areas-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .area-card {
+    background: var(--off-white);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--c21-gold);
+  }
+
+  .area-card h3 {
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .area-card p {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+  }
+
+  .service-note {
+    text-align: center;
+    margin-top: var(--space-6);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 768px) {
+    .about-hero {
+      padding: var(--space-10) 0;
+    }
+
+    .hero-text h1 {
+      font-size: var(--text-2xl);
+    }
+
+    .story h2 {
+      font-size: var(--text-2xl);
+    }
+  }
+</style>
