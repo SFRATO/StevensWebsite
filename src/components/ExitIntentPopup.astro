@@ -119,129 +119,58 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 )}
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const popup = document.getElementById('exit-popup');
-    const closeBtn = document.getElementById('exit-popup-close');
-    const form = document.getElementById('exit-intent-form') as HTMLFormElement;
-    const successMsg = document.getElementById('exit-popup-success');
+  import { trackEvent } from '@utils/analytics';
 
-    if (!popup || !closeBtn || !form) return;
+  // Session storage key — popup shows once per session
+  const STORAGE_KEY = 'exit_popup_shown';
 
-    // Session storage key
-    const STORAGE_KEY = 'exit_popup_shown';
+  let docListenersBound = false;
+  let popupShown = false;
+  let mobileTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    // Check if already shown this session
-    const alreadyShown = sessionStorage.getItem(STORAGE_KEY);
-    if (alreadyShown) return;
+  // Query fresh each call — the popup element is re-rendered on view transitions.
+  const getPopup = () => document.getElementById('exit-popup');
 
-    let popupShown = false;
+  const showPopup = () => {
+    if (popupShown || sessionStorage.getItem(STORAGE_KEY)) return;
+    const popup = getPopup();
+    if (!popup) return;
 
-    const showPopup = () => {
-      if (popupShown) return;
-      popupShown = true;
-      sessionStorage.setItem(STORAGE_KEY, 'true');
+    popupShown = true;
+    sessionStorage.setItem(STORAGE_KEY, 'true');
 
-      popup.classList.add('visible');
-      popup.setAttribute('aria-hidden', 'false');
+    popup.classList.add('visible');
+    popup.setAttribute('aria-hidden', 'false');
 
-      // Focus trap
-      const firstInput = form.querySelector('input');
-      if (firstInput) firstInput.focus();
+    // Focus trap
+    const firstInput = popup.querySelector('input');
+    if (firstInput) (firstInput as HTMLElement).focus();
 
-      // Track popup view
-      if (typeof window.gtag === 'function') {
-        window.gtag('event', 'popup_view', {
-          event_category: 'Lead',
-          event_label: 'Exit Intent Popup',
-        });
-      }
-    };
+    // Track popup view (engagement, not a conversion)
+    trackEvent('Engagement', 'Popup View', 'Exit Intent');
+  };
 
-    const hidePopup = () => {
-      popup.classList.remove('visible');
-      popup.setAttribute('aria-hidden', 'true');
-    };
+  const hidePopup = () => {
+    const popup = getPopup();
+    if (!popup) return;
+    popup.classList.remove('visible');
+    popup.setAttribute('aria-hidden', 'true');
+  };
 
-    // Exit intent detection (desktop)
+  // Document/window-level listeners bound once (they survive view transitions).
+  const bindGlobalListenersOnce = () => {
+    if (docListenersBound) return;
+    docListenersBound = true;
+
+    // Exit intent detection (desktop): mouse leaves viewport from top
     document.addEventListener('mouseout', (e) => {
-      // Check if mouse left the viewport from top
-      if (e.clientY <= 0 && !popupShown) {
-        showPopup();
-      }
-    });
-
-    // Mobile: show after 30 seconds of engagement
-    let mobileTimeout: ReturnType<typeof setTimeout>;
-    if (window.innerWidth < 768) {
-      mobileTimeout = setTimeout(() => {
-        if (!popupShown && document.visibilityState === 'visible') {
-          showPopup();
-        }
-      }, 30000);
-    }
-
-    // Close button
-    closeBtn.addEventListener('click', hidePopup);
-
-    // Close on overlay click
-    popup.addEventListener('click', (e) => {
-      if (e.target === popup) {
-        hidePopup();
-      }
+      if (e.clientY <= 0 && !popupShown) showPopup();
     });
 
     // Close on escape
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && popup.classList.contains('visible')) {
+      if (e.key === 'Escape' && getPopup()?.classList.contains('visible')) {
         hidePopup();
-      }
-    });
-
-    // Form submission
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(form);
-      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Submitting...';
-      }
-
-      try {
-        const response = await fetch('/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams(formData as any).toString(),
-        });
-
-        if (response.ok) {
-          // Show success
-          form.style.display = 'none';
-          if (successMsg) {
-            successMsg.style.display = 'block';
-          }
-
-          // Track conversion
-          if (typeof window.gtag === 'function') {
-            window.gtag('event', 'form_submit', {
-              event_category: 'Lead',
-              event_label: 'Exit Intent Popup',
-            });
-          }
-
-          // Auto-close after 3 seconds
-          setTimeout(hidePopup, 3000);
-        } else {
-          throw new Error('Form submission failed');
-        }
-      } catch (error) {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Get Market Updates';
-        }
-        alert('There was an error. Please try again.');
       }
     });
 
@@ -249,7 +178,96 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     window.addEventListener('beforeunload', () => {
       if (mobileTimeout) clearTimeout(mobileTimeout);
     });
-  });
+  };
+
+  const initExitPopup = () => {
+    // Nothing to do if already shown/converted this session.
+    if (sessionStorage.getItem(STORAGE_KEY)) return;
+
+    const popup = getPopup();
+    const closeBtn = document.getElementById('exit-popup-close');
+    const form = document.getElementById('exit-intent-form') as HTMLFormElement | null;
+    const successMsg = document.getElementById('exit-popup-success');
+
+    if (!popup || !closeBtn || !form) return;
+
+    bindGlobalListenersOnce();
+
+    // Mobile: show after 30 seconds of engagement (timer reset per page)
+    if (window.innerWidth < 768 && !popupShown) {
+      if (mobileTimeout) clearTimeout(mobileTimeout);
+      mobileTimeout = setTimeout(() => {
+        if (!popupShown && document.visibilityState === 'visible') showPopup();
+      }, 30000);
+    }
+
+    // Element-level listeners — bind once per freshly-rendered element.
+    if (!closeBtn.dataset.bound) {
+      closeBtn.dataset.bound = '1';
+      closeBtn.addEventListener('click', hidePopup);
+    }
+
+    if (!popup.dataset.bound) {
+      popup.dataset.bound = '1';
+      popup.addEventListener('click', (e) => {
+        if (e.target === popup) hidePopup();
+      });
+    }
+
+    if (!form.dataset.bound) {
+      form.dataset.bound = '1';
+
+      // Track form start on first field interaction
+      form.addEventListener(
+        'focusin',
+        () => trackEvent('Lead', 'Form Start', 'Exit Intent Popup'),
+        { once: true }
+      );
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Submitting...';
+        }
+
+        try {
+          const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData as any).toString(),
+          });
+
+          if (response.ok) {
+            // Show success
+            form.style.display = 'none';
+            if (successMsg) successMsg.style.display = 'block';
+
+            // Track conversion
+            trackEvent('Lead', 'Exit Intent Popup');
+
+            // Auto-close after 3 seconds
+            setTimeout(hidePopup, 3000);
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Get Market Updates';
+          }
+          alert('There was an error. Please try again.');
+        }
+      });
+    }
+  };
+
+  // Fires on initial load and after every view-transition navigation.
+  document.addEventListener('astro:page-load', initExitPopup);
 </script>
 
 <style>

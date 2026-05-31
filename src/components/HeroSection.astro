@@ -44,10 +44,18 @@ const {
 
         <!-- CTAs -->
         <div class="hero-ctas">
-          <a href={ctaPrimary.href} class="btn btn-primary btn-large">
+          <a
+            href={ctaPrimary.href}
+            class="btn btn-primary btn-large"
+            data-track-cta="Hero — Free Home Value"
+          >
             {ctaPrimary.text}
           </a>
-          <a href={ctaSecondary.href} class="btn btn-secondary btn-large">
+          <a
+            href={ctaSecondary.href}
+            class="btn btn-secondary btn-large"
+            data-track-cta="Hero — Consultation"
+          >
             {ctaSecondary.text}
           </a>
         </div>
@@ -80,6 +88,21 @@ const {
   <!-- Decorative Background -->
   <div class="hero-background" aria-hidden="true"></div>
 </section>
+
+<script>
+  import { trackEvent } from '@utils/analytics';
+
+  // Fires on initial load and after every view-transition navigation.
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLElement>('[data-track-cta]').forEach((el) => {
+      if (el.dataset.bound) return;
+      el.dataset.bound = '1';
+      el.addEventListener('click', () => {
+        trackEvent('Lead', 'CTA Click', el.dataset.trackCta || 'Hero');
+      });
+    });
+  });
+</script>
 
 <style>
   .hero {

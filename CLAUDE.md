@@ -239,8 +239,24 @@ Required for full functionality:
 | `AWS_REGION` | AWS region (default: us-east-1) | Email sending |
 | `SES_SENDER_EMAIL` | Verified sender email | Email sending |
 | `NETLIFY_BUILD_HOOK` | Auto-rebuild trigger | GitHub Actions |
+| `PUBLIC_GA4_ID` | GA4 Measurement ID (optional; dual-tracks alongside Matomo when set) | Analytics |
+| `PUBLIC_ANALYTICS_DEBUG` | `true` to enable + log analytics in `npm run dev` | Analytics (local) |
 
 **Note**: The `SES_SENDER_EMAIL` must be verified in Amazon SES console before sending emails.
+
+## Analytics
+
+Matomo is loaded site-wide via the **Matomo Tag Manager** container snippet in `BaseLayout.astro` (container `YLdIYnl6` @ `analytics.gavinrozzi.com`, **idSite 27**). Custom events are authored in code through the single helper `src/utils/analytics.ts`:
+
+- `trackEvent(category, action, name?, value?)` — dual-dispatches to Matomo (`_paq`) and GA4 (`gtag`, only if `PUBLIC_GA4_ID` set). Categories: `Lead | Contact | Engagement | Navigation`.
+- `trackSiteSearch(keyword, category?, count?)` — Matomo Site Search (used by the town/zip autocompletes).
+- `initPageviewTracking()` — fires virtual pageviews on Astro `astro:after-swap` (view transitions don't auto-track). Called once in `BaseLayout`.
+- `initLinkTracking()` — one delegated `document` listener that tracks ALL `tel:`/`mailto:` clicks site-wide, labeled by location (Header/Footer/Sticky CTA/Hero/Body). Called once in `BaseLayout`; do NOT add per-component phone/email handlers.
+
+**Conventions**:
+- Component `<script>` handlers bind on `astro:page-load` (NOT `DOMContentLoaded`, which doesn't re-fire under `<ViewTransitions />`) and guard against double-binding with a `dataset.bound` flag.
+- Tracking is production-only unless `PUBLIC_ANALYTICS_DEBUG=true`.
+- **Goals** are matched on event Actions in the Matomo UI (idSite 27) — see the integration plan; they must be created manually (no goal-create API).
 
 ## Gotchas
 

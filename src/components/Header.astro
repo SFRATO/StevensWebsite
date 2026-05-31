@@ -307,12 +307,15 @@ const phoneHref = 'tel:+16097890126';
 </style>
 
 <script>
-  // Mobile menu toggle
-  document.addEventListener('DOMContentLoaded', () => {
+  // Mobile menu toggle.
+  // Fires on initial load and after every view-transition navigation.
+  // (tel:/mailto: click tracking is handled site-wide in BaseLayout.)
+  document.addEventListener('astro:page-load', () => {
     const toggleButton = document.getElementById('mobile-menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
 
-    if (toggleButton && mobileMenu) {
+    if (toggleButton && mobileMenu && !toggleButton.dataset.bound) {
+      toggleButton.dataset.bound = '1';
       toggleButton.addEventListener('click', () => {
         const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
         toggleButton.setAttribute('aria-expanded', (!isExpanded).toString());

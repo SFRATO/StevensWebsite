@@ -11,6 +11,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { TownZipMapping } from '../data/town-mappings';
+import { trackSiteSearch } from '@utils/analytics';
 
 interface Props {
   mappings: TownZipMapping[];
@@ -108,6 +109,7 @@ export default function TownZipFieldIsland({
     setShowDropdown(false);
     setHighlightedIndex(-1);
     setZipcodeError('');
+    trackSiteSearch(mapping.displayTown, 'Town/Zip Field');
   }, []);
 
   // Handle town input change
