@@ -33,6 +33,23 @@ const SENDER_EMAIL = process.env.SES_SENDER_EMAIL || "reports@stevenfrato.com";
 // Steven's email for lead notifications
 const STEVEN_EMAIL = "sf@stevenfrato.com";
 
+/**
+ * Append Matomo campaign attribution params to a URL so email-driven traffic
+ * and conversions are attributed in Matomo (idSite 27). Matomo reads the
+ * mtm_* query params on landing.
+ */
+function withCampaign(
+  url: string,
+  opts: { campaign: string; content?: string }
+): string {
+  const u = new URL(url);
+  u.searchParams.set("mtm_campaign", opts.campaign);
+  u.searchParams.set("mtm_source", "email");
+  u.searchParams.set("mtm_medium", "email");
+  if (opts.content) u.searchParams.set("mtm_content", opts.content);
+  return u.toString();
+}
+
 // Email sequence configuration
 const EMAIL_SEQUENCE = [
   { day: 0, templateId: "welcome-report", subject: "Your {location} Market Report is Ready" },
@@ -301,7 +318,14 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
     address: data.address,
     town: data.town,
   });
-  const pdfUrl = `https://stevenfrato.com/.netlify/functions/generate-pdf?${pdfParams.toString()}`;
+  const pdfUrl = withCampaign(
+    `https://stevenfrato.com/.netlify/functions/generate-pdf?${pdfParams.toString()}`,
+    { campaign: "welcome-report", content: "pdf-download" }
+  );
+  const siteUrl = withCampaign("https://stevenfrato.com", {
+    campaign: "welcome-report",
+    content: "footer",
+  });
 
   return `
 <!DOCTYPE html>
@@ -357,7 +381,7 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
   <div style="border-top: 1px solid #ddd; padding-top: 20px; font-size: 12px; color: #666; text-align: center;">
     <p>136 Farnsworth Ave, Bordentown, NJ 08505</p>
     <p>You're receiving this email because you requested a market report from stevenfrato.com</p>
-    <p><a href="https://stevenfrato.com" style="color: #C99C33;">stevenfrato.com</a></p>
+    <p><a href="${siteUrl}" style="color: #C99C33;">stevenfrato.com</a></p>
   </div>
 </body>
 </html>
@@ -374,7 +398,14 @@ function generateWelcomeEmailText(data: EmailSequenceRequest, fullAddress: strin
     address: data.address,
     town: data.town,
   });
-  const pdfUrl = `https://stevenfrato.com/.netlify/functions/generate-pdf?${pdfParams.toString()}`;
+  const pdfUrl = withCampaign(
+    `https://stevenfrato.com/.netlify/functions/generate-pdf?${pdfParams.toString()}`,
+    { campaign: "welcome-report", content: "pdf-download" }
+  );
+  const siteUrl = withCampaign("https://stevenfrato.com", {
+    campaign: "welcome-report",
+    content: "footer",
+  });
 
   return `
 Your ${data.town} Market Report is Ready
@@ -406,7 +437,7 @@ sf@stevenfrato.com
 ---
 136 Farnsworth Ave, Bordentown, NJ 08505
 You're receiving this email because you requested a market report from stevenfrato.com
-https://stevenfrato.com
+${siteUrl}
   `.trim();
 }
 

@@ -209,8 +209,11 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 </section>
 
 <script>
-  // Handle contact form submission with success state
-  document.addEventListener('DOMContentLoaded', () => {
+  import { trackEvent } from '@utils/analytics';
+
+  // Handle contact form submission with success state.
+  // Fires on initial load and after every view-transition navigation.
+  document.addEventListener('astro:page-load', () => {
     const formWrappers = document.querySelectorAll('.contact-form-wrapper');
 
     formWrappers.forEach((wrapper) => {
@@ -222,6 +225,15 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
       const successWrapper = document.getElementById(`${formId}-success`);
 
       if (!form || !formContainer || !successWrapper) return;
+      if (form.dataset.bound) return;
+      form.dataset.bound = '1';
+
+      // Track form start on first field interaction
+      form.addEventListener(
+        'focusin',
+        () => trackEvent('Lead', 'Form Start', 'Contact Form'),
+        { once: true }
+      );
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -250,13 +262,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
             // Scroll to success message
             successWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            // Track conversion if GA is available
-            if (typeof window.gtag === 'function') {
-              window.gtag('event', 'form_submit', {
-                event_category: 'Lead',
-                event_label: 'Contact Form',
-              });
-            }
+            // Track conversion
+            trackEvent('Lead', 'Contact Form');
           } else {
             throw new Error('Form submission failed');
           }

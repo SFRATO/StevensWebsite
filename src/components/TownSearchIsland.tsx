@@ -4,6 +4,7 @@
  * Used on the /areas/ page hero section
  */
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { trackSiteSearch } from '@utils/analytics';
 
 interface Town {
   name: string;
@@ -108,6 +109,8 @@ export default function TownSearchIsland({ towns }: Props) {
 
   // Navigate to town page
   const navigateToTown = (town: Town) => {
+    // Record the search that led here (ranked town-demand report in Matomo)
+    trackSiteSearch(town.name, 'Areas Search', flatResults.length);
     window.location.href = `/market/${town.zipcode}/`;
   };
 

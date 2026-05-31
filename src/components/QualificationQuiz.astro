@@ -523,8 +523,10 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
 <script>
   import type { QualificationData } from '../utils/leadScoring';
   import { calculateLeadScore } from '../utils/leadScoring';
+  import { trackEvent } from '@utils/analytics';
 
-  document.addEventListener('DOMContentLoaded', () => {
+  // Fires on initial load and after every view-transition navigation.
+  document.addEventListener('astro:page-load', () => {
     const quizWrappers = document.querySelectorAll('.quiz-wrapper');
 
     quizWrappers.forEach((wrapper) => {
@@ -537,13 +539,29 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
       const leadTempInput = document.getElementById(`${formId}-lead-temperature`) as HTMLInputElement;
 
       if (!form || !container || !successWrapper) return;
+      if (form.dataset.bound) return;
+      form.dataset.bound = '1';
 
       let currentStep = 1;
+      let maxStepReached = 1;
       let selectedIntent = '';
+
+      // Track quiz start on first interaction (Step 1 of the funnel)
+      form.addEventListener(
+        'focusin',
+        () => trackEvent('Lead', 'Form Start', 'Qualification Quiz'),
+        { once: true }
+      );
 
       // Step navigation
       const showStep = (step: number) => {
         currentStep = step;
+
+        // Funnel: record each step the first time it is reached (forward only)
+        if (step > maxStepReached) {
+          maxStepReached = step;
+          trackEvent('Lead', 'Quiz Step', `Step ${step}`);
+        }
 
         // Update progress bar
         const progressPercent = (step / 3) * 100;
@@ -692,14 +710,13 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
             // Scroll to success message
             successWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-            // Track conversion
-            if (typeof window.gtag === 'function') {
-              window.gtag('event', 'form_submit', {
-                event_category: 'Lead',
-                event_label: 'Qualification Quiz',
-                value: parseInt(leadScoreInput?.value || '0'),
-              });
-            }
+            // Track conversion (name = lead temperature, value = lead score)
+            trackEvent(
+              'Lead',
+              'Qualification Quiz',
+              leadTempInput?.value || undefined,
+              parseInt(leadScoreInput?.value || '0')
+            );
           } else {
             throw new Error('Form submission failed');
           }

@@ -38,72 +38,79 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 )}
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  import { trackEvent } from '@utils/analytics';
+
+  const showThreshold = 300; // pixels scrolled before showing
+  const hideThreshold = 100; // pixels from top to hide
+
+  let scrollBound = false;
+  let isVisible = false;
+
+  const updateVisibility = () => {
     const stickyCta = document.getElementById('sticky-cta');
     if (!stickyCta) return;
 
-    let lastScrollY = window.scrollY;
-    let isVisible = false;
-    const showThreshold = 300; // pixels scrolled before showing
-    const hideThreshold = 100; // pixels from top to hide
+    const currentScrollY = window.scrollY;
 
-    const updateVisibility = () => {
-      const currentScrollY = window.scrollY;
-
-      // Show after scrolling down past threshold
-      if (currentScrollY > showThreshold && !isVisible) {
-        isVisible = true;
-        stickyCta.classList.add('visible');
-        stickyCta.setAttribute('aria-hidden', 'false');
-      }
-      // Hide when scrolled back to top
-      else if (currentScrollY < hideThreshold && isVisible) {
-        isVisible = false;
-        stickyCta.classList.remove('visible');
-        stickyCta.setAttribute('aria-hidden', 'true');
-      }
-
-      lastScrollY = currentScrollY;
-    };
-
-    // Throttle scroll events
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          updateVisibility();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }, { passive: true });
-
-    // Track phone clicks
-    const phoneLink = stickyCta.querySelector('.sticky-phone');
-    if (phoneLink) {
-      phoneLink.addEventListener('click', () => {
-        if (typeof window.gtag === 'function') {
-          window.gtag('event', 'phone_click', {
-            event_category: 'Contact',
-            event_label: 'Sticky CTA Phone',
-          });
-        }
-      });
+    // Show after scrolling down past threshold
+    if (currentScrollY > showThreshold && !isVisible) {
+      isVisible = true;
+      stickyCta.classList.add('visible');
+      stickyCta.setAttribute('aria-hidden', 'false');
     }
+    // Hide when scrolled back to top
+    else if (currentScrollY < hideThreshold && isVisible) {
+      isVisible = false;
+      stickyCta.classList.remove('visible');
+      stickyCta.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  // Window-level scroll listener bound once (survives view transitions).
+  const bindScrollOnce = () => {
+    if (scrollBound) return;
+    scrollBound = true;
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            updateVisibility();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+  };
+
+  const initStickyCta = () => {
+    const stickyCta = document.getElementById('sticky-cta');
+    if (!stickyCta) return;
+
+    bindScrollOnce();
+
+    // Re-sync visibility state to the freshly-swapped element.
+    isVisible = stickyCta.classList.contains('visible');
+    updateVisibility();
+
+    // (Phone-link clicks are tracked site-wide in BaseLayout, which labels
+    // them 'Sticky CTA' via the .sticky-cta container.)
 
     // Track CTA clicks
-    const ctaBtn = stickyCta.querySelector('.sticky-btn');
-    if (ctaBtn) {
+    const ctaBtn = stickyCta.querySelector<HTMLElement>('.sticky-btn');
+    if (ctaBtn && !ctaBtn.dataset.bound) {
+      ctaBtn.dataset.bound = '1';
       ctaBtn.addEventListener('click', () => {
-        if (typeof window.gtag === 'function') {
-          window.gtag('event', 'cta_click', {
-            event_category: 'Lead',
-            event_label: 'Sticky CTA Button',
-          });
-        }
+        trackEvent('Lead', 'CTA Click', 'Sticky CTA');
       });
     }
-  });
+  };
+
+  // Fires on initial load and after every view-transition navigation.
+  document.addEventListener('astro:page-load', initStickyCta);
 </script>
 
 <style>
