@@ -8,8 +8,9 @@ import MarketHero from '@components/MarketHero.astro';
 import MarketCard from '@components/MarketCard.astro';
 import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
+import UrgencyBanner from '@components/UrgencyBanner.astro';
 import { generateBreadcrumbSchema, generateMarketDataSchema, generateFAQSchema } from '@utils/schema';
-import { getTownsByZipcode } from '../../data/town-mappings';
+import { getTownsByZipcode, getTownSlug } from '../../data/town-mappings';
 
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
@@ -193,9 +194,15 @@ const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 // Page meta
 const title = `${locationName}, NJ Housing Market | ${currentMonthYear}`;
 const description = `${locationName} real estate market: median price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes for sale, ${zipData.median_dom ?? 'N/A'} days on market. Part of ${zipData.county}.`;
+
+// Canonical: if there's a single primary town for this zip, point to the town page
+const primaryTown = matchingTowns.length === 1 ? matchingTowns[0] : null;
+const canonicalUrl = primaryTown
+  ? `https://stevenfrato.com/market/${parentCountySlug}/${getTownSlug(primaryTown.name)}/`
+  : undefined;
 ---
 
-<BaseLayout title={title} description={description} schema={combinedSchema}>
+<BaseLayout title={title} description={description} schema={combinedSchema} canonical={canonicalUrl}>
   <MarketHero
     title={`What's Your ${townDisplayName} Home Worth?`}
     subtitle={heroSubtitle}
@@ -214,6 +221,16 @@ const description = `${locationName} real estate market: median price ${formatCu
       <span class="current">{zipData.zipcode}</span>
     </div>
   </nav>
+
+  <!-- Urgency Banner -->
+  <div class="container" style="padding-top: var(--space-4);">
+    <UrgencyBanner
+      location={townDisplayName}
+      lastUpdated={formatDate(zipData.period_end)}
+      priceChangeYoY={zipData.median_sale_price_yoy}
+      marketType={zipData.market_type}
+    />
+  </div>
 
   <!-- Market Snapshot -->
   <section class="market-snapshot">

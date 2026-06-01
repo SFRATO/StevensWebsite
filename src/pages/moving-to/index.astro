@@ -1,0 +1,113 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { generateBreadcrumbSchema } from '@utils/schema';
+import { townGuides } from '../../data/town-guides';
+import { getTownSlug } from '../../data/town-mappings';
+
+const byCounty: Record<string, typeof townGuides> = {};
+for (const guide of townGuides) {
+  if (!byCounty[guide.county]) byCounty[guide.county] = [];
+  byCounty[guide.county].push(guide);
+}
+
+const schema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Moving Guides', url: 'https://stevenfrato.com/moving-to/' },
+]);
+---
+
+<BaseLayout
+  title="Moving to South & Central NJ? Local Real Estate Guides | Steven Frato"
+  description="Free moving guides for Burlington, Mercer, and Middlesex County NJ towns. Learn about home prices, commutes, schools, and lifestyle before you move."
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Moving to New Jersey? We've Got Your Guide.</h1>
+      <p class="hero-sub">Local real estate insights for Burlington, Mercer, and Middlesex County — including housing market data, commute details, school info, and lifestyle highlights.</p>
+    </div>
+  </section>
+
+  <section class="guides-section">
+    <div class="container">
+      {Object.entries(byCounty).map(([county, guides]) => (
+        <div class="county-group">
+          <h2>{county}</h2>
+          <div class="guides-grid">
+            {guides.map((g) => (
+              <a href={`/moving-to/${getTownSlug(g.townName)}/`} class="guide-card">
+                <h3>{g.townName}</h3>
+                <p>{g.blurb.split('.')[0]}.</p>
+                <span class="card-cta">Read Guide →</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; max-width: 600px; line-height: 1.7; }
+
+  .guides-section { padding: var(--space-12) 0; }
+
+  .county-group { margin-bottom: var(--space-12); }
+
+  .county-group h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-6);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--c21-gold);
+    display: inline-block;
+  }
+
+  .guides-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 768px) { .guides-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .guides-grid { grid-template-columns: 1fr; } }
+
+  .guide-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+    text-decoration: none;
+    transition: all 0.2s;
+    gap: var(--space-2);
+  }
+
+  .guide-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: 0 4px 16px rgba(201, 156, 51, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .guide-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0; }
+
+  .guide-card p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; flex: 1; line-height: 1.6; }
+
+  .card-cta { font-size: var(--text-sm); color: var(--c21-gold); font-weight: 600; margin-top: var(--space-2); }
+</style>

@@ -96,13 +96,48 @@ const phoneHref = 'tel:+16097890126';
         <!-- Phone CTA -->
         <div class="phone-cta">
           <p>Want to talk now? I'm available to answer your questions.</p>
-          <a href={phoneHref} class="btn btn-primary btn-large">
+          <a href={phoneHref} class="btn btn-primary btn-large" id="ty-phone-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" stroke="currentColor" stroke-width="2"/>
             </svg>
             Call {phone}
           </a>
+          <a href="/contact/" class="btn btn-outline btn-large" id="ty-calendar-btn">
+            📅 Schedule a Consultation
+          </a>
         </div>
+
+        <!-- Referral Section -->
+        <div class="referral-section">
+          <h2>Know Someone Who Could Use This?</h2>
+          <p>If you know a neighbor, family member, or friend thinking about buying or selling in South Jersey, I'd love an introduction.</p>
+          <div class="referral-btns">
+            <a
+              href="sms:?body=I%20just%20got%20a%20free%20market%20report%20from%20Steven%20Frato%20at%20Century%2021%20%E2%80%94%20really%20helpful%20for%20NJ%20real%20estate.%20Check%20it%20out%3A%20stevenfrato.com"
+              class="referral-btn"
+              id="ty-sms-referral"
+            >
+              📱 Text a Friend
+            </a>
+            <a
+              href="mailto:?subject=Free%20NJ%20Home%20Value%20Report&body=I%20thought%20you%20might%20find%20this%20useful%20%E2%80%94%20I%20just%20got%20a%20free%20market%20report%20from%20a%20local%20NJ%20agent%3A%20stevenfrato.com"
+              class="referral-btn"
+              id="ty-email-referral"
+            >
+              ✉️ Email a Friend
+            </a>
+          </div>
+        </div>
+
+        <!-- Market Urgency Note -->
+        {(() => {
+          const sellerCount = counties.filter((c) => c.market_type === 'seller').length;
+          return sellerCount > 0 && (
+            <div class="urgency-note">
+              <strong>{sellerCount} of 3</strong> counties we track are currently Seller's Markets. Conditions change — get your consultation while the market favors sellers.
+            </div>
+          );
+        })()}
       </div>
 
       <!-- Explore Markets Section -->
@@ -130,6 +165,36 @@ const phoneHref = 'tel:+16097890126';
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { trackEvent } from '@utils/analytics';
+
+  document.addEventListener('astro:page-load', () => {
+    // Track page view for conversion attribution
+    const referrer = document.referrer;
+    trackEvent('Lead', 'Thank You Page View', referrer || 'direct');
+
+    // Track calendar / consultation click
+    const calBtn = document.getElementById('ty-calendar-btn');
+    if (calBtn && !calBtn.dataset.bound) {
+      calBtn.dataset.bound = '1';
+      calBtn.addEventListener('click', () => trackEvent('Lead', 'Calendar Click', 'Thank You'));
+    }
+
+    // Track referral shares
+    const smsBtn = document.getElementById('ty-sms-referral');
+    if (smsBtn && !smsBtn.dataset.bound) {
+      smsBtn.dataset.bound = '1';
+      smsBtn.addEventListener('click', () => trackEvent('Lead', 'Referral Share', 'SMS'));
+    }
+
+    const emailBtn = document.getElementById('ty-email-referral');
+    if (emailBtn && !emailBtn.dataset.bound) {
+      emailBtn.dataset.bound = '1';
+      emailBtn.addEventListener('click', () => trackEvent('Lead', 'Referral Share', 'Email'));
+    }
+  });
+</script>
 
 <style>
   .thank-you-page {
@@ -254,6 +319,76 @@ const phoneHref = 'tel:+16097890126';
   .phone-cta .btn:hover {
     background-color: var(--c21-gold-dark);
     transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent !important;
+    border: 2px solid rgba(255,255,255,0.5) !important;
+    color: #fff !important;
+    margin-top: var(--space-3);
+  }
+
+  .btn-outline:hover {
+    background: rgba(255,255,255,0.1) !important;
+    border-color: #fff !important;
+  }
+
+  /* Referral */
+  .referral-section {
+    padding: var(--space-8);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-6);
+  }
+
+  .referral-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-2);
+  }
+
+  .referral-section p {
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .referral-btns {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .referral-btn {
+    display: inline-block;
+    padding: var(--space-3) var(--space-6);
+    border: 2px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    color: var(--charcoal);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    background: #fff;
+    transition: all 0.2s;
+  }
+
+  .referral-btn:hover {
+    border-color: var(--c21-gold);
+    color: var(--c21-gold);
+  }
+
+  /* Urgency Note */
+  .urgency-note {
+    margin-top: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: #fef9ee;
+    border: 1px solid var(--c21-gold);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: #92400e;
   }
 
   /* Explore Markets */

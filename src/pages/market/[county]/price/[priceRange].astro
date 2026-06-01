@@ -1,0 +1,198 @@
+---
+/**
+ * Price-Range Pages — /market/[county]/price/[priceRange]/
+ * e.g., /market/burlington-county/price/homes-under-400k/
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
+import { getTownSlug, getTownNameByZipcode } from '../../../../data/town-mappings';
+import zipcodesData from '../../../../../data/processed/zipcodes.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  median_sale_price: number | null;
+  median_dom: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  inventory: number | null;
+  period_end: string;
+}
+
+const PRICE_TIERS = [
+  { slug: 'homes-under-300k', cap: 300_000, label: 'Under $300K' },
+  { slug: 'homes-under-400k', cap: 400_000, label: 'Under $400K' },
+  { slug: 'homes-under-500k', cap: 500_000, label: 'Under $500K' },
+  { slug: 'homes-under-600k', cap: 600_000, label: 'Under $600K' },
+  { slug: 'homes-under-800k', cap: 800_000, label: 'Under $800K' },
+];
+
+const COUNTIES = [
+  { name: 'Burlington County', slug: 'burlington-county' },
+  { name: 'Mercer County', slug: 'mercer-county' },
+  { name: 'Middlesex County', slug: 'middlesex-county' },
+];
+
+export function getStaticPaths() {
+  const PRICE_TIERS_LOCAL = [
+    { slug: 'homes-under-300k', cap: 300_000, label: 'Under $300K' },
+    { slug: 'homes-under-400k', cap: 400_000, label: 'Under $400K' },
+    { slug: 'homes-under-500k', cap: 500_000, label: 'Under $500K' },
+    { slug: 'homes-under-600k', cap: 600_000, label: 'Under $600K' },
+    { slug: 'homes-under-800k', cap: 800_000, label: 'Under $800K' },
+  ];
+  const COUNTIES_LOCAL = [
+    { name: 'Burlington County', slug: 'burlington-county' },
+    { name: 'Mercer County', slug: 'mercer-county' },
+    { name: 'Middlesex County', slug: 'middlesex-county' },
+  ];
+  const allZipcodes = zipcodesData as ZipData[];
+  const paths = [];
+
+  for (const county of COUNTIES_LOCAL) {
+    for (const tier of PRICE_TIERS_LOCAL) {
+      const qualifying = allZipcodes.filter(
+        (z) => z.county === county.name && z.median_sale_price !== null && z.median_sale_price < tier.cap
+      );
+      if (qualifying.length >= 3) {
+        paths.push({
+          params: { county: county.slug, priceRange: tier.slug },
+          props: { countyName: county.name, countySlug: county.slug, tier, qualifying },
+        });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const { countyName, countySlug, tier, qualifying: rawQualifying } = Astro.props as {
+  countyName: string;
+  countySlug: string;
+  tier: { slug: string; cap: number; label: string };
+  qualifying: ZipData[];
+};
+
+const qualifying = [...rawQualifying].sort((a, b) => (a.median_sale_price ?? 0) - (b.median_sale_price ?? 0));
+
+const fmtCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const currentYear = new Date().getFullYear();
+
+const tierIdx = PRICE_TIERS.findIndex((t) => t.slug === tier.slug);
+const prevTier = tierIdx > 0 ? PRICE_TIERS[tierIdx - 1] : null;
+const nextTier = tierIdx < PRICE_TIERS.length - 1 ? PRICE_TIERS[tierIdx + 1] : null;
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
+    { name: countyName, url: `https://stevenfrato.com/market/${countySlug}/` },
+    { name: `Homes ${tier.label}`, url: `https://stevenfrato.com/market/${countySlug}/price/${tier.slug}/` },
+  ]),
+  generateFAQSchema([
+    {
+      question: `Are there homes ${tier.label} in ${countyName}, NJ?`,
+      answer: `Yes — ${qualifying.length} areas in ${countyName} have a median sale price ${tier.label.toLowerCase()}, ranging from ${fmtCurrency(qualifying[0]?.median_sale_price)} to ${fmtCurrency(qualifying[qualifying.length - 1]?.median_sale_price)}.`,
+    },
+    {
+      question: `What towns in ${countyName} have homes ${tier.label}?`,
+      answer: qualifying.map((z) => getTownNameByZipcode(z.zipcode) ?? z.zipcode).slice(0, 6).join(', ') + (qualifying.length > 6 ? ` and ${qualifying.length - 6} more.` : '.'),
+    },
+  ]),
+];
+---
+
+<BaseLayout
+  title={`Homes ${tier.label} in ${countyName} NJ | ${currentYear} Buyer's Guide`}
+  description={`Find homes ${tier.label.toLowerCase()} in ${countyName}, NJ. ${qualifying.length} areas with qualifying median prices. Local market data updated monthly.`}
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">Home</a><span>›</span>
+        <a href="/market/">Market Data</a><span>›</span>
+        <a href={`/market/${countySlug}/`}>{countyName}</a><span>›</span>
+        <span>Homes {tier.label}</span>
+      </nav>
+      <h1>Homes {tier.label} in {countyName}, NJ</h1>
+      <p class="hero-sub">{qualifying.length} areas in {countyName} with median sale prices {tier.label.toLowerCase()}. Data from recent local transactions, updated monthly.</p>
+    </div>
+  </section>
+
+  <section class="results-section">
+    <div class="container">
+      <div class="results-grid">
+        {qualifying.map((z) => {
+          const town = getTownNameByZipcode(z.zipcode) ?? z.zipcode;
+          const townSlug = getTownSlug(town);
+          return (
+            <a href={`/market/${countySlug}/${townSlug}/`} class="result-card">
+              <div class="result-town">{town}</div>
+              <div class="result-price">{fmtCurrency(z.median_sale_price)}</div>
+              <div class="result-meta">
+                <span class={`badge badge-${z.market_type}`}>{z.market_type}'s market</span>
+                {z.median_dom !== null && <span class="dom">{Math.round(z.median_dom)}d on market</span>}
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      <div class="price-bands">
+        <h3>Browse Other Price Ranges in {countyName}</h3>
+        <div class="bands-row">
+          {prevTier && <a href={`/market/${countySlug}/price/${prevTier.slug}/`}>{prevTier.label}</a>}
+          {nextTier && <a href={`/market/${countySlug}/price/${nextTier.slug}/`}>{nextTier.label}</a>}
+          <a href={`/market/${countySlug}/`}>All {countyName} Data</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section" id="lead-capture">
+    <div class="container">
+      <div class="form-intro">
+        <h2>Find Your Home in {countyName}</h2>
+        <p>Tell Steven your budget and target area. He'll match you with available options and guide you through the buying process.</p>
+      </div>
+      <MarketReportForm location={countyName} townName={countyName} formName="market-report" />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: var(--space-12) 0 var(--space-10); color: #fff; }
+  .breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.875rem; color: #aaa; margin-bottom: var(--space-4); }
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  h1 { font-family: var(--font-heading); font-size: clamp(1.5rem, 3.5vw, 2.5rem); margin: 0 0 var(--space-3); color: #fff; }
+  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; }
+
+  .results-section { padding: var(--space-10) 0; }
+  .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-bottom: var(--space-8); }
+  @media (max-width: 768px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .result-card { display: flex; flex-direction: column; gap: 0.5rem; padding: var(--space-4); background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; text-decoration: none; transition: all 0.2s; }
+  .result-card:hover { border-color: var(--c21-gold); box-shadow: 0 4px 12px rgba(201,156,51,0.1); transform: translateY(-1px); }
+  .result-town { font-weight: 700; color: var(--charcoal); font-size: var(--text-base); }
+  .result-price { font-size: 1.25rem; font-weight: 800; color: var(--c21-gold); }
+  .result-meta { display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem; flex-wrap: wrap; }
+  .badge { padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 600; text-transform: capitalize; }
+  .badge-seller { background: #dcfce7; color: #15803d; }
+  .badge-buyer { background: #fef2f2; color: #991b1b; }
+  .badge-balanced { background: #fef9ee; color: #92400e; }
+  .dom { color: var(--text-secondary); }
+
+  .price-bands { padding: var(--space-6) 0; border-top: 1px solid #e2e8f0; }
+  .price-bands h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .bands-row { display: flex; gap: var(--space-4); flex-wrap: wrap; }
+  .bands-row a { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+
+  .form-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .form-intro { text-align: center; max-width: 560px; margin: 0 auto var(--space-8); }
+  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .form-intro p { color: var(--text-secondary); margin: 0; }
+</style>

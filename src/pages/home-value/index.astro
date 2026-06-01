@@ -1,0 +1,305 @@
+---
+/**
+ * Home Value Hub — /home-value/
+ * Directory of all town-level home value pages + link to interactive estimator.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { generateBreadcrumbSchema } from '@utils/schema';
+import { serviceAreas, getTownSlug } from '../../data/town-mappings';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  median_sale_price: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+}
+
+const allZipcodes = zipcodesData as ZipData[];
+
+const fmtCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+// Build county → towns list with market data
+const byCounty: Record<string, Array<{ name: string; slug: string; median_sale_price: number | null; market_type: string }>> = {};
+
+for (const [county, towns] of Object.entries(serviceAreas)) {
+  const seen = new Set<string>();
+  byCounty[county] = [];
+  for (const town of towns) {
+    if (seen.has(town.name)) continue;
+    seen.add(town.name);
+    const zipData = allZipcodes.find((z) => z.zipcode === town.zipcode);
+    byCounty[county].push({
+      name: town.name,
+      slug: getTownSlug(town.name),
+      median_sale_price: zipData?.median_sale_price ?? null,
+      market_type: zipData?.market_type ?? 'balanced',
+    });
+  }
+  byCounty[county].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+const schema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Home Value', url: 'https://stevenfrato.com/home-value/' },
+]);
+
+const currentYear = new Date().getFullYear();
+---
+
+<BaseLayout
+  title={`What Is My NJ Home Worth? | Free Home Valuation ${currentYear} | Steven Frato`}
+  description="Find out what your New Jersey home is worth. Free home value reports for Burlington, Mercer, and Middlesex County towns. Instant estimates or personalized CMA from a local Century 21 agent."
+  schema={schema}
+>
+  <section class="hv-hero">
+    <div class="container">
+      <h1>What Is My New Jersey Home Worth?</h1>
+      <p class="hero-sub">Get a free, data-backed home value report for any town in Burlington, Mercer, or Middlesex County.</p>
+      <div class="hero-ctas">
+        <a href="/tools/home-value-estimator/" class="btn-primary">Get an Instant Estimate</a>
+        <a href="/contact/" class="btn-outline">Request a Free CMA</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tool-promo">
+    <div class="container">
+      <div class="promo-card">
+        <div class="promo-icon">⚡</div>
+        <div class="promo-text">
+          <h2>Want an Instant Estimate?</h2>
+          <p>Try our free Home Value Estimator — select your town, enter property details, and get a price range in 30 seconds based on recent local sales data.</p>
+        </div>
+        <a href="/tools/home-value-estimator/" class="promo-btn">Try the Estimator →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="towns-section">
+    <div class="container">
+      <h2>Find Your Town's Home Value</h2>
+      <p class="section-sub">Select your town to see current market data and request a free home value report from Steven.</p>
+
+      {Object.entries(byCounty).map(([county, towns]) => (
+        <div class="county-group">
+          <h3 class="county-heading">
+            <a href={`/market/${county.toLowerCase().replace(/\s+/g, '-')}/`}>{county}</a>
+          </h3>
+          <div class="towns-grid">
+            {towns.map((town) => (
+              <a href={`/home-value/${town.slug}/`} class="town-card">
+                <span class="town-name">{town.name}</span>
+                {town.median_sale_price && (
+                  <span class="town-price">{fmtCurrency(town.median_sale_price)}</span>
+                )}
+                <span class={`market-tag tag-${town.market_type}`}>{town.market_type}'s</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="cma-section">
+    <div class="container">
+      <div class="cma-box">
+        <h2>Want a More Precise Number?</h2>
+        <p>A Comparative Market Analysis (CMA) from Steven accounts for your specific property's condition, recent comparable sales, and current buyer demand — not just a zip code average.</p>
+        <a href="/contact/" class="cta-btn">Request a Free CMA</a>
+        <p class="no-obligation">No obligation. No pressure. Just data.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hv-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+    text-align: center;
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub {
+    font-size: var(--text-lg);
+    color: #ccc;
+    margin: 0 0 var(--space-6);
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: var(--c21-gold);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: var(--c21-gold-dark); transform: translateY(-1px); }
+
+  .btn-outline {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border: 2px solid rgba(255,255,255,0.5);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+
+  .tool-promo { padding: var(--space-8) 0; background: #fef9ee; border-bottom: 1px solid #e2e8f0; }
+
+  .promo-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    background: #fff;
+    border: 2px solid var(--c21-gold);
+    border-radius: 1rem;
+    padding: var(--space-6);
+  }
+
+  @media (max-width: 640px) { .promo-card { flex-direction: column; text-align: center; } }
+
+  .promo-icon { font-size: 2.5rem; flex-shrink: 0; }
+
+  .promo-text { flex: 1; }
+
+  .promo-text h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-2);
+  }
+
+  .promo-text p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; line-height: 1.6; }
+
+  .promo-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--c21-gold);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: var(--text-sm);
+  }
+
+  .towns-section { padding: var(--space-12) 0; }
+
+  .towns-section > .container > h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-2);
+  }
+
+  .section-sub { color: var(--text-secondary); margin: 0 0 var(--space-10); font-size: var(--text-sm); }
+
+  .county-group { margin-bottom: var(--space-10); }
+
+  .county-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--c21-gold);
+    display: inline-block;
+  }
+
+  .county-heading a { color: inherit; text-decoration: none; }
+  .county-heading a:hover { color: var(--c21-gold); }
+
+  .towns-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 768px) { .towns-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .towns-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .town-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: var(--space-3) var(--space-4);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .town-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: 0 4px 12px rgba(201,156,51,0.1);
+  }
+
+  .town-name { font-weight: 600; color: var(--charcoal); font-size: var(--text-sm); }
+  .town-price { font-size: 0.8rem; color: var(--c21-gold); font-weight: 700; }
+  .market-tag { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 999px; font-weight: 600; text-transform: capitalize; align-self: flex-start; }
+  .tag-seller { background: #dcfce7; color: #15803d; }
+  .tag-buyer { background: #fef2f2; color: #991b1b; }
+  .tag-balanced { background: #fef9ee; color: #92400e; }
+
+  .cma-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .cma-box {
+    max-width: 560px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .cma-box h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-3);
+  }
+
+  .cma-box p { color: var(--text-secondary); margin: 0 0 var(--space-6); line-height: 1.7; }
+
+  .cta-btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background: var(--c21-gold);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+  }
+
+  .no-obligation { font-size: 0.8rem; color: var(--text-secondary); margin: var(--space-3) 0 0; }
+</style>

@@ -1,0 +1,337 @@
+---
+/**
+ * Home Value Conversion Pages
+ * Seller-intent pages targeting "what is my home worth in [Town] NJ"
+ * Route: /home-value/[town-slug]/
+ * ~130 pages from town-mappings
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import {
+  generateBreadcrumbSchema,
+  generateFAQSchema,
+  generateRealEstateAgentSchema,
+} from '@utils/schema';
+import {
+  serviceAreas,
+  getTownSlug,
+} from '../../data/town-mappings';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  period_end: string;
+  last_updated: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  median_dom: number | null;
+  sold_above_list_pct: number | null;
+  inventory: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+}
+
+export function getStaticPaths() {
+  const allZipcodes = zipcodesData as ZipData[];
+  const paths: Array<{
+    params: { townSlug: string };
+    props: { townName: string; countyName: string; countySlug: string; zipData: ZipData | null; zipcode: string };
+  }> = [];
+
+  for (const [countyName, towns] of Object.entries(serviceAreas)) {
+    const countySlug = countyName.toLowerCase().replace(/\s+/g, '-');
+    const seen = new Set<string>();
+
+    for (const town of towns) {
+      if (seen.has(town.name)) continue;
+      seen.add(town.name);
+
+      const slug = getTownSlug(town.name);
+      const zipData = allZipcodes.find((z) => z.zipcode === town.zipcode) ?? null;
+
+      paths.push({
+        params: { townSlug: slug },
+        props: { townName: town.name, countyName, countySlug, zipData, zipcode: town.zipcode },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { townName, countyName, countySlug, zipData, zipcode } = Astro.props as {
+  townName: string;
+  countyName: string;
+  countySlug: string;
+  zipData: ZipData | null;
+  zipcode: string;
+};
+
+const slug = getTownSlug(townName);
+
+const fmtCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+const currentYear = new Date().getFullYear();
+
+const faqs = [
+  {
+    question: `How do I find out what my ${townName} home is worth?`,
+    answer: `The most accurate way to value your ${townName} home is a free Comparative Market Analysis (CMA) from a local real estate agent. Steven Frato analyzes recent comparable sales in your neighborhood to give you a precise market value — not an algorithm-generated estimate.`,
+  },
+  {
+    question: `What is the average home price in ${townName}, NJ?`,
+    answer: zipData?.median_sale_price
+      ? `The median sale price in ${townName} is currently ${fmtCurrency(zipData.median_sale_price)} as of ${fmtDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Prices have ${zipData.median_sale_price_yoy > 0 ? 'increased' : 'decreased'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% over the past year.` : ''}`
+      : `Contact Steven Frato for current market pricing in ${townName}, NJ.`,
+  },
+  {
+    question: `How long does it take to sell a house in ${townName}, NJ?`,
+    answer: zipData?.median_dom !== null
+      ? `Homes in ${townName} are currently selling in a median of ${Math.round(zipData!.median_dom!)} days. This can vary significantly based on pricing, condition, and current market conditions.`
+      : `Market timing varies. Contact Steven for current days-on-market data for ${townName}.`,
+  },
+];
+
+const marketTypeText = {
+  seller: `${townName} is currently a seller's market — strong demand and limited inventory can help you achieve top dollar.`,
+  buyer: `While ${townName} currently favors buyers, strategic pricing and presentation can still achieve excellent results.`,
+  balanced: `${townName} has a balanced market — the right strategy and pricing are key to maximizing your sale price.`,
+}[zipData?.market_type ?? 'balanced'];
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Home Value', url: 'https://stevenfrato.com/home-value/' },
+    { name: `${townName} Home Value`, url: `https://stevenfrato.com/home-value/${slug}/` },
+  ]),
+  generateFAQSchema(faqs),
+  generateRealEstateAgentSchema(),
+];
+---
+
+<BaseLayout
+  title={`What Is My ${townName} NJ Home Worth? | Free Home Valuation ${currentYear}`}
+  description={`Find out what your ${townName}, NJ home is worth. Get a free market analysis from local Century 21 agent Steven Frato. ${zipData?.median_sale_price ? `Current median: ${fmtCurrency(zipData.median_sale_price)}.` : ''}`}
+  schema={schema}
+>
+  <section class="hv-hero">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href={`/market/${countySlug}/`}>{countyName}</a>
+        <span>›</span>
+        <span>Home Value</span>
+      </nav>
+      <h1>What Is My {townName} Home Worth?</h1>
+      <p class="hero-sub">Get a free, personalized home value analysis from Steven Frato — a local Century 21 agent who knows {townName} inside and out.</p>
+    </div>
+  </section>
+
+  <section class="form-first" id="lead-capture">
+    <div class="container">
+      <MarketReportForm
+        location={townName}
+        townName={townName}
+        formName="market-report"
+        lastUpdated={zipData ? fmtDate(zipData.period_end) : undefined}
+        priceChangeYoY={zipData?.median_sale_price_yoy}
+        marketType={zipData?.market_type}
+        prefillTown={townName}
+        prefillZipcode={zipcode}
+      />
+    </div>
+  </section>
+
+  {zipData?.median_sale_price && (
+    <section class="market-context">
+      <div class="container">
+        <h2>What's Happening in {townName} Right Now</h2>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value">{fmtCurrency(zipData.median_sale_price)}</div>
+            <div class="stat-label">Median Sale Price</div>
+            {zipData.median_sale_price_yoy !== null && (
+              <div class={`stat-trend ${zipData.median_sale_price_yoy >= 0 ? 'trend-up' : 'trend-down'}`}>
+                {zipData.median_sale_price_yoy >= 0 ? '↑' : '↓'} {Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% YoY
+              </div>
+            )}
+          </div>
+          {zipData.median_dom !== null && (
+            <div class="stat-card">
+              <div class="stat-value">{Math.round(zipData.median_dom)} days</div>
+              <div class="stat-label">Avg. Days on Market</div>
+            </div>
+          )}
+          {zipData.sold_above_list_pct !== null && (
+            <div class="stat-card">
+              <div class="stat-value">{zipData.sold_above_list_pct.toFixed(0)}%</div>
+              <div class="stat-label">Sell Above List Price</div>
+            </div>
+          )}
+        </div>
+
+        <div class="market-note">
+          <p>{marketTypeText}</p>
+          <a href={`/market/${countySlug}/${slug}/`} class="data-link">
+            View detailed {townName} market data →
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="why-section">
+    <div class="container">
+      <h2>Why Work With a Local Agent?</h2>
+      <div class="reasons-grid">
+        <div class="reason">
+          <div class="reason-icon">📊</div>
+          <h3>Real Data</h3>
+          <p>Steven uses actual comparable sales from {townName} and surrounding areas — not national averages.</p>
+        </div>
+        <div class="reason">
+          <div class="reason-icon">🏡</div>
+          <h3>Local Knowledge</h3>
+          <p>Understanding of neighborhood nuances, school districts, and buyer demand that algorithms miss.</p>
+        </div>
+        <div class="reason">
+          <div class="reason-icon">💰</div>
+          <h3>Maximized Value</h3>
+          <p>Strategic pricing that attracts the right buyers and achieves the best possible outcome for your sale.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="container">
+      <h2>{townName} Home Value — FAQs</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hv-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #aaa;
+    margin-bottom: var(--space-4);
+  }
+
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub { font-size: var(--text-lg); color: #ccc; margin: 0; max-width: 580px; }
+
+  .form-first { padding: var(--space-12) 0; }
+
+  .market-context { padding: var(--space-10) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .market-context h2, .why-section h2, .faq-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-6);
+  }
+
+  .stats-row {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-4) var(--space-5);
+    min-width: 160px;
+  }
+
+  .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--charcoal); }
+  .stat-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+  .stat-trend { font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; }
+  .trend-up { color: #16a34a; }
+  .trend-down { color: #dc2626; }
+
+  .market-note {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid var(--c21-gold);
+    border-radius: 0.75rem;
+    padding: var(--space-4) var(--space-5);
+    max-width: 640px;
+  }
+
+  .market-note p { margin: 0 0 var(--space-3); color: var(--text-secondary); }
+  .data-link { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+
+  .why-section { padding: var(--space-10) 0; }
+
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (max-width: 640px) { .reasons-grid { grid-template-columns: 1fr; } }
+
+  .reason { text-align: center; padding: var(--space-5); }
+  .reason-icon { font-size: 2rem; margin-bottom: var(--space-3); }
+  .reason h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0 0 var(--space-2); }
+  .reason p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
+
+  .faq-section { padding: var(--space-10) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .faq-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: var(--text-sm);
+  }
+</style>

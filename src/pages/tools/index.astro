@@ -1,0 +1,246 @@
+---
+/**
+ * Tools Hub — /tools/
+ * Directory of all free NJ real estate tools.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { generateBreadcrumbSchema } from '@utils/schema';
+import countiesData from '../../../data/processed/counties.json';
+import { formatCurrency } from '@utils/market-analysis';
+
+interface CountyData {
+  region: string;
+  slug: string;
+  median_sale_price: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+}
+
+const counties = countiesData as CountyData[];
+
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', url: 'https://stevenfrato.com/' },
+  { name: 'Free Tools', url: 'https://stevenfrato.com/tools/' },
+]);
+
+const tools = [
+  {
+    href: '/tools/home-value-estimator/',
+    icon: '🏠',
+    name: 'Home Value Estimator',
+    description: 'Get an instant estimate of your NJ home\'s value based on recent local sales data. Takes 30 seconds.',
+    bestFor: 'Homeowners considering selling',
+    stat: counties[0]?.median_sale_price ? `Burlington Co. median: ${formatCurrency(counties[0].median_sale_price)}` : 'Updated monthly',
+    cta: 'Estimate My Home\'s Value',
+  },
+  {
+    href: '/tools/should-i-sell-now/',
+    icon: '📊',
+    name: 'Market Timing Tool',
+    description: 'See a data-backed verdict on whether now is the right time to sell in your specific area.',
+    bestFor: 'Sellers weighing their options',
+    stat: `${counties.filter(c => c.market_type === 'seller').length} of 3 counties are seller\'s markets`,
+    cta: 'Check My Market',
+  },
+  {
+    href: '/tools/proceeds-calculator/',
+    icon: '💰',
+    name: 'Net Proceeds Calculator',
+    description: 'Calculate exactly how much you\'ll walk away with after agent commission, NJ exit tax, and all closing costs.',
+    bestFor: 'Sellers ready to crunch numbers',
+    stat: 'Includes NJ Realty Transfer Fee & GIT',
+    cta: 'Calculate My Proceeds',
+  },
+  {
+    href: '/tools/affordability-calculator/',
+    icon: '🔑',
+    name: 'Affordability Calculator',
+    description: 'Find out how much home you can realistically afford in Burlington, Mercer, or Middlesex County.',
+    bestFor: 'First-time buyers and move-up buyers',
+    stat: 'Based on 36% DTI & NJ property taxes',
+    cta: 'See My Budget',
+  },
+];
+---
+
+<BaseLayout
+  title="Free NJ Real Estate Tools — Home Value, Market Timing & More"
+  description="Free interactive tools for NJ home buyers and sellers. Estimate your home value, check market timing, calculate net proceeds, and test affordability — all using real local data."
+  schema={breadcrumbSchema}
+>
+  <section class="tools-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">›</span>
+        <span aria-current="page">Free Tools</span>
+      </nav>
+      <h1>Free NJ Real Estate Tools</h1>
+      <p class="hero-sub">Make confident decisions with data from your local market. No registration required.</p>
+    </div>
+  </section>
+
+  <section class="tools-grid-section">
+    <div class="container">
+      <div class="tools-grid">
+        {tools.map((tool) => (
+          <a href={tool.href} class="tool-card">
+            <div class="tool-icon">{tool.icon}</div>
+            <h2 class="tool-name">{tool.name}</h2>
+            <p class="tool-desc">{tool.description}</p>
+            <div class="tool-meta">
+              <span class="best-for">Best for: {tool.bestFor}</span>
+              <span class="tool-stat">{tool.stat}</span>
+            </div>
+            <div class="tool-cta">{tool.cta} →</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="tools-trust">
+    <div class="container">
+      <p class="trust-text">
+        These tools use real sales data from recent transactions across <strong>97 zip codes</strong> in Burlington, Mercer, and Middlesex Counties. Data updated monthly from Redfin's public market tracker.
+      </p>
+      <p class="trust-cta">
+        Need a personalized analysis? <a href="/contact/">Talk to Steven directly</a> — no obligation, no pressure.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tools-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #aaa;
+    margin-bottom: var(--space-4);
+  }
+
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub {
+    font-size: var(--text-lg);
+    color: #ccc;
+    margin: 0;
+  }
+
+  .tools-grid-section {
+    padding: var(--space-12) 0;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (max-width: 640px) {
+    .tools-grid { grid-template-columns: 1fr; }
+    h1 { font-size: var(--text-2xl); }
+  }
+
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: var(--space-6);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    gap: var(--space-3);
+  }
+
+  .tool-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: 0 8px 32px rgba(201, 156, 51, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .tool-icon { font-size: 2.5rem; }
+
+  .tool-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    margin: 0;
+    color: var(--charcoal);
+  }
+
+  .tool-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .tool-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .best-for {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .tool-stat {
+    font-size: 0.75rem;
+    color: var(--c21-gold);
+    font-weight: 500;
+  }
+
+  .tool-cta {
+    font-weight: 700;
+    color: var(--c21-gold);
+    font-size: var(--text-sm);
+    margin-top: var(--space-2);
+  }
+
+  .tools-trust {
+    background: #f8fafc;
+    padding: var(--space-8) 0;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+  }
+
+  .trust-text {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--space-3);
+  }
+
+  .trust-cta {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .trust-cta a {
+    color: var(--c21-gold);
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>

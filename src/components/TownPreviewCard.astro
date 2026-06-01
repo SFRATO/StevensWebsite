@@ -6,6 +6,7 @@
  */
 import MarketTypeBadge from './MarketTypeBadge.astro';
 import TrendIndicator from './TrendIndicator.astro';
+import { getTownSlug } from '../data/town-mappings';
 
 interface Props {
   name: string;
@@ -41,7 +42,8 @@ const formatCurrency = (value: number | null): string => {
   }).format(value);
 };
 
-const href = `/market/${zipcode}/`;
+const countySlug = county.toLowerCase().replace(/\s+/g, '-');
+const href = `/market/${countySlug}/${getTownSlug(name)}/`;
 ---
 
 <a href={href} class="town-card">

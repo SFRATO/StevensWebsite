@@ -107,11 +107,11 @@ const formatCurrency = (value: number | null): string => {
   <!-- County Market Data -->
   <section class="counties-section">
     <div class="container">
-      <h2 class="counties-heading">Towns by County</h2>
+      <h2 class="counties-heading">Market Data by County</h2>
 
       <div class="counties-grid">
         {counties.map((county) => (
-          <a href={`/areas/#${county.slug}`} class="county-card">
+          <a href={`/market/${county.slug}/`} class="county-card">
             <div class="county-header">
               <h3>{county.region}</h3>
               <span class={`market-badge badge-${county.market_type}`}>
@@ -170,7 +170,57 @@ const formatCurrency = (value: number | null): string => {
             <li>Neighborhood tours and school district information</li>
             <li>Negotiation support to get the best price</li>
           </ul>
+          <div class="buyer-ctas">
+            <a href="/tools/affordability-calculator/" class="btn btn-secondary">
+              How Much Can I Afford?
+            </a>
+            <a href="/contact/" class="btn btn-ghost">Talk to Steven</a>
+          </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Tools Section -->
+  <section class="tools-promo">
+    <div class="container">
+      <div class="tools-promo-header">
+        <h2>Free NJ Real Estate Tools</h2>
+        <p>Make smarter decisions with data from your local market. No signup required.</p>
+      </div>
+      <div class="tools-promo-grid">
+        <a href="/tools/home-value-estimator/" class="tool-promo-card">
+          <div class="tool-icon">🏠</div>
+          <div class="tool-info">
+            <h3>Home Value Estimator</h3>
+            <p>Get an instant estimate based on recent local sales. 30 seconds.</p>
+          </div>
+          <span class="tool-arrow">→</span>
+        </a>
+        <a href="/tools/should-i-sell-now/" class="tool-promo-card">
+          <div class="tool-icon">📊</div>
+          <div class="tool-info">
+            <h3>Market Timing Tool</h3>
+            <p>Data-backed verdict on whether now is the right time to sell.</p>
+          </div>
+          <span class="tool-arrow">→</span>
+        </a>
+        <a href="/tools/proceeds-calculator/" class="tool-promo-card">
+          <div class="tool-icon">💰</div>
+          <div class="tool-info">
+            <h3>Proceeds Calculator</h3>
+            <p>See your estimated take-home after NJ closing costs.</p>
+          </div>
+          <span class="tool-arrow">→</span>
+        </a>
+        <a href="/tools/affordability-calculator/" class="tool-promo-card">
+          <div class="tool-icon">🔑</div>
+          <div class="tool-info">
+            <h3>Affordability Calculator</h3>
+            <p>Find out how much home you can afford in central NJ.</p>
+          </div>
+          <span class="tool-arrow">→</span>
+        </a>
       </div>
     </div>
   </section>
@@ -493,6 +543,41 @@ const formatCurrency = (value: number | null): string => {
     flex-shrink: 0;
   }
 
+  .buyer-ctas {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 0.875rem 1.5rem;
+    background: var(--c21-gold);
+    color: #fff;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { background: var(--c21-gold-dark); transform: translateY(-1px); }
+
+  .btn-ghost {
+    display: inline-block;
+    padding: 0.875rem 1.5rem;
+    border: 2px solid var(--charcoal);
+    color: var(--charcoal);
+    border-radius: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: var(--text-sm);
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { background: var(--charcoal); color: #fff; }
+
   /* Social Proof Section */
   .social-proof {
     background: var(--white);
@@ -561,4 +646,86 @@ const formatCurrency = (value: number | null): string => {
       font-size: var(--text-xl);
     }
   }
+
+  /* Tools Promo */
+  .tools-promo {
+    padding: var(--space-12) 0;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .tools-promo-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .tools-promo-header h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-2);
+  }
+
+  .tools-promo-header p {
+    color: var(--text-secondary);
+    margin: 0;
+    font-size: var(--text-base);
+  }
+
+  .tools-promo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 640px) {
+    .tools-promo-grid { grid-template-columns: 1fr; }
+  }
+
+  .tool-promo-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .tool-promo-card:hover {
+    border-color: var(--c21-gold);
+    box-shadow: 0 4px 20px rgba(201, 156, 51, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .tool-promo-card .tool-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .tool-info { flex: 1; }
+
+  .tool-info h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--charcoal);
+    margin: 0 0 0.25rem;
+  }
+
+  .tool-info p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .tool-arrow {
+    font-size: 1.25rem;
+    color: var(--c21-gold);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
 </style>

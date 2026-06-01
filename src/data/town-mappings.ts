@@ -232,3 +232,39 @@ export function getDisplayTownForZipcode(zipcode: string): string | null {
   if (towns.length === 0) return null;
   return towns.map(t => t.name).join(' / ');
 }
+
+// Convert a town name to a URL-safe slug
+export function getTownSlug(townName: string): string {
+  return townName
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+// Get all unique towns for a given county slug (e.g., "burlington-county")
+// Returns unique towns (deduped by name, using first zipcode for multi-zip towns)
+export function getTownsByCountySlug(countySlug: string): Array<TownMapping & { slug: string }> {
+  const countyName = Object.keys(serviceAreas).find(
+    (c) => c.toLowerCase().replace(/\s+/g, '-') === countySlug
+  );
+  if (!countyName) return [];
+
+  const towns = serviceAreas[countyName];
+  const seen = new Set<string>();
+  const result: Array<TownMapping & { slug: string }> = [];
+
+  for (const town of towns) {
+    if (seen.has(town.name)) continue;
+    seen.add(town.name);
+    result.push({ ...town, slug: getTownSlug(town.name) });
+  }
+
+  return result.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Get county name from its slug
+export function getCountyNameFromSlug(countySlug: string): string | null {
+  return Object.keys(serviceAreas).find(
+    (c) => c.toLowerCase().replace(/\s+/g, '-') === countySlug
+  ) ?? null;
+}

@@ -76,11 +76,11 @@ const description = `Current real estate market trends for Burlington, Mercer, a
   <!-- County Market Data -->
   <section class="counties-section">
     <div class="container">
-      <h2 class="counties-heading">See what's happening in your local market:</h2>
+      <h2 class="counties-heading">Market Data by County</h2>
 
       <div class="counties-grid">
         {counties.map((county) => (
-          <a href={`/areas/#${county.slug}`} class="county-card">
+          <a href={`/market/${county.slug}/`} class="county-card">
             <div class="county-header">
               <h3>{county.region}</h3>
               <span class={`market-badge badge-${county.market_type}`}>
@@ -116,6 +116,13 @@ const description = `Current real estate market trends for Burlington, Mercer, a
             </div>
           </a>
         ))}
+      </div>
+
+      <div class="market-tools-row">
+        <a href="/tools/home-value-estimator/" class="tool-pill">🏠 Home Value Estimator</a>
+        <a href="/tools/should-i-sell-now/" class="tool-pill">📊 Market Timing Tool</a>
+        <a href="/tools/proceeds-calculator/" class="tool-pill">💰 Proceeds Calculator</a>
+        <a href="/home-value/" class="tool-pill">🔍 Browse Home Values by Town</a>
       </div>
     </div>
   </section>
@@ -361,5 +368,32 @@ const description = `Current real estate market trends for Burlington, Mercer, a
     .counties-section {
       padding: var(--space-8) 0;
     }
+  }
+
+  .market-tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .tool-pill {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #fff;
+    border: 2px solid var(--c21-gold);
+    border-radius: 999px;
+    color: var(--c21-gold);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .tool-pill:hover {
+    background: var(--c21-gold);
+    color: #fff;
   }
 </style>

@@ -1,0 +1,399 @@
+---
+/**
+ * Town Comparison Pages — /market/[county]/compare/[comparison]/
+ * e.g., /market/burlington-county/compare/marlton-vs-mount-laurel/
+ * Targets "Town A vs Town B NJ real estate" decision-stage searches.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
+import { comparisonPairs, type ComparisonPair } from '../../../../data/comparisons';
+import zipcodesData from '../../../../../data/processed/zipcodes.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  period_end: string;
+  last_updated: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  median_dom: number | null;
+  median_dom_yoy: number | null;
+  inventory: number | null;
+  inventory_yoy: number | null;
+  sold_above_list_pct: number | null;
+  months_of_supply: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  trend_direction: 'up' | 'down' | 'stable';
+}
+
+export function getStaticPaths() {
+  const allZipcodes = zipcodesData as ZipData[];
+  return comparisonPairs.map((pair) => ({
+    params: { county: pair.countySlug, comparison: pair.pairSlug },
+    props: {
+      pair,
+      zipA: allZipcodes.find((z) => z.zipcode === pair.townAZip) ?? null,
+      zipB: allZipcodes.find((z) => z.zipcode === pair.townBZip) ?? null,
+    },
+  }));
+}
+
+const { pair, zipA, zipB } = Astro.props as {
+  pair: ComparisonPair;
+  zipA: ZipData | null;
+  zipB: ZipData | null;
+};
+
+const fmtCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const fmtPct = (v: number | null) =>
+  v === null ? 'N/A' : `${v > 0 ? '+' : ''}${v.toFixed(1)}%`;
+
+const fmtDays = (v: number | null) =>
+  v === null ? 'N/A' : `${Math.round(v)} days`;
+
+const currentYear = new Date().getFullYear();
+
+// Determine winners for each metric
+type WinSide = 'A' | 'B' | 'tie';
+
+function cheaper(a: number | null, b: number | null): WinSide {
+  if (a === null || b === null) return 'tie';
+  return a < b ? 'A' : b < a ? 'B' : 'tie';
+}
+
+function faster(a: number | null, b: number | null): WinSide {
+  if (a === null || b === null) return 'tie';
+  return a < b ? 'A' : b < a ? 'B' : 'tie';
+}
+
+function higher(a: number | null, b: number | null): WinSide {
+  if (a === null || b === null) return 'tie';
+  return a > b ? 'A' : b > a ? 'B' : 'tie';
+}
+
+const priceWinner = cheaper(zipA?.median_sale_price ?? null, zipB?.median_sale_price ?? null);
+const domWinner = faster(zipA?.median_dom ?? null, zipB?.median_dom ?? null);
+const appreciationWinner = higher(zipA?.median_sale_price_yoy ?? null, zipB?.median_sale_price_yoy ?? null);
+
+// Narrative comparison
+function compareNarrative(): string {
+  if (!zipA || !zipB) return `${pair.townA} and ${pair.townB} are both great options in ${pair.county}.`;
+
+  const priceDiff = zipA.median_sale_price && zipB.median_sale_price
+    ? Math.abs(zipA.median_sale_price - zipB.median_sale_price)
+    : null;
+
+  const cheaper = zipA.median_sale_price && zipB.median_sale_price
+    ? (zipA.median_sale_price < zipB.median_sale_price ? pair.townA : pair.townB)
+    : null;
+
+  let text = '';
+  if (priceDiff && cheaper) {
+    text += `${cheaper} has lower median home prices by ${fmtCurrency(priceDiff)}. `;
+  }
+  if (zipA.median_dom && zipB.median_dom) {
+    const faster = zipA.median_dom < zipB.median_dom ? pair.townA : pair.townB;
+    text += `${faster} has a faster market with homes selling more quickly. `;
+  }
+  if (zipA.market_type !== zipB.market_type) {
+    text += `${pair.townA} is a ${zipA.market_type}'s market while ${pair.townB} is a ${zipB.market_type}'s market.`;
+  } else {
+    text += `Both are ${zipA.market_type}'s markets.`;
+  }
+  return text;
+}
+
+const faqs = [
+  {
+    question: `Is ${pair.townA} or ${pair.townB} more expensive?`,
+    answer: zipA?.median_sale_price && zipB?.median_sale_price
+      ? `${zipA.median_sale_price < zipB.median_sale_price ? pair.townA : pair.townB} has the lower median price. ${pair.townA}'s median is ${fmtCurrency(zipA.median_sale_price)} vs. ${pair.townB}'s ${fmtCurrency(zipB.median_sale_price)}.`
+      : `Contact Steven Frato for current pricing in both ${pair.townA} and ${pair.townB}.`,
+  },
+  {
+    question: `Which NJ town sells homes faster, ${pair.townA} or ${pair.townB}?`,
+    answer: zipA?.median_dom && zipB?.median_dom
+      ? `${zipA.median_dom < zipB.median_dom ? pair.townA : pair.townB} has a faster market. ${pair.townA} homes sell in ${fmtDays(zipA.median_dom)} vs. ${pair.townB}'s ${fmtDays(zipB.median_dom)}.`
+      : `Days on market varies. Contact Steven for current timing data.`,
+  },
+  {
+    question: `Is ${pair.townA} or ${pair.townB} a better place to buy a home in ${pair.county}?`,
+    answer: `${compareNarrative()} The best choice depends on your priorities — budget, commute, school district, and lifestyle. Steven can help you evaluate both options based on your specific needs.`,
+  },
+];
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
+    { name: pair.county, url: `https://stevenfrato.com/market/${pair.countySlug}/` },
+    { name: `${pair.townA} vs ${pair.townB}`, url: `https://stevenfrato.com/market/${pair.countySlug}/compare/${pair.pairSlug}/` },
+  ]),
+  generateFAQSchema(faqs),
+];
+
+const metaTitle = `${pair.townA} vs ${pair.townB} NJ Real Estate | ${pair.county} Comparison ${currentYear}`;
+const metaDesc = `Compare real estate in ${pair.townA} vs ${pair.townB}, NJ. See side-by-side: median prices, days on market, market type, and price trends. ${pair.county}.`;
+---
+
+<BaseLayout title={metaTitle} description={metaDesc} schema={schema}>
+  <section class="compare-hero">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">Home</a><span>›</span>
+        <a href="/market/">Market Data</a><span>›</span>
+        <a href={`/market/${pair.countySlug}/`}>{pair.county}</a><span>›</span>
+        <span>{pair.townA} vs {pair.townB}</span>
+      </nav>
+      <h1>{pair.townA} vs {pair.townB}: NJ Real Estate Comparison</h1>
+      <p class="hero-sub">Side-by-side market data for two of {pair.county}'s most popular communities. Updated monthly.</p>
+    </div>
+  </section>
+
+  <section class="comparison-section">
+    <div class="container">
+      <!-- Column headers -->
+      <div class="compare-grid">
+        <div class="compare-label"></div>
+        <a href={`/market/${pair.countySlug}/${pair.townASlug}/`} class="town-header town-a">
+          <span class="town-name">{pair.townA}</span>
+          <span class="view-link">View Full Data →</span>
+        </a>
+        <a href={`/market/${pair.countySlug}/${pair.townBSlug}/`} class="town-header town-b">
+          <span class="town-name">{pair.townB}</span>
+          <span class="view-link">View Full Data →</span>
+        </a>
+      </div>
+
+      <!-- Comparison rows -->
+      {[
+        {
+          label: 'Median Sale Price',
+          valA: fmtCurrency(zipA?.median_sale_price ?? null),
+          valB: fmtCurrency(zipB?.median_sale_price ?? null),
+          winner: priceWinner,
+          winLabel: 'More affordable',
+        },
+        {
+          label: 'Price Change (YoY)',
+          valA: fmtPct(zipA?.median_sale_price_yoy ?? null),
+          valB: fmtPct(zipB?.median_sale_price_yoy ?? null),
+          winner: appreciationWinner,
+          winLabel: 'Higher appreciation',
+        },
+        {
+          label: 'Days on Market',
+          valA: fmtDays(zipA?.median_dom ?? null),
+          valB: fmtDays(zipB?.median_dom ?? null),
+          winner: domWinner,
+          winLabel: 'Faster market',
+        },
+        {
+          label: 'Sold Above List',
+          valA: zipA?.sold_above_list_pct != null ? `${zipA.sold_above_list_pct.toFixed(0)}%` : 'N/A',
+          valB: zipB?.sold_above_list_pct != null ? `${zipB.sold_above_list_pct.toFixed(0)}%` : 'N/A',
+          winner: higher(zipA?.sold_above_list_pct ?? null, zipB?.sold_above_list_pct ?? null),
+          winLabel: 'More competitive',
+        },
+        {
+          label: 'Active Listings',
+          valA: zipA?.inventory?.toString() ?? 'N/A',
+          valB: zipB?.inventory?.toString() ?? 'N/A',
+          winner: 'tie' as WinSide,
+          winLabel: '',
+        },
+        {
+          label: 'Market Type',
+          valA: zipA ? `${zipA.market_type}'s market` : 'N/A',
+          valB: zipB ? `${zipB.market_type}'s market` : 'N/A',
+          winner: 'tie' as WinSide,
+          winLabel: '',
+        },
+      ].map((row) => (
+        <div class="compare-row">
+          <div class="compare-label">{row.label}</div>
+          <div class={`compare-val ${row.winner === 'A' ? 'winner' : ''}`}>
+            {row.valA}
+            {row.winner === 'A' && row.winLabel && <span class="win-badge">{row.winLabel}</span>}
+          </div>
+          <div class={`compare-val ${row.winner === 'B' ? 'winner' : ''}`}>
+            {row.valB}
+            {row.winner === 'B' && row.winLabel && <span class="win-badge">{row.winLabel}</span>}
+          </div>
+        </div>
+      ))}
+
+      <div class="compare-summary">
+        <p>{compareNarrative()}</p>
+        <p class="summary-cta">Need help deciding? <a href="/contact/">Talk to Steven</a> — he knows both markets and can help you make the right choice.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="container">
+      <h2>{pair.townA} vs {pair.townB} — Common Questions</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="other-comparisons">
+    <div class="container">
+      <h2>Other {pair.county} Comparisons</h2>
+      <div class="other-links">
+        {comparisonPairs
+          .filter((p) => p.countySlug === pair.countySlug && p.pairSlug !== pair.pairSlug)
+          .slice(0, 4)
+          .map((p) => (
+            <a href={`/market/${p.countySlug}/compare/${p.pairSlug}/`} class="other-link">
+              {p.townA} vs {p.townB} →
+            </a>
+          ))}
+        <a href={`/market/${pair.countySlug}/`} class="other-link">All {pair.county} Data →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="form-section" id="lead-capture">
+    <div class="container">
+      <div class="form-intro">
+        <h2>Deciding Between {pair.townA} and {pair.townB}?</h2>
+        <p>Steven knows both markets. Get personalized guidance on which town fits your needs and budget — no pressure, just honest advice.</p>
+      </div>
+      <MarketReportForm
+        location={`${pair.townA} / ${pair.townB}`}
+        townName={pair.townA}
+        formName="market-report"
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .compare-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.875rem; color: #aaa; margin-bottom: var(--space-4); }
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 { font-family: var(--font-heading); font-size: clamp(1.5rem, 3.5vw, 2.5rem); margin: 0 0 var(--space-3); color: #fff; }
+  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; }
+
+  .comparison-section { padding: var(--space-10) 0; }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr;
+    gap: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    margin-bottom: var(--space-8);
+  }
+
+  @media (max-width: 640px) {
+    .compare-grid { grid-template-columns: 120px 1fr 1fr; }
+  }
+
+  .town-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-5);
+    background: var(--c21-gold);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .town-header:hover { background: var(--c21-gold-dark); }
+
+  .town-header.town-b { background: #2d2d2d; }
+  .town-header.town-b:hover { background: #1a1a1a; }
+
+  .town-name { font-family: var(--font-heading); font-size: var(--text-lg); font-weight: 700; color: #fff; }
+  .view-link { font-size: 0.75rem; color: rgba(255,255,255,0.75); }
+
+  .compare-label { padding: var(--space-4) var(--space-5); background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; }
+
+  .compare-row {
+    display: contents;
+  }
+
+  .compare-row .compare-label { background: #f8fafc; }
+  .compare-row:last-of-type .compare-label { border-bottom: none; }
+
+  .compare-val {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid #e2e8f0;
+    border-left: 1px solid #e2e8f0;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--charcoal);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .compare-val.winner {
+    background: #fef9ee;
+    color: var(--c21-gold-dark);
+  }
+
+  .win-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #92400e;
+    background: rgba(201, 156, 51, 0.12);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    align-self: flex-start;
+  }
+
+  .compare-summary {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  .compare-summary p { margin: 0 0 var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); line-height: 1.7; }
+  .compare-summary p:last-child { margin: 0; }
+  .summary-cta { font-weight: 500; }
+  .summary-cta a { color: var(--c21-gold); text-decoration: none; font-weight: 700; }
+
+  .faq-section { padding: var(--space-10) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .faq-section h2 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--charcoal); margin: 0 0 var(--space-5); }
+
+  .faq-list { display: flex; flex-direction: column; gap: var(--space-3); max-width: 720px; }
+  .faq-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+  .faq-item summary { padding: var(--space-4) var(--space-5); font-weight: 600; cursor: pointer; color: var(--charcoal); list-style: none; font-size: var(--text-sm); }
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+  .faq-item p { padding: 0 var(--space-5) var(--space-4); margin: 0; color: var(--text-secondary); line-height: 1.7; font-size: var(--text-sm); }
+
+  .other-comparisons { padding: var(--space-8) 0; border-top: 1px solid #e2e8f0; }
+  .other-comparisons h2 { font-family: var(--font-heading); font-size: var(--text-base); font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 var(--space-4); }
+  .other-links { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .other-link { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+  .other-link:hover { text-decoration: underline; }
+
+  .form-section { padding: var(--space-12) 0; }
+  .form-intro { text-align: center; max-width: 560px; margin: 0 auto var(--space-8); }
+  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .form-intro p { color: var(--text-secondary); margin: 0; }
+</style>

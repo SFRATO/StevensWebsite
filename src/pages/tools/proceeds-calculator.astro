@@ -1,0 +1,188 @@
+---
+/**
+ * Net Proceeds Calculator — /tools/proceeds-calculator/
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import ProceedsCalculatorIsland from '@components/tools/ProceedsCalculatorIsland';
+import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
+import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+const mappings = getTownZipMappings();
+
+const faqs = [
+  { question: 'How much does it cost to sell a house in NJ?', answer: 'Total seller closing costs in NJ typically range from 8–12% of the sale price. This includes the real estate agent commission (4–6%), the NJ Realty Transfer Fee (~0.4–0.6%), NJ exit tax (GIT withholding, typically 2% of sale price for residents), title insurance (~0.4%), attorney fees (~$1,500), and miscellaneous closing costs (~0.5%).' },
+  { question: 'What is the NJ Exit Tax when selling a home?', answer: 'The NJ Gross Income Tax (GIT) withholding — often called the "exit tax" — requires sellers to pay an estimated tax at closing. For NJ residents, this is typically 2% of the sale price, withheld as an advance payment toward your annual GIT. This can be fully or partially refunded when you file your NJ tax return, depending on your actual tax liability. Non-residents pay 8.97% of estimated gain.' },
+  { question: 'What is the NJ Realty Transfer Fee?', answer: 'The NJ Realty Transfer Fee (RTF) is a state tax on property transfers, paid by the seller. The rate is tiered: roughly $4 per $1,000 for the first $150,000, then increasing to $6.70/1,000 through $350,000, and $7.80/1,000 through $550,000, with higher rates above that. On a $500,000 home, the RTF is approximately $2,800–3,200.' },
+  { question: 'Do I need an attorney to sell my house in NJ?', answer: 'New Jersey does not legally require an attorney for real estate transactions, but it is strongly customary and practically expected. Most NJ real estate contracts include an attorney review period, and title companies and lenders expect attorney involvement at closing. Budget $1,000–$2,000 for attorney fees.' },
+];
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Free Tools', url: 'https://stevenfrato.com/tools/' },
+    { name: 'Proceeds Calculator', url: 'https://stevenfrato.com/tools/proceeds-calculator/' },
+  ]),
+  generateSoftwareApplicationSchema({
+    name: 'NJ Home Sale Net Proceeds Calculator',
+    description: 'Calculate estimated net proceeds from selling your NJ home, including agent commission, NJ Realty Transfer Fee, exit tax, and all closing costs.',
+    url: 'https://stevenfrato.com/tools/proceeds-calculator/',
+  }),
+  generateFAQSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="NJ Home Sale Net Proceeds Calculator — What Will You Walk Away With?"
+  description="Calculate your estimated net proceeds from selling your NJ home. Includes agent commission, NJ Realty Transfer Fee, exit tax, and all closing costs. Free, instant."
+  schema={schema}
+>
+  <section class="tool-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href="/tools/">Tools</a>
+        <span>›</span>
+        <span aria-current="page">Proceeds Calculator</span>
+      </nav>
+      <h1>How Much Will You Make Selling Your NJ Home?</h1>
+      <p class="hero-sub">See a detailed breakdown of every cost — commission, NJ Realty Transfer Fee, exit tax, and closing costs — and your estimated net proceeds.</p>
+    </div>
+  </section>
+
+  <section class="tool-section">
+    <div class="container">
+      <ProceedsCalculatorIsland
+        client:load
+        mappings={mappings}
+        zipcodes={zipcodesData as any}
+      />
+    </div>
+  </section>
+
+  <section class="form-section" id="lead-capture">
+    <div class="container">
+      <div class="form-intro">
+        <h2>Want to Maximize Your Proceeds?</h2>
+        <p>Pricing strategy is the biggest lever you can pull. Steven will review your specific property and recommend a price that attracts strong offers — not just any offer.</p>
+      </div>
+      <MarketReportForm
+        location="NJ"
+        townName="Your Town"
+        formName="market-report"
+      />
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="container">
+      <h2>NJ Seller Closing Costs — Explained</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    document.addEventListener('tool:lead-ready', (() => {
+      const form = document.getElementById('lead-capture');
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }) as EventListener);
+  });
+</script>
+
+<style>
+  .tool-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #aaa;
+    margin-bottom: var(--space-4);
+  }
+
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub { font-size: var(--text-lg); color: #ccc; margin: 0; max-width: 640px; }
+
+  .tool-section { padding: var(--space-10) 0; background: #f8fafc; }
+  .tool-section .container { max-width: 760px; }
+
+  .form-section { padding: var(--space-12) 0; }
+
+  .form-intro {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+  }
+
+  .form-intro h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-3);
+  }
+
+  .form-intro p { color: var(--text-secondary); margin: 0; }
+
+  .faq-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .faq-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    margin: 0 0 var(--space-6);
+    color: var(--charcoal);
+    text-align: center;
+  }
+
+  .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .faq-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: var(--text-sm);
+  }
+</style>

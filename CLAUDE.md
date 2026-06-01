@@ -241,14 +241,21 @@ Required for full functionality:
 | `NETLIFY_BUILD_HOOK` | Auto-rebuild trigger | GitHub Actions |
 | `PUBLIC_GA4_ID` | GA4 Measurement ID (optional; dual-tracks alongside Matomo when set) | Analytics |
 | `PUBLIC_ANALYTICS_DEBUG` | `true` to enable + log analytics in `npm run dev` | Analytics (local) |
+| `SYNC_SECRET` | Auth token for `sync-zipcode-data` function | Email personalization |
 
 **Note**: The `SES_SENDER_EMAIL` must be verified in Amazon SES console before sending emails.
+
+**After each `npm run data:all`**, also sync the Supabase zipcode table so email personalization reflects fresh data:
+```bash
+curl -X POST https://stevenfrato.com/.netlify/functions/sync-zipcode-data \
+  -H "X-Sync-Secret: $SYNC_SECRET"
+```
 
 ## Analytics
 
 Matomo is loaded site-wide via the **Matomo Tag Manager** container snippet in `BaseLayout.astro` (container `YLdIYnl6` @ `analytics.gavinrozzi.com`, **idSite 27**). Custom events are authored in code through the single helper `src/utils/analytics.ts`:
 
-- `trackEvent(category, action, name?, value?)` — dual-dispatches to Matomo (`_paq`) and GA4 (`gtag`, only if `PUBLIC_GA4_ID` set). Categories: `Lead | Contact | Engagement | Navigation`.
+- `trackEvent(category, action, name?, value?)` — dual-dispatches to Matomo (`_paq`) and GA4 (`gtag`, only if `PUBLIC_GA4_ID` set). Categories: `Lead | Contact | Engagement | Navigation`. Tool interactions use `Engagement` for step/result events and `Lead` for CTA clicks.
 - `trackSiteSearch(keyword, category?, count?)` — Matomo Site Search (used by the town/zip autocompletes).
 - `initPageviewTracking()` — fires virtual pageviews on Astro `astro:after-swap` (view transitions don't auto-track). Called once in `BaseLayout`.
 - `initLinkTracking()` — one delegated `document` listener that tracks ALL `tel:`/`mailto:` clicks site-wide, labeled by location (Header/Footer/Sticky CTA/Hero/Body). Called once in `BaseLayout`; do NOT add per-component phone/email handlers.
@@ -258,13 +265,37 @@ Matomo is loaded site-wide via the **Matomo Tag Manager** container snippet in `
 - Tracking is production-only unless `PUBLIC_ANALYTICS_DEBUG=true`.
 - **Goals** are matched on event Actions in the Matomo UI (idSite 27) — see the integration plan; they must be created manually (no goal-create API).
 
+## Page Architecture (357 pages total)
+
+| Route pattern | Count | Notes |
+|---|---|---|
+| `/market/[county]/` | 3 | County hubs — link to town grid, price ranges, comparisons |
+| `/market/[zipcode]/` | 97 | ZIP pages — canonical → town page when 1:1 mapping |
+| `/market/[county]/[townSlug]/` | ~130 | **Primary SEO targets** — town-name queries |
+| `/market/[county]/price/[priceRange]/` | ~12 | Buyer-intent price-range pages |
+| `/market/[county]/compare/[pair]/` | 14 | Decision-stage comparison pages |
+| `/home-value/[townSlug]/` | ~130 | Seller-intent conversion pages (form above fold) |
+| `/home-value/` | 1 | Hub page listing all towns |
+| `/tools/` + 4 tool pages | 5 | Interactive tools (estimator, timing, proceeds, affordability) |
+| `/moving-to/[townSlug]/` | 18 | Informational moving guides |
+| `/moving-to/` | 1 | Moving guides hub |
+| Static pages | ~8 | Home, about, contact, areas, market hub, listings, thank-you, privacy |
+
+**Key data files:**
+- `src/data/town-mappings.ts` — 130+ town→zip mappings; helpers: `getTownSlug()`, `getTownsByCountySlug()`, `getPrimaryZipForTown()`
+- `src/data/comparisons.ts` — 14 hand-curated town comparison pairs
+- `src/data/town-guides.ts` — content for 18 moving guide towns
+- `src/utils/toolsCalc.ts` — pure calculation functions for all 4 tools
+
 ## Gotchas
 
-1. **Static Generation**: Pages are built at build time. Data changes require rebuild.
-2. **Netlify Functions**: Use esbuild bundler (configured in `netlify.toml`)
+1. **Static Generation**: Pages are built at build time. Data changes require rebuild + zipcode sync.
+2. **Netlify Functions**: Use esbuild bundler (configured in `netlify.toml`). `process-email-queue.ts` is a Scheduled Function (v2 API).
 3. **React Email**: Uses inline styles only - no external CSS
 4. **Data Files**: Raw TSV files are gitignored; processed JSON is committed
 5. **Market Types**: Determined by months of supply (<4 = seller, >6 = buyer)
+6. **No fake testimonials**: `TestimonialCard.astro` exists but only use with real client quotes Steven provides.
+7. **Town page routing**: All town cards/links use `/market/[county-slug]/[town-slug]/` — NOT `/market/[zipcode]/`. `TownPreviewCard`, `TownSearchIsland`, and `Footer` are all updated to use this pattern.
 
 ## File Naming Conventions
 

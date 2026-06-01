@@ -50,6 +50,51 @@ export default defineConfig({
           };
         }
 
+        // Town-level market pages — highest SEO value (captures town-name queries)
+        if (url.match(/\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/) && !url.includes('/price/')) {
+          return {
+            ...item,
+            changefreq: 'monthly',
+            priority: 0.85,
+          };
+        }
+
+        // Home value conversion pages — high commercial intent
+        if (url.includes('/home-value/')) {
+          return {
+            ...item,
+            changefreq: 'weekly',
+            priority: 0.75,
+          };
+        }
+
+        // Tools pages — high intent searches
+        if (url.includes('/tools/')) {
+          return {
+            ...item,
+            changefreq: 'monthly',
+            priority: 0.75,
+          };
+        }
+
+        // Moving guides — informational intent
+        if (url.includes('/moving-to/')) {
+          return {
+            ...item,
+            changefreq: 'monthly',
+            priority: 0.60,
+          };
+        }
+
+        // Price-range pages — buyer intent
+        if (url.includes('/price/')) {
+          return {
+            ...item,
+            changefreq: 'monthly',
+            priority: 0.70,
+          };
+        }
+
         // About and Contact - medium priority
         if (url.includes('/about') || url.includes('/contact')) {
           return {

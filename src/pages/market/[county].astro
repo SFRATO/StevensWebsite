@@ -10,6 +10,8 @@ import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
+import { getTownsByCountySlug, getTownSlug, serviceAreas } from '../../data/town-mappings';
+import { comparisonPairs } from '../../data/comparisons';
 
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
@@ -62,7 +64,17 @@ export function getStaticPaths() {
 
 const { county } = Astro.props as { county: CountyData };
 const counties = countiesData as CountyData[];
-const zipcodes = (zipcodesData as ZipData[]).filter((z) => z.county === county.region);
+const allZipcodes = zipcodesData as ZipData[];
+const zipcodes = allZipcodes.filter((z) => z.county === county.region);
+
+// Build town list for the town grid (unique towns only, with market data)
+const countyTowns = getTownsByCountySlug(county.slug).map((town) => {
+  const zipData = allZipcodes.find((z) => z.zipcode === town.zipcode);
+  return { ...town, zipData };
+}).filter((t) => t.zipData !== undefined);
+
+// Get comparison pairs for this county
+const countyComparisons = comparisonPairs.filter((p) => p.countySlug === county.slug).slice(0, 4);
 
 // Helper functions
 const formatCurrency = (value: number | null): string => {
@@ -246,35 +258,60 @@ const description = `${county.region}, NJ housing market data: median home price
     </div>
   </section>
 
-  <!-- Zip Codes Directory -->
+  <!-- Towns Directory -->
   <section class="zip-directory">
     <div class="container">
-      <h2>Neighborhoods in {county.region}</h2>
+      <h2>Towns in {county.region}</h2>
       <p class="section-intro">
-        Explore detailed market data for specific zip codes within {county.region}.
+        Click any town to see detailed market data, home prices, and trends.
       </p>
 
       <div class="zip-grid">
-        {zipcodes.slice(0, 12).map((zip) => (
-          <a href={`/market/${zip.zipcode}/`} class="zip-card">
+        {countyTowns.slice(0, 18).map((town) => (
+          <a href={`/market/${county.slug}/${town.slug}/`} class="zip-card">
             <div class="zip-header">
-              <span class="zipcode">{zip.zipcode}</span>
-              <span class="city">{zip.city || 'View Details'}</span>
+              <span class="zipcode">{town.name}</span>
+              <span class="city">{town.zipcode}</span>
             </div>
             <div class="zip-stats">
-              <span class="price">{formatCurrency(zip.median_sale_price)}</span>
-              {zip.median_sale_price_yoy !== null && (
-                <TrendIndicator value={zip.median_sale_price_yoy} size="sm" />
+              <span class="price">{formatCurrency(town.zipData?.median_sale_price ?? null)}</span>
+              {town.zipData?.median_sale_price_yoy != null && (
+                <TrendIndicator value={town.zipData.median_sale_price_yoy} size="sm" />
               )}
             </div>
           </a>
         ))}
       </div>
 
-      {zipcodes.length > 12 && (
+      {countyTowns.length > 18 && (
         <p class="more-zips">
-          + {zipcodes.length - 12} more zip codes in {county.region}
+          + {countyTowns.length - 18} more towns in {county.region}
         </p>
+      )}
+
+      <!-- Price Range Links -->
+      <div class="price-range-nav">
+        <h3>Browse by Price Range</h3>
+        <div class="price-range-links">
+          <a href={`/market/${county.slug}/price/homes-under-400k/`}>Homes Under $400K</a>
+          <a href={`/market/${county.slug}/price/homes-under-500k/`}>Homes Under $500K</a>
+          <a href={`/market/${county.slug}/price/homes-under-600k/`}>Homes Under $600K</a>
+          <a href={`/market/${county.slug}/price/homes-under-800k/`}>Homes Under $800K</a>
+        </div>
+      </div>
+
+      <!-- Town Comparisons -->
+      {countyComparisons.length > 0 && (
+        <div class="price-range-nav">
+          <h3>Compare Towns</h3>
+          <div class="price-range-links">
+            {countyComparisons.map((p) => (
+              <a href={`/market/${county.slug}/compare/${p.pairSlug}/`}>
+                {p.townA} vs {p.townB}
+              </a>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   </section>
@@ -473,6 +510,42 @@ const description = `${county.region}, NJ housing market data: median home price
   .section-intro {
     color: var(--text-secondary);
     margin-bottom: var(--space-6);
+  }
+
+  .price-range-nav {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .price-range-nav h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--charcoal);
+    margin: 0 0 var(--space-3);
+  }
+
+  .price-range-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .price-range-links a {
+    display: inline-block;
+    padding: 0.4rem 0.875rem;
+    border: 2px solid var(--c21-gold);
+    border-radius: 999px;
+    color: var(--c21-gold);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .price-range-links a:hover {
+    background: var(--c21-gold);
+    color: #fff;
   }
 
   .zip-grid {

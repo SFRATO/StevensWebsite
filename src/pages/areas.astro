@@ -150,6 +150,31 @@ const description = "What's your home worth? Search your town to discover local 
       </div>
     </div>
   </section>
+
+  <!-- Quick Tools Section -->
+  <section class="quick-tools">
+    <div class="container">
+      <h2>Free NJ Real Estate Tools</h2>
+      <div class="tools-row">
+        <a href="/tools/home-value-estimator/" class="tool-link">
+          <span class="tool-emoji">🏠</span>
+          <span>Estimate My Home's Value</span>
+        </a>
+        <a href="/tools/should-i-sell-now/" class="tool-link">
+          <span class="tool-emoji">📊</span>
+          <span>Should I Sell Now?</span>
+        </a>
+        <a href="/tools/proceeds-calculator/" class="tool-link">
+          <span class="tool-emoji">💰</span>
+          <span>Calculate My Proceeds</span>
+        </a>
+        <a href="/moving-to/" class="tool-link">
+          <span class="tool-emoji">🗺️</span>
+          <span>Moving Guides by Town</span>
+        </a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -356,4 +381,48 @@ const description = "What's your home worth? Search your town to discover local 
       grid-template-columns: 1fr;
     }
   }
+
+  /* Quick Tools */
+  .quick-tools {
+    padding: var(--space-10) 0;
+    background: #fef9ee;
+    border-top: 2px solid var(--c21-gold);
+  }
+
+  .quick-tools h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-5);
+    text-align: center;
+  }
+
+  .tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    justify-content: center;
+  }
+
+  .tool-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: #fff;
+    border: 2px solid var(--c21-gold);
+    border-radius: 999px;
+    color: var(--charcoal);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .tool-link:hover {
+    background: var(--c21-gold);
+    color: #fff;
+  }
+
+  .tool-emoji { font-size: 1.1rem; }
 </style>

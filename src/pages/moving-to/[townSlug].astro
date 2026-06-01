@@ -1,0 +1,376 @@
+---
+/**
+ * Moving Guides — /moving-to/[townSlug]/
+ * Informational pages targeting "moving to [Town] NJ" queries.
+ * Generated from town-guides.ts (top 18 high-traffic towns).
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
+import { townGuides, getTownGuideBySlug, type TownGuide } from '../../data/town-guides';
+import { getTownSlug } from '../../data/town-mappings';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  period_end: string;
+  last_updated: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  median_dom: number | null;
+  inventory: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  sold_above_list_pct: number | null;
+}
+
+export function getStaticPaths() {
+  const allZipcodes = zipcodesData as ZipData[];
+
+  return townGuides.map((guide) => {
+    const slug = getTownSlug(guide.townName);
+    const zipData = allZipcodes.find((z) => z.zipcode === guide.zipcode) ?? null;
+    return {
+      params: { townSlug: slug },
+      props: { guide, zipData },
+    };
+  });
+}
+
+const { guide, zipData } = Astro.props as { guide: TownGuide; zipData: ZipData | null };
+const { townName, county, countySlug, zipcode } = guide;
+
+const slug = getTownSlug(townName);
+
+const fmtCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+const currentYear = new Date().getFullYear();
+
+const faqs = [
+  {
+    question: `What is the average home price in ${townName}, NJ?`,
+    answer: zipData?.median_sale_price
+      ? `The median sale price in ${townName} is ${fmtCurrency(zipData.median_sale_price)} as of ${fmtDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Prices have ${zipData.median_sale_price_yoy > 0 ? 'increased' : 'decreased'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% over the past year.` : ''}`
+      : `Contact Steven Frato for current pricing data in ${townName}.`,
+  },
+  {
+    question: `Is ${townName}, NJ a good place to live?`,
+    answer: `${townName} offers ${guide.blurb.split('.')[0].toLowerCase()}. ${guide.lifestyle.split('.')[0]}.`,
+  },
+  {
+    question: `How competitive is the housing market in ${townName}, NJ?`,
+    answer: zipData
+      ? `${townName} is currently a ${zipData.market_type}'s market. Homes are selling in a median of ${zipData.median_dom !== null ? `${Math.round(zipData.median_dom)} days` : 'N/A'}, and ${zipData.sold_above_list_pct !== null ? `${zipData.sold_above_list_pct.toFixed(0)}% of homes sell at or above asking price` : 'competition varies by neighborhood'}.`
+      : `Contact Steven Frato for current market conditions in ${townName}.`,
+  },
+  {
+    question: `What is the commute like from ${townName}, NJ?`,
+    answer: guide.commute,
+  },
+];
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Moving Guides', url: 'https://stevenfrato.com/moving-to/' },
+    { name: `Moving to ${townName}`, url: `https://stevenfrato.com/moving-to/${slug}/` },
+  ]),
+  generateFAQSchema(faqs),
+];
+
+const metaDesc = `Moving to ${townName}, NJ? Here's what you need to know about the housing market, commute, schools, and lifestyle. ${zipData?.median_sale_price ? `Current median home price: ${fmtCurrency(zipData.median_sale_price)}.` : ''}`;
+---
+
+<BaseLayout
+  title={`Moving to ${townName}, NJ: ${currentYear} Real Estate & Living Guide`}
+  description={metaDesc}
+  schema={schema}
+>
+  <section class="guide-hero">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href="/moving-to/">Moving Guides</a>
+        <span>›</span>
+        <span aria-current="page">Moving to {townName}</span>
+      </nav>
+      <h1>Moving to {townName}, NJ: What You Need to Know</h1>
+      <p class="hero-sub">{guide.blurb}</p>
+    </div>
+  </section>
+
+  <section class="guide-body">
+    <div class="container guide-layout">
+      <main class="guide-main">
+
+        {zipData?.median_sale_price && (
+          <div class="market-summary">
+            <h2>Housing Market Snapshot</h2>
+            <div class="snapshot-grid">
+              <div class="snap-stat">
+                <div class="snap-val">{fmtCurrency(zipData.median_sale_price)}</div>
+                <div class="snap-label">Median Sale Price</div>
+                {zipData.median_sale_price_yoy !== null && (
+                  <div class={`snap-trend ${zipData.median_sale_price_yoy >= 0 ? 'up' : 'down'}`}>
+                    {zipData.median_sale_price_yoy >= 0 ? '↑' : '↓'} {Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% YoY
+                  </div>
+                )}
+              </div>
+              {zipData.median_dom !== null && (
+                <div class="snap-stat">
+                  <div class="snap-val">{Math.round(zipData.median_dom)} days</div>
+                  <div class="snap-label">Avg. Days on Market</div>
+                </div>
+              )}
+              <div class="snap-stat">
+                <div class="snap-val" style="text-transform: capitalize;">{zipData.market_type}'s</div>
+                <div class="snap-label">Market Type</div>
+              </div>
+            </div>
+            <p class="market-note">
+              {zipData.market_type === 'seller'
+                ? `${townName} is currently a seller's market — if you're buying, expect competition and act quickly when you find the right home.`
+                : zipData.market_type === 'buyer'
+                ? `${townName} currently has more available inventory, giving buyers more options and negotiating power.`
+                : `${townName} has a balanced market — buyers and sellers are on relatively equal footing.`}
+              <a href={`/market/${countySlug}/${slug}/`}>See full market data →</a>
+            </p>
+          </div>
+        )}
+
+        <div class="guide-section">
+          <h2>Commute from {townName}</h2>
+          <div class="info-card commute-card">
+            <div class="info-icon">🚗</div>
+            <p>{guide.commute}</p>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h2>Schools in {townName}</h2>
+          <div class="info-card">
+            <div class="info-icon">🎓</div>
+            <p>{guide.schoolNote}</p>
+            <p class="disclaimer">For the most current ratings and school boundary information, check the New Jersey Department of Education website or contact the school district directly.</p>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h2>Lifestyle & Community</h2>
+          <div class="info-card">
+            <div class="info-icon">🏘️</div>
+            <p>{guide.lifestyle}</p>
+          </div>
+        </div>
+
+        <div class="faq-section">
+          <h2>Frequently Asked Questions</h2>
+          <div class="faq-list">
+            {faqs.map((faq) => (
+              <details class="faq-item">
+                <summary>{faq.question}</summary>
+                <p>{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+
+      </main>
+
+      <aside class="guide-sidebar">
+        <div class="sidebar-card">
+          <h3>Relocating to {townName}?</h3>
+          <p>Steven Frato is a local Century 21 agent who specializes in Burlington, Mercer, and Middlesex County real estate. Get a free consultation to find the right home for your move.</p>
+          <a href={`/market/${countySlug}/${slug}/`} class="sidebar-link">View {townName} market data →</a>
+        </div>
+
+        <div class="nearby-section">
+          <h3>Nearby Areas in {county}</h3>
+          <div class="nearby-links">
+            <a href={`/market/${countySlug}/`}>All {county} Market Data</a>
+            <a href={`/moving-to/`}>Other Moving Guides</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="form-section" id="lead-capture">
+    <div class="container">
+      <div class="form-intro">
+        <h2>Buying in {townName}? Let's Talk.</h2>
+        <p>Steven can help you find the right home at the right price, navigate the competitive {townName} market, and connect you with trusted local lenders and attorneys.</p>
+      </div>
+      <MarketReportForm
+        location={townName}
+        townName={townName}
+        formName="market-report"
+        lastUpdated={zipData ? fmtDate(zipData.period_end) : undefined}
+        priceChangeYoY={zipData?.median_sale_price_yoy}
+        marketType={zipData?.market_type}
+        prefillTown={townName}
+        prefillZipcode={zipcode}
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .guide-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #aaa;
+    margin-bottom: var(--space-4);
+  }
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; max-width: 640px; line-height: 1.7; }
+
+  .guide-body { padding: var(--space-12) 0; }
+
+  .guide-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: var(--space-10);
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .guide-layout { grid-template-columns: 1fr; }
+    .guide-sidebar { order: -1; }
+  }
+
+  .market-summary {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  .market-summary h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-4);
+  }
+
+  .snapshot-grid { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-4); }
+
+  .snap-stat {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-3) var(--space-4);
+    min-width: 130px;
+  }
+
+  .snap-val { font-size: 1.35rem; font-weight: 800; color: var(--charcoal); }
+  .snap-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
+  .snap-trend { font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; }
+  .snap-trend.up { color: #16a34a; }
+  .snap-trend.down { color: #dc2626; }
+
+  .market-note { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
+  .market-note a { color: var(--c21-gold); font-weight: 600; text-decoration: none; margin-left: 0.5rem; }
+
+  .guide-section { margin-bottom: var(--space-8); }
+
+  .guide-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-4);
+  }
+
+  .info-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .info-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+  .info-card p { margin: 0 0 var(--space-2); color: var(--text-secondary); line-height: 1.7; font-size: var(--text-sm); }
+  .info-card p:last-child { margin: 0; }
+
+  .disclaimer { font-size: 0.75rem !important; color: #94a3b8 !important; font-style: italic; }
+
+  .faq-section { margin-top: var(--space-8); }
+  .faq-section h2 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--charcoal); margin: 0 0 var(--space-4); }
+
+  .faq-list { display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .faq-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+    font-size: var(--text-sm);
+  }
+
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: var(--text-sm);
+  }
+
+  .sidebar-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+  }
+
+  .sidebar-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0 0 var(--space-2); }
+  .sidebar-card p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-3); }
+  .sidebar-link { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+
+  .nearby-section { padding: var(--space-4); }
+  .nearby-section h3 { font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin: 0 0 var(--space-2); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .nearby-links { display: flex; flex-direction: column; gap: var(--space-2); }
+  .nearby-links a { color: var(--c21-gold); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
+
+  .form-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .form-intro { text-align: center; max-width: 580px; margin: 0 auto var(--space-8); }
+
+  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--charcoal); margin: 0 0 var(--space-3); }
+
+  .form-intro p { color: var(--text-secondary); margin: 0; }
+</style>

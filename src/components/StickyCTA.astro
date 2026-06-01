@@ -6,10 +6,14 @@
  */
 interface Props {
   hideOnPages?: string[];
+  ctaHref?: string;
+  ctaText?: string;
 }
 
 const {
   hideOnPages = ['/contact', '/thank-you'],
+  ctaHref = '/contact/',
+  ctaText = 'Free Consultation',
 } = Astro.props;
 
 const phone = '(609) 789-0126';
@@ -30,8 +34,8 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
         <span class="phone-number">{phone}</span>
       </a>
 
-      <a href="/market/" class="sticky-btn">
-        Get Free Home Value
+      <a href={ctaHref} class="sticky-btn">
+        {ctaText}
       </a>
     </div>
   </div>

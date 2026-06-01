@@ -277,6 +277,53 @@ export function generateMarketDataSchema(data: {
 }
 
 /**
+ * Generate SoftwareApplication schema for interactive tool pages
+ */
+export function generateSoftwareApplicationSchema(tool: {
+  name: string;
+  description: string;
+  url: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: tool.name,
+    applicationCategory: 'FinanceApplication',
+    operatingSystem: 'Web',
+    description: tool.description,
+    url: tool.url,
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    provider: {
+      '@type': 'RealEstateAgent',
+      name: 'Steven Frato',
+      url: 'https://stevenfrato.com',
+    },
+  };
+}
+
+/**
+ * Generate Place schema for town-level market pages
+ */
+export function generatePlaceSchema(town: string, county: string, state: string, zipcode: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'City',
+    name: `${town}, ${state}`,
+    containedInPlace: {
+      '@type': 'AdministrativeArea',
+      name: `${county}, ${state}`,
+    },
+    postalCode: zipcode,
+    addressRegion: state,
+    addressCountry: 'US',
+  };
+}
+
+/**
  * Generate FAQPage schema for market pages
  */
 export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>) {

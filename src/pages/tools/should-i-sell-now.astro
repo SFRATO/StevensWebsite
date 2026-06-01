@@ -1,0 +1,260 @@
+---
+/**
+ * Market Timing Tool — /tools/should-i-sell-now/
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import MarketTimingIsland from '@components/tools/MarketTimingIsland';
+import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
+import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
+import zipcodesData from '../../../data/processed/zipcodes.json';
+
+const mappings = getTownZipMappings();
+
+const faqs = [
+  { question: 'Is now a good time to sell my home in NJ?', answer: 'Market conditions vary significantly by zip code and county. Burlington, Mercer, and Middlesex counties each have distinct dynamics. Use this tool to get a data-driven verdict for your specific area, based on months of supply, days on market, year-over-year price trends, and sold-above-list percentages.' },
+  { question: 'What does a seller\'s market mean for me?', answer: 'A seller\'s market (typically when months of supply falls below 4) means buyer demand exceeds available inventory. Homes sell faster, often at or above asking price, with fewer contingencies. It\'s generally a favorable environment for sellers to list.' },
+  { question: 'Should I wait until spring to sell in NJ?', answer: 'Spring (March–May) traditionally sees increased buyer activity in NJ. However, current market conditions — inventory levels, interest rates, and local demand — often matter more than season. A strong seller\'s market in winter may outperform a weak spring market.' },
+  { question: 'How is this market score calculated?', answer: 'The score combines five weighted factors: market type (seller/buyer/balanced), year-over-year price appreciation, days on market, percentage of homes selling above asking price, and inventory trend. Each factor is scored 0–30 points and the total determines the verdict.' },
+];
+
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Free Tools', url: 'https://stevenfrato.com/tools/' },
+    { name: 'Market Timing Tool', url: 'https://stevenfrato.com/tools/should-i-sell-now/' },
+  ]),
+  generateSoftwareApplicationSchema({
+    name: 'NJ Market Timing Tool',
+    description: 'Data-driven verdict on whether now is the right time to sell your NJ home, based on local Burlington, Mercer, and Middlesex County market conditions.',
+    url: 'https://stevenfrato.com/tools/should-i-sell-now/',
+  }),
+  generateFAQSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="Should I Sell My House Now? NJ Market Timing Tool"
+  description="Find out if now is the right time to sell your NJ home. Our free tool analyzes your local Burlington, Mercer, or Middlesex County market and gives you a data-backed verdict."
+  schema={schema}
+>
+  <section class="tool-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span>›</span>
+        <a href="/tools/">Tools</a>
+        <span>›</span>
+        <span aria-current="page">Market Timing Tool</span>
+      </nav>
+      <h1>Should I Sell My House Now?</h1>
+      <p class="hero-sub">Check your local NJ market conditions and get a data-backed verdict — instantly, for free.</p>
+    </div>
+  </section>
+
+  <section class="tool-section">
+    <div class="container tool-layout">
+      <div class="tool-main">
+        <MarketTimingIsland
+          client:load
+          mappings={mappings}
+          zipcodes={zipcodesData as any}
+        />
+      </div>
+      <aside class="tool-sidebar">
+        <div class="sidebar-card">
+          <h3>What We Measure</h3>
+          <ul class="factors">
+            <li><span class="factor-icon">📈</span>Year-over-year price trends</li>
+            <li><span class="factor-icon">⏱️</span>Days on market</li>
+            <li><span class="factor-icon">🏠</span>Seller vs. buyer conditions</li>
+            <li><span class="factor-icon">📦</span>Inventory levels</li>
+            <li><span class="factor-icon">💵</span>Sold-above-list rate</li>
+          </ul>
+        </div>
+        <div class="sidebar-card cta-card">
+          <h3>Talk to Steven</h3>
+          <p>For a personalized selling strategy that goes beyond market data, schedule a free consultation.</p>
+          <a href="/contact/" class="sidebar-btn">Free Consultation →</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="form-section" id="lead-capture">
+    <div class="container">
+      <div class="form-intro">
+        <h2>Get Your Free Market Report</h2>
+        <p>See what homes in your area are actually selling for, how long they're on market, and get Steven's recommendation on timing your sale.</p>
+      </div>
+      <MarketReportForm
+        location="NJ"
+        townName="Your Town"
+        formName="market-report"
+      />
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <div class="container">
+      <h2>Common Questions About Market Timing</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    document.addEventListener('tool:lead-ready', (() => {
+      const form = document.getElementById('lead-capture');
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }) as EventListener);
+  });
+</script>
+
+<style>
+  .tool-hero {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: var(--space-12) 0 var(--space-10);
+    color: #fff;
+  }
+
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #aaa;
+    margin-bottom: var(--space-4);
+  }
+
+  .breadcrumb a { color: #aaa; text-decoration: none; }
+  .breadcrumb a:hover { color: #fff; }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    margin: 0 0 var(--space-3);
+    color: #fff;
+  }
+
+  .hero-sub { font-size: var(--text-lg); color: #ccc; margin: 0; }
+
+  .tool-section { padding: var(--space-10) 0; background: #f8fafc; }
+
+  .tool-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .tool-layout { grid-template-columns: 1fr; }
+    .tool-sidebar { order: -1; }
+  }
+
+  .sidebar-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+    margin-bottom: var(--space-4);
+  }
+
+  .sidebar-card h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--charcoal);
+    margin: 0 0 var(--space-3);
+  }
+
+  .factors {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .factor-icon { margin-right: 0.5rem; }
+
+  .cta-card p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-3); }
+
+  .sidebar-btn {
+    display: block;
+    padding: 0.75rem 1rem;
+    background: var(--c21-gold);
+    color: #fff;
+    text-align: center;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    font-size: var(--text-sm);
+  }
+
+  .form-section { padding: var(--space-12) 0; }
+
+  .form-intro {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+  }
+
+  .form-intro h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-3);
+  }
+
+  .form-intro p { color: var(--text-secondary); margin: 0; }
+
+  .faq-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .faq-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    margin: 0 0 var(--space-6);
+    color: var(--charcoal);
+    text-align: center;
+  }
+
+  .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .faq-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: var(--text-sm);
+  }
+</style>

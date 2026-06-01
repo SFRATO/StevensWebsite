@@ -1,0 +1,595 @@
+---
+/**
+ * Town-Level Market Page
+ * ~130 pages auto-generated from town-mappings.ts + zipcodes.json
+ * Route: /market/[county]/[town-slug]/
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import MarketHero from '@components/MarketHero.astro';
+import MarketCard from '@components/MarketCard.astro';
+import TrendIndicator from '@components/TrendIndicator.astro';
+import MarketReportForm from '@components/MarketReportForm.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import {
+  generateBreadcrumbSchema,
+  generateMarketDataSchema,
+  generateFAQSchema,
+  generatePlaceSchema,
+} from '@utils/schema';
+import {
+  serviceAreas,
+  getTownsByCountySlug,
+  getCountyNameFromSlug,
+  getFirstZipcodeForTown,
+  getTownSlug,
+} from '../../../data/town-mappings';
+import { getTownGuide } from '../../../data/town-guides';
+
+import zipcodesData from '../../../../data/processed/zipcodes.json';
+import countiesData from '../../../../data/processed/counties.json';
+
+interface ZipData {
+  zipcode: string;
+  county: string;
+  state: string;
+  period_end: string;
+  last_updated: string;
+  median_sale_price: number | null;
+  median_sale_price_yoy: number | null;
+  median_list_price: number | null;
+  median_list_price_yoy: number | null;
+  inventory: number | null;
+  inventory_yoy: number | null;
+  months_of_supply: number | null;
+  median_dom: number | null;
+  median_dom_yoy: number | null;
+  homes_sold: number | null;
+  homes_sold_yoy: number | null;
+  sold_above_list_pct: number | null;
+  price_drops_pct: number | null;
+  market_type: 'seller' | 'buyer' | 'balanced';
+  trend_direction: 'up' | 'down' | 'stable';
+  nearby_zips: string[];
+  ai_insight?: string;
+}
+
+export function getStaticPaths() {
+  const allZipcodes = zipcodesData as ZipData[];
+
+  const paths: Array<{
+    params: { county: string; townSlug: string };
+    props: {
+      townName: string;
+      countyName: string;
+      countySlug: string;
+      zipData: ZipData | null;
+      zipcode: string;
+    };
+  }> = [];
+
+  for (const [countyName, towns] of Object.entries(serviceAreas)) {
+    const countySlug = countyName.toLowerCase().replace(/\s+/g, '-');
+    const seen = new Set<string>();
+
+    for (const town of towns) {
+      if (seen.has(town.name)) continue;
+      seen.add(town.name);
+
+      const townSlug = getTownSlug(town.name);
+      const zipcode = town.zipcode;
+      const zipData = allZipcodes.find((z) => z.zipcode === zipcode) ?? null;
+
+      paths.push({
+        params: { county: countySlug, townSlug },
+        props: { townName: town.name, countyName, countySlug, zipData, zipcode },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { townName, countyName, countySlug, zipData, zipcode } = Astro.props as {
+  townName: string;
+  countyName: string;
+  countySlug: string;
+  zipData: ZipData | null;
+  zipcode: string;
+};
+
+const allZipcodes = zipcodesData as ZipData[];
+
+const formatCurrency = (v: number | null) =>
+  v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+const formatPct = (v: number | null, sign = true) => {
+  if (v === null) return 'N/A';
+  const s = sign && v > 0 ? '+' : '';
+  return `${s}${v.toFixed(1)}%`;
+};
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+// Resolve nearby town slugs for internal linking
+const nearbyTowns = (zipData?.nearby_zips ?? [])
+  .map((z) => {
+    const nearbyZipData = allZipcodes.find((d) => d.zipcode === z);
+    if (!nearbyZipData) return null;
+    // Find town name for this zip
+    const nearbyTownEntries = Object.entries(serviceAreas).flatMap(([county, towns]) =>
+      towns
+        .filter((t) => t.zipcode === z)
+        .map((t) => ({ name: t.name, slug: getTownSlug(t.name), county: county.toLowerCase().replace(/\s+/g, '-'), price: nearbyZipData.median_sale_price }))
+    );
+    return nearbyTownEntries[0] ?? null;
+  })
+  .filter((t): t is NonNullable<typeof t> => t !== null)
+  .slice(0, 4);
+
+// Market type labels
+const marketTypeLabel = {
+  seller: "Seller's Market",
+  buyer: "Buyer's Market",
+  balanced: 'Balanced Market',
+}[zipData?.market_type ?? 'balanced'];
+
+const marketTypeBadgeClass = {
+  seller: 'badge-seller',
+  buyer: 'badge-buyer',
+  balanced: 'badge-balanced',
+}[zipData?.market_type ?? 'balanced'];
+
+// SEO
+const metaTitle = `${townName} NJ Real Estate Market | ${currentMonthYear}`;
+const metaDesc = zipData?.median_sale_price
+  ? `${townName}, NJ housing market: median home price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes for sale, ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on market. ${marketTypeLabel}.`
+  : `${townName}, NJ real estate market data and trends. Get a free home value report from local Century 21 agent Steven Frato.`;
+
+// Dynamic FAQ
+const faqs = [
+  {
+    question: `What is the median home price in ${townName}, NJ?`,
+    answer: zipData?.median_sale_price
+      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)} as of ${formatDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `This is ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to the same period last year.` : ''}`
+      : `Contact Steven Frato for current pricing data in ${townName}, NJ.`,
+  },
+  {
+    question: `Is ${townName}, NJ a seller's or buyer's market?`,
+    answer: zipData
+      ? (() => {
+          const mtLabel = zipData.market_type === 'seller' ? "seller's" : zipData.market_type === 'buyer' ? "buyer's" : 'balanced';
+          const supplyNote = zipData.months_of_supply !== null ? `With ${zipData.months_of_supply.toFixed(1)} months of supply, ` : '';
+          const detail = zipData.market_type === 'seller' ? 'inventory is tight and buyer demand is strong.' : zipData.market_type === 'buyer' ? 'there is more inventory available and buyers have more negotiating power.' : 'supply and demand are relatively balanced.';
+          return `${townName} is currently a ${mtLabel} market. ${supplyNote}${detail}`;
+        })()
+      : `Contact Steven Frato for current market conditions in ${townName}.`,
+  },
+  {
+    question: `How long do homes take to sell in ${townName}, NJ?`,
+    answer: zipData?.median_dom !== null
+      ? `Homes in ${townName} are currently selling in a median of ${Math.round(zipData!.median_dom!)} days on market${zipData!.median_dom_yoy !== null ? ` (${zipData!.median_dom_yoy > 0 ? 'slower' : 'faster'} than last year)` : ''}.`
+      : `Contact Steven Frato for current days-on-market data for ${townName}.`,
+  },
+  {
+    question: `What percentage of homes in ${townName} sell above asking price?`,
+    answer: zipData?.sold_above_list_pct !== null
+      ? `${zipData!.sold_above_list_pct!.toFixed(0)}% of homes in ${townName} recently sold at or above their asking price, indicating ${zipData!.sold_above_list_pct! > 40 ? 'strong' : 'moderate'} buyer competition.`
+      : `Contact Steven for current sold-above-list data for ${townName}.`,
+  },
+];
+
+// Schema
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
+    { name: countyName, url: `https://stevenfrato.com/market/${countySlug}/` },
+    { name: townName, url: `https://stevenfrato.com/market/${countySlug}/${getTownSlug(townName)}/` },
+  ]),
+  generateFAQSchema(faqs),
+  generatePlaceSchema(townName, countyName, 'NJ', zipcode),
+  ...(zipData ? [generateMarketDataSchema({
+    location: townName,
+    locationType: 'zipcode',
+    state: 'NJ',
+    medianPrice: zipData.median_sale_price,
+    priceChange: zipData.median_sale_price_yoy,
+    inventory: zipData.inventory,
+    lastUpdated: zipData.last_updated,
+  })] : []),
+];
+---
+
+<BaseLayout
+  title={metaTitle}
+  description={metaDesc}
+  schema={schema}
+  canonical={`https://stevenfrato.com/market/${countySlug}/${getTownSlug(townName)}/`}
+>
+  {zipData ? (
+    <>
+      <MarketHero
+        location={townName}
+        state="NJ"
+        marketType={zipData.market_type}
+        medianPrice={zipData.median_sale_price}
+        medianDom={zipData.median_dom}
+        lastUpdated={formatDate(zipData.period_end)}
+      />
+
+      <div class="container" style="padding-top: var(--space-4);">
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span>›</span>
+          <a href="/market/">Market Data</a>
+          <span>›</span>
+          <a href={`/market/${countySlug}/`}>{countyName}</a>
+          <span>›</span>
+          <span aria-current="page">{townName}</span>
+        </nav>
+      </div>
+
+      <section class="market-snapshot">
+        <div class="container">
+          <h2 class="section-title">{townName} Market Snapshot</h2>
+          <div class="market-cards">
+            <MarketCard
+              label="Median Sale Price"
+              value={formatCurrency(zipData.median_sale_price)}
+              change={zipData.median_sale_price_yoy}
+              icon="price"
+            />
+            <MarketCard
+              label="Active Listings"
+              value={zipData.inventory?.toString() ?? 'N/A'}
+              change={zipData.inventory_yoy}
+              icon="inventory"
+            />
+            <MarketCard
+              label="Days on Market"
+              value={zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'}
+              change={zipData.median_dom_yoy ? -zipData.median_dom_yoy : null}
+              icon="time"
+            />
+            <MarketCard
+              label="Months of Supply"
+              value={zipData.months_of_supply != null ? zipData.months_of_supply.toFixed(1) : 'N/A'}
+              change={null}
+              icon="sale"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section class="market-details">
+        <div class="container">
+          <div class="details-grid">
+            <div class="detail-col">
+              <h3>Pricing Trends</h3>
+              <div class="stat-list">
+                <div class="stat-row">
+                  <span>Median Sale Price</span>
+                  <span class="stat-val">{formatCurrency(zipData.median_sale_price)}</span>
+                </div>
+                <div class="stat-row">
+                  <span>Price Change (YoY)</span>
+                  <TrendIndicator value={zipData.median_sale_price_yoy} suffix="%" />
+                </div>
+                <div class="stat-row">
+                  <span>Median List Price</span>
+                  <span class="stat-val">{formatCurrency(zipData.median_list_price)}</span>
+                </div>
+                <div class="stat-row">
+                  <span>Sold Above List</span>
+                  <span class="stat-val">{zipData.sold_above_list_pct != null ? `${zipData.sold_above_list_pct.toFixed(0)}%` : 'N/A'}</span>
+                </div>
+                <div class="stat-row">
+                  <span>Price Reductions</span>
+                  <span class="stat-val">{zipData.price_drops_pct != null ? `${zipData.price_drops_pct.toFixed(0)}%` : 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-col">
+              <h3>Market Conditions</h3>
+              <div class="recommendation-box">
+                <div class={`rec-badge ${zipData.market_type === 'seller' ? 'rec-favorable' : zipData.market_type === 'balanced' ? 'rec-neutral' : 'rec-cautious'}`}>
+                  {zipData.market_type === 'seller' ? '✓ Favorable for Sellers' : zipData.market_type === 'balanced' ? '~ Neutral Market' : '! Buyer-Favorable Market'}
+                </div>
+                <p>
+                  {zipData.market_type === 'seller'
+                    ? `${townName} is a seller's market. Homes are moving quickly${zipData.median_dom !== null ? ` (${Math.round(zipData.median_dom)} days median)` : ''} and sellers are getting strong offers.`
+                    : zipData.market_type === 'buyer'
+                    ? `${townName} currently favors buyers. There is more inventory available and sellers may be more negotiable.`
+                    : `${townName} has balanced supply and demand. Both buyers and sellers have reasonable positions.`}
+                </p>
+                {zipData.inventory !== null && zipData.inventory < 10 && (
+                  <p class="scarcity-note">⚡ Only {zipData.inventory} active listings — limited inventory drives competition.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {zipData.ai_insight && (
+        <section class="insight-section">
+          <div class="container">
+            <div class="insight-box">
+              <div class="insight-label">Market Insight</div>
+              <p>{zipData.ai_insight}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section class="lead-form-section" id="lead-capture">
+        <div class="container">
+          <MarketReportForm
+            location={townName}
+            townName={townName}
+            formName="market-report"
+            lastUpdated={formatDate(zipData.period_end)}
+            priceChangeYoY={zipData.median_sale_price_yoy}
+            marketType={zipData.market_type}
+            prefillTown={townName}
+            prefillZipcode={zipcode}
+          />
+        </div>
+      </section>
+
+      {nearbyTowns.length > 0 && (
+        <section class="nearby-section">
+          <div class="container">
+            <h2 class="section-title">Nearby Areas in {countyName}</h2>
+            <div class="nearby-grid">
+              {nearbyTowns.map((t) => (
+                <a href={`/market/${t.county}/${t.slug}/`} class="nearby-card">
+                  <span class="nearby-name">{t.name}</span>
+                  <span class="nearby-price">{formatCurrency(t.price)}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section class="faq-section">
+        <div class="container">
+          <h2 class="section-title">{townName}, NJ Real Estate — FAQs</h2>
+          <div class="faq-list">
+            {faqs.map((faq) => (
+              <details class="faq-item">
+                <summary>{faq.question}</summary>
+                <p>{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="county-link">
+        <div class="container">
+          <div class="cross-links">
+            <a href={`/market/${countySlug}/`}>← All {countyName} data</a>
+            <a href={`/home-value/${getTownSlug(townName)}/`}>🏠 {townName} Home Value</a>
+            {getTownGuide(townName) && (
+              <a href={`/moving-to/${getTownSlug(townName)}/`}>🗺️ Moving to {townName}</a>
+            )}
+            <a href="/tools/">Free Tools</a>
+          </div>
+        </div>
+      </section>
+    </>
+  ) : (
+    /* No data fallback */
+    <section class="no-data-section">
+      <div class="container">
+        <nav class="breadcrumb">
+          <a href="/">Home</a>
+          <span>›</span>
+          <a href="/market/">Market Data</a>
+          <span>›</span>
+          <a href={`/market/${countySlug}/`}>{countyName}</a>
+          <span>›</span>
+          <span>{townName}</span>
+        </nav>
+        <h1>{townName}, NJ Real Estate Market</h1>
+        <div class="no-data-box">
+          <p>We're still collecting market data for {townName}. In the meantime, request a free personalized market analysis from Steven.</p>
+          <MarketReportForm
+            location={townName}
+            townName={townName}
+            formName="market-report"
+            prefillTown={townName}
+            prefillZipcode={zipcode}
+          />
+        </div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .breadcrumb {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+  }
+  .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--c21-gold); }
+
+  .market-snapshot { padding: var(--space-10) 0; }
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin: 0 0 var(--space-6);
+  }
+
+  .market-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 768px) {
+    .market-cards { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .market-cards { grid-template-columns: 1fr; }
+  }
+
+  .market-details { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (max-width: 640px) { .details-grid { grid-template-columns: 1fr; } }
+
+  .detail-col h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--charcoal);
+    margin: 0 0 var(--space-4);
+  }
+
+  .stat-list { display: flex; flex-direction: column; gap: var(--space-2); }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .stat-val { font-weight: 600; color: var(--charcoal); }
+
+  .recommendation-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: var(--space-4); }
+
+  .rec-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+  }
+
+  .rec-favorable { background: #dcfce7; color: #15803d; }
+  .rec-neutral { background: #fef9ee; color: #92400e; }
+  .rec-cautious { background: #fef2f2; color: #991b1b; }
+
+  .recommendation-box p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-2); }
+
+  .scarcity-note { color: #991b1b; font-weight: 600; margin-top: var(--space-2) !important; }
+
+  .insight-section { padding: var(--space-8) 0; }
+
+  .insight-box {
+    background: linear-gradient(135deg, #fef9ee, #fff);
+    border: 1px solid var(--c21-gold);
+    border-left: 4px solid var(--c21-gold);
+    border-radius: 0.75rem;
+    padding: var(--space-5);
+  }
+
+  .insight-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--c21-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-2);
+  }
+
+  .insight-box p { margin: 0; color: var(--charcoal); line-height: 1.7; }
+
+  .lead-form-section { padding: var(--space-12) 0; }
+
+  .nearby-section { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+
+  .nearby-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 640px) { .nearby-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .nearby-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: var(--space-4);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .nearby-card:hover { border-color: var(--c21-gold); box-shadow: 0 4px 12px rgba(201, 156, 51, 0.1); }
+
+  .nearby-name { font-weight: 600; color: var(--charcoal); font-size: var(--text-sm); }
+  .nearby-price { font-size: 0.8rem; color: var(--text-secondary); }
+
+  .faq-section { padding: var(--space-10) 0; border-top: 1px solid #e2e8f0; }
+
+  .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-3); }
+
+  .faq-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+
+  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item[open] summary::after { content: ' −'; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: var(--text-sm);
+  }
+
+  .county-link { padding: var(--space-6) 0; border-top: 1px solid #e2e8f0; }
+
+  .cross-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .cross-links a { color: var(--c21-gold); text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
+  .cross-links a:hover { text-decoration: underline; }
+
+  .no-data-section { padding: var(--space-12) 0; }
+  .no-data-section h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--charcoal);
+    margin: var(--space-6) 0;
+  }
+
+  .no-data-box { max-width: 640px; }
+  .no-data-box p { color: var(--text-secondary); margin-bottom: var(--space-6); }
+</style>

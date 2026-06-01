@@ -21,18 +21,27 @@ const contactInfo = {
 };
 
 const serviceAreas = [
-  { name: 'Mount Laurel', zipcode: '08054' },
-  { name: 'Moorestown', zipcode: '08057' },
-  { name: 'Medford', zipcode: '08055' },
-  { name: 'Cherry Hill', zipcode: '08002' },
-  { name: 'Princeton', zipcode: '08540' },
-  { name: 'Trenton', zipcode: '08608' },
-  { name: 'Hamilton', zipcode: '08610' },
-  { name: 'Edison', zipcode: '08817' },
-  { name: 'Woodbridge', zipcode: '07095' },
+  { name: 'Cherry Hill', href: '/market/burlington-county/cherry-hill/' },
+  { name: 'Moorestown', href: '/market/burlington-county/moorestown/' },
+  { name: 'Marlton', href: '/market/burlington-county/marlton/' },
+  { name: 'Princeton', href: '/market/mercer-county/princeton/' },
+  { name: 'Robbinsville', href: '/market/mercer-county/robbinsville/' },
+  { name: 'Edison', href: '/market/middlesex-county/edison/' },
+  { name: 'East Brunswick', href: '/market/middlesex-county/east-brunswick/' },
+  { name: 'Woodbridge', href: '/market/middlesex-county/woodbridge/' },
+];
+
+const toolLinks = [
+  { href: '/tools/home-value-estimator/', label: 'Home Value Estimator' },
+  { href: '/tools/should-i-sell-now/', label: 'Market Timing Tool' },
+  { href: '/tools/proceeds-calculator/', label: 'Proceeds Calculator' },
+  { href: '/tools/affordability-calculator/', label: 'Affordability Calculator' },
 ];
 
 const quickLinks = [
+  { href: '/market/', label: 'Market Data Hub' },
+  { href: '/tools/', label: 'Free Tools' },
+  { href: '/moving-to/', label: 'Moving Guides' },
   { href: '/areas/', label: 'Towns by County' },
   { href: '/about/', label: 'About Steven' },
   { href: '/contact', label: 'Contact' },
@@ -93,15 +102,27 @@ const socialLinks = [
 
       <!-- Service Areas -->
       <div class="footer-section">
-        <h3 class="footer-heading">Service Areas</h3>
+        <h3 class="footer-heading">Towns We Serve</h3>
         <ul class="service-areas">
           {serviceAreas.map((area) => (
             <li class="service-area">
-              <a href={`/market/${area.zipcode}/`}>{area.name}</a>
+              <a href={area.href}>{area.name}</a>
             </li>
           ))}
         </ul>
-        <p class="service-note">Serving Burlington, Mercer & Middlesex Counties</p>
+        <p class="service-note">Burlington, Mercer & Middlesex Counties, NJ</p>
+      </div>
+
+      <!-- Free Tools -->
+      <div class="footer-section">
+        <h3 class="footer-heading">Free Tools</h3>
+        <ul class="footer-links">
+          {toolLinks.map((link) => (
+            <li>
+              <a href={link.href} class="footer-link">{link.label}</a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <!-- Social Media & Branding -->

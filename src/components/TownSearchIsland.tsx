@@ -107,11 +107,12 @@ export default function TownSearchIsland({ towns }: Props) {
     }
   };
 
-  // Navigate to town page
+  // Navigate to town market page
   const navigateToTown = (town: Town) => {
-    // Record the search that led here (ranked town-demand report in Matomo)
     trackSiteSearch(town.name, 'Areas Search', flatResults.length);
-    window.location.href = `/market/${town.zipcode}/`;
+    const countySlug = town.county.toLowerCase().replace(/\s+/g, '-');
+    const townSlug = town.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    window.location.href = `/market/${countySlug}/${townSlug}/`;
   };
 
   // Format currency
