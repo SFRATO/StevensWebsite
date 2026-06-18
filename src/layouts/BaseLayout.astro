@@ -34,7 +34,7 @@ interface Props {
 const {
   title,
   description,
-  ogImage = '/images/og-default.jpg',
+  ogImage = '/images/headshot.jpg', // TODO: replace default with a branded 1200x630 og-default.jpg
   noindex = false,
   canonical,
   schema,
@@ -118,7 +118,8 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
 
     <!-- Favicon (Placeholder) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {/* TODO: add a real 180x180 /apple-touch-icon.png, then restore this link.
+        It was removed because the file did not exist, 404-ing on every page. */}
 
     <!-- Structured Data - Real Estate Agent -->
     <script type="application/ld+json" set:html={stringifySchema(agentSchema)} />
