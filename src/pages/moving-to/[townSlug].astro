@@ -209,6 +209,7 @@ const metaDesc = `Moving to ${townName}, NJ? Here's what you need to know about 
       <MarketReportForm
         location={townName}
         townName={townName}
+        intent="buying"
         formName="market-report"
         lastUpdated={zipData ? fmtDate(zipData.period_end) : undefined}
         priceChangeYoY={zipData?.median_sale_price_yoy}

@@ -20,6 +20,7 @@ interface Props {
   lastUpdated?: string;
   priceChangeYoY?: number | null;
   marketType?: 'seller' | 'buyer' | 'balanced';
+  intent?: 'selling' | 'buying';  // 'buying' renders the buyer home-search variant
   prefillTown?: string;   // Pre-filled town name for zip code pages
   prefillZipcode?: string; // Pre-filled zip code for zip code pages
 }
@@ -31,6 +32,7 @@ const {
   lastUpdated,
   priceChangeYoY,
   marketType,
+  intent = 'selling',
   prefillTown = '',
   prefillZipcode = ''
 } = Astro.props;
@@ -41,6 +43,20 @@ const validZipcodes = getAllValidZipcodes();
 
 // Generate unique form ID for this instance
 const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
+
+// Buyer vs seller variant copy (same lead pipeline; interest field differs)
+const isBuyer = intent === 'buying';
+const townLabel = townName && townName !== 'Your Town' ? townName + ' ' : '';
+const heading = isBuyer
+  ? `Get New ${townLabel}Listings Before Everyone Else`
+  : `See What Your ${townLabel}Home Could Sell For`;
+const subcopy = isBuyer
+  ? `Tell me what you're looking for and I'll set up a custom MLS search — you'll hear from me the moment a matching home hits the market.`
+  : 'Get accurate local market data to price your home competitively.';
+const submitLabel = isBuyer ? 'Start My Home Search' : 'Send My Free Report Now';
+const deliveryNote = isBuyer
+  ? "I'll personally follow up within 1 business day to fine-tune your search."
+  : 'Delivered to your inbox within 24 hours';
 ---
 
 <div class="report-form-wrapper" id="lead-capture" data-form-id={formId}>
@@ -57,8 +73,8 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
         <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <h3>See What Your {townName && townName !== 'Your Town' ? townName + ' ' : ''}Home Could Sell For</h3>
-    <p>Get accurate local market data to price your home competitively.</p>
+    <h3>{heading}</h3>
+    <p>{subcopy}</p>
   </div>
 
   <form
@@ -92,17 +108,19 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
         />
       </div>
 
-      <div class="form-group full-width">
-        <label for="address">Address <span class="required">*</span></label>
-        <input
-          type="text"
-          id="address"
-          name="address"
-          placeholder="123 Main Street"
-          required
-          aria-required="true"
-        />
-      </div>
+      {!isBuyer && (
+        <div class="form-group full-width">
+          <label for="address">Address <span class="required">*</span></label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            placeholder="123 Main Street"
+            required
+            aria-required="true"
+          />
+        </div>
+      )}
 
       <TownZipFieldIsland
         client:load
@@ -139,8 +157,8 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
       <div class="form-group full-width">
         <label for="interest">I'm interested in <span class="required">*</span></label>
         <select id="interest" name="interest" required aria-required="true">
-          <option value="selling" selected>Selling a Home</option>
-          <option value="buying">Buying a Home</option>
+          <option value="selling" selected={!isBuyer}>Selling a Home</option>
+          <option value="buying" selected={isBuyer}>Buying a Home</option>
           <option value="both">Both Buying & Selling</option>
           <option value="investment">Investment Property</option>
           <option value="consultation">General Consultation</option>
@@ -160,14 +178,14 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Send My Free Report Now
+        {submitLabel}
       </button>
 
       <p class="delivery-note">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Delivered to your inbox within 24 hours
+        {deliveryNote}
       </p>
 
       <div class="trust-signals">
