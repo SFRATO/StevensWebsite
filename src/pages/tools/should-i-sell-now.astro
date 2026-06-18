@@ -4,6 +4,7 @@
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
+import SellerScenarioCards from '@components/SellerScenarioCards.astro';
 import MarketTimingIsland from '@components/tools/MarketTimingIsland';
 import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
 import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
@@ -80,6 +81,8 @@ const schema = [
       </aside>
     </div>
   </section>
+
+  <SellerScenarioCards ctaHref="#lead-capture" />
 
   <section class="form-section" id="lead-capture">
     <div class="container">
