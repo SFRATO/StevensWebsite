@@ -676,9 +676,6 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Calculate score
-        calculateScore();
-
         const submitBtn = form.querySelector('.btn-submit') as HTMLButtonElement;
 
         // Show loading state
@@ -694,9 +691,15 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
         }
 
         try {
+          // Score inside the try so a scoring error can't silently kill the submit;
+          // if it throws we still submit the lead (the score is optional metadata).
+          try { calculateScore(); } catch (scoreErr) { console.error('lead scoring failed', scoreErr); }
+
           const formData = new FormData(form);
 
-          const response = await fetch('/', {
+          // Submit to the real lead pipeline (Supabase + SES), not Netlify Forms —
+          // this is what triggers the instant agent notification and the email drip.
+          const response = await fetch('/api/market-report', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData as any).toString(),
@@ -929,6 +932,13 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   .option-card input:checked + .option-content {
     border-color: var(--c21-gold);
     background: rgba(201, 156, 51, 0.1);
+  }
+
+  /* a11y: the native radio is visually hidden, so surface keyboard focus on the
+     styled card surrogate (WCAG 2.4.7). */
+  .option-card input:focus-visible + .option-content {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 2px;
   }
 
   .option-card.small .option-content {

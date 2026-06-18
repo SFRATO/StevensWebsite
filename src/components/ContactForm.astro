@@ -248,7 +248,9 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
         }
 
         try {
-          const response = await fetch('/', {
+          // Submit to the real lead pipeline (Supabase + SES), not Netlify Forms,
+          // so the lead reaches the CRM + triggers the agent notification & drip.
+          const response = await fetch('/api/market-report', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData as any).toString(),

@@ -735,6 +735,24 @@ serve(async (req) => {
       );
     }
 
+    // SECURITY: sanitize user-controlled fields before they flow into email HTML
+    // bodies and SES subject lines. Prevents HTML/script injection into the agent's
+    // inbox (e.g. name='<img onerror=...>') and CR/LF header injection in subjects.
+    // Strip angle brackets + control chars and cap length; applied once at ingestion
+    // so every downstream template and the DB insert use the safe values.
+    const sanitizeField = (s: string | undefined, max = 200): string =>
+      (s ?? "")
+        .replace(/[<>]/g, "")
+        .replace(/[\r\n\t]+/g, " ")
+        .trim()
+        .slice(0, max);
+    payload.name = sanitizeField(payload.name, 80);
+    payload.address = sanitizeField(payload.address, 160);
+    payload.town = sanitizeField(payload.town, 80);
+    payload.zipcode = sanitizeField(payload.zipcode, 10);
+    payload.email = sanitizeField(payload.email, 160);
+    if (payload.phone) payload.phone = sanitizeField(payload.phone, 30);
+
     console.log("Processing form submission for:", payload.email);
 
     // Check for existing lead

@@ -1,0 +1,29 @@
+{
+  "persona": "Burlington County NJ first-time buyer & Philadelphia commuter (Florence / Mt. Laurel / Cinnaminson), price-sensitive, anxious about affordability and closing costs, skeptical of agents",
+  "device": "Cheap Android phone on 4G — mobile-first, low patience for heavy/slow pages",
+  "journey_notes": [
+    "Landed (via Google) on /market/burlington-county/florence/ — header is balanced 'buying or selling' which is reassuring, but the page's primary lead form is seller-framed: 'See What Your Florence Home Could Sell For' / 'price your home competitively'. As a BUYER I felt the page wasn't built for me.",
+    "Florence market data looks broken and untrustworthy: median sale price $168,900 with -29.6% YoY, Days on Market shows '-1400.0% YoY', Months of Supply 'N/A'. $168,900 is implausibly low for Florence NJ. A skeptical first-timer reads this as 'this site's numbers are wrong' and trust drops immediately.",
+    "'Nearby Areas in Burlington County' on the Florence page lists Cream Ridge, East Windsor, Cranbury (Mercer-area towns), NOT my actual nearby options like Bordentown, Mt. Laurel or Cinnaminson. Geographically confusing for a local.",
+    "I wanted to BROWSE homes I could afford. /listings is a 'Listings Coming Soon' placeholder telling me to call Steven for MLS access. There is NO property search anywhere, and no 'Homes for Sale' link in the main nav. For a buyer skeptical of agents who wants to look anonymously first, this is a dead end.",
+    "The town/market pages show a price but NO monthly payment math — the thing I most care about. I had to leave the page and find /tools/affordability-calculator separately.",
+    "Affordability calculator was the single best moment: it asks income, down payment, rate, debts, term; outputs max home price, monthly P&I, monthly tax+insurance, total, and a verdict vs local median. Its FAQ directly addresses NJ's high property taxes, FHA 3.5% down, NJHMFA first-time-buyer assistance, and pre-approval. This is exactly the hand-holding I needed.",
+    "Calculator gap: it bakes NJ property tax/insurance at ~1.8% but does NOT model PMI in the monthly payment, even though the FAQ mentions PMI. Putting 3.5% down (my realistic scenario) it overstates what I can truly afford and understates my monthly cost — risky for a price-sensitive first-timer.",
+    "Commute-to-Philly clarity is thin. Florence has NO /moving-to guide at all. Cinnaminson and Mt. Laurel guides do mention 'Philadelphia' and 'commute' generically, but I found no concrete commute times to Center City and almost no transit specifics (PATCO/River Line/SEPTA) for my towns. As a daily Philly commuter that is my #2 decision factor and it's mostly missing.",
+    "Home page stat block contradicts itself: each county is labeled 'Seller's Market' yet the 'Market Conditions Across 97 Zip Codes' panel reads 'Seller's Markets 0 — 0% of tracked areas'. Another small trust ding."
+  ],
+  "friction": [
+    "No way to browse listings/homes for sale — /listings is a 'Coming Soon' placeholder; forces a phone call, which a skeptical-of-agents first-timer will not do early.",
+    "Town/market pages carry seller-intent forms ('what your home could sell for') with no buyer equivalent, so a buyer-intent visitor sees a mismatched ask.",
+    "Visibly broken market numbers on the Florence page (median $168,900, -29.6% YoY, DOM -1400% YoY) destroy data credibility for a numbers-anxious buyer.",
+    "No monthly payment / mortgage math on the actual town pages; affordability tool is a separate detour the user must discover.",
+    "Affordability calculator omits PMI for low-down-payment buyers, overstating buying power for the exact first-time-buyer scenario it targets.",
+    "Weak Philly commute content: no Florence moving guide, and existing guides lack concrete commute times and transit-line detail.",
+    "'Nearby Areas' suggestions are geographically wrong (Mercer towns shown as Burlington neighbors).",
+    "No 'Homes for Sale'/Buy entry in main navigation; buyer path is not signposted.",
+    "Closing-cost anxiety unaddressed for buyers: the proceeds calculator is seller-side; no buyer closing-cost estimate despite that being a stated worry."
+  ],
+  "biggest_blocker": "There is no listing search and no buyer-focused next step — I can't browse homes I can afford anonymously, the town pages push a seller's CMA form, and visibly broken market data undercuts trust. The only buyer value is a separate affordability calculator, so a skeptical first-timer leaves to use Zillow/Redfin instead of handing over contact info.",
+  "would_leave_contact_score": 4,
+  "score_justification": "The affordability calculator is genuinely helpful and could earn my contact, but seller-framed forms, no listings to browse, and broken-looking data make a skeptical first-time buyer bounce before converting."
+}

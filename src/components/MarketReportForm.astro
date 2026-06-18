@@ -57,7 +57,7 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
         <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    <h3>See What Your {townName} Home Could Sell For</h3>
+    <h3>See What Your {townName && townName !== 'Your Town' ? townName + ' ' : ''}Home Could Sell For</h3>
     <p>Get accurate local market data to price your home competitively.</p>
   </div>
 
@@ -235,7 +235,10 @@ const formId = `market-report-form-${Math.random().toString(36).substr(2, 9)}`;
         }
 
         try {
-          const response = await fetch('/', {
+          // Submit to the real lead pipeline (Supabase + SES), not Netlify Forms.
+          // The handler returns non-2xx if the lead isn't persisted, so response.ok
+          // reflects a genuine save (no more false "success" on a bare 200 from '/').
+          const response = await fetch('/api/market-report', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(formData as any).toString(),

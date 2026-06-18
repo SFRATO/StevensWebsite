@@ -25,8 +25,10 @@
   --bg-primary: var(--white);
   --bg-secondary: var(--light-gray);
   --border-color: var(--medium-gray);
-  --cta-primary: var(--c21-gold);
-  --cta-primary-hover: var(--c21-gold-dark);
+  /* CTA gold darkened for WCAG 1.4.3: white text on #8A6A12 ≈ 5:1 (was #C99C33 = 2.53:1).
+     --c21-gold is retained for large decorative accents only, not white-text CTAs. */
+  --cta-primary: #8A6A12;
+  --cta-primary-hover: #6F5710;
   --cta-secondary: var(--white);
   --cta-secondary-hover: var(--off-white);
 

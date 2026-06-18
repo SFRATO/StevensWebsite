@@ -159,16 +159,26 @@ const socialLinks = [
         </p>
 
         <div class="footer-logos">
-          <div class="equal-housing" title="Equal Housing Opportunity">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div class="equal-housing">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Equal Housing Opportunity">
               <rect width="40" height="40" fill="var(--text-primary)"/>
               <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="white"/>
             </svg>
+            <span class="eho-text">Equal Housing Opportunity</span>
           </div>
         </div>
 
         <p class="disclaimer">
           <small>
+            {/* TODO(compliance — required before launch): replace the bracketed
+                placeholders with the licensed brokerage's legal name, office address,
+                office phone, and Steven's NJ license number, confirmed with Steven.
+                Required by N.J.A.C. 11:5-6.1 (CENTURY 21 is a franchise brand, not the
+                licensed broker of record). Add the equivalent PA identification before
+                publishing any Bucks County, PA content. */}
+            CENTURY 21 [BROKERAGE LEGAL NAME], Licensed Real Estate Broker ·
+            [OFFICE ADDRESS], NJ · [OFFICE PHONE]<br />
+            Steven Frato, NJ Licensed Real Estate Salesperson, License #[NJ LICENSE NUMBER].<br />
             Each office is independently owned and operated. Information deemed reliable but not guaranteed.
             Market data provided by Redfin.
           </small>

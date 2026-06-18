@@ -1,0 +1,90 @@
+[
+  {
+    "severity": "P1",
+    "lane": "security-pii",
+    "location": "supabase/config.toml:49 (verify_jwt = false) + supabase/functions/handle-form-submission/index.ts:706-738",
+    "evidence": "All Supabase edge functions run with verify_jwt=false and handle-form-submission performs NO auth check on inbound requests (it never reads/validates the Authorization header; it only uses the service-role key internally via createClient at :181). Combined with Access-Control-Allow-Origin '*' (:713) the function is publicly invokable by anyone, from any origin. Each call inserts a lead, schedules 5 drip emails, sends an SES welcome email to an attacker-chosen address, and emails Steven a notification. There is no rate limit, no honeypot check, no CAPTCHA. This is a direct SES cost + sender-reputation abuse vector (mass sends to arbitrary/invalid addresses drive bounces that can get the sending domain throttled/blocked) and unbounded DB writes.",
+    "fix": "Require a shared secret (e.g. validate a non-public X-Internal-Secret header against an env var) inside the edge function, or keep verify_jwt and have the Netlify caller present a real JWT. Add per-IP/email rate limiting and validate the honeypot bot-field. Lock CORS to the production origin instead of '*'.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "security-pii",
+    "location": "route /api/market-report -> netlify/functions/handle-market-report.ts:39-90",
+    "evidence": "The /api/market-report endpoint (netlify.toml redirect, status 200) is fully open: only checks httpMethod==POST and required fields. The collected honeypot 'bot-field' is never read server-side, there is no rate limit/CAPTCHA, and the handler always returns 200. Each request fans out to Supabase (lead insert + drip schedule), SES (welcome email to the submitter address + Steven notification) and generate-pdf. An automated abuser can spam this to run up SES/Supabase cost and damage SES reputation via bounces, while every call looks 'successful'.",
+    "fix": "Enforce the bot-field honeypot server-side, add rate limiting (per IP/email) and a CAPTCHA or signed-token check, and stop unconditionally returning 200 so abuse/failures are observable.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "security-pii",
+    "location": "supabase/functions/handle-form-submission/index.ts:284,289,318,349-360,506-509,622,626,653,657 (and subject 388)",
+    "evidence": "Attacker-controlled lead fields are interpolated raw into HTML email bodies and subject lines with no escaping: welcome email uses ${lead.name}, ${lead.address}, ${lead.town}, ${lead.zipcode}; Steven's lead-notification email renders ${lead.name}, ${lead.email}, ${lead.address}, ${lead.town} into HTML table cells and ${lead.name} into the subject. A submission with name='<img src=x onerror=...>' or markup yields HTML/script injection into Steven's inbox (and the lead's own welcome email); the subject interpolation also risks header/subject injection. (SQL itself is safe — supabase-js parameterizes inserts.)",
+    "fix": "HTML-escape all user-supplied fields before interpolating into email templates (escape &,<,>,\",'); strip CR/LF and length-cap fields used in subject lines. Validate/normalize name, address, town, email, phone on intake.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "security-pii",
+    "location": "netlify.toml:30-37 (headers block)",
+    "evidence": "Security headers set only X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin. There is NO Content-Security-Policy, NO Strict-Transport-Security (HSTS), and NO Permissions-Policy. Missing CSP means no defense-in-depth against injected/third-party script (the site loads remote Matomo from analytics.gavinrozzi.com, GA4, and Google Fonts).",
+    "fix": "Add a Content-Security-Policy (script-src limited to self + analytics.gavinrozzi.com + googletagmanager.com; style/font-src for Google Fonts), Strict-Transport-Security (max-age>=31536000; includeSubDomains; preload), and a Permissions-Policy locking down geolocation/camera/microphone.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "security-pii",
+    "location": "src/layouts/BaseLayout.astro:141-154 (Matomo always-on) + 233-234 (consent gate commented out)",
+    "evidence": "Matomo Tag Manager (container_YLdIYnl6) loads unconditionally on every page with no consent gate; GA4 loads too when PUBLIC_GA4_ID is set; Google Fonts preconnect leaks IPs to Google. The cookie-consent block at :233-234 is commented out ('<!-- Cookie Consent (Add if needed for compliance) -->'). Analytics cookies are therefore set before any consent. For EU/EEA visitors this is a GDPR/ePrivacy lawful-basis gap (no prior consent for non-essential tracking/cookies).",
+    "fix": "Gate Matomo + GA4 behind a consent banner (load trackers only after opt-in), or configure Matomo cookieless/consent-required mode. Since the site collects seller/buyer PII, also ensure the linked privacy policy describes analytics + data use.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "security-pii",
+    "location": "netlify/functions/generate-pdf.tsx:506-535 (GET branch)",
+    "evidence": "generate-pdf accepts GET with name, address, town, zipcode passed as query-string parameters (the 'download link from email' path). Lead PII (name + street address) therefore travels in the URL: it lands in Netlify access logs, browser history, and any Referer header to third-party assets. URLs/query strings are a poor place for PII.",
+    "fix": "Deliver the PDF via POST or a short-lived opaque signed token that maps to server-side lead data, rather than embedding name/address in a GET query string. At minimum drop name/address from the URL and look them up by lead id/token.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "security-pii",
+    "location": "netlify/functions/handle-market-report.ts:109-116; supabase/functions/handle-form-submission/index.ts:738; netlify/functions/generate-pdf.tsx:568; supabase/functions/send-lead-notification/index.ts:423; netlify/functions/trigger-email-sequence.ts:119,155,170",
+    "evidence": "Lead PII is console.log'd in plaintext across the request path: handle-market-report logs name+email+town+zipcode+interest; handle-form-submission logs the email; generate-pdf logs name+town+zipcode; send-lead-notification logs name; trigger-email-sequence logs email. This PII is written to Netlify/Supabase function logs in cleartext, retained, and visible to anyone with log/dashboard access (a data-minimization and access-control concern).",
+    "fix": "Remove PII from logs or mask it (e.g. log a hashed/truncated email and a lead id only). Keep logs to non-PII correlation ids.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "security-pii",
+    "location": "supabase/functions/handle-form-submission/index.ts:713; send-lead-notification/index.ts:375,436; send-scheduled-emails/index.ts:2740; ses-webhook-handler/index.ts:370",
+    "evidence": "Every Supabase edge function returns Access-Control-Allow-Origin: '*' (wildcard) including the lead-creating handle-form-submission and the SES ses-webhook-handler. Wildcard CORS lets any website invoke these endpoints from a victim's browser; for the (currently unauthenticated, see P1) form handler this broadens the abuse surface.",
+    "fix": "Restrict Access-Control-Allow-Origin to the production origin (https://stevenfrato.com). Webhook handlers that are called server-to-server (SES) need no permissive CORS at all.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "security-pii",
+    "location": "netlify/functions/generate-pdf.tsx:504-535 (no auth gate)",
+    "evidence": "generate-pdf has no secret/auth on GET or POST — anyone can invoke it to render PDFs (CPU/compute abuse). Data exposure is limited: it reads only the static public market data in zipcodes.json (no lead DB lookup), and name/address are attacker-supplied, so there is no cross-user PII leak — hence P3 rather than higher.",
+    "fix": "Require the same internal secret/token used to gate the form pipeline, and/or rate-limit. Pair with the P2 fix to stop accepting PII via GET query string.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "security-pii",
+    "location": "netlify/functions/sync-zipcode-data.ts:58-62",
+    "evidence": "SYNC_SECRET gate is correctly required (rejects when env unset or header mismatch), but the comparison uses a plain '!==' (non-constant-time) and there is no enforced strength/length on the secret in code — it relies entirely on the operator choosing a strong env value. Low risk: endpoint only upserts public market data, not PII.",
+    "fix": "Use a constant-time comparison (e.g. timingSafeEqual) and document/enforce a high-entropy SYNC_SECRET (>=32 random chars).",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "security-pii",
+    "location": "src/ (whole) + dist/_astro/*.js + dist/**/*.html",
+    "evidence": "PASS — client bundle secret scan is clean. src/ references only PUBLIC_GA4_ID (BaseLayout.astro:61) and PUBLIC_ANALYTICS_DEBUG (analytics.ts:27) — no server secrets imported into client code. Broad grep of dist for AKIA*, sk-/sk-ant-*, JWT/service_role tokens, AWS_SECRET, SES creds, SYNC_SECRET returned zero matches. Analytics events carry NO PII (trackEvent sends only category/action/label; trackSiteSearch sends only town names — analytics.ts:50-110, TownSearchIsland.tsx:112). Note: Matomo container id (YLdIYnl6), analytics host, and idSite 27 are exposed in HTML but these are non-secret by design.",
+    "fix": "No action required; retain a CI grep gate (block AKIA|sk-ant|service_role|eyJhbGci tokens in dist) to keep it clean.",
+    "effort": "S"
+  }
+]

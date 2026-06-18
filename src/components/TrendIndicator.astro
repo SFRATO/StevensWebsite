@@ -12,7 +12,16 @@ interface Props {
   showArrow?: boolean;
 }
 
-const { value, label, format = 'percent', size = 'md', showArrow = true } = Astro.props;
+const { value: rawValue, label, format = 'percent', size = 'md', showArrow = true } = Astro.props;
+
+// Data-integrity guard (audit data-integrity P0): a year-over-year percentage below
+// -100% is mathematically impossible (a metric cannot fall more than 100%), and
+// values above +300% are almost always source-data artifacts. Suppress these so the
+// page never shows a credibility-destroying figure like "-1700% YoY".
+const value: number | null =
+  rawValue !== null && format === 'percent' && (rawValue < -100 || rawValue > 300)
+    ? null
+    : rawValue;
 
 const getTrendClass = (): string => {
   if (value === null) return 'neutral';

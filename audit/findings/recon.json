@@ -1,0 +1,148 @@
+{
+  "_meta": {
+    "agent": "blocking-recon",
+    "repo": "/Users/gavin/Documents/GitHub/StevensWebsite",
+    "branch": "main",
+    "head_commit": "b5bd6b7",
+    "generated": "2026-06-18",
+    "note": "All claims verified against source. This brief is the shared input for every downstream audit lane."
+  },
+
+  "stack": {
+    "framework": "Astro 5 (astro ^5.16.11), islands architecture",
+    "ui_runtime": "React 19 (@astrojs/react ^4.2.1) — used only for interactive islands (TownSearchIsland.tsx, TownZipFieldIsland.tsx, TownPreviewCard region) and email/PDF rendering",
+    "language": "TypeScript throughout",
+    "output_mode": "static (astro.config.mjs output: 'static') — every page prerendered at build time; no SSR",
+    "site_url": "https://stevenfrato.com (astro.config site)",
+    "hosting": "Netlify (netlify.toml: command 'npm run build', publish 'dist', functions 'netlify/functions')",
+    "build_env": "NODE_VERSION 20",
+    "functions_runtime": {
+      "netlify": "Node functions bundled with esbuild (netlify.toml [functions] node_bundler='esbuild'). process-email-queue.ts is a Netlify Scheduled Function (schedule '0 14 * * *' = 10AM ET daily).",
+      "supabase_edge": "Deno (deno.land std@0.168.0 http/server serve), 5 edge functions under supabase/functions/"
+    },
+    "datastores": {
+      "supabase_postgres": "Primary lead + email DB (tables in supabase/migrations/001_email_campaign_schema.sql + 002_lead_qualification.sql)",
+      "static_json": "data/processed/counties.json (3 counties) + zipcodes.json (97 zips) committed to repo, read at build time"
+    },
+    "email": "Amazon SES (@aws-sdk/client-ses) sent from inside Supabase edge functions (handle-form-submission, send-scheduled-emails, send-lead-notification). Sender default reports@stevenfrato.com; ConfigurationSet 'steven-frato-emails'; bounce/complaint via ses-webhook-handler.",
+    "ai": "Anthropic SDK (@anthropic-ai/sdk ^0.52.0) used offline in data/scripts/generate-insights.ts for market commentary; not in request path",
+    "security_headers": "netlify.toml sets X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin. No CSP defined."
+  },
+
+  "routes": [
+    { "pattern": "/", "file": "src/pages/index.astro", "count_or_example": 1, "purpose": "Home" },
+    { "pattern": "/about", "file": "src/pages/about.astro", "count_or_example": 1, "purpose": "About Steven Frato" },
+    { "pattern": "/contact", "file": "src/pages/contact.astro", "count_or_example": 1, "purpose": "Contact page hosting ContactForm" },
+    { "pattern": "/areas", "file": "src/pages/areas.astro", "count_or_example": 1, "purpose": "Service areas overview" },
+    { "pattern": "/privacy", "file": "src/pages/privacy.astro", "count_or_example": 1, "purpose": "Privacy policy" },
+    { "pattern": "/thank-you", "file": "src/pages/thank-you.astro", "count_or_example": 1, "purpose": "Post-submit thank-you" },
+    { "pattern": "/listings", "file": "src/pages/listings.astro", "count_or_example": 1, "purpose": "PLACEHOLDER 'Coming Soon' — no IDX/MLS integration; static copy only" },
+    { "pattern": "/market/", "file": "src/pages/market/index.astro", "count_or_example": 1, "purpose": "Market hub listing all counties" },
+    { "pattern": "/market/[county]/", "file": "src/pages/market/[county].astro", "count_or_example": 3, "purpose": "County hubs (Burlington, Mercer, Middlesex)" },
+    { "pattern": "/market/[zipcode]/", "file": "src/pages/market/[zipcode].astro", "count_or_example": 97, "purpose": "ZIP market pages from zipcodes.json; canonical to town page on 1:1 mapping" },
+    { "pattern": "/market/[county]/[townSlug]/", "file": "src/pages/market/[county]/[townSlug].astro", "count_or_example": "~130", "purpose": "PRIMARY SEO targets — town-name queries; from src/data/town-mappings.ts" },
+    { "pattern": "/market/[county]/price/[priceRange]/", "file": "src/pages/market/[county]/price/[priceRange].astro", "count_or_example": "~12", "purpose": "Buyer-intent price-range pages (tiers x counties)" },
+    { "pattern": "/market/[county]/compare/[comparison]/", "file": "src/pages/market/[county]/compare/[comparison].astro", "count_or_example": 14, "purpose": "Decision-stage town comparison pages; from src/data/comparisons.ts" },
+    { "pattern": "/home-value/", "file": "src/pages/home-value/index.astro", "count_or_example": 1, "purpose": "Home-value hub listing all towns" },
+    { "pattern": "/home-value/[townSlug]/", "file": "src/pages/home-value/[townSlug].astro", "count_or_example": "~130", "purpose": "Seller-intent conversion pages, lead form above fold" },
+    { "pattern": "/tools/", "file": "src/pages/tools/index.astro", "count_or_example": 1, "purpose": "Tools hub" },
+    { "pattern": "/tools/home-value-estimator", "file": "src/pages/tools/home-value-estimator.astro", "count_or_example": 1, "purpose": "Interactive tool" },
+    { "pattern": "/tools/should-i-sell-now", "file": "src/pages/tools/should-i-sell-now.astro", "count_or_example": 1, "purpose": "Interactive timing tool" },
+    { "pattern": "/tools/proceeds-calculator", "file": "src/pages/tools/proceeds-calculator.astro", "count_or_example": 1, "purpose": "Net-proceeds calculator" },
+    { "pattern": "/tools/affordability-calculator", "file": "src/pages/tools/affordability-calculator.astro", "count_or_example": 1, "purpose": "Buyer affordability calculator" },
+    { "pattern": "/moving-to/", "file": "src/pages/moving-to/index.astro", "count_or_example": 1, "purpose": "Moving guides hub" },
+    { "pattern": "/moving-to/[townSlug]/", "file": "src/pages/moving-to/[townSlug].astro", "count_or_example": 18, "purpose": "Informational moving guides; from src/data/town-guides.ts" }
+  ],
+  "routes_summary": "22 distinct route patterns / page templates in src/pages/; ~357 generated static pages total. /api/market-report is NOT an Astro route — it is a netlify.toml redirect (status 200) to /.netlify/functions/handle-market-report.",
+
+  "forms": [
+    {
+      "component": "src/components/ContactForm.astro",
+      "fields": ["name", "email", "phone", "interest (select)", "message", "bot-field (honeypot)", "form-name (hidden)"],
+      "submit_target": "fetch POST to '/' (Netlify Forms) as application/x-www-form-urlencoded (ContactForm.astro:~251)",
+      "mechanism": "Netlify Forms (data-netlify='true', method POST). Captured by Netlify regardless of any function. NOT routed to handle-market-report unless a Netlify form-handling redirect/notification is configured (none in netlify.toml — only /api/market-report redirect exists).",
+      "honeypot": "netlify-honeypot='bot-field' (ContactForm.astro:89,99)",
+      "downstream_path": "Netlify Forms inbox only (no serverless processing wired); success state shown client-side, trackEvent('Lead','Contact Form')"
+    },
+    {
+      "component": "src/components/MarketReportForm.astro",
+      "fields": ["name", "address", "email", "phone", "interest (select)", "town + zipcode (via TownZipFieldIsland.tsx autocomplete)", "source-location (hidden)", "form-name (hidden)", "bot-field (honeypot)"],
+      "submit_target": "fetch POST to '/' (Netlify Forms) (MarketReportForm.astro:238)",
+      "mechanism": "Netlify Forms (data-netlify='true'). NOTE: client posts to '/', so the lead lands in Netlify Forms — the Supabase/SES pipeline in handle-market-report only runs for posts that hit /api/market-report. There is NO netlify.toml notification/redirect wiring this Netlify-Forms submission into handle-market-report, so MarketReportForm + ContactForm + QualificationQuiz submissions may capture in Netlify Forms WITHOUT triggering Supabase lead creation or SES emails. VERIFY against Netlify dashboard form-notification config (out-of-repo).",
+      "honeypot": "netlify-honeypot='bot-field' (MarketReportForm.astro:68,78)",
+      "downstream_path": "Netlify Forms inbox; client shows success + trackEvent('Lead','Market Report Request')"
+    },
+    {
+      "component": "src/components/QualificationQuiz.astro",
+      "fields": ["intent (radio)", "timeline (radio)", "property-type", "value-range", "budget-range", "important-factor", "pre-approved", "name", "email", "zipcode/town", "lead-score (hidden, client-calc)", "lead-temperature (hidden, client-calc)", "source-location (hidden)", "form-name (hidden)", "bot-field (honeypot)"],
+      "submit_target": "fetch POST to '/' (Netlify Forms) (QualificationQuiz.astro:699)",
+      "mechanism": "Netlify Forms (data-netlify='true'); multi-step (3 steps) with branch on intent (seller vs buyer step 2). Lead score computed client-side and written to hidden inputs before submit. Same Netlify-Forms-vs-function gap as above.",
+      "honeypot": "bot-field (QualificationQuiz.astro:88,94)",
+      "downstream_path": "Netlify Forms inbox; client success + trackEvent('Lead', ...)"
+    },
+    {
+      "component": "src/components/ExitIntentPopup.astro",
+      "fields": ["interest (radio)", "timeline (radio)", "name", "email", "zipcode", "address (hidden 'Not provided')", "source-location (hidden 'Exit Intent Popup')", "form-name (hidden 'market-report')", "bot-field (honeypot)"],
+      "submit_target": "fetch POST to /api/market-report (ExitIntentPopup.astro:285) — the ONLY form that hits the serverless pipeline",
+      "mechanism": "CUSTOM endpoint. Form has NO data-netlify attribute (ExitIntentPopup.astro:38-42); posts directly to /api/market-report -> netlify/functions/handle-market-report. Bypasses Netlify Forms entirely (no inbox backup).",
+      "honeypot": "bot-field input present but NOT enforced server-side (handle-market-report.ts never reads bot-field)",
+      "downstream_path": "/api/market-report -> handle-market-report.ts -> Supabase edge handle-form-submission (lead insert + scheduled_emails + SES welcome + Steven notification) AND generate-pdf. THIS is the full pipeline; the other 3 forms do not traverse it."
+    }
+  ],
+  "forms_critical_finding": "Only ExitIntentPopup posts to the /api/market-report serverless pipeline. ContactForm, MarketReportForm, and QualificationQuiz all fetch POST to '/' (Netlify Forms). Unless Netlify form-submitted notifications are configured to call handle-market-report (not present in repo/netlify.toml), the primary lead forms create NO Supabase lead, schedule NO drip emails, and send NO instant SES notification to Steven. Downstream lanes MUST confirm Netlify dashboard wiring; if absent this is a launch-blocking lead-loss bug.",
+
+  "silent_drop_points": [
+    { "location": "netlify/functions/handle-market-report.ts:156-166", "description": "Supabase edge function non-OK response or fetch throw is only console.error'd; execution continues. Lead never reaches DB but caller is unaffected." },
+    { "location": "netlify/functions/handle-market-report.ts:163-166", "description": "catch(supabaseError) swallows network failure to Supabase; comment 'Continue with PDF generation even if Supabase fails'. No retry, no queue, no alert." },
+    { "location": "netlify/functions/handle-market-report.ts:191-196", "description": "Fallback trigger-email-sequence failure (only used when Supabase env vars unset) only logged; no retry." },
+    { "location": "netlify/functions/handle-market-report.ts:219-224", "description": "generate-pdf failure only console.error'd; PDF silently never produced." },
+    { "location": "netlify/functions/handle-market-report.ts:227-233", "description": "Handler ALWAYS returns statusCode 200 with generic success message regardless of whether Supabase insert, SES email, or PDF succeeded. Client always shows success; total failure is invisible to user and operator." },
+    { "location": "supabase/functions/handle-form-submission/index.ts:854-859", "description": "Lead insert error returns 500 to caller — but the Netlify caller ignores non-OK (see :156-162) and returns 200 anyway, masking the 500." },
+    { "location": "supabase/functions/handle-form-submission/index.ts:823-852", "description": "Single Supabase insert attempt for the lead — NO retry/backoff on transient failure." },
+    { "location": "supabase/functions/handle-form-submission/index.ts:899-907", "description": "scheduled_emails bulk insert error only console.error'd; the entire 5-email drip is silently not scheduled while lead + welcome email still 'succeed'." },
+    { "location": "supabase/functions/handle-form-submission/index.ts:403-405 (sendWelcomeEmail catch)", "description": "SES welcome-email send failure returns null and is swallowed; lead created but buyer never gets the promised report PDF link. No alert." },
+    { "location": "supabase/functions/handle-form-submission/index.ts:701-703 (sendLeadNotification catch)", "description": "CRITICAL: if SES fails to notify Steven, error is only logged. A HOT lead is created in DB but Steven is never pinged — silent lead loss for the human-follow-up path." },
+    { "location": "src/components/ExitIntentPopup.astro:284-310", "description": "Single-fire POST with no persistent queue; on fetch failure only an alert() is shown and sessionStorage flag may already be set, so the user is not re-prompted. No backend retry; no Netlify Forms backup (form lacks data-netlify)." },
+    { "location": "supabase/functions/send-scheduled-emails/index.ts:2900-2908", "description": "Drip email max_attempts (3) exhaustion sets status 'failed' with no alert to Steven/admin; nurture emails silently die after 3 tries." },
+    { "location": "netlify/functions/process-email-queue.ts:37-53", "description": "Scheduled trigger of send-scheduled-emails only logs non-200 / throw; if the daily cron call fails, the whole drip stalls silently with no alerting." },
+    { "location": "handle-market-report.ts (whole) / ExitIntentPopup", "description": "Honeypot 'bot-field' is collected client-side but NEVER validated server-side in handle-market-report — spam protection on the custom endpoint is effectively absent (Netlify Forms honeypot only protects the '/'-posted forms)." }
+  ],
+
+  "data_layer": {
+    "sources": {
+      "redfin": "data/scripts/fetch-data.ts downloads county_market_tracker.tsv000.gz + zip_code_market_tracker.tsv000.gz from redfin-public-data.s3.us-west-2.amazonaws.com; gunzip; saved to data/raw/ (gitignored).",
+      "pipeline": "data:fetch -> data:process (process-data.ts filters NJ TARGET_COUNTIES, picks latest record by period_end, computes market_type) -> data:insights (generate-insights.ts, Anthropic) -> data/processed/{counties.json,zipcodes.json} (committed, read at build).",
+      "processed_counts": "counties.json = 3 counties; zipcodes.json = 97 zips."
+    },
+    "supabase_tables": ["campaigns", "campaign_steps", "leads", "scheduled_emails", "email_events", "zipcode_data (synced via netlify/functions/sync-zipcode-data.ts upsert of 97 records, gated by SYNC_SECRET / X-Sync-Secret header)"],
+    "freshness_ttl": "NONE enforced. Static JSON is frozen at build time; recency selected only by Redfin period_end (process-data.ts:221,305). No TTL/staleness guard, no rebuild-on-stale; data refresh is manual (npm run data:all + NETLIFY_BUILD_HOOK + sync-zipcode-data). Supabase zipcode_data only updates when sync function is manually invoked.",
+    "listing_feed": "NONE — /listings is a placeholder ('Listings Coming Soon', src/pages/listings.astro). No IDX/MLS integration, no property search, no listing data anywhere in the repo."
+  },
+
+  "cro_layer": {
+    "components": {
+      "ExitIntentPopup": "src/components/ExitIntentPopup.astro — rendered globally in BaseLayout. Triggers on exit-intent (mouseleave) + sessionStorage flag 'exit_popup_shown' (single fire per session). Mini qualification (interest+timeline) + name/email/zip. Posts to /api/market-report (the only form on the real pipeline).",
+      "QualificationQuiz": "src/components/QualificationQuiz.astro — 3-step branching quiz; client-side lead scoring -> hidden lead-score/lead-temperature. Server mirror of scoring in handle-form-submission (calculateLeadScore). Temperature buckets: hot>=80 / warm>=50 / nurture>=25 / cold. Priority map drives Steven-notification urgency + drip campaign assignment.",
+      "StickyCTA": "src/components/StickyCTA.astro — context-aware href/text set in BaseLayout.astro:64-82 by pathname (town/zip -> #lead-capture 'Get My Free Report'; tools -> 'Get Personalized Analysis'; home-value -> 'Get My Free CMA'; market -> /contact/).",
+      "UrgencyBanner / MoversAndShakersSection / ValuePropositionCards / TestimonialCard": "presentational CRO support; TestimonialCard must NOT be populated with fabricated quotes (per CLAUDE.md)."
+    },
+    "lead_scoring": "Two implementations must stay in sync: client (QualificationQuiz.astro) writes hidden fields; server (supabase handle-form-submission/index.ts:55-144) recomputes and uses client value only if present ('lead-score' param), else server calc. Divergence risk if client tampered or fields renamed.",
+    "gating": "No cookie/consent gating active. No auth. ExitIntentPopup gated only by sessionStorage single-fire.",
+    "ab_or_personalization": "No A/B test framework and no runtime personalization detected. Only static pathname-based StickyCTA text/href variation (deterministic, not experimental).",
+    "break_risk": "ExitIntentPopup is the single form on the live serverless pipeline — if its JS handler or /api/market-report redirect breaks, the ONLY backend-integrated lead path dies while other forms quietly fall back to Netlify Forms inbox. QualificationQuiz client/server score mismatch could misroute hot leads to the cold drip. StickyCTA href regex (BaseLayout:67-82) is brittle to slug format changes."
+  },
+
+  "scripts": [
+    { "name": "Matomo Tag Manager", "file": "src/layouts/BaseLayout.astro:141-154", "load_condition": "ALWAYS (unconditional inline loader, no consent gate). container_YLdIYnl6.js @ analytics.gavinrozzi.com, idSite 27.", "pii_touched": "Pageviews, clicks, tel/mailto clicks, site-search keywords (town/zip typed). No form PII sent to Matomo directly, but URLs/search terms can contain location intent. Loads with NO cookie consent." },
+    { "name": "Google Analytics 4 (gtag)", "file": "src/layouts/BaseLayout.astro:156-170", "load_condition": "CONDITIONAL — only when PUBLIC_GA4_ID env var is set (gaId truthy). Dual-tracks alongside Matomo.", "pii_touched": "pageviews + events (same taxonomy as Matomo via src/utils/analytics.ts). No direct form-field PII." },
+    { "name": "analytics.ts helper (initPageviewTracking, initLinkTracking, scroll-depth)", "file": "src/layouts/BaseLayout.astro:172-207 + src/utils/analytics.ts", "load_condition": "bundled module script, runs every page. Dispatch gated by import.meta.env.PROD || PUBLIC_ANALYTICS_DEBUG (no-op in dev).", "pii_touched": "tel:/mailto: click locations, scroll depth, virtual pageview URLs. Site-search captures typed town/zip." },
+    { "name": "Cookie-consent gate", "file": "src/layouts/BaseLayout.astro:233-234", "load_condition": "COMMENTED OUT — '<!-- Cookie Consent (Add if needed for compliance) -->'. No consent mechanism exists; analytics load before/without consent. GDPR/ePrivacy GAP for any non-NJ/EU traffic.", "pii_touched": "n/a (absent)" },
+    { "name": "Google Fonts preconnect", "file": "src/layouts/BaseLayout.astro:138-139", "load_condition": "always (preconnect to fonts.googleapis.com / fonts.gstatic.com)", "pii_touched": "IP to Google (third-party font CDN)" }
+  ],
+
+  "geography": {
+    "covered": ["Burlington NJ", "Mercer NJ", "Middlesex NJ"],
+    "evidence": "data/processed/counties.json = 3 counties; town-mappings/comparisons/guides scoped to these; supabase county default 'Burlington County'.",
+    "pa_bucks_status": "NO PA content exists anywhere in the repo. Bucks County PA is an INTENDED target market — downstream lanes treat its total absence (no pages, no data, no town mappings, no Redfin PA fetch) as a GAP finding, NOT out-of-scope. SES/email copy and schema are NJ-only ('NJ' hardcoded in welcome email address/lead inserts)."
+  }
+}

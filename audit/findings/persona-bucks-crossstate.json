@@ -1,0 +1,23 @@
+{
+  "persona": "Bucks County, PA buyer (Newtown / Doylestown / Levittown) actively comparing PA vs NJ on property taxes, transfer tax, buying process (attorney/title), and commute. Found Steven via search; needs to confirm he covers Bucks County PA and understands the PA side before handing over contact info.",
+  "device": "desktop (curl against dist/ static build at localhost:4321)",
+  "journey_notes": [
+    "Landed expecting to confirm PA/Bucks coverage. Searched my towns directly: /market/18940 (Newtown PA), /market/19067 (Levittown/Lower Bucks) both return HTTP 404. No PA ZIP exists in the build.",
+    "/market/bucks/ returns 404 — county hubs only exist for burlington-county, mercer-county, middlesex-county (all NJ). dist/market/ contains zero PA ZIPs; every ZIP is 07xxx/08xxx (NJ).",
+    "Grepped the codebase: zero occurrences of 'Newtown', 'Doylestown', 'Levittown', 'Bucks', or 'Pennsylvania' anywhere in src/ or data/processed. town-mappings.ts has 0 PA references. counties.json = Burlington, Middlesex, Mercer only.",
+    "The 'Towns' nav search island lists NJ towns grouped by NJ county only — typing a Bucks town surfaces nothing, so even the autocomplete dead-ends.",
+    "Trust signals actively push me away: About page states 'Licensed NJ Agent — New Jersey Real Estate License'; site areaServed schema, footer ('Burlington, Mercer & Middlesex Counties, NJ'), and office address (136 Farnsworth Ave, Bordentown, NJ) all scream NJ-only. As a PA buyer this reads as 'he can't legally represent me in PA.'",
+    "No PA property-tax content, no PA realty transfer tax (1% state + local) explainer, no PA attorney/title-vs-NJ-attorney-review-period content, no Bucks commute/SEPTA content, no Bucks market data. Nothing addresses my actual PA-vs-NJ comparison question."
+  ],
+  "friction": [
+    "Hard 404 on every Bucks ZIP and on /market/bucks/ — the cross-state buyer hits a wall, not a soft 'we don't cover this yet' message or a capture form.",
+    "No PA license disclosure of any kind; the explicit 'Licensed NJ Agent' badge implies he is NOT PA-licensed, which for a Bucks purchase legally matters (PA license or co-brokerage referral required).",
+    "Zero PA tax/process education (transfer tax, disclosure form differences, attorney/title customs, assessment/millage) — the exact decision content a PA-vs-NJ shopper needs is absent.",
+    "No Bucks market data (no Redfin PA fetch in the pipeline; TARGET_COUNTIES is NJ-only), so no median price / DOM / inventory to compare against the NJ pages.",
+    "No fallback CTA for out-of-area visitors — no 'considering PA? request a referral / I can connect you' path, so an interested cross-state lead has no reason or mechanism to convert."
+  ],
+  "biggest_blocker": "The site is provably NJ-only (Burlington/Mercer/Middlesex) and explicitly badges Steven as a 'Licensed NJ Agent' with a Bordentown NJ office — every Bucks County PA URL 404s and there is zero PA tax/process/license/market content, so a PA buyer gets no answer to 'do you even cover me?' and a strong signal that he legally cannot.",
+  "would_leave_contact_score": 1,
+  "score_justification": "Nothing on the site addresses Bucks County PA, the 'Licensed NJ Agent' badge implies he can't represent a PA purchase, and there's no out-of-area capture path — no rational reason to hand over contact info.",
+  "gap_analysis": "Minimum to retain a Bucks PA buyer: (1) Add Bucks County to the data pipeline — Redfin PA county+ZIP fetch, /market/bucks/ hub, and town pages for Newtown, Doylestown, Levittown and other Bucks ZIPs (18xxx/190xx) so searches resolve instead of 404. (2) Explicit PA license + jurisdiction disclosure: state Steven's PA licensure status; if not PA-licensed, say so plainly and offer a vetted PA agent referral/co-broker path rather than implying NJ-only competence. (3) A PA-vs-NJ decision page covering the differences that drive this persona: PA realty transfer tax (~1% state + municipal) vs NJ; NJ attorney-review period & title custom vs PA attorney/title-company practice; property-tax assessment/millage vs NJ effective rates; seller disclosure form differences; and Bucks commute (SEPTA/I-95/turnpike). (4) An out-of-area lead-capture CTA ('Buying in Bucks/PA? Get connected') so interested cross-state visitors have a conversion path instead of a dead end. (5) Update areaServed schema, footer, and nav search to include Bucks/PA once content exists, so trust signals match the intended market."
+}

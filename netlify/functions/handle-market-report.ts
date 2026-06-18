@@ -57,6 +57,18 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
     // Parse URL-encoded form data
     const params = new URLSearchParams(body);
+
+    // Server-side honeypot: if the hidden bot-field is filled, silently drop the
+    // submission (bots get a success-shaped response so they don't retry; no lead
+    // is created and no downstream SES/Supabase work is done).
+    if (params.get("bot-field")) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: true, message: "Your market report is being prepared." }),
+      };
+    }
+    // TODO(security): add per-IP / per-email rate limiting here before launch.
+
     const formData: FormSubmission = {
       "form-name": params.get("form-name") || "",
       name: params.get("name") || "",
@@ -81,11 +93,14 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       "lead-temperature": params.get("lead-temperature") || undefined,
     };
 
-    // Validate required fields
-    if (!formData.email || !formData.name || !formData.address || !formData.town || !formData.zipcode) {
+    // Validate required fields. town/address are OPTIONAL — the Supabase edge
+    // function derives town from zipcode (zipcode_data). Requiring a non-empty town
+    // here previously rejected the exit-intent popup (which sends town='') 100% of
+    // the time, so the only pipeline-connected form created zero leads.
+    if (!formData.email || !formData.name || !formData.zipcode) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing required fields" }),
+        body: JSON.stringify({ error: "Missing required fields (name, email, zipcode)." }),
       };
     }
 
@@ -114,6 +129,11 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       zipcode: formData.zipcode,
       interest: formData.interest,
     });
+
+    // Track whether the lead was durably persisted. We must NOT report success to
+    // the visitor unless the lead actually landed (this handler previously always
+    // returned 200, showing a "thank you" even when the lead was lost).
+    let leadPersisted = false;
 
     // Forward to Supabase Edge Function for lead management and email campaigns
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
@@ -159,6 +179,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
         } else {
           const result = await supabaseResponse.json();
           console.log("Lead created in Supabase:", result);
+          leadPersisted = true;
         }
       } catch (supabaseError) {
         console.error("Failed to call Supabase edge function:", supabaseError);
@@ -190,6 +211,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
         if (!emailResponse.ok) {
           console.error("Failed to trigger email sequence:", await emailResponse.text());
+        } else {
+          leadPersisted = true;
         }
       } catch (emailError) {
         console.error("Error calling trigger-email-sequence:", emailError);
@@ -221,6 +244,25 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       }
     } catch (pdfError) {
       console.error("Error calling generate-pdf:", pdfError);
+    }
+
+    // Only report success if the lead was durably persisted. Otherwise return a
+    // non-2xx so the client shows a real error and the visitor can retry — never a
+    // "thank you" while the lead is silently lost.
+    if (!leadPersisted) {
+      console.error("Lead NOT persisted — returning 502 so the client surfaces an error.", {
+        email: formData.email,
+        zipcode: formData.zipcode,
+      });
+      // TODO(reliability): enqueue this payload to a durable store (Netlify Blobs /
+      // a failed_submissions table) and alert ops so no lead is ever dropped.
+      return {
+        statusCode: 502,
+        body: JSON.stringify({
+          success: false,
+          error: "We couldn't save your request just now. Please try again in a moment.",
+        }),
+      };
     }
 
     // Return success

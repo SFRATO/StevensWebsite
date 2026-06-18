@@ -1,0 +1,90 @@
+[
+  {
+    "severity": "P1",
+    "lane": "cro-regression",
+    "location": "src/components/ExitIntentPopup.astro:189-226",
+    "evidence": "ExitIntentPopup is the ONLY form wired to the live /api/market-report serverless pipeline (recon cro_layer break_risk). Desktop trigger is mouseout with clientY<=0 — never fires on touch. The mobile fallback is a 30s setTimeout set inside initExitPopup, which runs on every 'astro:page-load' and CLEARS+RESETS the timer on each view-transition navigation (lines 222-225). A typical mobile visitor who browses several pages, each in under 30s, never accumulates 30s on a single page, so the popup never shows and the backend-integrated lead path is effectively unreachable on phones (the majority of real-estate traffic). It is degraded rather than fully dead (a single landing page held >30s will fire it), but the sole pipeline form is severely suppressed for the multi-page mobile segment.",
+    "fix": "Track cumulative engagement across navigations (persist elapsed time in sessionStorage and only reset on a fresh session, not per page), and/or add additional mobile triggers (scroll-depth >50%, back-button/popstate, or a fixed inline CTA) so the primary pipeline form has a reliable mobile entry point.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "cro-regression",
+    "location": "src/components/QualificationQuiz.astro:699 / src/components/MarketReportForm.astro:238",
+    "evidence": "The two primary on-page lead forms (QualificationQuiz and MarketReportForm) fetch POST to '/' (Netlify Forms) and show inline success on any 2xx, while ONLY ExitIntentPopup posts to /api/market-report (the Supabase lead-insert + SES welcome/drip + instant Steven notification pipeline). Per recon forms_critical_finding there is no netlify.toml redirect/notification wiring these Netlify-Forms posts into handle-market-report. From a CRO standpoint the visitor always sees 'success' and the /thank-you / inline copy promises 'report within 24 hours' and 'call now', but no instant agent notification or drip is triggered for these forms — a HOT lead from the quiz can land silently in the Netlify Forms inbox with no follow-up SLA met.",
+    "fix": "Wire the Netlify-Forms submissions into handle-market-report via a Netlify form-submitted notification/function (or point these forms at /api/market-report like the popup). Confirm the Netlify dashboard form-notification config; if absent this is a launch-blocking lead-handoff gap.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "cro-regression",
+    "location": "src/components/StickyCTA.astro:184-190 (vs src/components/Header.astro:102-104, BaseLayout.astro:217,228)",
+    "evidence": "On desktop (min-width:768px) StickyCTA is position:fixed; top:0 with z-index var(--z-sticky)=200. Header is position:sticky; top:0 with the SAME z-index var(--z-sticky)=200. StickyCTA is rendered AFTER Header in BaseLayout (Header line 217, StickyCTA line 228), so when the user scrolls past 300px the gold StickyCTA bar paints on top of / overlapping the primary site navigation header at the same top:0 position. The CTA still works, but it obscures the nav and stacks two bars at the viewport top on desktop.",
+    "fix": "Give StickyCTA a higher z-index than the header OR offset it below the header height, OR suppress the sticky header while the desktop StickyCTA top-bar is visible.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "cro-regression",
+    "location": "src/components/QualificationQuiz.astro:676-696",
+    "evidence": "In the submit handler, e.preventDefault() runs (677) then calculateScore() is called at line 680 — OUTSIDE the try block (try opens at 696). If the client lead-scoring throws, the exception propagates out of the listener AFTER preventDefault, so the native submit is blocked, the fetch never runs, the catch (which only wraps the fetch) never fires, no error alert is shown, and no lead is captured. The visitor clicks 'Get My Free Report' at the final step and nothing happens — a silent dead-end at the conversion point with no fallthrough. calculateLeadScore is defensively coded (|| 0 fallbacks, null-safe FormData reads) so the throw is unlikely, but the structure means a scoring bug silently kills submission rather than submitting the lead unscored.",
+    "fix": "Move calculateScore() inside the try, or wrap it in its own try/catch that defaults score/temperature and proceeds with the fetch so the lead always submits even if scoring fails.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "cro-regression",
+    "location": "src/components/TownZipFieldIsland.tsx:270-345 (used in QualificationQuiz.astro:450-458 and MarketReportForm.astro)",
+    "evidence": "Town/Zip capture is a React island mounted client:load. The real inputs (visible fields + hidden name=townFieldName/zipcodeFieldName at lines 271-272) only exist after client hydration; they are absent from the build-time static HTML that Netlify Forms scans to register form fields. Netlify drops fields it did not register at build, so town and zipcode values risk being silently stripped from the '/'-posted MarketReportForm and QualificationQuiz submissions. Additionally the island sets only aria-required (lines 289,339), not the native HTML required attribute, so a blank town/zip can pass native validation and submit empty.",
+    "fix": "Add static hidden <input name='town'> / <input name='zipcode'> placeholders to the Astro form markup so Netlify registers them at build (the island can populate them), and set the real `required` attribute (not just aria-required) when townRequired/zipcodeRequired. Verify captured fields in the Netlify Forms dashboard.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "cro-regression",
+    "location": "src/components/ExitIntentPopup.astro:164,284-310",
+    "evidence": "showPopup() writes sessionStorage 'exit_popup_shown'='true' on VIEW (line 164), before any submission. The popup form has no data-netlify attribute, so there is no Netlify Forms inbox backup — on a fetch failure to /api/market-report only an alert() is shown (lines 304-310). If the user dismisses after a failed submit, the popup is suppressed for the rest of the session and they are never re-prompted. Combined with handle-market-report always returning 200 (recon silent_drop_points), a failed or partially-failed popup submit equals total, invisible lead loss for the one form on the real pipeline.",
+    "fix": "Set the session-suppression flag on successful submit / explicit dismiss rather than on view; keep a retry path and consider a Netlify Forms fallback post so the lead is captured even when the function call fails.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "cro-regression",
+    "location": "src/components/QualificationQuiz.astro:676-737",
+    "evidence": "The quiz collects high-value qualification data (intent, timeline, property type, value/budget range) across steps 1-2 entirely in client state, but only persists anything on the final submit (POST at line 699). A visitor who qualifies as HOT in steps 1-2 and then abandons at the contact step leaves zero trace — no partial-lead capture, no abandonment signal beyond a 'Quiz Step' analytics event. The most motivated, partially-completed leads are lost.",
+    "fix": "Optionally fire a lightweight partial-lead beacon (intent+timeline+zip) on step advance or on unload, so high-intent abandoners can be retargeted/followed up.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "cro-regression",
+    "location": "src/components/ExitIntentPopup.astro:120 vs 307",
+    "evidence": "On submit error the button label is reset to 'Get Market Updates' (line 307), but the original/idle label is 'Get My Market Update' (line 120). After a failed submit the CTA text changes, a small inconsistency that can read as a different/altered action on retry.",
+    "fix": "Reset the button text to the original 'Get My Market Update' in the catch block.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "cro-regression",
+    "location": "src/components/ContactForm.astro:138-146",
+    "evidence": "ContactForm marks Phone as required (line 145) in addition to Name (113) and Email (129) — three required fields plus an optional interest select and message. A mandatory phone number is a well-known lead-form conversion dampener; many visitors will abandon rather than give a phone for a general contact inquiry.",
+    "fix": "Make phone optional (keep email required) to lower friction on the general contact form.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "cro-regression",
+    "location": "src/components/QualificationQuiz.astro:199-202",
+    "evidence": "The 'home-value' intent is grouped with sellers (data-intent='selling,both,home-value', line 199) and routed to step-2-seller whose first question reads 'What type of property are you selling?' (line 202). A visitor who only wants to know their home's value (or is 'just curious') is presumptively framed as a seller, a copy/intent mismatch that can add friction or feel presumptuous.",
+    "fix": "Soften the step-2 heading for the home-value branch (e.g. 'What type of property is it?') or branch home-value to its own lighter step.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "cro-regression",
+    "location": "src/components/Header.astro:53-54",
+    "evidence": "The header phone CTA lives in '.header-actions hide-mobile' (line 54), so on phones the header exposes no one-tap call button — only the hamburger menu toggle. Mobile callers must open the menu or rely on the hero/sticky CTAs to find a tel: link, adding a tap to the highest-intent action (calling the agent).",
+    "fix": "Surface a compact tel: call icon in the mobile header bar (outside the collapsed menu) for one-tap calling.",
+    "effort": "S"
+  }
+]

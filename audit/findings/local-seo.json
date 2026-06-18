@@ -1,0 +1,114 @@
+[
+  {
+    "severity": "P1",
+    "lane": "local-seo",
+    "location": "public/robots.txt:16 (Disallow: /_astro/) vs dist/**/*.html (every page loads /_astro/*.css|*.js)",
+    "evidence": "robots.txt disallows /_astro/, but all 357 pages reference 32 hashed CSS/JS bundles under /_astro/ (e.g. index.html loads /_astro/index.DM5hJWgy.css, BaseLayout/ClientRouter/StickyCTA/ExitIntentPopup scripts). Blocking the directory that holds the render-critical CSS/JS prevents Googlebot from fetching stylesheets and JS during rendering — a direct violation of Google's 'do not block CSS/JS' guidance. Can degrade mobile-usability and how Google sees the rendered layout across the whole site.",
+    "fix": "Remove the `Disallow: /_astro/` line from public/robots.txt (hashed asset URLs are not crawl-budget or indexation risks). Keep `Disallow: /api/`. Optionally add explicit `Allow: /_astro/`.",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "local-seo",
+    "location": "dist/home-value/*/index.html (98 pages), dist/market/*-county/*/index.html (98 town pages), dist/market/<zip>/index.html (97 zip pages)",
+    "evidence": "Shingle (6-gram) analysis of <main> text: home-value pages are 71% shared boilerplate with ~57-60% pairwise Jaccard across 98 pages; town pages (PRIMARY SEO targets) 54% boilerplate, ~0.44 Jaccard across 98 pages; zip pages 63% boilerplate, ~0.51 Jaccard. Word counts are extremely tight (town 361-401, home-value 410-438), indicating near-identical templates differentiated only by town name + swapped market numbers. This is the dominant programmatic-SEO launch risk: Google may treat large clusters as doppelganger/thin pages and index only a fraction. (By contrast moving-to pages are only 25% boilerplate / 0.14 Jaccard — genuinely differentiated and a good model.)",
+    "fix": "Increase unique body content per page: expand the AI insight section, add town-specific narrative (schools, commute, neighborhoods, recent sales context), vary section ordering/copy, and pull more distinct data points. Target >50% unique tokens per page. Prioritize the 98 town pages (primary targets) and 98 home-value pages. Use moving-to guide depth as the bar.",
+    "effort": "L"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "dist/sitemap-0.xml vs dist/market/<zip>/index.html canonicals",
+    "evidence": "87 of 97 ZIP pages correctly cross-canonicalize to their 1:1 town page (e.g. /market/08638/ canonical -> /market/mercer-county/ewing/), but all 87 of those canonicalized-away ZIP URLs are ALSO listed in sitemap-0.xml with priority 0.7. A sitemap should contain only canonical URLs; listing 87 non-canonical ZIP URLs alongside their canonical town targets sends a mixed indexation signal and wastes crawl budget on pages that explicitly point elsewhere.",
+    "fix": "In astro.config.mjs sitemap `filter`, exclude ZIP pages that canonicalize to a town page (only keep the 10 self-canonical ZIPs). Derive the cross-canonical list from town-mappings (same 1:1 logic used to set the canonical).",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "dist/market/mercer-county/price/{homes-under-600k,homes-under-800k}/index.html, dist/market/middlesex-county/index.html",
+    "evidence": "3 broken internal links (verified target HTML does not exist in dist): (1) price pages link to /market/mercer-county/cranbury/ — no town page generated; (2) price pages link to /market/burlington-county/lawrence/ — no town page generated; (3) Middlesex county hub links to /market/middlesex-county/price/homes-under-400k/ but only under-500k/600k/800k tiers exist. Price-range and county templates emit links to towns/tiers that were never built (town-mapping vs price-data mismatch), producing 404s for users and crawlers.",
+    "fix": "Reconcile the town list used by price-page links with town-mappings.ts (only link towns that have generated pages), and gate the county-hub price-tier links to tiers that actually generated. Add a build-time assertion that every internal /market/... link resolves to a generated route.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "src/pages/listings.astro -> dist/listings/index.html (in sitemap-0.xml, priority 0.7, robots index,follow)",
+    "evidence": "The /listings page is a 103-word 'Listings Coming Soon' placeholder, yet it is fully indexable (robots: index, follow), included in the sitemap at priority 0.7, and is ALSO an orphan (no internal inbound links found among 15,848 internal hrefs). An indexable, thin, content-less placeholder is a wasted-crawl + low-quality signal at launch, and the high sitemap priority overstates its value.",
+    "fix": "Either noindex the page and remove it from the sitemap until real IDX/MLS content exists, or replace the placeholder with a substantive 'how to search listings / contact for MLS access' page and link it from nav/footer. At minimum drop sitemap priority and add noindex.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "Whole repo (data/processed/*, src/data/town-mappings.ts, src/pages/market/**) — geography gap",
+    "evidence": "Zero PA / Bucks County pages exist: counties.json covers only Burlington, Mercer, Middlesex (NJ); no PA Redfin fetch, no town mappings, no /market PA routes. recon + CLAUDE.md note Bucks County PA is an intended target market. The entire programmatic SEO surface for a stated target market is missing — a pure opportunity gap (no town, ZIP, home-value, price, compare or moving-to pages for any PA locality).",
+    "fix": "Extend data/scripts/process-data.ts TARGET_COUNTIES + Redfin fetch to include Bucks County PA, add PA town-mappings, and generate the same page families. Note SES/email copy and schema currently hardcode 'NJ' and Burlington geo — those must be parameterized by state before launching PA pages.",
+    "effort": "L"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "src/utils/seo.ts:17-20 (generateTitle) applied in BaseLayout.astro:44 -> all 357 dist titles",
+    "evidence": "Every title appends ' | Steven Frato - Century 21' (28 chars). Result: all 357 titles exceed 60 chars, 222 exceed 70 chars, max 118 chars (home page 118, listings 116, compare pages up to 111). Google truncates titles at ~580px/~60 chars, so the location keyword + brand are cut off in SERPs on most programmatic pages.",
+    "fix": "Shorten the brand suffix (e.g. ' | Steven Frato') or make it optional via the existing includeBrand flag, and tighten per-template title prefixes so the full title lands <=60 chars with the location keyword front-loaded. Audit the longest templates (home, compare, listings) first.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "local-seo",
+    "location": "src/pages/home-value/[townSlug].astro (98 pages) vs src/pages/market/[county]/[townSlug].astro (98 pages)",
+    "evidence": "Two self-canonical page families target the same ~98 towns: /home-value/<town>/ and /market/<county>/<town>/. Both are indexable with self-referential canonicals and overlapping town-name keyword targeting (home value vs market data intent), and both carry high internal boilerplate (71% and 54%). Risk of keyword cannibalization / split authority on town-name queries between the two near-template families.",
+    "fix": "Differentiate intent sharply in titles/H1/content (home-value = seller CMA intent; market = data/buyer intent) and cross-link them deliberately (each links to its sibling) so Google understands they serve distinct queries; monitor in GSC for cannibalization post-launch.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "src/layouts/BaseLayout.astro:121 (link rel=apple-touch-icon /apple-touch-icon.png); public/ has no apple-touch-icon.png",
+    "evidence": "All 357 pages reference /apple-touch-icon.png but the file is absent from public/ (public/ contains only favicon.svg, images/, robots.txt). Broken-link scan confirms /apple-touch-icon.png 404s from all 357 pages. Minor (touch-icon only) but a sitewide 404 and missing iOS home-screen icon.",
+    "fix": "Add a 180x180 apple-touch-icon.png to public/, or remove the <link rel=apple-touch-icon> from BaseLayout.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "dist/thank-you/index.html (robots: noindex, nofollow) but present in dist/sitemap-0.xml",
+    "evidence": "/thank-you/ is correctly noindex,nofollow yet still listed in sitemap-0.xml. A noindex URL in the sitemap is a mixed signal Google flags in GSC ('Submitted URL marked noindex').",
+    "fix": "Add /thank-you to the sitemap filter in astro.config.mjs (alongside the existing /api/ and /404 exclusions).",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "dist/listings/index.html <title>",
+    "evidence": "Listings title double-brands: 'Homes for Sale in Burlington, Mercer & Middlesex County NJ | Steven Frato Century 21 | Steven Frato - Century 21' (116 chars) — the page passes a title that already contains the brand, then BaseLayout appends the brand suffix again.",
+    "fix": "Remove the inline brand from the listings page title prop (let generateTitle add it once), or pass includeBrand handling so the suffix isn't duplicated.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "src/utils/seo.ts:90-96 (generateGeoTags) -> all 357 pages",
+    "evidence": "generateGeoTags() returns hardcoded geo.placename 'Burlington County' and Burlington coords (40.0583;-74.4057) unconditionally, so every Mercer- and Middlesex-county town/zip page emits geo meta claiming Burlington County. Inaccurate geo-targeting signal on ~2/3 of location pages.",
+    "fix": "Parameterize generateGeoTags(placename, lat, lng) and pass the actual county/town coordinates from each programmatic template.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "src/utils/schema.ts:237-246 generateMarketDataSchema (Dataset.spatialCoverage.geo) -> all market/zip pages",
+    "evidence": "Every market/zip Dataset schema hardcodes the same 'Central NJ coordinates' (40.2171;-74.7429) for spatialCoverage.geo regardless of the actual town/ZIP. JSON-LD is valid (1065 blocks parsed, 0 invalid) and Place/City/BreadcrumbList/FAQPage/RealEstateAgent/LocalBusiness all emit correctly, but the per-location geo is uniform and inaccurate.",
+    "fix": "Pass real per-location lat/lng (already available per ZIP/county) into generateMarketDataSchema spatialCoverage.geo.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "local-seo",
+    "location": "dist/sitemap-0.xml (357 <url> entries)",
+    "evidence": "No <lastmod> on any sitemap entry (0 occurrences). Without lastmod, search engines lack a recrawl freshness hint for the market data pages, which update on each data:all rebuild.",
+    "fix": "Enable lastmod in @astrojs/sitemap (set serialize lastmod, or pass a build/data timestamp) so recrawls track data refreshes.",
+    "effort": "S"
+  }
+]
