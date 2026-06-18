@@ -159,8 +159,9 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
 
       <div style={s.grid}>
         <div style={s.formGroup}>
-          <label style={s.label}>Household Annual Income</label>
+          <label style={s.label} htmlFor="aff-income">Household Annual Income</label>
           <input
+            id="aff-income"
             style={s.input}
             type="text"
             placeholder="$120,000"
@@ -170,8 +171,9 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Down Payment Available</label>
+          <label style={s.label} htmlFor="aff-down">Down Payment Available</label>
           <input
+            id="aff-down"
             style={s.input}
             type="text"
             placeholder="$60,000"
@@ -180,8 +182,9 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Interest Rate (%)</label>
+          <label style={s.label} htmlFor="aff-rate">Interest Rate (%)</label>
           <input
+            id="aff-rate"
             style={s.input}
             type="number"
             step="0.1"
@@ -192,8 +195,9 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Monthly Existing Debts</label>
+          <label style={s.label} htmlFor="aff-debts">Monthly Existing Debts</label>
           <input
+            id="aff-debts"
             style={s.input}
             type="text"
             placeholder="$500 (car, student loans)"
@@ -202,10 +206,16 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
           />
         </div>
         <div style={{ ...s.formGroup, gridColumn: '1 / -1' }}>
-          <label style={s.label}>Loan Term</label>
-          <div style={s.termRow}>
+          <span style={s.label} id="aff-term-label">Loan Term</span>
+          <div style={s.termRow} role="group" aria-labelledby="aff-term-label">
             {[15, 20, 30].map((t) => (
-              <button key={t} style={s.termBtn(term === t)} onClick={() => setTerm(t)}>
+              <button
+                key={t}
+                style={s.termBtn(term === t)}
+                aria-pressed={term === t}
+                aria-label={`${t}-year loan term`}
+                onClick={() => setTerm(t)}
+              >
                 {t}-Year
               </button>
             ))}

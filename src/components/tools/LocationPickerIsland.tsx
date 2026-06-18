@@ -5,7 +5,7 @@
  * Instead of rendering hidden form fields, calls onSelect with the full ZipData.
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useId } from 'react';
 import type { TownZipMapping } from '../../data/town-mappings';
 import type { ZipData } from '../../utils/market-analysis';
 import { trackSiteSearch } from '@utils/analytics';
@@ -88,6 +88,8 @@ export default function LocationPickerIsland({
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const [focused, setFocused] = useState(false);
+  // Unique id so multiple pickers on one page don't collide (WCAG label association).
+  const inputId = useId();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -132,8 +134,9 @@ export default function LocationPickerIsland({
 
   return (
     <div ref={containerRef} style={styles.wrapper}>
-      <label style={styles.label}>{label}</label>
+      <label style={styles.label} htmlFor={inputId}>{label}</label>
       <input
+        id={inputId}
         type="text"
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); setActiveIdx(-1); }}
