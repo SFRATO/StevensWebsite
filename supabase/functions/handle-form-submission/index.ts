@@ -735,7 +735,41 @@ serve(async (req) => {
       );
     }
 
+    // SECURITY: sanitize user-controlled fields before they flow into email HTML
+    // bodies and SES subject lines. Prevents HTML/script injection into the agent's
+    // inbox (e.g. name='<img onerror=...>') and CR/LF header injection in subjects.
+    // Strip angle brackets + control chars and cap length; applied once at ingestion
+    // so every downstream template and the DB insert use the safe values.
+    const sanitizeField = (s: string | undefined, max = 200): string =>
+      (s ?? "")
+        .replace(/[<>]/g, "")
+        .replace(/[\r\n\t]+/g, " ")
+        .trim()
+        .slice(0, max);
+    payload.name = sanitizeField(payload.name, 80);
+    payload.address = sanitizeField(payload.address, 160);
+    payload.town = sanitizeField(payload.town, 80);
+    payload.zipcode = sanitizeField(payload.zipcode, 10);
+    payload.email = sanitizeField(payload.email, 160);
+    if (payload.phone) payload.phone = sanitizeField(payload.phone, 30);
+
     console.log("Processing form submission for:", payload.email);
+
+    // Small retry helper for transient Supabase failures (best-effort, additive).
+    const withRetry = async (
+      label: string,
+      fn: () => Promise<{ data?: unknown; error: unknown }>,
+      attempts = 3
+    ): Promise<any> => {
+      let last: any = { error: new Error("not run") };
+      for (let i = 0; i < attempts; i++) {
+        last = await fn();
+        if (!last.error) return last;
+        console.error(`${label} attempt ${i + 1}/${attempts} failed:`, last.error);
+        await new Promise((r) => setTimeout(r, 150 * (i + 1)));
+      }
+      return last;
+    };
 
     // Check for existing lead
     const { data: existingLead } = await supabase
@@ -819,7 +853,7 @@ serve(async (req) => {
     console.log(`Lead score calculated: ${finalLeadScore} (${finalLeadTemperature})`);
 
     // Insert lead (campaign will be auto-assigned via trigger)
-    const { data: newLead, error: insertError } = await supabase
+    const { data: newLead, error: insertError } = await withRetry("lead insert", () => supabase
       .from("leads")
       .insert({
         email: payload.email.toLowerCase().trim(),
@@ -848,7 +882,7 @@ serve(async (req) => {
         lead_priority: finalLeadPriority,
       })
       .select("id, campaign_id, lead_score, lead_temperature, lead_priority")
-      .single();
+      .single());
 
     if (insertError) {
       console.error("Failed to insert lead:", insertError);
@@ -895,12 +929,15 @@ serve(async (req) => {
 
     // Insert scheduled emails
     if (scheduledEmails.length > 0) {
-      const { error: scheduleError } = await supabase
-        .from("scheduled_emails")
-        .insert(scheduledEmails);
+      const { error: scheduleError } = await withRetry("scheduled_emails insert", () =>
+        supabase.from("scheduled_emails").insert(scheduledEmails)
+      );
 
       if (scheduleError) {
-        console.error("Failed to schedule emails:", scheduleError);
+        console.error(
+          "ALERT: failed to schedule drip emails after retries — drip NOT scheduled for lead",
+          newLead.id, scheduleError
+        );
       } else {
         console.log(`Scheduled ${scheduledEmails.length} emails for lead ${newLead.id}`);
       }
@@ -951,33 +988,62 @@ serve(async (req) => {
       }
     }
 
-    // Send lead notification to Steven with enhanced qualification data
-    await sendLeadNotification(
-      {
-        email: payload.email,
-        name: payload.name,
-        phone: payload.phone,
-        address: payload.address || "Not provided",
-        town: payload.town || zipData?.town || "Not provided",
-        zipcode: payload.zipcode || "Not provided",
-      },
-      finalInterestType,
-      sourceUrl,
-      // Qualification data for enhanced notification
-      {
-        intent: payload.intent || finalInterestType,
-        timeline: payload.timeline,
-        propertyType: payload["property-type"],
-        valueRange: payload["value-range"],
-        budgetRange: payload["budget-range"],
-        importantFactor: payload["important-factor"],
-        preApproved: preApprovedValue,
-        contactPreference: payload["contact-preference"],
-        leadScore: newLead.lead_score || finalLeadScore,
-        leadTemperature: newLead.lead_temperature || finalLeadTemperature,
-        leadPriority: newLead.lead_priority || finalLeadPriority,
+    // If the immediate welcome email was NOT sent (missing address/town/zip — now
+    // possible since those are optional — or a send failure), reset its day-0
+    // scheduled row from "sending" back to "pending" so the cron retries it instead
+    // of orphaning it in "sending" forever.
+    if (!welcomeEmailSesId && scheduledEmails.length > 0) {
+      const firstEmail = scheduledEmails[0];
+      await supabase
+        .from("scheduled_emails")
+        .update({ status: "pending" })
+        .eq("lead_id", newLead.id)
+        .eq("campaign_step_id", firstEmail.campaign_step_id)
+        .eq("status", "sending");
+    }
+
+    // Send lead notification to Steven (retry once; never fail the request — the
+    // lead is already saved). On persistent failure, log loudly for monitoring.
+    let leadNotified = false;
+    for (let nAttempt = 0; nAttempt < 2 && !leadNotified; nAttempt++) {
+      try {
+        await sendLeadNotification(
+          {
+            email: payload.email,
+            name: payload.name,
+            phone: payload.phone,
+            address: payload.address || "Not provided",
+            town: payload.town || zipData?.town || "Not provided",
+            zipcode: payload.zipcode || "Not provided",
+          },
+          finalInterestType,
+          sourceUrl,
+          {
+            intent: payload.intent || finalInterestType,
+            timeline: payload.timeline,
+            propertyType: payload["property-type"],
+            valueRange: payload["value-range"],
+            budgetRange: payload["budget-range"],
+            importantFactor: payload["important-factor"],
+            preApproved: preApprovedValue,
+            contactPreference: payload["contact-preference"],
+            leadScore: newLead.lead_score || finalLeadScore,
+            leadTemperature: newLead.lead_temperature || finalLeadTemperature,
+            leadPriority: newLead.lead_priority || finalLeadPriority,
+          }
+        );
+        leadNotified = true;
+      } catch (notifyErr) {
+        console.error(`Lead notification attempt ${nAttempt + 1} failed:`, notifyErr);
       }
-    );
+    }
+    if (!leadNotified) {
+      console.error(
+        "ALERT: lead notification FAILED after retries for lead", newLead.id,
+        `(${finalLeadTemperature}) — Steven was NOT pinged; reconcile manually.`
+      );
+      // TODO(reliability): alert a secondary channel (SNS / webhook / backup SES) for HOT leads.
+    }
 
     // Get campaign slug for response
     const { data: campaign } = await supabase

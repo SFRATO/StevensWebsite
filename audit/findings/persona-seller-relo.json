@@ -1,0 +1,27 @@
+{
+  "persona": "Relocating-for-job NJ seller (Edison/Hamilton), hard ~8-week out-of-state move deadline. Phone-first, time-pressured, low patience. Needs: speed to sell, a 'sell-while-buying' story, and confidence Steven can hit a tight timeline.",
+  "device": "mobile (phone-first)",
+  "journey_notes": [
+    "Landed on /home-value/edison/ — form is above the fold (good) with H1 'What Is My Edison Home Worth?' and a clear 'Get My Free CMA' sticky CTA. First impression is fine for a generic seller, but nothing speaks to a deadline-driven relocation.",
+    "Phone-first need is well served: (609) 789-0126 appears in header, sticky bar, footer, and every form-success block ('Need to talk sooner? Call me directly'). A determined seller could just call — the one strong path for this persona.",
+    "Searched the whole seller funnel (home-value/* + tools) for my actual situation: 'relocat' = 0 matches, 'deadline' = 0, 'how fast' = 0, 'sell fast/fast sale' = 0 customer-facing, '8 weeks'/'urgent' = 0, 'simultaneous' = 0. The only 'sell + buy' hit anywhere is the dropdown option 'Both Buying & Selling' — no narrative about coordinating a sale while buying, bridge timing, rent-back, or contingency.",
+    "On the Edison home-value page the market is framed as 'balanced — the right strategy and pricing are key,' and it prominently shows '72 days Avg. Days on Market.' For someone with a ~56-day (8-week) deadline that number is alarming and is presented with ZERO mitigation or 'here's how we move fast' reassurance.",
+    "Tried the tools. /tools/home-value-estimator gives an instant ballpark range, no signup, 30 seconds — the best fast-info win on the site for an impatient user. /tools/proceeds-calculator is relevant (net take-home to carry to the next home), but neither tool connects to a relocation/speed story or a 'let's hit your timeline' CTA.",
+    "/tools/should-i-sell-now answers 'is it a good TIME to sell' (seasonality, market score) — irrelevant to me: my timing is fixed by a job. No mode for 'I have to sell by date X regardless of market.'",
+    "Conversion promise after submit is weak for urgency: 'report will arrive within 24 hours' + 'insights over the next few weeks.' A 24h report plus a multi-week drip reads slow to someone who needs to list in days. No same-day-call promise, no calendar/booking link, no 'fast-track' lane.",
+    "QualificationQuiz/ExitIntent capture timeline ('Within 30 days', 'ASAP' contact preference) so a hot relocating lead WOULD be scored hot internally — but the visitor never SEES any speed promise or relocation positioning that earns that submission.",
+    "Buying-elsewhere side is a dead end: I'm moving out of state, and there is no agent-referral / relocation-network story and /listings is 'Coming Soon'. Nothing reassures me Steven can plug me into the destination market."
+  ],
+  "friction": [
+    "No relocation / job-transfer / deadline messaging anywhere in the seller funnel (0 occurrences site-wide).",
+    "No 'sell while buying' / simultaneous-transaction story — only a 'Both Buying & Selling' dropdown option, no explanatory content.",
+    "Edison page surfaces '72 days avg days on market' + 'balanced market' with no speed reassurance — actively undercuts confidence for a deadline seller.",
+    "Value promise is slow-coded: 'report within 24 hours' + 'insights over next few weeks'; no same-day call, no booking/calendar link, no fast-track CTA.",
+    "should-i-sell-now tool answers market-timing, not 'I must sell by a fixed date' — wastes a time-pressured seller's click.",
+    "No fast-sale assurance of any kind (no cash-offer, no guarantee, no concierge/prep program, no 'sell in X days' claim).",
+    "No out-of-state buyer referral / relocation-network story; /listings is a placeholder, so the buy-side of relocation is unaddressed."
+  ],
+  "biggest_blocker": "The site has no urgency/relocation/timeline narrative and no speed commitment — and the home-value page even foregrounds a 72-day average-days-on-market with no 'here's how we beat that for your deadline.' A seller on an 8-week clock sees a slow market and an agent who only promises a report in 24h plus a multi-week drip, giving no reason to trust a fast sale.",
+  "would_leave_contact_score": 5,
+  "score_justification": "The omnipresent click-to-call phone number rescues this phone-first persona, but zero urgency/relocation messaging plus a visible 72-day DOM and a slow 24h-report/drip promise give no confidence in speed — many deadline sellers bounce to an iBuyer or competitor promising a fast sale."
+}

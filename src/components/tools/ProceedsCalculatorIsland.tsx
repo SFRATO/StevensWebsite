@@ -161,8 +161,9 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
       {/* Inputs grid */}
       <div style={s.grid}>
         <div style={s.formGroup}>
-          <label style={s.label}>Expected Sale Price</label>
+          <label style={s.label} htmlFor="proc-sale">Expected Sale Price</label>
           <input
+            id="proc-sale"
             style={s.input}
             type="text"
             placeholder="$500,000"
@@ -172,8 +173,9 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Mortgage Balance (if any)</label>
+          <label style={s.label} htmlFor="proc-mortgage">Mortgage Balance (if any)</label>
           <input
+            id="proc-mortgage"
             style={s.input}
             type="text"
             placeholder="$0"
@@ -182,8 +184,9 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Original Purchase Price</label>
+          <label style={s.label} htmlFor="proc-purchase">Original Purchase Price</label>
           <input
+            id="proc-purchase"
             style={s.input}
             type="text"
             placeholder="$400,000"
@@ -192,19 +195,20 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
           />
         </div>
         <div style={s.formGroup}>
-          <label style={s.label}>Primary Residence?</label>
-          <div style={s.toggleRow}>
-            <button style={s.toggleBtn(isPrimary)} onClick={() => setIsPrimary(true)}>Yes</button>
-            <button style={s.toggleBtn(!isPrimary)} onClick={() => setIsPrimary(false)}>No</button>
+          <span style={s.label} id="proc-primary-label">Primary Residence?</span>
+          <div style={s.toggleRow} role="group" aria-labelledby="proc-primary-label">
+            <button style={s.toggleBtn(isPrimary)} aria-pressed={isPrimary} onClick={() => setIsPrimary(true)}>Yes</button>
+            <button style={s.toggleBtn(!isPrimary)} aria-pressed={!isPrimary} onClick={() => setIsPrimary(false)}>No</button>
           </div>
         </div>
       </div>
 
       <div style={{ padding: '0 2rem 1.5rem' }}>
         <div style={s.formGroup}>
-          <label style={s.label}>Agent Commission: {fmtPct(commission)}</label>
+          <label style={s.label} htmlFor="proc-commission">Agent Commission: {fmtPct(commission)}</label>
           <div style={s.sliderRow}>
             <input
+              id="proc-commission"
               type="range"
               min={1}
               max={7}

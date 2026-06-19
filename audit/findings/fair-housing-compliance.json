@@ -1,0 +1,146 @@
+[
+  {
+    "severity": "P0",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:159",
+    "evidence": "East Brunswick lifestyle: \"Large Jewish community with multiple synagogues. Good parks system. Popular with families.\" RULE: FHA 42 USC 3604(c) / NJ LAD prohibited advertising — RELIGION (naming a religious group and its houses of worship) + FAMILIAL STATUS (\"Popular with families\"). Rendered publicly on /moving-to/east-brunswick/. Describing the religious make-up of an area in real-estate marketing is textbook unlawful steering.",
+    "fix": "Strip protected-class references. Rewrite: \"Extensive commercial corridor on Route 18. Multiple houses of worship, community centers, and a strong parks system. Wide range of housing types and amenities.\" Remove \"Jewish community/synagogues\" and \"Popular with families\" entirely.",
+    "effort": "S"
+  },
+  {
+    "severity": "P0",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:146,149",
+    "evidence": "Edison blurb \"...particularly known for its large South Asian community and excellent dining\" and lifestyle \"Exceptional Indian and Asian dining... Vibrant multicultural community.\" RULE: FHA 3604(c) / NJ LAD — RACE / NATIONAL ORIGIN. Characterizing an area by the ethnicity/national origin of its residents in housing marketing is prohibited steering. Rendered on /moving-to/edison/.",
+    "fix": "Describe amenities, not residents' ethnicity. Rewrite blurb: \"Edison is one of NJ's most populous townships, named after Thomas Edison who did landmark work here. It offers a wide range of housing and a renowned, varied dining scene.\" Lifestyle: \"Diverse, internationally acclaimed dining along Oak Tree Road and Route 27. Major retail centers. Thomas Edison National Historical Park.\" Remove \"South Asian community\" and \"multicultural community.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P0",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:196,199",
+    "evidence": "South Brunswick blurb \"...strong appeal to South Asian families\" and lifestyle \"Growing Indian and South Asian community. Multiple cultural centers.\" RULE: FHA 3604(c) / NJ LAD — RACE / NATIONAL ORIGIN + FAMILIAL STATUS. Marketing a town by appeal to a specific ethnic/family group is steering. Rendered on /moving-to/south-brunswick/.",
+    "fix": "Rewrite blurb: \"South Brunswick is a rapidly growing township with planned communities and convenient highway access between Route 1 and Route 27.\" Lifestyle: \"Multiple cultural and community centers. New-construction neighborhoods. Strong Route 1 tech employment corridor.\" Remove ethnicity and \"families\" targeting.",
+    "effort": "S"
+  },
+  {
+    "severity": "P0",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:108",
+    "evidence": "Robbinsville lifestyle: \"Town Center with shops... Growing Sikh cultural community. Strong youth athletics programs.\" RULE: FHA 3604(c) / NJ LAD — RELIGION / NATIONAL ORIGIN. Naming a religious community as a selling point is prohibited. Rendered on /moving-to/robbinsville/.",
+    "fix": "Rewrite: \"Town Center with shops, restaurants, and community events. Multiple cultural and community centers. Strong youth athletics programs. Newer construction with modern amenities.\" Remove \"Sikh cultural community.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P0",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:47",
+    "evidence": "Moorestown lifestyle: \"Charming main street with boutique shops and restaurants. Strong historic preservation ethic. Low crime, family-friendly, and walkable town center.\" RULE: FHA 3604(c) / NJ LAD — FAMILIAL STATUS (\"family-friendly\" is a HUD-cited prohibited phrase) + SAFETY/CRIME STEERING (\"Low crime\" is HUD-flagged coded language implying who does/doesn't live there). Rendered on /moving-to/moorestown/.",
+    "fix": "Rewrite: \"Charming main street with boutique shops and restaurants. Strong historic-preservation ethic and a highly walkable town center.\" Delete \"Low crime\" and \"family-friendly.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:34,37",
+    "evidence": "Marlton blurb \"...good schools... It attracts families and professionals who want suburban comfort\" and lifestyle \"Popular with young families. Strong youth sports culture.\" RULE: FHA / NJ LAD — FAMILIAL STATUS steering (\"attracts families\", \"Popular with young families\") + SCHOOL-QUALITY PROXY (\"good schools\"). Rendered on /moving-to/marlton/.",
+    "fix": "Rewrite blurb: \"Marlton offers newer planned developments and easy highway access for buyers who want suburban convenience and a short commute.\" Lifestyle: \"Extensive retail and restaurant corridor along Route 73. Active recreation and community events.\" Replace \"good schools\" with neutral, factual district info confined to the schoolNote field.",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:105",
+    "evidence": "Robbinsville blurb: \"...It attracts professional families drawn by top schools and a modern, well-planned community.\" RULE: FHA / NJ LAD — FAMILIAL STATUS (\"attracts professional families\") + SCHOOL-QUALITY PROXY (\"drawn by top schools\"). Rendered on /moving-to/robbinsville/.",
+    "fix": "Rewrite: \"Robbinsville is one of central NJ's fastest-growing communities, offering newer planned developments and a growing town center.\" Remove \"attracts professional families drawn by top schools.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:95,98",
+    "evidence": "Princeton blurb \"...combines Ivy League prestige with a vibrant arts scene... and a highly educated population\" and lifestyle \"...Strong international community.\" RULE: FHA / NJ LAD — \"prestige\"/exclusivity language + NATIONAL-ORIGIN reference (\"international community\") + socioeconomic characterization of residents (\"highly educated population\"). Rendered on /moving-to/princeton/.",
+    "fix": "Describe place, not residents. Rewrite blurb: \"Princeton is home to Princeton University and carries a distinctive cultural and intellectual energy, with a vibrant arts scene and exceptional dining.\" Lifestyle: \"World-class dining, theater, and museums. Palmer Square shopping and events. High walkability and exceptional cultural programming.\" Remove \"prestige,\" \"highly educated population,\" \"international community.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "fair-housing-compliance",
+    "location": "src/components/Footer.astro:147-148,170-173 (site-wide); src/emails/components/Footer.tsx:15,36",
+    "evidence": "No NJ real estate license number and no identified licensed brokerage (broker of record) anywhere site-wide or in email footers. Footer shows only \"Proud member of CENTURY 21\" + \"Each office is independently owned and operated.\" RULE: NJ Real Estate Commission advertising rules (N.J.A.C. 11:5-6.1) require the licensed brokerage's full business name to appear in advertising; a salesperson cannot advertise under only their own name. C21 is a franchise brand, not the licensed broker.",
+    "fix": "Add to the global footer (and email footer): the licensed brokerage's legal name + office address as it appears on the license (e.g., \"CENTURY 21 [Office/Brokerage Legal Name], Broker\"), Steven Frato's NJ salesperson license number, and the brokerage's main office phone. Confirm exact strings with Steven before launch.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:24,27 / 118 / 156,166 / 179",
+    "evidence": "Repeated use of \"diverse neighborhoods\"/\"Diverse community\" as a selling point across Cherry Hill (24,27), Hamilton (118), East Brunswick (156), Old Bridge (166), Woodbridge (179). RULE: FHA / NJ LAD — RACE / NATIONAL ORIGIN. HUD advertising guidance flags \"diverse\" describing the racial/ethnic composition of an area as coded steering language when used to characterize residents rather than housing stock.",
+    "fix": "Replace resident-composition framing with housing/amenity facts. e.g., Cherry Hill: \"...known for its established neighborhoods, range of housing styles, and convenient access to Philadelphia.\" Where \"diverse\" means housing variety, say \"a wide range of housing types/price points.\" Remove \"diverse community/neighborhoods\" as a descriptor of people.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/emails/templates/investor-3-opportunities.tsx:75-76,98-99",
+    "evidence": "\"Good schools attract families willing to pay premium rents for family-friendly neighborhoods\" and \"...strong tenant demand from families. Look for homes in established neighborhoods with good schools.\" RULE: FHA / NJ LAD — FAMILIAL STATUS + SCHOOL-QUALITY PROXY in marketing email copy (investor sequence). Even investor-facing, this is published advertising subject to 3604(c).",
+    "fix": "Reframe around neutral demand/value metrics: \"Strong school-district ratings and transit access correlate with stable rental demand and resale value\" — and \"Look for homes in established neighborhoods with strong long-term value indicators.\" Remove \"families\"/\"family-friendly.\"",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/data/town-guides.ts:46,97,107 (schoolNote fields, all 18 guides)",
+    "evidence": "schoolNote fields elevate rankings as selling points: Moorestown \"regularly ranked among New Jersey's top 10 high schools\" (46), Princeton \"consistently ranked among... top public schools\" (97), Robbinsville \"consistently ranks among the top public high schools in NJ\" (107). RULE: FHA / NJ LAD — SCHOOL-QUALITY used as a familial-status/race proxy. Factual district info is permissible; ranking superlatives marketed as a buying reason drift into proxy steering.",
+    "fix": "Keep neutral, factual, attributable district facts (district name, schools, programs). Drop unattributed superlatives (\"top 10,\" \"among the best\") or attribute them to a named third-party source with date. Add a standard disclaimer that school data is informational and buyers should verify independently.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/components/Footer.astro:162-167 (site-wide)",
+    "evidence": "Equal Housing Opportunity appears only as a custom non-standard SVG icon exposed via a title attribute (\"Equal Housing Opportunity\"), with no visible text statement and not the official HUD Equal Housing Opportunity logo. The email footer (src/emails/components/Footer.tsx) contains NO EHO mark at all. RULE: HUD/FHA fair-housing advertising — Equal Housing Opportunity logo OR slogan should be displayed in advertising; emails are advertising and currently omit it.",
+    "fix": "Use the official HUD Equal Housing Opportunity logo with a visible \"Equal Housing Opportunity\" text statement in the site footer (with alt text), and add the EHO logo/slogan to every email template footer (src/emails/components/Footer.tsx).",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/pages/privacy.astro:91-99",
+    "evidence": "Service-provider disclosure lists only Netlify, Amazon Web Services, and Google Analytics. OMITS: Supabase (Postgres stores lead PII — name, email, phone, property address per supabase/migrations) and Matomo (the PRIMARY site-wide tracker loaded unconditionally in BaseLayout, idSite 27 at analytics.gavinrozzi.com). RULE: lawful PII handling / accurate processor disclosure (NJ consumer-protection + general privacy law); policy materially understates who processes user PII.",
+    "fix": "Add Supabase (lead database / PII storage) and Matomo (analytics) to the Service Providers list; note Amazon SES specifically for email delivery. Keep the list in sync with actual processors.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/pages/privacy.astro:114-135 + src/layouts/BaseLayout.astro:233-234 (cookie-consent COMMENTED OUT)",
+    "evidence": "Privacy policy says the site \"may use cookies\" and describes Google Analytics, but Matomo + GA load unconditionally on every page with NO consent gate (BaseLayout cookie-consent block is commented out: \"<!-- Cookie Consent (Add if needed for compliance) -->\"). Trackers fire before any consent. RULE: ePrivacy/GDPR + emerging US state privacy consent for any non-NJ/EU/visitor traffic; policy implies user control that the site does not provide.",
+    "fix": "Either implement a consent banner that gates Matomo/GA until opt-in, or configure Matomo cookieless/anonymized tracking and accurately state in the policy that analytics run without cookies. Reconcile the policy text with actual behavior (it currently names only GA but Matomo is primary).",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "fair-housing-compliance",
+    "location": "src/pages/listings.astro:11,16,33,39",
+    "evidence": "Page title/meta \"Homes for Sale... Browse current real estate listings\" and H1 \"Current Listings\" plus body \"I have full access to all MLS listings in Burlington, Mercer, and Middlesex Counties\" and \"Search all available properties in your desired area\" — but recon confirms the page is a placeholder with NO IDX/MLS feed and zero listings anywhere in the repo. RULE: misrepresentation / deceptive-advertising risk (no live MLS/IDX data exists despite copy implying searchable listings).",
+    "fix": "Until a licensed IDX/MLS feed is integrated, change title/H1/meta to reflect reality (e.g., \"Find Homes with Steven Frato\" / \"Listings Coming Soon\"). Reframe agent-assisted lines to avoid implying an on-site search: \"As a licensed agent I can search the MLS on your behalf and send matching listings.\" Avoid \"Browse current listings\"/\"Search all available properties\" until a feed exists, and add required MLS/IDX attribution at that time.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "fair-housing-compliance",
+    "location": "src/pages/privacy.astro:73-82 (re: supabase scheduled_emails / 5-email drip)",
+    "evidence": "Privacy policy describes only generic \"follow-up emails\"; the system actually enrolls leads in a multi-email automated drip campaign (5 emails / 14 days, scheduled_emails table + SES). Consent basis and the automated/marketing nature are not made explicit. RULE: lawful PII handling + marketing-consent transparency (CAN-SPAM/state consent).",
+    "fix": "State plainly that submitting a form enrolls the user in an automated email sequence (market reports + periodic follow-ups), describe its purpose and cadence, and reaffirm one-click unsubscribe. Ensure an unambiguous consent point at form submission.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "fair-housing-compliance",
+    "location": "repo-wide (geography: NJ-only; Bucks County PA is an intended market per recon)",
+    "evidence": "No PA real-estate license, PA brokerage identification, or PA-specific fair-housing/advertising disclosure exists anywhere. RULE: PA Real Estate Licensing and Registration Act + PA Human Relations Act advertising/disclosure requirements. Currently a latent gap because no PA content/pages exist yet.",
+    "fix": "Before publishing ANY PA (Bucks County) content or advertising into PA, add PA brokerage/license identification and PA-compliant fair-housing disclosures, and confirm Steven holds (or his brokerage covers) PA licensure or a cooperating-broker arrangement. Do not serve PA leads until this exists.",
+    "effort": "M"
+  }
+]

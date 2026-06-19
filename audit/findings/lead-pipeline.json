@@ -1,0 +1,106 @@
+[
+  {
+    "severity": "P0",
+    "lane": "lead-pipeline",
+    "location": "src/components/ExitIntentPopup.astro:274-276 + netlify/functions/handle-market-report.ts:85",
+    "evidence": "The ExitIntentPopup is the ONLY form wired to the live serverless pipeline (/api/market-report -> handle-market-report). It has NO town field, and the submit handler explicitly sets town to empty: `if (!formData.get('town')) formData.set('town', '')`. handle-market-report.ts:85 validates `if (!formData.email || !formData.name || !formData.address || !formData.town || !formData.zipcode) return 400 'Missing required fields'`. An empty string is falsy, so EVERY exit-popup submission is rejected with HTTP 400. Client code (ExitIntentPopup.astro:291,301-310) treats !response.ok as an error, throws, and shows alert('There was an error...'). Net result: the single pipeline-connected form creates ZERO Supabase leads, sends ZERO welcome emails, and ZERO notifications to Steven — 100% of exit-intent leads are lost. Compounded by sessionStorage 'exit_popup_shown' being set in showPopup() BEFORE submission, so the visitor is never re-prompted in the session.",
+    "fix": "Either remove `town` from the required-field check in handle-market-report.ts:85 (derive town from zipcode_data lookup, which the edge function already does), or have ExitIntentPopup collect/populate a real town. Lookup-from-zip is preferred since the popup only collects zip. Add an end-to-end submit test against /api/market-report.",
+    "effort": "S"
+  },
+  {
+    "severity": "P0",
+    "lane": "lead-pipeline",
+    "location": "netlify/functions/handle-market-report.ts:156-166,219-233",
+    "evidence": "Handler ALWAYS returns statusCode 200 with message 'Your market report is being prepared...' regardless of downstream success. A non-OK Supabase edge response (156-158) and a thrown fetch error (163-166, 'Continue with PDF generation even if Supabase fails') are only console.error'd; PDF failure (219-224) is only logged. There is NO retry, NO durable queue, NO dead-letter, NO operator alert. So when Supabase is down or the edge function 500s (e.g. insert error returned at supabase handle-form-submission/index.ts:853-858), the visitor sees a 'success' confirmation while the lead is silently and permanently lost. False success on a lead-gen site is a launch blocker.",
+    "fix": "Capture the Supabase edge response status; if the lead was not persisted, either (a) return a non-200 so the client shows a real error and the user can retry, or (b) enqueue the raw payload to a durable store (Netlify Blob / a Supabase 'failed_submissions' table / SQS) and alert (email/Slack) on failure. Never report success unless the lead is confirmed written.",
+    "effort": "M"
+  },
+  {
+    "severity": "P0",
+    "lane": "lead-pipeline",
+    "location": "src/components/MarketReportForm.astro:238, ContactForm.astro:251, QualificationQuiz.astro:699 + netlify.toml (whole)",
+    "evidence": "Three of the four lead forms (MarketReportForm, ContactForm, QualificationQuiz) fetch POST to '/' (Netlify Forms) — NOT to /api/market-report. netlify.toml contains only the /api/market-report redirect and NO form-submitted notification/webhook wiring to handle-market-report. There is no Netlify outbound-notification config in the repo. By code trace, submissions from these three forms land in the Netlify Forms inbox only: they create NO Supabase lead, schedule NO drip emails, and send NO instant SES notification to Steven (sf@stevenfrato.com). Worse, the JS shows success on ANY response.ok: a static POST to '/' returns 200 (homepage) even if the form-name is not registered, so the user always sees the success state regardless of capture — success-state spoofing. (Out-of-repo caveat: a Netlify dashboard form-notification webhook COULD bridge this, but it is not present in the repo and must be explicitly verified; absent it, this is launch-blocking lead loss for the primary forms.)",
+    "fix": "Point the three forms at /api/market-report (like ExitIntentPopup) so they traverse the Supabase+SES pipeline, OR configure a Netlify Forms outbound webhook -> handle-market-report and commit that config/document it. Also stop showing success purely on response.ok from '/'; verify the form-name was accepted. Confirm Netlify dashboard wiring before launch.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "netlify/functions/handle-market-report.ts (whole) + src/components/ExitIntentPopup.astro:46-48",
+    "evidence": "The honeypot input name='bot-field' is rendered in ExitIntentPopup but handle-market-report NEVER reads or rejects on it (no reference to 'bot-field' anywhere in the function). /api/market-report has no rate limiting, no CAPTCHA, and no origin check — it accepts unauthenticated application/x-www-form-urlencoded POSTs from anywhere. Once the P0 town-validation bug is fixed, this endpoint becomes a wide-open spam funnel: each accepted POST inserts a leads row AND triggers two SES sends (welcome + Steven notification), so a scripted attacker can poison the CRM and burn SES reputation/quota at will.",
+    "fix": "Reject the request server-side if bot-field is non-empty. Add a lightweight rate limit (per-IP token bucket / Netlify edge) and consider an invisible CAPTCHA (hCaptcha/Turnstile) on the popup. Balance: honeypot + rate limit add zero conversion friction; reserve CAPTCHA for abuse spikes only.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/handle-form-submission/index.ts:741-761",
+    "evidence": "Duplicate-lead guard: if a lead with the same email exists and status === 'active', the function returns {success:true, duplicate:true} and short-circuits BEFORE scoring, before scheduling, and before sendLeadNotification. So a returning visitor who comes back as a now-HOT seller (e.g. submits the QualificationQuiz with timeline 'within-30-days') is silently swallowed: Steven is NEVER notified of the new high-intent submission, the lead is not re-scored, and lead_temperature/lead_priority in the DB stay at their stale original values. High-intent re-engagement is invisible to the human follow-up path.",
+    "fix": "On an existing active lead, still send a 're-engagement' notification to Steven (with the new qualification/score) and update the lead's score/temperature/timeline if the new submission scores higher. Don't treat a fresh high-intent submission as a no-op duplicate.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/handle-form-submission/index.ts:681-703 (sendLeadNotification catch)",
+    "evidence": "If the SES SendEmailCommand for the Steven notification throws, the catch only console.error's ('Failed to send lead notification') and returns void. The outer handler still returns 200/success. A HOT lead is written to the DB but Steven is never pinged — the entire human-follow-up path silently fails with no retry and no alert. For a lead-gen business the instant notification is the most time-sensitive output (the email literally says 'CALL NOW').",
+    "fix": "Retry the notification send (2-3 attempts w/ backoff). On final failure, write a 'notification_failed' flag/row and raise a secondary alert channel (e.g. a second SES address, SNS, or a webhook) so a missed hot lead is recoverable. At minimum surface failure in the function response so the caller can act.",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/handle-form-submission/index.ts:897-907",
+    "evidence": "The bulk insert of scheduled_emails is single-attempt; on error it is only console.error'd ('Failed to schedule emails') and execution continues. The lead is created and the welcome email still 'succeeds', so the response reports success — but the entire 5-email drip sequence is never scheduled. No retry, no alert. The nurture campaign silently dies for that lead with no operator visibility.",
+    "fix": "Retry the scheduled_emails insert; on persistent failure, mark the lead (e.g. drip_scheduling_failed=true) and alert, or push to a reconcile job that re-schedules. Treat drip-scheduling failure as a real error, not a swallowed log.",
+    "effort": "S"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/send-scheduled-emails/index.ts:2831-2834,2790-2792",
+    "evidence": "Each email is updated to status='sending' (attempts+1) BEFORE the SES send. The pending-email query selects only status='pending' (line 2790). If the edge function times out, is killed, or crashes mid-batch after marking an email 'sending' but before the post-send update, that email is permanently orphaned in 'sending' state — it will never match the 'pending' filter again and is never retried or alerted. Drip emails silently stall mid-sequence for affected leads.",
+    "fix": "Either don't pre-flip to 'sending', or add a recovery sweep that re-queues rows stuck in 'sending' past a timeout (e.g. WHERE status='sending' AND updated_at < now()-interval '15 min'). Include 'sending' (with staleness guard) in the retry query.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/send-scheduled-emails/index.ts:2901-2913,2932-2939 + netlify/functions/process-email-queue.ts:36-53",
+    "evidence": "max_attempts exhaustion sets status='failed' (2902) and partial-batch SES send failures are pushed to stats.errors (2899) but there is NO alert to Steven/admin on either — failed nurture emails just die silently. The daily Netlify scheduled trigger (process-email-queue.ts) likewise only console.error's a non-200/throw from the edge function (37-41,52-53); if the single daily cron call fails, the ENTIRE drip pipeline stalls for up to 24h with zero alerting. Single daily cadence + no alert = invisible multi-lead nurture outage.",
+    "fix": "On any email marked 'failed' (max attempts) or a non-empty stats.errors batch, emit an admin alert. Add monitoring/alerting on the process-email-queue invocation (e.g. fail-loud + external uptime/dead-man's-switch). Consider running the queue more than once daily.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/handle-form-submission/index.ts:380-405,913-952",
+    "evidence": "sendWelcomeEmail catches SES failure and returns null (402-405); the caller only records welcome_email_sent:false in the JSON response (which no client consumes) and proceeds. The lead is created and marked active but the buyer never receives the promised market-report PDF link — the core value exchange of the opt-in silently fails with no retry and no recovery. Also welcome email is gated on payload.address && town && zipcode (913), so any path that omits those (e.g. a fixed exit popup that only has zip) sends no welcome at all.",
+    "fix": "Retry the welcome send; on failure leave the step-1 scheduled_email as 'pending' (don't mark sent at 927-937) so the daily queue retries it, and/or alert. Decouple welcome-email eligibility from address presence (derive town from zip).",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "lead-pipeline",
+    "location": "supabase/functions/handle-form-submission/index.ts:812-816",
+    "evidence": "Server trusts the client-supplied 'lead-score' and 'lead-temperature' params verbatim when present (finalLeadScore = parseInt(payload['lead-score']); finalLeadTemperature = payload['lead-temperature']) and only falls back to the server calculateLeadScore() when absent. Since the live endpoint accepts arbitrary urlencoded POSTs (no auth/honeypot), a script can set lead-score=100&lead-temperature=hot to force '🔥 HOT LEAD - CALL NOW' notifications and immediate-priority routing, or lead-score=0 to bury a real lead in the cold drip. parseInt also accepts garbage (NaN) silently.",
+    "fix": "Always recompute score server-side from the qualification inputs and ignore the client-provided score/temperature (or use them only for analytics, never for routing). Validate/clamp the parsed integer.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "lead-pipeline",
+    "location": "src/components/ExitIntentPopup.astro:158-164,284-311",
+    "evidence": "Single-fire POST with no persistent queue and no Netlify Forms backup (the form has no data-netlify attribute, line 39-42, so it bypasses the Forms inbox entirely). On any network blip the catch shows alert() and re-enables the button, but sessionStorage 'exit_popup_shown' was already set in showPopup() (164) so the popup will not auto-reappear; if the user dismisses the alert the lead is gone. Minor correctness bug: the catch resets the button text to 'Get Market Updates' (307) which does not match the original label 'Get My Market Update' (120).",
+    "fix": "Persist the payload to localStorage on failure and retry on next page-load/online event; don't set the single-fire flag until a successful submission (or keep it for display-throttling but allow resubmission). Fix the button label string.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "lead-pipeline",
+    "location": "src/components/MarketReportForm.astro:219-270, ContactForm.astro:238-278, QualificationQuiz.astro:696-736",
+    "evidence": "The success UI is entirely JS-driven (preventDefault + fetch + toggle success div). With JS disabled, the native form submits to '/' (no action= redirect to /thank-you), so the user is dropped on the homepage with no confirmation that anything happened (and, per the forms-gap finding, possibly no pipeline capture). Double-submit is mostly mitigated by disabling the submit button, but there is no idempotency key, so a fast double-fire before disable, or a retry after the alert, can create duplicate Netlify Forms entries / duplicate pipeline calls.",
+    "fix": "Add action='/thank-you' (or method=POST with a Netlify success redirect) for the no-JS path, and add an idempotency token (timestamp+email hash) so the backend can dedupe rapid resubmissions.",
+    "effort": "S"
+  }
+]

@@ -161,7 +161,9 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     if (!popup) return;
 
     popupShown = true;
-    sessionStorage.setItem(STORAGE_KEY, 'true');
+    // NOTE: do NOT set the session suppression flag on view — only on a successful
+    // submit or an explicit dismiss (see hidePopup / submit handler). Setting it on
+    // view previously meant a failed submit could never re-prompt.
 
     popup.classList.add('visible');
     popup.setAttribute('aria-hidden', 'false');
@@ -179,6 +181,9 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     if (!popup) return;
     popup.classList.remove('visible');
     popup.setAttribute('aria-hidden', 'true');
+    // Suppress for the rest of the session once dismissed (or auto-closed after a
+    // successful submit) so we don't re-nag the visitor.
+    sessionStorage.setItem(STORAGE_KEY, 'true');
   };
 
   // Document/window-level listeners bound once (they survive view transitions).
@@ -190,6 +195,15 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     document.addEventListener('mouseout', (e) => {
       if (e.clientY <= 0 && !popupShown) showPopup();
     });
+
+    // Scroll-depth trigger (touch devices have no mouseout): show once the visitor
+    // has scrolled past ~60% of the page — a strong mobile engagement signal.
+    document.addEventListener('scroll', () => {
+      if (popupShown) return;
+      const doc = document.documentElement;
+      const denom = doc.scrollHeight - window.innerHeight;
+      if (denom > 0 && doc.scrollTop / denom >= 0.6) showPopup();
+    }, { passive: true });
 
     // Close on escape
     document.addEventListener('keydown', (e) => {
@@ -217,12 +231,21 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 
     bindGlobalListenersOnce();
 
-    // Mobile: show after 30 seconds of engagement (timer reset per page)
+    // Mobile: show after ~30s of CUMULATIVE engagement across the whole session.
+    // Astro view transitions re-run this init on every page, so a per-page timer
+    // never fired for multi-page mobile visitors — track a session start instead.
     if (window.innerWidth < 768 && !popupShown) {
+      const SESSION_START_KEY = 'exit_popup_session_start';
+      let sessionStart = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0', 10);
+      if (!sessionStart) {
+        sessionStart = Date.now();
+        sessionStorage.setItem(SESSION_START_KEY, String(sessionStart));
+      }
+      const remaining = Math.max(0, 30000 - (Date.now() - sessionStart));
       if (mobileTimeout) clearTimeout(mobileTimeout);
       mobileTimeout = setTimeout(() => {
         if (!popupShown && document.visibilityState === 'visible') showPopup();
-      }, 30000);
+      }, remaining);
     }
 
     // Element-level listeners — bind once per freshly-rendered element.
@@ -270,9 +293,10 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
         e.preventDefault();
 
         const formData = new FormData(form);
-        // Add required fields that may be empty
+        // Add a fallback name; do NOT send an empty town — the server derives town
+        // from the zipcode. (Sending town='' previously failed validation 100%.)
         if (!formData.get('name')) formData.set('name', 'Website Visitor');
-        if (!formData.get('town')) formData.set('town', '');
+        if (!formData.get('town')) formData.delete('town');
 
         const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
 
@@ -289,9 +313,10 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
           });
 
           if (response.ok) {
-            // Show success
+            // Show success and suppress for the rest of the session.
             form.style.display = 'none';
             if (successMsg) successMsg.style.display = 'block';
+            sessionStorage.setItem(STORAGE_KEY, 'true');
 
             // Track conversion
             trackEvent('Lead', 'Exit Intent Popup');
@@ -482,6 +507,14 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     background: rgba(201, 156, 51, 0.1);
     color: var(--c21-gold-dark);
     font-weight: var(--font-medium);
+  }
+
+  /* a11y: native radios are visually hidden — surface keyboard focus on the styled
+     label surrogates (WCAG 2.4.7). */
+  .intent-option input:focus-visible + span,
+  .timeline-option input:focus-visible + span {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 2px;
   }
 
   .popup-input {

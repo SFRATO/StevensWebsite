@@ -1,0 +1,122 @@
+[
+  {
+    "severity": "P1",
+    "lane": "accessibility",
+    "location": "src/styles/global.css:225-242 (.btn-primary) + every gold CTA sitewide; WCAG 1.4.3 Contrast (Minimum)",
+    "evidence": "Primary CTA pattern is white (#FFFFFF) text on --c21-gold (#C99C33). Measured contrast = 2.53:1, far below the 4.5:1 normal-text minimum (and below 3:1 for large text). Used for .btn-primary, ExitIntentPopup .popup-submit (ExitIntentPopup.astro:575), all tool ctaBtn (Affordability/Proceeds islands ctaBtn background:#C99C33,color:#fff), FormSuccess .success-cta .btn, StickyCTA button (StickyCTA.astro:168), FormSuccess .timeline-marker, verdict 'good' badge. Hover state --c21-gold-dark (#B38A1F) is still only 3.19:1. These are the single most-clicked elements on a lead-gen site.",
+    "fix": "Darken the brand action color until white text reaches >=4.5:1 (e.g. ~#8A6A12 gives ~5:1), OR keep gold as an accent and use charcoal (#2C2C2C) text on gold (gold-on-charcoal already passes at 5.5:1). Apply via --cta-primary token so all buttons inherit the fix.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "accessibility",
+    "location": "src/components/tools/AffordabilityCalculatorIsland.tsx:160-203, ProceedsCalculatorIsland.tsx:162-201, HomeValueEstimatorIsland.tsx, MarketTimingIsland.tsx; rendered at dist/tools/*/index.html; WCAG 1.3.1 Info & Relationships, 3.3.2 Labels/Instructions, 4.1.2 Name/Role/Value",
+    "evidence": "Every calculator input renders <label style=...>Household Annual Income</label> followed by a sibling <input> with NO htmlFor/id association and no aria-label — confirmed in dist: '<input ... type=\"text\" placeholder=\"$120,000\"/>' has no name, id, or label tie. Income, down payment, interest rate, debts, sale price, mortgage balance, purchase price are all unlabeled to assistive tech (placeholder is not an accessible name). Screen-reader users cannot tell which field is which.",
+    "fix": "Add htmlFor={id} on each <label> and matching id on each <input> (or wrap the input inside the label). Trivial in React; do it for all four calculator islands.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "accessibility",
+    "location": "src/components/QualificationQuiz.astro:905 (.option-card input) and ExitIntentPopup.astro:457-462,528-533 (.intent-option/.timeline-option input); WCAG 2.4.7 Focus Visible",
+    "evidence": "Custom radio 'cards' hide the native radio with `position:absolute;opacity:0;width:0;height:0` and style only `input:checked + span/.option-content`. There is NO `:focus`/`:focus-visible` rule on the visible label/content. A keyboard user tabbing through QualificationQuiz Step 1 (intent + timeline) and the ExitIntentPopup intent/timeline choices gets ZERO visible focus indicator — they cannot see where they are. The native control is invisible and the styled surrogate never reacts to focus.",
+    "fix": "Add `.option-card input:focus-visible + .option-content { outline: 2px solid var(--cta-primary); outline-offset:2px; }` (and equivalent `.intent-option input:focus-visible + span`, `.timeline-option input:focus-visible + span`).",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/ExitIntentPopup.astro:21,158-205 (modal); WCAG 2.4.3 Focus Order, 1.3.1, 2.1.2 (verified no trap)",
+    "evidence": "Modal sets role=dialog aria-modal=true and focuses the first input on open, but the comment 'Focus trap' is aspirational — there is NO Tab containment. Background page content remains in the DOM, is not inert/aria-hidden, and stays in the tab order, so keyboard/SR users Tab straight out of the modal behind the overlay. Focus is also not returned to a sensible location on close. (Positive: Esc closes it, overlay click closes, and the close button has aria-label='Close popup'.)",
+    "fix": "Trap Tab/Shift+Tab within .exit-popup while visible (cycle first<->last focusable), apply `inert` or aria-hidden to the rest of the page when open, and move focus to a safe location (e.g. body or the trigger) on close.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "All 4 tool islands (results blocks) e.g. ProceedsCalculatorIsland.tsx:222-289, AffordabilityCalculatorIsland.tsx:216-258; 0 aria-live regions across all 357 dist pages; WCAG 4.1.3 Status Messages",
+    "evidence": "grep for aria-live across dist/**/*.html returns 0 matches. Tool results (net proceeds figure, max home price, affordability verdict, timing recommendation) appear and live-update as the user types/drags, but the result container has no role=status / aria-live='polite'. Screen-reader users get no announcement that a result was computed or changed.",
+    "fix": "Wrap each tool's result region in `role=\"status\" aria-live=\"polite\"` (or aria-atomic container) so recalculated values are announced.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/FormSuccess.astro:21, and submit handlers in MarketReportForm.astro:244-251, QualificationQuiz.astro:705-712, ExitIntentPopup.astro:291-300; WCAG 4.1.3 Status Messages, 2.4.3 Focus Order",
+    "evidence": "On successful submit the JS reveals a success panel via display:block + scrollIntoView, but the success container has no role=status/aria-live and focus is never moved into it. The success <h3> is not focused. Screen-reader users who submit get no confirmation that the form succeeded. The error path uses alert() (announced) but success is silent.",
+    "fix": "Give the success wrapper role=\"status\" (or aria-live=\"assertive\") and move focus to the success heading (tabindex=-1 + .focus()) after revealing it.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/QualificationQuiz.astro:101,154,202,247,461 and ExitIntentPopup.astro:52,71; WCAG 1.3.1 Info & Relationships",
+    "evidence": "Radio-button groups are introduced with an orphan <label class=\"form-label\">What brings you here today?</label> (and 'When are you looking to move?', 'What type of property...', 'Best time to reach you?', popup 'What best describes you?') that is not associated with any control and does not group the radios. There is no <fieldset>/<legend>, so the group question is not programmatically tied to its radio set — SR users hear the options without the question context.",
+    "fix": "Wrap each radio group in <fieldset> with the question as <legend> (visually restyle legend as needed), or use role=\"radiogroup\" with aria-labelledby pointing at the question text.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/tools/AffordabilityCalculatorIsland.tsx:206-211 (term buttons), ProceedsCalculatorIsland.tsx:196-198 (Primary Residence Yes/No); WCAG 1.4.1 Use of Color, 4.1.2 Name/Role/Value",
+    "evidence": "Segmented toggle buttons (15/20/30-Year loan term; Primary Residence Yes/No) indicate the selected option using border/background color only, with no aria-pressed/aria-checked. The selected state is conveyed by color alone and is not exposed to assistive tech — a SR user cannot tell which option is active.",
+    "fix": "Render these as aria-pressed (toggle button) or role=radio/radiogroup with aria-checked, and add a non-color selected indicator (e.g. checkmark/bold weight is already present — ensure it is programmatic).",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/tools/LocationPickerIsland.tsx:135-148; rendered town search at dist/tools/*/index.html; WCAG 1.3.1, 4.1.2",
+    "evidence": "The tool location autocomplete renders <label style=...> with NO htmlFor and an <input> with no id — confirmed in dist the search input has only a placeholder ('Town or zip code...'), no programmatic label. It also exposes aria-autocomplete/aria-expanded but lacks role=\"combobox\", aria-controls to the listbox, and aria-activedescendant, so the combobox relationship is incomplete (compare TownZipFieldIsland which is implemented correctly).",
+    "fix": "Associate the label (htmlFor/id), add role=\"combobox\" + aria-controls={listboxId} + aria-activedescendant for the highlighted option; give the <ul role=listbox> an id.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/ProceedsCalculatorIsland.tsx:206-217; rendered dist/tools/proceeds-calculator/index.html ('<input type=\"range\" min=\"1\" max=\"7\" step=\"0.25\" ...>'); WCAG 1.3.1, 4.1.2",
+    "evidence": "The Agent Commission range slider has no associated <label> (the 'Agent Commission: 5.0%' text is an unlinked sibling), no aria-label, and no aria-valuetext, so its accessible name and current human-readable value ('5.0%') are not exposed. (Positive: native range input is keyboard-operable.)",
+    "fix": "Associate the label via htmlFor/id (or aria-label='Agent commission percentage') and add aria-valuetext={fmtPct(commission)} so the percentage is announced rather than the raw 1-7 number.",
+    "effort": "S"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/styles/global.css (--c21-gold as text on white): nav active/hover (Header.astro:182,187), .btn-secondary text (global.css:237), MarketReportForm .delivery-note:415, tool stepLabel/sliderVal (#C99C33 text), FormSuccess .what-next h4:136; WCAG 1.4.3",
+    "evidence": "--c21-gold (#C99C33) used as foreground text on white/off-white backgrounds measures 2.53:1, failing the 4.5:1 minimum for these small/normal-size strings (delivery note, tool step eyebrow labels, slider value, success 'What Happens Next' heading, secondary-button label, active nav link). --c21-gold-dark (#B38A1F) is only 3.19:1, still failing normal text.",
+    "fix": "Use a darker gold (>=4.5:1 on white, ~#8A6A12) for any gold-colored text, or place gold text only on the charcoal background (passes at 5.5:1). Keep #C99C33 for large decorative accents only.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "accessibility",
+    "location": "src/components/QualificationQuiz.astro:557-617 (showStep) + 620-639; WCAG 2.4.3 Focus Order",
+    "evidence": "Advancing/going back between quiz steps only calls wrapper.scrollIntoView(); focus is never moved to the newly shown step. After the active step is hidden via .quiz-step{display:none}, the element that had focus (the Continue button) is removed from the layout, so keyboard focus is lost to <body> and the user must re-traverse from the top to reach the new step's fields.",
+    "fix": "After showStep(), set focus to the new step container (tabindex=-1) or its first heading/field so keyboard and SR users are carried to the new content.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "accessibility",
+    "location": "src/components/TownZipFieldIsland.tsx:282,299,300,332,348 (hardcoded ids town-autocomplete / zipcode-autocomplete / town-dropdown / zipcode-error); WCAG 1.3.1, 4.1.2",
+    "evidence": "The lead-form town/zip island uses static literal ids. Pages that render more than one form instance (e.g. a tool page with the inline lead-capture form, or any layout repeating the form) will emit duplicate ids, breaking the htmlFor label association and aria-controls/aria-describedby pointers (a label then points at the wrong/first input).",
+    "fix": "Derive unique ids per instance (e.g. useId() in React) and feed them to label htmlFor, input id, listbox id, and aria-describedby.",
+    "effort": "M"
+  },
+  {
+    "severity": "P3",
+    "lane": "accessibility",
+    "location": "dist/about/index.html (h1 -> h3, no h2); WCAG 1.3.1 Info & Relationships",
+    "evidence": "Heading outline on /about is h1 'Steven Frato' immediately followed by multiple h3s ('Licensed NJ Agent', 'Century 21 Network', 'Data Analyst Background') with no intervening h2 — a skipped heading level. (Other audited pages — home, market, home-value, tools — have correct h1>h2>h3 order.)",
+    "fix": "Promote the stat-card h3s to h2, or introduce a proper h2 section heading so levels are not skipped.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "accessibility",
+    "location": "src/components/QualificationQuiz.astro:629-631 and submit error handlers (MarketReportForm.astro:268, QualificationQuiz.astro:734, ExitIntentPopup.astro:309); WCAG 3.3.1 Error Identification",
+    "evidence": "Step validation and submit failures are surfaced with native alert() ('Please answer both questions to continue.', 'There was an error...'). alert() is announced by screen readers so it is not a hard failure, but errors are not associated inline with the offending fields (no aria-describedby/role=alert on the step), so users are not pointed to what to fix.",
+    "fix": "Replace alert() with an inline role=\"alert\" message adjacent to the step/field and move focus to the first invalid control.",
+    "effort": "M"
+  }
+]

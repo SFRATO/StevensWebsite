@@ -1,0 +1,66 @@
+[
+  {
+    "severity": "P1",
+    "lane": "performance-mobile",
+    "location": "src/styles/global.css:7 (loaded on every page via BaseLayout.astro:7)",
+    "evidence": "Fonts are loaded with a CSS @import inside global.css: `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap')`. This creates a render-blocking dependency CHAIN: HTML -> /_astro/*.css -> (parse) -> external Google Fonts CSS -> (parse) -> woff2 files. The `preconnect` to fonts.googleapis.com/gstatic.com (BaseLayout.astro:138-139) cannot help the @import because the @import URL is only discovered AFTER the stylesheet downloads and parses, defeating early discovery. On the highest-traffic templates (market town, home-value town, county, zip) the LCP element is the hero H1 text rendered in Playfair Display (confirmed: dist/home-value/atco/index.html H1 'What Is My Atco Home Worth?'; market town/county/zip pages ship NO <img>, so LCP is text). Late font discovery delays LCP text paint. No `rel=preload` for fonts exists (grep for rel=\"preload\" in dist returned zero). (note: heuristic, not measured — no Lighthouse/throttled-Android run)",
+    "fix": "Self-host fonts (e.g. @fontsource/inter + @fontsource-variable/playfair-display, or Astro 5 experimental fonts API) so they ship from /_astro under the same origin, OR at minimum replace the CSS @import with a <link rel=\"stylesheet\"> in <head> plus <link rel=\"preload\" as=\"font\" type=\"font/woff2\" crossorigin> for the two woff2 files actually used by the LCP H1 (Playfair 600/700). Subset to the weights in use. This removes the render-blocking chain and lets preconnect/preload work.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "performance-mobile",
+    "location": "src/components/MarketReportForm.astro:107-108 (TownZipFieldIsland client:load) and src/components/QualificationQuiz.astro:451 (client:load); bundle dist/_astro/client.9unXo8s5.js",
+    "evidence": "React 19 runtime client.9unXo8s5.js is 186,619 bytes raw / 58,485 bytes gzip and is shipped on nearly every template: confirmed loaded on home (index.html), market hub, county, market town, ZIP, home-value town, tools, and about pages. The only React islands on the primary SEO/conversion templates are small autocomplete fields (TownZipFieldIsland on MarketReportForm; QualificationQuiz). Both hydrate with `client:load`, forcing eager download + parse + hydrate of the 186KB React bundle during initial page load, competing with LCP and adding Total Blocking Time. A town/ZIP autocomplete is not interactive-critical above the fold and does not need client:load. (note: heuristic, not measured — TBT impact estimated from bundle size, not profiled on a mid-tier Android)",
+    "fix": "Change `client:load` to `client:visible` (or `client:idle`) on TownZipFieldIsland in MarketReportForm.astro and on the QualificationQuiz island so React hydration is deferred until the form scrolls into view / the main thread is idle. Better: replace the two tiny autocomplete islands with a vanilla-JS datalist/typeahead to drop React 19 (the full 186KB/58KB-gz client bundle) from these high-traffic templates entirely.",
+    "effort": "M"
+  },
+  {
+    "severity": "P1",
+    "lane": "performance-mobile",
+    "location": "public/images/*; src/components/HeroSection.astro:29-36; src/pages/about.astro:36; sharp ^0.34.5 in package.json (unused)",
+    "evidence": "astro:assets <Image>/<Picture> is NEVER used anywhere in src/ (grep for 'astro:assets'/<Image>/<Picture> = 0 matches), so sharp is installed but does no work — every image is copied raw from public/images to dist/images at full resolution with no resize and no webp/avif. dist/images sizes: headshot.jpg 1,350,810 B, 'Wide hiking photo.png' 2,483,694 B, 'Hiking photo.png' 1,284,902 B, project.png 861,510 B. about.astro renders headshot.jpg at 300x300 (HeroSection.astro renders it at 200x200) with loading=\"eager\" — i.e. a 1.35MB file is the eager LCP image on /about while being displayed at <=300px and could be ~15-30KB as a sized webp. (note: heuristic, not measured)",
+    "fix": "Move these source images into src/ and render via `import { Image } from 'astro:assets'` with explicit width/height and format webp/avif (sharp is already a dependency) — Astro will emit hashed, resized, modern-format files in /_astro and add width/height automatically. At minimum, pre-resize headshot.jpg to ~600px webp and re-export the 1-2.5MB PNGs as compressed webp. Delete the multi-MB PNGs from public/images if unused on shipped pages.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "performance-mobile",
+    "location": "src/styles/global.css (font-display:swap) applied to Playfair Display H1 hero on market/home-value/county/zip templates",
+    "evidence": "The Google Fonts URL sets `display=swap`, which is correct for avoiding invisible text (no FOIT) but means the LCP hero H1 first paints in the fallback serif and then re-lays-out when Playfair Display 600/700 arrives. Because Playfair has very different metrics than a default serif and no `size-adjust`/`ascent-override` fallback face is defined, this swap shifts the largest above-the-fold text element = layout shift contributing to CLS, and because fonts are discovered late (see the @import chain finding) the swap happens later in the load. Note: the <img> elements that DO exist (headshot on home/about) correctly carry width+height, so image-driven CLS is not a concern; font swap is the main CLS vector. (note: heuristic, not measured)",
+    "fix": "Self-host + preload the Playfair woff2 (eliminates late swap), and/or define a CSS @font-face fallback with size-adjust/ascent-override tuned to Playfair so the swap is metric-compatible (zero shift). Astro's experimental fonts API generates these fallbacks automatically.",
+    "effort": "M"
+  },
+  {
+    "severity": "P2",
+    "lane": "performance-mobile",
+    "location": "BaseLayout.astro:120-121, :37/:51-53; referenced og-default.jpg and apple-touch-icon.png missing from dist",
+    "evidence": "dist/apple-touch-icon.png does NOT exist (404 on every page — <link rel=apple-touch-icon href=/apple-touch-icon.png>), dist/images/og-default.jpg does NOT exist (default ogImage on every page that does not override it -> broken social preview + a 404 fetch by crawlers/social), and src/utils/schema.ts references https://stevenfrato.com/images/century21-logo.svg which is also absent from dist/images. Each page therefore issues at least one guaranteed-404 subresource request (apple-touch-icon) and ships a broken default OG image. (note: heuristic, not measured)",
+    "fix": "Add real og-default.jpg (1200x630, optimized <100KB), apple-touch-icon.png (180x180), and century21-logo.svg to public/images (and /apple-touch-icon.png), or remove the dangling <link>/meta references. Prevents wasted 404 requests and fixes social cards.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "performance-mobile",
+    "location": "src/layouts/BaseLayout.astro:141-154 (Matomo Tag Manager)",
+    "evidence": "Matomo Tag Manager loads unconditionally on every page with no consent gate, but the loader sets `g.async = true` and injects the script, so it is NON-render-blocking — it does not block the critical path or LCP. Residual cost: it pulls container_YLdIYnl6.js then matomo.js from a third-party origin (analytics.gavinrozzi.com, which has NO preconnect) plus tracking beacons, competing for the ~limited 4G bandwidth budget during initial load, and the MTM container can inject further tags. GA4 is correctly conditional (only when PUBLIC_GA4_ID set). (note: heuristic, not measured)",
+    "fix": "Keep async (good). Add <link rel=preconnect href=https://analytics.gavinrozzi.com> so the container/matomo.js DNS+TLS is warmed. Consider gating analytics behind interaction/idle or a consent banner (also a privacy-lane concern) to free bandwidth during the LCP window.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "performance-mobile",
+    "location": "dist/_astro/ClientRouter.*.js (Astro <ViewTransitions/> in BaseLayout.astro:135) shipped site-wide",
+    "evidence": "Astro ViewTransitions ClientRouter ships on every page: ClientRouter.astro_..._.CDGfc0hd.js = 15,362 B raw / 5,373 B gzip, on top of the React client bundle. For a lead-gen site whose nav is mostly cross-template (home-value <-> market <-> tools) the SPA-routing JS is pure overhead on first paint and adds another parse cost on mid-tier Android. The BaseLayout analytics/scroll-depth inline module also runs every page. (note: heuristic, not measured)",
+    "fix": "Evaluate whether <ViewTransitions/> earns its 15KB/page — if the cross-fade nav isn't a product requirement, remove it to drop the ClientRouter bundle and the astro:page-load rebinding complexity. If kept, ensure it isn't the reason islands must re-hydrate.",
+    "effort": "S"
+  },
+  {
+    "severity": "P3",
+    "lane": "performance-mobile",
+    "location": "dist/home-value/<town>/index.html subresource graph (e.g. references /_astro/about.DAMJWVuW.css 22,246 B)",
+    "evidence": "Mid-tier Android / 4G first-load estimate for the highest-converting template (home-value town, text-LCP, no hero image): HTML 74,994 B (15KB gz) + client.9unXo8s5.js 186KB (58KB gz) + ClientRouter 15KB (5KB gz) + a 22KB shared CSS chunk (about.DAMJWVuW.css, gz ~4KB) + ~6 small island/BaseLayout JS files (~15KB raw total) + 6 Google Fonts woff2 (~100-150KB, cross-origin, late-discovered) + Matomo container.js+matomo.js (~40-60KB, third-party). Roughly ~250-350KB compressed transfer and ~15-20 requests, dominated by the 58KB-gz React runtime and the cross-origin font chain — heavy for a text-only landing page. (note: heuristic, not measured)",
+    "fix": "Order of impact: (1) defer/eliminate React (P1 finding), (2) self-host+preload fonts (P1 finding), (3) confirm the 22KB about.DAMJWVuW.css chunk is genuinely needed on home-value pages — if it is leaking About-page styles via shared chunking, split CSS so home-value ships only its own ~6KB. Net effect: cut first-load JS+font transfer roughly in half.",
+    "effort": "M"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "persona": "Mercer County, NJ relocation / move-up buyer (Princeton, Hamilton, Lawrence). Higher-end budget (~$700k-$900k), arriving from out of area for a job. Cares most about school districts, neighborhood character, and timing the buy/sell. Wants to quickly trust a local expert who knows Princeton-area nuance.",
+  "device": "Desktop first (researching from work), then phone in the evening",
+  "journey_notes": [
+    "Homepage: headline 'Navigate the NJ Real Estate Market' is buy-or-sell, but everything below it leans seller + Burlington. Office is '136 Farnsworth Ave, Bordentown' (Burlington County), footer 'Towns We Serve' leads with Cherry Hill/Moorestown/Marlton. As a Princeton relocation buyer it reads like a South-Jersey seller site that happens to also cover Mercer.",
+    "Homepage data undersells my tier: 'Mercer County Median Price $422,500' frames the county as mid-market, when my Princeton search is $780k-$880k. Nothing signals he plays in the higher-end Princeton/Pennington/West Windsor bracket.",
+    "Trust dent on homepage: badges say each county is a \"Seller's Market\" but the same page also reports 'Seller's Markets 0 (0%) / Balanced Markets 97 (100%)'. Contradictory at a glance.",
+    "Mercer county hub (/market/mercer-county): genuinely useful for orienting on price tiers — Princeton $781k, Princeton Junction/West Windsor $873,990, Pennington $615k, Titusville $726k, Lawrence $457k, Hamilton $350k. This is the one place I started to feel located. BUT the whole page is pitched 'for home sellers' and the lead form ('See What Your Mercer County Home Could Sell For') defaults interest to 'Selling a Home' — I don't own a home here yet.",
+    "Mercer hub data glitch: 'Median Days on Market 51 days +400.0% YoY' — an obviously broken stat that makes me distrust the rest of the numbers.",
+    "Princeton town page (/market/mercer-county/princeton): good snapshot + FAQ ($781k, balanced, 64 DOM, 35% over ask, median list $954k). But ZERO neighborhood character and ZERO school detail — the two things I came for. And 'Days on Market 64 days -1700.0% YoY' is a glaring broken number on my most important page.",
+    "Princeton town page CTA is again seller-only ('See What Your Princeton Home Could Sell For' / interest defaults to 'Selling'). No buyer or relocation path. Good that it links out to 'Moving to Princeton'.",
+    "Moving-to/Princeton guide: the single most buyer-relevant page — commute (60-75 min to Midtown via Princeton Junction, 45-55 to Philly), lifestyle (Palmer Square, arts), and a schools blurb. This almost earns my trust.",
+    "...but that same guide is riddled with credibility-killing bugs: 'balanced's Market Type', 'Princeton is currently a balanced's market', and a broken FAQ answer 'Princeton offers princeton is home to princeton university and carries an intellectual...'. For an $800k decision, sloppy copy reads as sloppy agent.",
+    "Schools section punts: 'Princeton High School is consistently ranked among NJ's top... For current ratings and boundary information, check the NJ DOE website or contact the district directly.' I need an expert to tell me Littlebrook vs Riverside vs Community Park boundaries — instead I'm sent to a government website. No GreatSchools data, no boundary nuance.",
+    "Relocation CTA is generic: 'Steven Frato is a local Century 21 agent who specializes in Burlington, Mercer, and Middlesex County real estate.' A three-county claim is the opposite of the deep Princeton-specific expertise I'm shopping for. The word 'relocation' appears nowhere on the site.",
+    "About page: thin social proof for the higher end — 'Licensed NJ Agent', 'Century 21 Network', 'data analyst background'. No photo, no transaction track record, no sales volume, no client reviews, no Princeton deals. He claims 'I know the neighborhoods, the school districts, and subtle differences between towns' — directly contradicted by the guide that punts on schools.",
+    "Listings = dead end: /listings is 'Listings Coming Soon — contact me directly.' As an out-of-area buyer I can't browse a single home or even see inventory; I'd have to phone a stranger just to start. That's where I bounce to Zillow/Redfin."
+  ],
+  "friction": [
+    "No buyer or relocation lead path anywhere — every form (county, town, moving guide) is a seller 'what's your home worth' CMA that defaults interest to 'Selling a Home'. Intent mismatch on every conversion point I hit.",
+    "No IDX / no browsable listings ('Coming Soon') — a relocation buyer's #1 need (see homes) is entirely absent.",
+    "Schools content punts to NJ DOE instead of providing ratings/boundaries — the decisive factor for a relocating family is unanswered.",
+    "Broken market stats on my key pages ('+400.0% YoY', '-1700.0% YoY' days-on-market) undermine the 'data-driven' brand.",
+    "Grammar/template bugs in the Princeton moving guide ('balanced's market', duplicated lowercase FAQ sentence) read as low-end for an $800k market.",
+    "No high-end positioning or proof — no photo, reviews, track record, or luxury/Princeton specialization; site/branding skews Burlington/South-Jersey and mid-price.",
+    "Generic 'Burlington, Mercer & Middlesex' expertise claim repeated everywhere; nothing demonstrates actual Princeton-area neighborhood knowledge.",
+    "Buy/sell-timing (sell-there-buy-here) is a core relocation need but unaddressed; tools are seller-oriented (proceeds, should-I-sell-now)."
+  ],
+  "biggest_blocker": "There is no buyer/relocation journey at all: I can't browse a single listing (IDX 'Coming Soon'), the schools/neighborhood content I came for punts to a government website, and every CTA funnels me into a seller CMA form — all wrapped in broken stats and typo'd copy that fail the credibility test for an $800k Princeton purchase. Nothing proves Steven is a higher-end local expert, so I bounce to Zillow or a Princeton-specialist agent.",
+  "would_leave_contact_score": 3,
+  "score_justification": "The Princeton moving guide nearly earns a call, but seller-only forms, zero listings, punted school info, and credibility-killing data/copy bugs push a discerning relocation buyer to bounce."
+}

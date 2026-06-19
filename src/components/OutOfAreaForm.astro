@@ -1,0 +1,128 @@
+---
+/**
+ * OutOfAreaForm
+ * Lead capture for buyers outside the current NJ service area (e.g. Bucks County, PA).
+ * Uses plain inputs (NOT the NJ town/zip autocomplete, which only validates NJ zips)
+ * and posts to the same /api/market-report pipeline with interest=buying.
+ */
+interface Props {
+  sourceLocation?: string;
+}
+const { sourceLocation = 'out-of-area' } = Astro.props;
+const formId = `ooa-form-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class="ooa-wrapper" id="lead-capture" data-form-id={formId}>
+  <div class="ooa-success" id={`${formId}-success`} style="display:none;">
+    <h3>Thanks — I'll be in touch.</h3>
+    <p>I'll reach out within one business day to talk through your search and the next steps.</p>
+  </div>
+
+  <div class="ooa-container" id={`${formId}-container`}>
+    <h3>Tell me what you're looking for</h3>
+    <p class="ooa-sub">Out of my NJ service area? Leave your details and I'll personally help or connect you with a trusted local partner.</p>
+
+    <form name="out-of-area" method="POST" class="ooa-form" id={formId}>
+      <input type="hidden" name="form-name" value="out-of-area" />
+      <input type="hidden" name="source-location" value={sourceLocation} />
+      <input type="hidden" name="interest" value="buying" />
+      <p class="hidden" aria-hidden="true">
+        <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+      </p>
+
+      <div class="ooa-grid">
+        <div class="ooa-group full">
+          <label for={`${formId}-name`}>Name <span class="req">*</span></label>
+          <input id={`${formId}-name`} type="text" name="name" placeholder="Your full name" required />
+        </div>
+        <div class="ooa-group">
+          <label for={`${formId}-email`}>Email <span class="req">*</span></label>
+          <input id={`${formId}-email`} type="email" name="email" placeholder="your@email.com" required />
+        </div>
+        <div class="ooa-group">
+          <label for={`${formId}-phone`}>Phone</label>
+          <input id={`${formId}-phone`} type="tel" name="phone" placeholder="(609) 555-1234" />
+        </div>
+        <div class="ooa-group">
+          <label for={`${formId}-town`}>Town / area you're considering</label>
+          <input id={`${formId}-town`} type="text" name="town" placeholder="e.g. Newtown, Doylestown" />
+        </div>
+        <div class="ooa-group">
+          <label for={`${formId}-zip`}>ZIP code <span class="req">*</span></label>
+          <input id={`${formId}-zip`} type="text" name="zipcode" placeholder="e.g. 18940" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-large">Get in touch</button>
+      <p class="ooa-privacy">Your information is secure and never sold or shared.</p>
+    </form>
+  </div>
+</div>
+
+<script>
+  import { trackEvent } from '@utils/analytics';
+
+  const bind = () => {
+    document.querySelectorAll<HTMLElement>('.ooa-wrapper').forEach((wrapper) => {
+      if (wrapper.dataset.bound) return;
+      wrapper.dataset.bound = '1';
+      const formId = wrapper.dataset.formId!;
+      const form = document.getElementById(formId) as HTMLFormElement | null;
+      const container = document.getElementById(`${formId}-container`);
+      const success = document.getElementById(`${formId}-success`);
+      if (!form || !container || !success) return;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+        try {
+          const res = await fetch('/api/market-report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(new FormData(form) as any).toString(),
+          });
+          if (!res.ok) throw new Error('submit failed');
+          container.style.display = 'none';
+          success.style.display = 'block';
+          success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          trackEvent('Lead', 'Out of Area Inquiry');
+        } catch {
+          if (btn) { btn.disabled = false; btn.textContent = 'Get in touch'; }
+          alert('There was an error submitting the form. Please try again or call (609) 789-0126.');
+        }
+      });
+    });
+  };
+
+  document.addEventListener('astro:page-load', bind);
+</script>
+
+<style>
+  .ooa-wrapper {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8);
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .ooa-container > h3, .ooa-success h3 { font-size: var(--text-2xl); color: var(--text-primary); margin-bottom: var(--space-2); }
+  .ooa-sub { color: var(--text-secondary); margin-bottom: var(--space-6); }
+  .ooa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-6); }
+  .ooa-group.full { grid-column: 1 / -1; }
+  @media (max-width: 600px) { .ooa-grid { grid-template-columns: 1fr; } }
+  .ooa-group label { display: block; font-size: var(--text-sm); font-weight: var(--font-medium); margin-bottom: var(--space-1); color: var(--text-primary); }
+  .req { color: var(--alert-red); }
+  .ooa-group input {
+    width: 100%;
+    padding: var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+  }
+  .ooa-group input:focus-visible { outline: 2px solid var(--cta-primary); outline-offset: 1px; }
+  .ooa-privacy { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-3); text-align: center; }
+  .hidden { position: absolute; left: -9999px; }
+</style>

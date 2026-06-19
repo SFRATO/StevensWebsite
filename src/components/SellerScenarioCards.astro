@@ -1,0 +1,116 @@
+---
+/**
+ * SellerScenarioCards
+ * Speaks to the higher-intent seller segments the site previously ignored:
+ * FSBO-curious, investors, and deadline/relocation sellers. Each card addresses
+ * the segment's actual objection and links to the on-page lead form (#lead-capture)
+ * or the contact page. Content is non-promotional and avoids fabricated claims.
+ */
+interface Props {
+  /** Anchor to scroll to on this page; defaults to the contact page. */
+  ctaHref?: string;
+}
+const { ctaHref = '/contact/' } = Astro.props;
+
+const scenarios = [
+  {
+    tag: 'Selling it yourself?',
+    title: 'Thinking about going FSBO',
+    body: `It's worth running the numbers both ways. I'll show you — honestly — what a sale nets with and without an agent, including the pricing, exposure, and negotiation that typically more than cover the commission. If FSBO is genuinely right for you, I'll tell you.`,
+    cta: 'Compare the numbers',
+  },
+  {
+    tag: 'Investment property?',
+    title: 'Selling a rental or investment',
+    body: `The proceeds estimate is only the start. I'll walk through capital-gains exposure, depreciation recapture, and 1031-exchange timing, and help you judge whether holding or selling pencils out better in today's market.`,
+    cta: 'Talk through the math',
+  },
+  {
+    tag: 'On a deadline?',
+    title: 'Relocating or need to sell fast',
+    body: `Job move or tight timeline? I'll map a plan that can run your sale and your next purchase in parallel, priced to move quickly without leaving money on the table.`,
+    cta: 'Plan a fast sale',
+  },
+];
+---
+
+<section class="scenarios">
+  <div class="container">
+    <h2 class="scenarios-heading">Selling isn't one-size-fits-all</h2>
+    <p class="scenarios-sub">A few of the situations I help NJ homeowners think through:</p>
+    <div class="scenarios-grid">
+      {scenarios.map((s) => (
+        <div class="scenario-card">
+          <span class="scenario-tag">{s.tag}</span>
+          <h3>{s.title}</h3>
+          <p>{s.body}</p>
+          <a href={ctaHref} class="scenario-link">{s.cta} →</a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .scenarios {
+    padding: var(--space-12) 0;
+    background: var(--bg-secondary);
+  }
+  .scenarios-heading {
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--space-2);
+  }
+  .scenarios-sub {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-8);
+  }
+  .scenarios-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  @media (min-width: 768px) {
+    .scenarios-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  .scenario-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+  }
+  .scenario-tag {
+    display: inline-block;
+    align-self: flex-start;
+    font-size: var(--text-xs);
+    font-weight: var(--font-bold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cta-primary);
+    margin-bottom: var(--space-2);
+  }
+  .scenario-card h3 {
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+  .scenario-card p {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin-bottom: var(--space-4);
+    flex-grow: 1;
+  }
+  .scenario-link {
+    font-weight: var(--font-medium);
+    color: var(--cta-primary);
+    text-decoration: none;
+  }
+  .scenario-link:hover { text-decoration: underline; }
+</style>

@@ -179,7 +179,10 @@ export function formatCurrency(value: number | null): string {
  * Format percentage with sign
  */
 export function formatPercent(value: number | null, includeSign: boolean = true): string {
-  if (value === null) return 'N/A';
+  // Data-integrity guard (audit data-integrity P0): a YoY % below -100% is
+  // mathematically impossible and above +300% is almost always a source-data
+  // artifact — show 'N/A' rather than a figure like "-1700% YoY".
+  if (value === null || value < -100 || value > 300) return 'N/A';
   const sign = includeSign && value > 0 ? '+' : '';
   return `${sign}${value.toFixed(1)}%`;
 }

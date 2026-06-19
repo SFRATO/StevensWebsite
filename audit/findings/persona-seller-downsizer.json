@@ -1,0 +1,27 @@
+{
+  "persona": "Empty-nester downsizing from a paid-off, larger home in a Burlington/Mercer/Middlesex NJ target town (e.g. Moorestown, Princeton). Emotionally attached, not in a rush, wants a credible 'what's my home worth' + 'what will I net' answer BEFORE surrendering contact info to a sales funnel. Moderate tech comfort, cautious about spam and sales calls.",
+  "device": "Desktop (primary). Spot-checked mobile reflow expectations.",
+  "journey_notes": [
+    "Entry A — /home-value/[town]/: Hero 'What Is My {Town} Home Worth?' is on-message, but the MarketReportForm sits ABOVE the value/data section. I'm asked to hand over Name + full street Address + Town + Zip + Email (+ optional phone) before I've seen a single number. As a cautious downsizer this is backwards: prove the value first, then ask.",
+    "The form's promise is 'Send My Free Report Now' yet the fine print says 'Delivered to your inbox within 24 hours' — not instant, and the wording mismatch (Now vs 24 hours) reads slightly bait-y.",
+    "Local market context (median sale price, DOM, % sold above list, seller/buyer verdict) DOES render below the form when zip data exists — genuinely useful and town-specific. But it's below the ask, so many cautious visitors bounce before seeing it.",
+    "Entry B — /tools/home-value-estimator: This is the trust-builder I actually wanted. 3-step, 'no registration needed,' gives an instant low/mid/high range client-side. Honest disclaimer (±8–15%, 'this is a range, a CMA gives the exact number'). For a downsizer this is the right low-commitment on-ramp. Good that it exists and is genuinely free.",
+    "Estimator math is crude though: median_sale_price x property-type x bedroom/bath deltas. My paid-off larger 4–5BR home just gets median x ~1.08–1.14 — it ignores lot size, condition, updates, acreage. A savvy empty-nester will sense it's a ballpark, which the copy admits, so it's acceptable as a teaser but not credible as a real number.",
+    "Entry C — /tools/proceeds-calculator: STRONGEST trust asset on the site for my persona. It itemizes NJ-specific costs I actually worry about — agent commission (adjustable slider), NJ Realty Transfer Fee (correct tiered formula), NJ exit tax / 2% GIT withholding with the refundable caveat, title, attorney, mortgage payoff. This directly answers 'what will I net?' without any signup. This is what would make me trust Steven.",
+    "Natural intended chain works: estimator (get a range) -> proceeds calc (net it out) -> form (get the precise CMA). The two free tools do enough of the job that a cautious person can self-serve a credible-enough answer WITHOUT converting — double-edged: builds trust but also reduces urgency to hand over the address.",
+    "Convert-or-bounce moment = the 'Address *' required field on MarketReportForm. Giving my home street address to a real-estate funnel signals incoming sales calls + junk mail. That single required field is where I hesitate hardest.",
+    "Post-submit promise (FormSuccess) discloses a multi-week drip: 'You'll receive helpful market insights over the next few weeks.' For a spam-averse downsizer that's a yellow flag — I came for one report, I'm being enrolled in a campaign. Honest that it's disclosed, but it raises the bar on trust before I commit."
+  ],
+  "friction": [
+    "Required full street Address field on the primary form — highest-friction ask for a privacy-cautious seller; collected before any value is delivered.",
+    "Form placed above the market-data proof on /home-value pages — value exchange feels front-loaded against the visitor.",
+    "'Send My Free Report Now' button vs '24 hours' delivery — instant-gratification mismatch erodes trust at the click moment.",
+    "Thin human/credibility proof on the conversion pages: 'Why Work With a Local Agent' is generic icons; no Steven photo, no credentials, no reviews/testimonials (TestimonialCard intentionally empty). A cautious downsizer wants to see the human is real before giving a home address.",
+    "Success state pre-commits me to a 'next few weeks' email sequence — disclosed only AFTER I submit, not before, so it can feel like a bait-and-switch into a drip.",
+    "Estimator gives a range but offers no way to refine for a larger/updated home; the gap between the crude range and reality is exactly what an attached owner of a nicer-than-median home notices.",
+    "No 'no spam / unsubscribe anytime / we won't call unless you ask' style reassurance near the submit button — privacy line says 'never sold or shared' but doesn't address the real fear (sales calls)."
+  ],
+  "biggest_blocker": "Being required to enter my full home street address (plus name/email) on the primary lead form BEFORE any home value is shown — the value section sits below the ask — combined with a post-submit reveal that I'm enrolled in a multi-week email drip. For a cautious, not-in-a-rush downsizer that's too much commitment, too early, for a report that isn't even instant.",
+  "would_leave_contact_score": 5,
+  "score_justification": "The free estimator + NJ proceeds calculator earn real trust, but the address-required form gated above the value and the undisclosed-until-after drip make a cautious downsizer self-serve the tools and bounce rather than convert."
+}

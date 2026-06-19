@@ -1,0 +1,27 @@
+{
+  "persona": "Middlesex County NJ family buyer — large household, comparison-shopping Edison / East Brunswick / Woodbridge / Piscataway. Top criteria: school districts, commute to BOTH NYC and Philly, and space.",
+  "device": "Desktop for comparison shopping, phone for quick checks",
+  "journey_notes": [
+    "Entered via /market/middlesex-county/compare/edison-vs-east-brunswick — clean side-by-side of price, YoY, DOM, % sold above list, active listings. Genuinely useful for budget, and 'Edison $448k vs East Brunswick $610k, $162k cheaper' is exactly the kind of takeaway I want.",
+    "The compare FAQ literally says 'the best choice depends on budget, commute, school district, and lifestyle' but the page gives ZERO data on commute or schools — it names my two top criteria then punts every one of them to 'Steven can help you evaluate.' Feels like a bait-and-switch toward a contact form.",
+    "Found the real school/commute info only by digging into the separate /moving-to/[town] guides — not linked prominently from the compare page. Edison guide: NJ Transit MetroPark/Edison 45-55 min to NYC Penn; East Brunswick: 55-65 min by bus; Woodbridge: 45-55 min. Useful, concrete, builds some local-credibility (names Oak Tree Road dining, specific stations).",
+    "As a central-NJ family weighing NYC vs Philly jobs, EVERY commute blurb is NYC-only. Not one mention of Philadelphia, SEPTA, NEC/Trenton line, or driving to Philly anywhere in the Middlesex content. Half my decision has no data.",
+    "School sections deliberately give no ratings: 'check the NJ DOE website or contact the district directly.' Legally cautious (avoids 'great schools'/steering language), but for a buyer whose #1 factor is schools it leaves me nothing to compare Edison vs East Brunswick on. The absence doesn't offend me — it just gives me no reason to choose, so I'd go to GreatSchools/Niche and leave the site.",
+    "Comparison is locked to 5 hand-curated pairs. I can do Edison-vs-East Brunswick and Piscataway-vs-Edison, but I CANNOT compare Woodbridge vs Piscataway — the two towns I was actually deciding between. No build-your-own comparison.",
+    "Every buyer-facing page (compare, town, moving guide) puts the SAME seller form above the fold: 'See What Your Edison Home Could Sell For' / 'price your home competitively.' I have no home to sell. The headline tells me I'm in the wrong place even though the interest dropdown does include 'Buying a Home.'",
+    "Wanted to actually look at homes for sale to ground the comparison — /listings is 'Coming Soon.' Nothing to browse, nothing to act on as a buyer.",
+    "Trust-eroding template bugs everywhere: 'balanced's market' / 'balanced's Market Type' (broken possessive), 'Edison offers edison is one of nj's most diverse...' (lowercase, run-on), Edison town page shows 'Days on Market 72 days +600.0% YoY' (absurd), and the snapshot median is $448k while the 'Nearby Areas' card lists Edison at $689k — a direct contradiction on the same page."
+  ],
+  "friction": [
+    "Compare pages name commute + schools as the deciding factors but provide neither — forces a detour to separate moving-to guides that aren't linked from the comparison.",
+    "Zero Philadelphia/Philly commute info anywhere; all commute copy is NYC-only, ignoring half a central-NJ buyer's decision.",
+    "School info is a non-answer (no ratings, redirect to NJ DOE) — nothing to differentiate towns on my top criterion.",
+    "Only 5 fixed comparison pairs; can't compare Woodbridge vs Piscataway or build my own matchup.",
+    "Seller CMA form ('what your home could sell for') is the primary CTA on buyer-intent pages — message mismatch for a pure buyer.",
+    "No listings/inventory — /listings is a placeholder, so a ready buyer can't see a single home.",
+    "Grammar/data-glitch bugs ('balanced's market', '+600% YoY DOM', $448k-vs-$689k contradiction) undercut trust in the very market data the site is selling."
+  ],
+  "biggest_blocker": "The pages explicitly tell me schools + NYC/Philly commute are how to choose a town, then provide no school ratings, no Philly commute at all, and no way to compare my two finalists — so the only 'answer' to my decision is a seller-oriented contact form. I leave to GreatSchools/Zillow with my actual questions unanswered.",
+  "would_leave_contact_score": 4,
+  "score_justification": "Solid price-comparison data and credible local color in the moving guides give a reason to consider Steven, but missing schools/Philly-commute data, no listings, a seller-only form, and visible template bugs push a pragmatic comparison-shopper to bounce rather than convert."
+}

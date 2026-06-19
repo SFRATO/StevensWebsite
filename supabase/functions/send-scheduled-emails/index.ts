@@ -2754,6 +2754,22 @@ serve(async (req) => {
   };
 
   try {
+    // Recovery sweep: reclaim emails orphaned in "sending" by a prior crash (the
+    // status is flipped to "sending" before the SES send completes; the main query
+    // only picks "pending", so a crash mid-send would strand the row forever). Reset
+    // rows that have been "sending" past their scheduled time by >15 min to "pending".
+    const staleCutoff = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { error: sweepError } = await supabase
+      .from("scheduled_emails")
+      .update({ status: "pending" })
+      .eq("status", "sending")
+      .lt("scheduled_for", staleCutoff);
+    if (sweepError) {
+      console.error("Recovery sweep for stuck 'sending' emails failed:", sweepError);
+    } else {
+      console.log("Recovery sweep: any emails stuck in 'sending' (>15m) reset to 'pending'.");
+    }
+
     // Query pending emails that are due
     const { data: pendingEmails, error: queryError } = await supabase
       .from("scheduled_emails")
@@ -2910,7 +2926,15 @@ serve(async (req) => {
           })
           .eq("id", email.id);
 
-        console.error(`Failed to send email ${email.id}: ${result.error}`);
+        if (newStatus === "failed") {
+          console.error(
+            `ALERT: email ${email.id} to ${email.lead.email} permanently FAILED after ${email.max_attempts} attempts: ${result.error}`
+          );
+          // TODO(reliability): notify a monitoring channel, and add a dead-man's-switch
+          // on this cron so a total outage doesn't stall the whole drip silently.
+        } else {
+          console.error(`Failed to send email ${email.id} (will retry): ${result.error}`);
+        }
       }
 
       // Rate limiting

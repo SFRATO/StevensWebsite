@@ -12,4 +12,5 @@ Crawl-delay: 1
 
 # Disallow admin/api paths (if any)
 Disallow: /api/
-Disallow: /_astro/
+# Render-critical hashed CSS/JS must remain crawlable (Google: don't block CSS/JS)
+Allow: /_astro/
