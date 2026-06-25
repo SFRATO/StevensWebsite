@@ -16,9 +16,11 @@ const navLinks = [
   { href: '/contact', label: 'Contact' },
 ];
 
-// Phone number
-const phone = '(609) 789-0126';
-const phoneHref = 'tel:+16097890126';
+import { BROKER_NAME, AGENT_CELL, AGENT_CELL_HREF } from '../data/brokerage';
+
+// Phone number (Steven's direct/cell line)
+const phone = AGENT_CELL;
+const phoneHref = AGENT_CELL_HREF;
 ---
 
 <header class="header">
@@ -28,7 +30,7 @@ const phoneHref = 'tel:+16097890126';
       <a href="/" class="logo-link">
         <div class="logo">
           <span class="logo-text-name">Steven Frato</span>
-          <span class="logo-text-company">Century 21</span>
+          <span class="logo-text-company">{BROKER_NAME}</span>
         </div>
       </a>
     </div>
@@ -135,19 +137,22 @@ const phoneHref = 'tel:+16097890126';
     line-height: 1.2;
   }
 
+  /* N.J.A.C. 11:5-6.1(b)1/(j)1: the affiliated broker's regular business name is
+     given visual weight co-equal with the salesperson's name (user-selected
+     "balanced" rebalance; full legal name used, not the bare franchisor brand). */
   .logo-text-name {
     font-family: var(--font-heading);
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
     font-weight: var(--font-bold);
     color: var(--text-primary);
   }
 
   .logo-text-company {
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
     color: var(--c21-gold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
   }
 
   /* Desktop Navigation */

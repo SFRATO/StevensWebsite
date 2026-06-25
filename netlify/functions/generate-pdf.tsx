@@ -245,6 +245,20 @@ const styles = StyleSheet.create({
     color: "#333333",
     lineHeight: 1.6,
   },
+  // N.J.A.C. 11:5-6.1(m)1.i: the "not an appraisal" statement must appear in print
+  // at least as large as the predominant text size in the report. Body text is 11pt;
+  // this is set to 12pt bold so it is clearly conspicuous and not subordinate.
+  appraisalDisclaimer: {
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: "#1a1a1a",
+    backgroundColor: "rgba(201, 156, 51, 0.12)",
+    padding: 12,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: "#C99C33",
+    lineHeight: 1.5,
+  },
   footer: {
     position: "absolute",
     bottom: 30,
@@ -345,7 +359,7 @@ const MarketReportPDF = ({
         <View style={styles.header}>
           <View style={styles.logo}>
             <Text style={styles.logoName}>Steven Frato</Text>
-            <Text style={styles.logoCompany}>CENTURY 21</Text>
+            <Text style={styles.logoCompany}>CENTURY 21 Action Plus Realty</Text>
           </View>
           <View>
             <Text style={styles.reportDate}>Report Generated: {currentDate}</Text>
@@ -367,6 +381,13 @@ const MarketReportPDF = ({
             {address}, {town}, NJ {zipData.zipcode}
           </Text>
         </View>
+
+        {/* N.J.A.C. 11:5-6.1(m)1.i: not-an-appraisal disclosure, conspicuous and at predominant print size. */}
+        <Text style={styles.appraisalDisclaimer}>
+          This market report is for informational purposes only. It is not an
+          appraisal or a comparative market analysis (CMA) and should not be
+          considered the equivalent of an appraisal.
+        </Text>
 
         {/* Market Type Badge */}
         <View style={getBadgeStyle()}>
@@ -476,14 +497,16 @@ const MarketReportPDF = ({
           <View style={styles.footerContent}>
             <View>
               <Text style={styles.footerContact}>
-                <Text style={styles.footerContactBold}>Steven Frato</Text> |
-                Century 21
+                <Text style={styles.footerContactBold}>Steven Frato</Text>, NJ Licensed Real Estate Salesperson, License #2567370
+              </Text>
+              <Text style={styles.footerContact}>
+                CENTURY 21 Action Plus Realty, Licensed Real Estate Broker
               </Text>
               <Text style={styles.footerContact}>
                 136 Farnsworth Ave, Bordentown, NJ 08505
               </Text>
               <Text style={styles.footerContact}>
-                (609) 789-0126 | sf@stevenfrato.com
+                Office: (800) 299-2129 | Steven (direct): (609) 789-0126 | sf@stevenfrato.com
               </Text>
             </View>
             <View>
@@ -491,9 +514,9 @@ const MarketReportPDF = ({
             </View>
           </View>
           <Text style={styles.footerDisclaimer}>
-            Data sourced from Redfin. This report is for informational purposes
-            only and does not constitute an official appraisal. Market conditions
-            change frequently; contact Steven for the most current information.
+            Data sourced from Redfin. Each office is independently owned and operated.
+            Licensure does not imply endorsement. Market conditions change frequently;
+            contact Steven for the most current information.
           </Text>
         </View>
       </Page>

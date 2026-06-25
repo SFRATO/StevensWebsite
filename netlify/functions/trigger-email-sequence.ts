@@ -338,7 +338,7 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
     <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-    <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+    <p style="color: #C99C33; margin: 5px 0 0; font-weight: bold; font-size: 18px;">CENTURY 21 Action Plus Realty</p>
   </div>
 
   <div style="padding: 30px 0;">
@@ -372,14 +372,15 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
     <p>I'll be sending you more insights about the ${data.town} market over the coming weeks. In the meantime, feel free to reach out if you have any questions.</p>
 
     <p>Best regards,</p>
-    <p><strong>Steven Frato</strong><br>
-    Century 21<br>
-    (609) 789-0126<br>
+    <p><strong>Steven Frato</strong>, NJ Licensed Real Estate Salesperson<br>
+    CENTURY 21 Action Plus Realty, Licensed Real Estate Broker<br>
+    Office: (800) 299-2129 &nbsp;|&nbsp; Direct: (609) 789-0126<br>
     sf@stevenfrato.com</p>
   </div>
 
   <div style="border-top: 1px solid #ddd; padding-top: 20px; font-size: 12px; color: #666; text-align: center;">
-    <p>136 Farnsworth Ave, Bordentown, NJ 08505</p>
+    <p>CENTURY 21 Action Plus Realty, Licensed Real Estate Broker · 136 Farnsworth Ave, Bordentown, NJ 08505 · Office: (800) 299-2129</p>
+    <p>Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370. Each office is independently owned and operated. Licensure does not imply endorsement. Equal Housing Opportunity.</p>
     <p>You're receiving this email because you requested a market report from stevenfrato.com</p>
     <p><a href="${siteUrl}" style="color: #C99C33;">stevenfrato.com</a></p>
   </div>
@@ -429,13 +430,14 @@ Want to discuss your options? I'm happy to provide a complimentary home value co
 I'll be sending you more insights about the ${data.town} market over the coming weeks. In the meantime, feel free to reach out if you have any questions.
 
 Best regards,
-Steven Frato
-Century 21
-(609) 789-0126
+Steven Frato, NJ Licensed Real Estate Salesperson
+CENTURY 21 Action Plus Realty, Licensed Real Estate Broker
+Office: (800) 299-2129 | Direct: (609) 789-0126
 sf@stevenfrato.com
 
 ---
-136 Farnsworth Ave, Bordentown, NJ 08505
+CENTURY 21 Action Plus Realty, Licensed Real Estate Broker · 136 Farnsworth Ave, Bordentown, NJ 08505 · Office: (800) 299-2129
+Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370. Each office is independently owned and operated. Licensure does not imply endorsement. Equal Housing Opportunity.
 You're receiving this email because you requested a market report from stevenfrato.com
 ${siteUrl}
   `.trim();

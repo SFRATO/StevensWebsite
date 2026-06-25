@@ -38,7 +38,7 @@ export function generateRealEstateAgentSchema() {
     ],
     memberOf: {
       '@type': 'Organization',
-      name: 'Century 21',
+      name: 'CENTURY 21 Action Plus Realty',
     },
     knowsAbout: ['Residential Real Estate', 'First-Time Homebuyers', 'Property Investment'],
     url: 'https://stevenfrato.com',
@@ -56,7 +56,7 @@ export function generateLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    name: 'Steven Frato - Century 21',
+    name: 'Steven Frato, CENTURY 21 Action Plus Realty',
     image: 'https://stevenfrato.com/images/headshot.jpg',
     '@id': 'https://stevenfrato.com',
     url: 'https://stevenfrato.com',
@@ -153,10 +153,10 @@ export function generatePersonSchema() {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Steven Frato',
-    jobTitle: 'Real Estate Agent',
+    jobTitle: 'Real Estate Salesperson',
     worksFor: {
       '@type': 'Organization',
-      name: 'Century 21',
+      name: 'CENTURY 21 Action Plus Realty',
     },
     url: 'https://stevenfrato.com',
     image: 'https://stevenfrato.com/images/headshot.jpg',
@@ -193,7 +193,7 @@ export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Steven Frato - Century 21',
+    name: 'Steven Frato, CENTURY 21 Action Plus Realty',
     url: 'https://stevenfrato.com',
     logo: 'https://stevenfrato.com/images/century21-logo.svg',
     contactPoint: {

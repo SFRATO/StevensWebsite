@@ -10,13 +10,13 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
     <Section style={footer}>
       <Hr style={divider} />
       <Text style={contact}>
-        <strong>Steven Frato</strong>
+        <strong>Steven Frato</strong>, NJ Licensed Real Estate Salesperson
         <br />
-        CENTURY 21 Action Plus Realty
+        CENTURY 21 Action Plus Realty, Licensed Real Estate Broker
         <br />
         136 Farnsworth Ave, Bordentown, NJ 08505
         <br />
-        (609) 789-0126 | sf@stevenfrato.com
+        Office: (800) 299-2129 | Steven (direct): (609) 789-0126 | sf@stevenfrato.com
       </Text>
       <Text style={links}>
         <Link href="https://stevenfrato.com" style={link}>
@@ -36,7 +36,7 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
         stevenfrato.com. Each office is independently owned and operated.
         <br />
         Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370.
-        {" "}Equal Housing Opportunity.
+        {" "}Licensure does not imply endorsement. Equal Housing Opportunity.
       </Text>
       {unsubscribeUrl && (
         <Text style={unsubscribe}>

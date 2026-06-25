@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { calcNetProceeds, fmtCurrency, fmtPct } from '../../utils/toolsCalc';
+import { DISCLOSURE } from '../../data/brokerage';
 import { trackEvent } from '@utils/analytics';
 import LocationPickerIsland from './LocationPickerIsland';
 
@@ -219,6 +220,10 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
             />
             <span style={s.sliderVal}>{fmtPct(commission)}</span>
           </div>
+          {/* N.J.A.C. 11:5-6.1(q): required wherever a commission rate is referenced. */}
+          <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.5rem' }}>
+            {DISCLOSURE.commissionNegotiable}
+          </p>
         </div>
       </div>
 

@@ -4,20 +4,23 @@
  * Site-wide footer with contact info, links, and compliance
  */
 
+import {
+  AGENT_NAME, AGENT_TITLE, AGENT_LICENSE, AGENT_CELL, AGENT_CELL_HREF,
+  AGENT_EMAIL, AGENT_EMAIL_HREF, BROKER_NAME, BROKER_LICENSE_LABEL,
+  OFFICE_PHONE, OFFICE_PHONE_HREF, OFFICE_ADDRESS, DISCLOSURE,
+} from '../data/brokerage';
+
 const currentYear = new Date().getFullYear();
 
-// Contact information
+// Contact information (sourced from the shared brokerage constants)
 const contactInfo = {
-  phone: '(609) 789-0126',
-  phoneHref: 'tel:+16097890126',
-  email: 'sf@stevenfrato.com',
-  emailHref: 'mailto:sf@stevenfrato.com',
-  address: {
-    street: '136 Farnsworth Ave',
-    city: 'Bordentown',
-    state: 'NJ',
-    zip: '08505',
-  },
+  phone: AGENT_CELL,
+  phoneHref: AGENT_CELL_HREF,
+  officePhone: OFFICE_PHONE,
+  officePhoneHref: OFFICE_PHONE_HREF,
+  email: AGENT_EMAIL,
+  emailHref: AGENT_EMAIL_HREF,
+  address: OFFICE_ADDRESS,
 };
 
 const serviceAreas = [
@@ -66,7 +69,15 @@ const socialLinks = [
             <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" fill="currentColor"/>
             </svg>
-            {contactInfo.phone}
+            {contactInfo.phone} <span class="contact-tag">(Steven, direct)</span>
+          </a>
+
+          {/* N.J.A.C. 11:5-6.1(d)/(b)2: licensed brokerage office line, shown at a size consistent with the page. */}
+          <a href={contactInfo.officePhoneHref} class="contact-link">
+            <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" fill="currentColor"/>
+            </svg>
+            {contactInfo.officePhone} <span class="contact-tag">(Brokerage office)</span>
           </a>
 
           <a href={contactInfo.emailHref} class="contact-link">
@@ -145,8 +156,10 @@ const socialLinks = [
 
         <div class="footer-branding">
           <div class="century21-badge">
-            <span class="badge-text">Proud member of</span>
-            <span class="badge-logo">CENTURY 21</span>
+            <span class="badge-text">A licensee of</span>
+            <span class="badge-logo">{BROKER_NAME}</span>
+            <span class="badge-text">{BROKER_LICENSE_LABEL}</span>
+            <span class="badge-franchise">{DISCLOSURE.franchiseIndependence}</span>
           </div>
         </div>
       </div>
@@ -170,15 +183,15 @@ const socialLinks = [
         </div>
 
         <p class="disclaimer">
-          <small>
-            {/* PA identification (license + brokerage) must still be added before
-                publishing any Bucks County, PA content. */}
-            CENTURY 21 Action Plus Realty, Licensed Real Estate Broker ·
-            136 Farnsworth Ave, Bordentown, NJ · (609) 789-0126<br />
-            Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370.<br />
-            Each office is independently owned and operated. Information deemed reliable but not guaranteed.
-            Market data provided by Redfin.
-          </small>
+          {/* PA identification (license + brokerage) must still be added before
+              publishing any Bucks County, PA content. */}
+          {/* No <small> wrapper: keep the licensure/franchise disclosures at full
+              --text-sm for N.J.A.C. 11:5-6.1 (p)/(j)2 conspicuousness. */}
+          {BROKER_NAME}, {BROKER_LICENSE_LABEL} ·
+          {OFFICE_ADDRESS.street}, {OFFICE_ADDRESS.city}, {OFFICE_ADDRESS.state} · Office: {OFFICE_PHONE}<br />
+          {AGENT_NAME}, {AGENT_TITLE}, License #{AGENT_LICENSE} · Direct: {AGENT_CELL}.<br />
+          {DISCLOSURE.franchiseIndependence} {DISCLOSURE.licensureEndorsement} Information deemed reliable but not guaranteed.
+          Market data provided by Redfin.
         </p>
       </div>
     </div>
@@ -357,6 +370,18 @@ const socialLinks = [
     letter-spacing: 1px;
   }
 
+  .badge-franchise {
+    font-size: var(--text-xs);
+    color: var(--light-gray);
+    font-style: italic;
+    margin-top: var(--space-1);
+  }
+
+  .contact-tag {
+    font-size: var(--text-xs);
+    color: var(--light-gray);
+  }
+
   /* Footer Bottom */
   .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -389,8 +414,8 @@ const socialLinks = [
   }
 
   .disclaimer {
-    font-size: var(--text-xs);
-    color: var(--dark-gray);
+    font-size: var(--text-sm);
+    color: var(--light-gray);
     max-width: 600px;
     margin: 0;
   }

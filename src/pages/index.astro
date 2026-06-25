@@ -50,7 +50,7 @@ const formatCurrency = (value: number | null): string => {
 
 <BaseLayout
   title="Steven Frato - Century 21 Real Estate Agent | Burlington, Mercer & Middlesex County NJ"
-  description="Experienced Century 21 real estate agent serving Burlington, Mercer, and Middlesex Counties, NJ. Specializing in first-time homebuyers. Call today for your free consultation."
+  description="Century 21 real estate agent serving Burlington, Mercer, and Middlesex Counties, NJ. Helping first-time homebuyers. Call today for your free consultation."
   ogImage="/images/headshot.jpg"
 >
   <!-- CTA Hero Section -->
@@ -58,10 +58,11 @@ const formatCurrency = (value: number | null): string => {
     <div class="container">
       <div class="hero-agent">
         <span class="hero-agent-name">Steven Frato</span>
+        <span class="hero-agent-broker">CENTURY 21 Action Plus Realty</span>
       </div>
       <h1>Navigate the NJ Real Estate Market with Confidence</h1>
       <p class="hero-subtitle">
-        Whether you're buying or selling, get expert guidance from a local agent who knows Burlington, Mercer, and Middlesex Counties.
+        Whether you're buying or selling, get personalized guidance from a local agent who knows Burlington, Mercer, and Middlesex Counties.
       </p>
 
       <div class="hero-cta">
@@ -73,7 +74,7 @@ const formatCurrency = (value: number | null): string => {
         </a>
       </div>
 
-      <p class="trust-line">Century 21 | Serving Burlington, Mercer & Middlesex Counties</p>
+      <p class="trust-line">CENTURY 21 Action Plus Realty, Licensed Real Estate Broker | Serving Burlington, Mercer & Middlesex Counties</p>
     </div>
   </section>
 
@@ -161,7 +162,7 @@ const formatCurrency = (value: number | null): string => {
         <div class="resources-text">
           <h2>First-Time Homebuyer?</h2>
           <p>
-            I specialize in helping first-time buyers navigate the home buying process with confidence.
+            I focus on helping first-time buyers navigate the home buying process with confidence.
             From understanding mortgages to finding the perfect neighborhood, I'm here to guide you every step of the way.
           </p>
           <ul class="resources-list">
@@ -312,8 +313,19 @@ const formatCurrency = (value: number | null): string => {
     letter-spacing: 0.02em;
   }
 
+  /* N.J.A.C. 11:5-6.1(b)1/(j)1: affiliated broker's regular business name given
+     co-equal visual weight with the salesperson's name (balanced rebalance). */
+  .hero-agent-broker {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-bold);
+    color: var(--c21-gold);
+    letter-spacing: 0.02em;
+  }
+
   @media (min-width: 768px) {
-    .hero-agent-name {
+    .hero-agent-name,
+    .hero-agent-broker {
       font-size: var(--text-3xl);
     }
   }

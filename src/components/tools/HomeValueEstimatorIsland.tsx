@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { estimateHomeValue, fmtCurrency } from '../../utils/toolsCalc';
+import { DISCLOSURE } from '../../data/brokerage';
 import { trackEvent } from '@utils/analytics';
 import LocationPickerIsland from './LocationPickerIsland';
 
@@ -222,6 +223,10 @@ export default function HomeValueEstimatorIsland({ mappings, zipcodes }: Props) 
                   </div>
                 </div>
                 <p style={s.basisNote}>{estimate.basis}</p>
+                {/* N.J.A.C. 11:5-6.1(m)1.i: this automated estimate is not an appraisal. */}
+                <p style={{ fontSize: '0.95rem', fontWeight: 600, marginTop: '0.75rem' }}>
+                  {DISCLOSURE.estimateNotAppraisal}
+                </p>
               </div>
 
               {selectedZip && (

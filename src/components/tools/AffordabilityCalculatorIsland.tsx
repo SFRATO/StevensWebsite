@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { calcAffordability, fmtCurrency } from '../../utils/toolsCalc';
+import { DISCLOSURE } from '../../data/brokerage';
 import { trackEvent } from '@utils/analytics';
 import LocationPickerIsland from './LocationPickerIsland';
 
@@ -233,7 +234,7 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
             <div style={s.paymentBreak}>
               <div style={s.payItem}>
                 <div style={s.payValue}>{fmtCurrency(result.monthlyPrincipalInterest)}/mo</div>
-                <div style={s.payLabel}>Principal + Interest</div>
+                <div style={s.payLabel}>Est. Principal + Interest</div>
               </div>
               <div style={s.payItem}>
                 <div style={s.payValue}>{fmtCurrency(result.monthlyTaxInsurance)}/mo</div>
@@ -262,7 +263,8 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
             <button style={s.ctaBtn} onClick={handleCTA}>Talk to Steven About Buying</button>
           </div>
           <div style={s.disclaimer}>
-            Estimates are based on 36% back-end DTI, NJ property tax rate of ~1.8% annually, and homeowner's insurance. Actual qualification depends on credit, lender, and full financial picture.
+            {/* N.J.A.C. 11:5-6.1(f)/(g): "to a qualified buyer" + estimated qualifiers required for mortgage/payment figures. */}
+            {DISCLOSURE.qualifiedBuyer} Estimates are based on 36% back-end DTI, NJ property tax rate of ~1.8% annually, and homeowner's insurance. Actual qualification depends on credit, lender, and full financial picture.
           </div>
         </>
       )}

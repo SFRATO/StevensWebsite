@@ -130,7 +130,7 @@ export const InvestorOpportunitiesEmail: React.FC<InvestorOpportunitiesEmailProp
             <Section style={highlightBox}>
               <Text style={highlightTitle}>Off-Market Opportunities</Text>
               <Text style={highlightText}>
-                Some of the best investment deals never hit the MLS. Through my
+                Some of the best investment deals never hit Bright MLS. Through my
                 network of property owners, estate attorneys, and other agents, I
                 often hear about opportunities before they go public. If you're
                 a serious investor, I can keep you informed of these situations.

@@ -129,7 +129,7 @@ export const InvestorConsultationEmail: React.FC<InvestorConsultationEmailProps>
                 <Text style={valueTitle}>Off-Market Access</Text>
                 <Text style={valueText}>
                   Network connections that surface opportunities before they hit
-                  the MLS
+                  Bright MLS
                 </Text>
               </Section>
               <Section style={valueItem}>
@@ -147,7 +147,7 @@ export const InvestorConsultationEmail: React.FC<InvestorConsultationEmailProps>
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
+              CENTURY 21 Action Plus Realty
               <br />
               Your {county} Investment Property Specialist
             </Text>

@@ -111,16 +111,6 @@ export const BothConsultationEmail: React.FC<BothConsultationEmailProps> = ({
               </table>
             </Section>
 
-            <Section style={testimonialBox}>
-              <Text style={testimonialQuote}>
-                "Steven coordinated the sale of our home and purchase of our new
-                one seamlessly. We closed on both the same day and moved directly
-                from one house to the other. What could have been incredibly
-                stressful was actually smooth and well-organized."
-              </Text>
-              <Text style={testimonialAuthor}>— Recent {county} Client</Text>
-            </Section>
-
             <Text style={paragraph}>
               Whether you're ready to start the process now or just want to
               understand your options, I'm here to help - at whatever pace feels
@@ -133,9 +123,9 @@ export const BothConsultationEmail: React.FC<BothConsultationEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
+              CENTURY 21 Action Plus Realty
               <br />
-              Your {town} Real Estate Expert
+              Your {town} Real Estate Agent
             </Text>
 
             <Section style={psSection}>
@@ -251,27 +241,6 @@ const contactValue: React.CSSProperties = {
 const contactLink: React.CSSProperties = {
   color: "#C99C33",
   textDecoration: "none",
-};
-
-const testimonialBox: React.CSSProperties = {
-  backgroundColor: "#1a1a1a",
-  padding: "25px",
-  borderRadius: "8px",
-  margin: "25px 0",
-};
-
-const testimonialQuote: React.CSSProperties = {
-  fontSize: "15px",
-  fontStyle: "italic",
-  color: "#ffffff",
-  lineHeight: "1.6",
-  margin: "0 0 15px",
-};
-
-const testimonialAuthor: React.CSSProperties = {
-  fontSize: "13px",
-  color: "#C99C33",
-  margin: "0",
 };
 
 const ctaSection: React.CSSProperties = {

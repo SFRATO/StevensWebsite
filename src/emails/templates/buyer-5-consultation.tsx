@@ -126,9 +126,9 @@ export const BuyerConsultationEmail: React.FC<BuyerConsultationEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
+              CENTURY 21 Action Plus Realty
               <br />
-              Your {town} Real Estate Expert
+              Your {town} Real Estate Agent
             </Text>
 
             <Section style={psSection}>

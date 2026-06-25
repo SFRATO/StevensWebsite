@@ -6,6 +6,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import AffordabilityCalculatorIsland from '@components/tools/AffordabilityCalculatorIsland';
 import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
 import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
+import { DISCLOSURE } from '../../data/brokerage';
 import zipcodesData from '../../../data/processed/zipcodes.json';
 
 const mappings = getTownZipMappings();
@@ -58,6 +59,8 @@ const schema = [
         mappings={mappings}
         zipcodes={zipcodesData as any}
       />
+      {/* N.J.A.C. 11:5-6.1(f)/(g): page-level financing qualifier (covers FAQ payment/down-payment figures). */}
+      <p class="compliance-note">{DISCLOSURE.qualifiedBuyer}</p>
     </div>
   </section>
 
@@ -128,6 +131,14 @@ const schema = [
 
   .tool-section { padding: var(--space-10) 0; background: #f8fafc; }
   .tool-section .container { max-width: 760px; }
+
+  .compliance-note {
+    max-width: 760px;
+    margin: var(--space-4) auto 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    text-align: center;
+  }
 
   .form-section { padding: var(--space-12) 0; text-align: center; }
 

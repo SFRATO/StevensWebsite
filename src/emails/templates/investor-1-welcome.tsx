@@ -125,7 +125,7 @@ export const InvestorWelcomeEmail: React.FC<InvestorWelcomeEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
+              CENTURY 21 Action Plus Realty
               <br />
               (609) 789-0126
             </Text>

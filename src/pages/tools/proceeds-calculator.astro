@@ -8,12 +8,13 @@ import SellerScenarioCards from '@components/SellerScenarioCards.astro';
 import ProceedsCalculatorIsland from '@components/tools/ProceedsCalculatorIsland';
 import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
 import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
+import { DISCLOSURE } from '../../data/brokerage';
 import zipcodesData from '../../../data/processed/zipcodes.json';
 
 const mappings = getTownZipMappings();
 
 const faqs = [
-  { question: 'How much does it cost to sell a house in NJ?', answer: 'Total seller closing costs in NJ typically range from 8–12% of the sale price. This includes the real estate agent commission (4–6%), the NJ Realty Transfer Fee (~0.4–0.6%), NJ exit tax (GIT withholding, typically 2% of sale price for residents), title insurance (~0.4%), attorney fees (~$1,500), and miscellaneous closing costs (~0.5%).' },
+  { question: 'How much does it cost to sell a house in NJ?', answer: `Total seller closing costs in NJ typically range from 8–12% of the sale price. This includes the real estate agent commission (4–6%), the NJ Realty Transfer Fee (~0.4–0.6%), NJ exit tax (GIT withholding, typically 2% of sale price for residents), title insurance (~0.4%), attorney fees (~$1,500), and miscellaneous closing costs (~0.5%). ${DISCLOSURE.commissionNegotiable}` },
   { question: 'What is the NJ Exit Tax when selling a home?', answer: 'The NJ Gross Income Tax (GIT) withholding — often called the "exit tax" — requires sellers to pay an estimated tax at closing. For NJ residents, this is typically 2% of the sale price, withheld as an advance payment toward your annual GIT. This can be fully or partially refunded when you file your NJ tax return, depending on your actual tax liability. Non-residents pay 8.97% of estimated gain.' },
   { question: 'What is the NJ Realty Transfer Fee?', answer: 'The NJ Realty Transfer Fee (RTF) is a state tax on property transfers, paid by the seller. The rate is tiered: roughly $4 per $1,000 for the first $150,000, then increasing to $6.70/1,000 through $350,000, and $7.80/1,000 through $550,000, with higher rates above that. On a $500,000 home, the RTF is approximately $2,800–3,200.' },
   { question: 'Do I need an attorney to sell my house in NJ?', answer: 'New Jersey does not legally require an attorney for real estate transactions, but it is strongly customary and practically expected. Most NJ real estate contracts include an attorney review period, and title companies and lenders expect attorney involvement at closing. Budget $1,000–$2,000 for attorney fees.' },
@@ -60,6 +61,8 @@ const schema = [
         mappings={mappings}
         zipcodes={zipcodesData as any}
       />
+      {/* N.J.A.C. 11:5-6.1(q): commission negotiability notice, page-level (covers hero + FAQ commission references). */}
+      <p class="compliance-note">{DISCLOSURE.commissionNegotiable}</p>
     </div>
   </section>
 
@@ -133,6 +136,14 @@ const schema = [
 
   .tool-section { padding: var(--space-10) 0; background: #f8fafc; }
   .tool-section .container { max-width: 760px; }
+
+  .compliance-note {
+    max-width: 760px;
+    margin: var(--space-4) auto 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    text-align: center;
+  }
 
   .form-section { padding: var(--space-12) 0; }
 

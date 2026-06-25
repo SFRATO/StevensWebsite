@@ -5,7 +5,7 @@ export const Header: React.FC = () => {
   return (
     <Section style={header}>
       <Text style={logoName}>Steven Frato</Text>
-      <Text style={logoCompany}>CENTURY 21</Text>
+      <Text style={logoCompany}>CENTURY 21 Action Plus Realty</Text>
       <Hr style={divider} />
     </Section>
   );
@@ -23,12 +23,13 @@ const logoName: React.CSSProperties = {
   margin: "0",
 };
 
+// N.J.A.C. 11:5-6.1(b)1/(j)1: broker's regular business name given co-equal weight.
 const logoCompany: React.CSSProperties = {
-  fontSize: "14px",
-  fontWeight: "600",
+  fontSize: "20px",
+  fontWeight: "bold",
   color: "#C99C33",
   margin: "5px 0 0",
-  letterSpacing: "1px",
+  letterSpacing: "0.5px",
 };
 
 const divider: React.CSSProperties = {

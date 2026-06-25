@@ -15,7 +15,10 @@ export interface SEOProps {
  * Generate full page title with site branding
  */
 export function generateTitle(title: string, includeBrand: boolean = true): string {
-  const brandSuffix = ' | Steven Frato - Century 21';
+  // Names the affiliated broker's regular business name (N.J.A.C. 11:5-6.1(b)/(j)1).
+  // Kept compact so page-specific titles stay within SERP display length; on-page
+  // header/hero/footer branding carries the co-equal visual prominence for (b)1.
+  const brandSuffix = ' | Steven Frato, CENTURY 21 Action Plus Realty';
   return includeBrand ? `${title}${brandSuffix}` : title;
 }
 
