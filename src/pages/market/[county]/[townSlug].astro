@@ -143,7 +143,7 @@ const marketTypeBadgeClass = {
 }[zipData?.market_type ?? 'balanced'];
 
 // SEO
-const metaTitle = `${townName} NJ Real Estate Market | ${currentMonthYear}`;
+const metaTitle = `${townName}, NJ Median Home Price & Real Estate Market | ${currentMonthYear}`;
 const metaDesc = zipData?.median_sale_price
   ? `${townName}, NJ housing market: median home price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes for sale, ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on market. ${marketTypeLabel}.`
   : `${townName}, NJ real estate market data and trends. Get a free home value report from local Century 21 agent Steven Frato.`;

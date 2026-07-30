@@ -82,11 +82,11 @@ const schema = [
   generateFAQSchema(faqs),
 ];
 
-const metaDesc = `Moving to ${townName}, NJ? Here's what you need to know about the housing market, commute, schools, and lifestyle. ${zipData?.median_sale_price ? `Current median home price: ${fmtCurrency(zipData.median_sale_price)}.` : ''}`;
+const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, and cost of living. ${zipData?.median_sale_price ? `Median home price: ${fmtCurrency(zipData.median_sale_price)}.` : ''} Everything you need to know before moving to ${townName}.`;
 ---
 
 <BaseLayout
-  title={`Moving to ${townName}, NJ: ${currentYear} Real Estate & Living Guide`}
+  title={`Moving to ${townName}, NJ — ${currentYear} City Guide & Neighborhood Overview`}
   description={metaDesc}
   schema={schema}
 >

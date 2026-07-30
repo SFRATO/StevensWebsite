@@ -15,6 +15,8 @@ const faqs = [
   { question: 'What is the minimum down payment to buy a home in NJ?', answer: 'Conventional loans typically require 5–20% down. FHA loans allow 3.5% down with a 580+ credit score. First-time buyers in NJ may qualify for NJHMFA assistance programs. A 20% down payment eliminates PMI (private mortgage insurance) and reduces monthly costs significantly.' },
   { question: 'What are property taxes like in Burlington, Mercer, and Middlesex Counties?', answer: 'NJ has among the highest property taxes in the nation. Effective rates in these counties typically range from 1.5% to 2.5% of assessed value annually. On a $500,000 home, you might pay $7,500–$12,500/year in property taxes, which adds $625–$1,040/month to your housing costs — a significant factor in affordability calculations.' },
   { question: 'Should I get pre-approved before starting my home search?', answer: 'Yes. Pre-approval shows sellers you\'re serious and clarifies your actual budget. In competitive NJ markets, many sellers won\'t consider offers without pre-approval. Steven can connect you with trusted local lenders who know Burlington, Mercer, and Middlesex County transactions.' },
+  { question: 'What salary do I need to buy a house in NJ?', answer: 'Using the standard 28% rule, you need a gross annual income of roughly 4x your annual housing costs. For a $400,000 home in NJ with 10% down, a 7% mortgage, and $9,000/year in property taxes, your total monthly payment is approximately $3,000–$3,400 — meaning you need an income of at least $130,000–$145,000/year to qualify comfortably. NJ\'s high property taxes make income requirements significantly higher than national averages. Use this calculator to see your exact numbers.' },
+  { question: 'What credit score do I need to buy a house in NJ?', answer: 'Most conventional lenders require a minimum 620 credit score, but 740+ gets you the best interest rates and lowest PMI premiums. FHA loans allow scores as low as 580 with 3.5% down. A higher credit score can save you tens of thousands of dollars over the life of your mortgage — improving your score before applying is often worth the wait.' },
 ];
 
 const schema = [
@@ -24,8 +26,8 @@ const schema = [
     { name: 'Affordability Calculator', url: 'https://stevenfrato.com/tools/affordability-calculator/' },
   ]),
   generateSoftwareApplicationSchema({
-    name: 'NJ Home Affordability Calculator',
-    description: 'Calculate how much home you can afford in Burlington, Mercer, or Middlesex County NJ, based on income, down payment, NJ property taxes, and local market data.',
+    name: 'NJ Mortgage Affordability Calculator',
+    description: 'Free NJ mortgage affordability calculator. See how much house you can afford based on income, down payment, NJ property taxes, and current local market prices.',
     url: 'https://stevenfrato.com/tools/affordability-calculator/',
   }),
   generateFAQSchema(faqs),
@@ -33,8 +35,8 @@ const schema = [
 ---
 
 <BaseLayout
-  title="Can I Afford a Home in NJ? Free Affordability Calculator"
-  description="See how much home you can afford in Burlington, Mercer, or Middlesex County NJ. Enter your income, down payment, and zip code for an instant estimate based on local prices."
+  title="NJ Mortgage Affordability Calculator — How Much House Can I Afford?"
+  description="Free NJ mortgage affordability calculator. Enter your income, down payment, and zip code to instantly see how much house you can afford in Burlington, Mercer, or Middlesex County."
   schema={schema}
 >
   <section class="tool-hero">
