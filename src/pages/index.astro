@@ -6,7 +6,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import MarketInsightsDashboard from '@components/MarketInsightsDashboard.astro';
 import ContactForm from '@components/ContactForm.astro';
-import { generateRealEstateAgentSchema, generateLocalBusinessSchema } from '@utils/schema';
+import { generateWebsiteSchema } from '@utils/schema';
 
 // Import market data
 import countiesData from '../../data/processed/counties.json';
@@ -53,7 +53,7 @@ const formatCurrency = (value: number | null): string => {
   title="NJ Realtor | Steven Frato — Century 21 Burlington, Mercer & Middlesex County"
   description="Steven Frato, licensed NJ realtor (License #2567370) at Century 21 Action Plus Realty. Expert guidance for home buyers and sellers in Burlington, Mercer, and Middlesex Counties. Call (609) 789-0126."
   ogImage="/images/headshot.jpg"
-  schema={[generateRealEstateAgentSchema(), generateLocalBusinessSchema()]}
+  schema={generateWebsiteSchema()}
 >
   <!-- CTA Hero Section -->
   <section class="market-hero">

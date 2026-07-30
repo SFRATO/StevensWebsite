@@ -342,6 +342,65 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
 }
 
 /**
+ * Generate WebSite schema with SearchAction
+ * Enables Google Sitelinks Search Box — a search bar under your homepage result.
+ */
+export function generateWebsiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Steven Frato — Century 21 NJ Real Estate',
+    url: 'https://stevenfrato.com',
+    description: 'NJ real estate market data, free calculators, and expert guidance for buyers and sellers in Burlington, Mercer, and Middlesex Counties.',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://stevenfrato.com/market/?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+    publisher: {
+      '@type': 'RealEstateAgent',
+      name: 'Steven Frato',
+      url: 'https://stevenfrato.com',
+    },
+  };
+}
+
+/**
+ * Generate HowTo schema for step-by-step process pages.
+ * Example: "How to sell your house in NJ", "How to buy a home in Burlington County"
+ * Shows numbered steps directly in Google search results.
+ */
+export function generateHowToSchema(data: {
+  name: string;
+  description: string;
+  totalTime?: string; // ISO 8601 duration, e.g. "P30D" for 30 days
+  steps: Array<{ name: string; text: string; url?: string }>;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: data.name,
+    description: data.description,
+    ...(data.totalTime && { totalTime: data.totalTime }),
+    step: data.steps.map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+      ...(step.url && { url: step.url }),
+    })),
+    author: {
+      '@type': 'RealEstateAgent',
+      name: 'Steven Frato',
+      url: 'https://stevenfrato.com',
+    },
+  };
+}
+
+/**
  * Helper to stringify schema for <script type="application/ld+json">
  */
 export function stringifySchema(schema: any): string {
