@@ -76,6 +76,20 @@ const countyTowns = getTownsByCountySlug(county.slug).map((town) => {
 // Get comparison pairs for this county
 const countyComparisons = comparisonPairs.filter((p) => p.countySlug === county.slug).slice(0, 4);
 
+// Compute which price-range pages actually exist for this county (mirrors [priceRange].astro logic)
+const PRICE_TIERS = [
+  { slug: 'homes-under-400k', cap: 400_000, label: 'Homes Under $400K' },
+  { slug: 'homes-under-500k', cap: 500_000, label: 'Homes Under $500K' },
+  { slug: 'homes-under-600k', cap: 600_000, label: 'Homes Under $600K' },
+  { slug: 'homes-under-800k', cap: 800_000, label: 'Homes Under $800K' },
+];
+const availablePriceTiers = PRICE_TIERS.filter((tier) => {
+  const qualifying = allZipcodes.filter(
+    (z) => z.county === county.region && z.median_sale_price !== null && z.median_sale_price < tier.cap
+  );
+  return qualifying.length >= 3;
+});
+
 // Helper functions
 const formatCurrency = (value: number | null): string => {
   if (value === null) return 'N/A';
@@ -289,16 +303,17 @@ const description = `${county.region}, NJ housing market data: median home price
         </p>
       )}
 
-      <!-- Price Range Links -->
-      <div class="price-range-nav">
-        <h3>Browse by Price Range</h3>
-        <div class="price-range-links">
-          <a href={`/market/${county.slug}/price/homes-under-400k/`}>Homes Under $400K</a>
-          <a href={`/market/${county.slug}/price/homes-under-500k/`}>Homes Under $500K</a>
-          <a href={`/market/${county.slug}/price/homes-under-600k/`}>Homes Under $600K</a>
-          <a href={`/market/${county.slug}/price/homes-under-800k/`}>Homes Under $800K</a>
+      <!-- Price Range Links (only rendered for tiers with ≥3 qualifying zip codes) -->
+      {availablePriceTiers.length > 0 && (
+        <div class="price-range-nav">
+          <h3>Browse by Price Range</h3>
+          <div class="price-range-links">
+            {availablePriceTiers.map((tier) => (
+              <a href={`/market/${county.slug}/price/${tier.slug}/`}>{tier.label}</a>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <!-- Town Comparisons -->
       {countyComparisons.length > 0 && (

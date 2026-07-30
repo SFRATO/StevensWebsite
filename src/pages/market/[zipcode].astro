@@ -51,13 +51,19 @@ interface CountyData {
   median_sale_price: number | null;
 }
 
-// Generate static paths for all zip codes
+// Generate static paths for all zip codes with meaningful market data
 export function getStaticPaths() {
   const zipcodes = zipcodesData as ZipData[];
-  return zipcodes.map((zip) => ({
-    params: { zipcode: zip.zipcode },
-    props: { zipData: zip },
-  }));
+  return zipcodes
+    .filter((zip) =>
+      zip.median_sale_price !== null ||
+      zip.inventory !== null ||
+      zip.median_dom !== null
+    )
+    .map((zip) => ({
+      params: { zipcode: zip.zipcode },
+      props: { zipData: zip },
+    }));
 }
 
 const { zipData } = Astro.props as { zipData: ZipData };
@@ -195,14 +201,9 @@ const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 const title = `${locationName}, NJ Housing Market | ${currentMonthYear}`;
 const description = `${locationName} real estate market: median price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes for sale, ${zipData.median_dom ?? 'N/A'} days on market. Part of ${zipData.county}.`;
 
-// Canonical: if there's a single primary town for this zip, point to the town page
-const primaryTown = matchingTowns.length === 1 ? matchingTowns[0] : null;
-const canonicalUrl = primaryTown
-  ? `https://stevenfrato.com/market/${parentCountySlug}/${getTownSlug(primaryTown.name)}/`
-  : undefined;
 ---
 
-<BaseLayout title={title} description={description} schema={combinedSchema} canonical={canonicalUrl}>
+<BaseLayout title={title} description={description} schema={combinedSchema}>
   <MarketHero
     title={`What's Your ${townDisplayName} Home Worth?`}
     subtitle={heroSubtitle}

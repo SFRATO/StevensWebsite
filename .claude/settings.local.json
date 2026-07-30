@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -c \"comparisons.map\\\\|comparisonPairs\" src/pages/market/[county].astro)",
+      "Bash(grep -A5 \"canonicalUrl\\\\|canonical=\" src/pages/market/[zipcode].astro)",
+      "Bash(grep \"primaryTown\" src/pages/market/[zipcode].astro)",
+      "Bash(grep -c \"matchingTowns.length > 1\" src/pages/market/[zipcode].astro)",
+      "Bash(grep \"getTownGuide\\\\|getTownGuideBySlug\" src/pages/moving-to/[townSlug].astro)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
