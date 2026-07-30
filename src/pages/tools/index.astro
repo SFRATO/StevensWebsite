@@ -4,7 +4,7 @@
  * Directory of all free NJ real estate tools.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { generateBreadcrumbSchema } from '@utils/schema';
+import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
 import countiesData from '../../../data/processed/counties.json';
 import { formatCurrency } from '@utils/market-analysis';
 
@@ -21,6 +21,16 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   { name: 'Home', url: 'https://stevenfrato.com/' },
   { name: 'Free Tools', url: 'https://stevenfrato.com/tools/' },
 ]);
+
+const toolsFaqs = [
+  { question: 'How do I find out what my NJ home is worth for free?', answer: 'Use the free Home Value Estimator at stevenfrato.com/tools/home-value-estimator/. Enter your zip code and property details and get an instant estimate based on recent local sales data — no registration required. For a more precise valuation, request a free Comparative Market Analysis (CMA) from Steven Frato.' },
+  { question: 'How do I calculate NJ transfer tax and closing costs as a seller?', answer: 'Use the free NJ Transfer Tax & Net Proceeds Calculator at stevenfrato.com/tools/proceeds-calculator/. Enter your expected sale price and it calculates the NJ Realty Transfer Fee (RTF), exit tax (GIT withholding), agent commission, and all closing costs — showing your estimated net proceeds instantly.' },
+  { question: 'How much house can I afford to buy in NJ?', answer: 'Use the free NJ Mortgage Affordability Calculator at stevenfrato.com/tools/affordability-calculator/. Enter your gross income, down payment amount, and zip code. It factors in NJ\'s high property taxes (which significantly affect affordability) and shows your maximum home price, monthly payment breakdown, and how you compare to local market prices.' },
+  { question: 'How do I know if it\'s a good time to sell my house in NJ?', answer: 'Use the free Market Timing Tool at stevenfrato.com/tools/should-i-sell-now/. Select your zip code and it analyzes 5 market factors — current market type, year-over-year price trend, days on market, percentage of homes selling above asking price, and inventory levels — and returns a data-backed sell/wait verdict.' },
+  { question: 'Are these NJ real estate tools really free?', answer: 'Yes, all four tools are completely free to use with no registration, no sign-up, and no credit card required. They are provided by Steven Frato, a Century 21 licensed NJ realtor (License #2567370), as a resource for buyers and sellers in Burlington, Mercer, and Middlesex Counties.' },
+];
+
+const faqSchema = generateFAQSchema(toolsFaqs);
 
 const tools = [
   {
@@ -63,9 +73,9 @@ const tools = [
 ---
 
 <BaseLayout
-  title="Free NJ Real Estate Tools — Home Value, Market Timing & More"
-  description="Free interactive tools for NJ home buyers and sellers. Estimate your home value, check market timing, calculate net proceeds, and test affordability — all using real local data."
-  schema={breadcrumbSchema}
+  title="Free NJ Real Estate Calculators — Home Value, Transfer Tax, Mortgage & Market Timing"
+  description="Free NJ real estate calculators: home value estimator, NJ transfer tax & net proceeds calculator, mortgage affordability calculator, and market timing tool. No signup, instant results."
+  schema={[breadcrumbSchema, faqSchema]}
 >
   <section class="tools-hero">
     <div class="container">
@@ -108,9 +118,61 @@ const tools = [
       </p>
     </div>
   </section>
+
+  <!-- FAQ Section -->
+  <section class="tools-faq">
+    <div class="container">
+      <h2>NJ Real Estate Tools — Common Questions</h2>
+      <div class="faq-list">
+        {toolsFaqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
+  .tools-faq {
+    padding: var(--space-12) 0;
+    background: #f8f9fa;
+  }
+  .tools-faq h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin-bottom: var(--space-6);
+  }
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 800px;
+  }
+  .faq-item {
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+  }
+
   .tools-hero {
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     padding: var(--space-12) 0 var(--space-10);

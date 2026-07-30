@@ -5,6 +5,7 @@
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ContactForm from '@components/ContactForm.astro';
+import { generateRealEstateAgentSchema, generateBreadcrumbSchema } from '@utils/schema';
 
 // Import market data for stats
 import countiesData from '../../data/processed/counties.json';
@@ -24,8 +25,9 @@ const email = 'sf@stevenfrato.com';
 ---
 
 <BaseLayout
-  title="About Steven Frato | Century 21 Real Estate Agent"
-  description="Learn about Steven Frato, your local Century 21 real estate agent serving Burlington, Mercer, and Middlesex Counties, NJ. Data-driven guidance for buyers and sellers."
+  title="Steven Frato | Licensed NJ Realtor — Century 21 Burlington, Mercer & Middlesex County"
+  description="Steven Frato is a licensed NJ realtor (License #2567370) with Century 21 Action Plus Realty, serving Burlington, Mercer, and Middlesex Counties. Free consultations for buyers and sellers."
+  schema={[generateRealEstateAgentSchema(), generateBreadcrumbSchema([{ name: 'Home', url: 'https://stevenfrato.com/' }, { name: 'About', url: 'https://stevenfrato.com/about/' }])]}
 >
   <!-- Hero Section -->
   <section class="about-hero">

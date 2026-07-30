@@ -5,19 +5,39 @@
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import QualificationQuiz from '@components/QualificationQuiz.astro';
+import { generateRealEstateAgentSchema, generateLocalBusinessSchema, generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
+
+const faqs = [
+  { question: 'How do I find a good realtor in Burlington County NJ?', answer: 'Look for a licensed NJ realtor who specializes in your specific county and has data-driven knowledge of local market conditions. Steven Frato is a licensed Century 21 agent (NJ License #2567370) serving Burlington, Mercer, and Middlesex Counties with up-to-date market data for every town and zip code in the area. You can reach him directly at (609) 789-0126.' },
+  { question: 'Does Steven Frato work with first-time home buyers?', answer: 'Yes. First-time buyers are a specialty. Steven walks you through pre-approval, offer strategy, inspection, attorney review, and closing — step by step. He can also connect you with trusted local lenders and attorneys who know Burlington, Mercer, and Middlesex County transactions.' },
+  { question: 'How much does it cost to hire a real estate agent in NJ?', answer: 'For sellers, the total commission is typically 4–6% of the sale price, split between the listing agent and buyer\'s agent. For buyers, representation is generally free — the seller pays the commission. There\'s no upfront cost to consult with Steven or get a free market report.' },
+  { question: 'What areas does Steven Frato serve?', answer: 'Steven serves Burlington County (Moorestown, Mount Laurel, Medford, Evesham, Bordentown, and more), Mercer County (Princeton, West Windsor, Hamilton, Trenton, Lawrenceville, and more), and Middlesex County (South Brunswick, Old Bridge, East Brunswick, Edison, and more). All 3 counties, all 130+ towns.' },
+  { question: 'How do I schedule a free real estate consultation?', answer: 'Fill out the form on this page, call (609) 789-0126, or email sf@stevenfrato.com. Steven typically responds within a few hours during business hours. Consultations are free and come with no obligation — you\'ll receive a personalized market report for your area.' },
+];
+
+const schema = [
+  generateRealEstateAgentSchema(),
+  generateLocalBusinessSchema(),
+  generateBreadcrumbSchema([
+    { name: 'Home', url: 'https://stevenfrato.com/' },
+    { name: 'Contact', url: 'https://stevenfrato.com/contact/' },
+  ]),
+  generateFAQSchema(faqs),
+];
 ---
 
 <BaseLayout
-  title="Contact Steven Frato - Schedule Your Free Real Estate Consultation | Century 21 NJ"
-  description="Ready to buy or sell in Burlington, Mercer, or Middlesex County? Contact Steven Frato for a free consultation. Call (609) 789-0126 or fill out our form."
+  title="Realtor in Burlington County NJ | Contact Steven Frato — Century 21"
+  description="Looking for a realtor in Burlington, Mercer, or Middlesex County NJ? Contact Steven Frato at Century 21 Action Plus Realty. Free consultations for buyers and sellers. Call (609) 789-0126."
+  schema={schema}
 >
   <!-- Page Header -->
   <section class="page-header">
     <div class="container">
-      <h1>Let's Get Started</h1>
+      <h1>Contact Your Burlington County Realtor</h1>
       <p class="subtitle">
         Answer a few quick questions and I'll send you a personalized market report
-        for your area. No obligation - just helpful insights.
+        for your area. No obligation — just helpful insights from a local Century 21 agent.
       </p>
     </div>
   </section>
@@ -92,9 +112,61 @@ import QualificationQuiz from '@components/QualificationQuiz.astro';
       </div>
     </div>
   </section>
+
+  <!-- FAQ Section for SEO -->
+  <section class="contact-faq">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {faqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
+  .contact-faq {
+    padding: var(--space-12) 0;
+    background: #f8f9fa;
+  }
+  .contact-faq h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin-bottom: var(--space-6);
+  }
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 800px;
+  }
+  .faq-item {
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+  }
+
   .page-header {
     padding: var(--space-10) 0 var(--space-6);
     background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);

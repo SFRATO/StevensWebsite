@@ -4,7 +4,7 @@
  * Overview of all NJ market areas served
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { generateBreadcrumbSchema } from '@utils/schema';
+import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
 
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
@@ -46,12 +46,22 @@ const breadcrumbSchema = generateBreadcrumbSchema([
   { name: 'Market Data', url: 'https://stevenfrato.com/market/' },
 ]);
 
+const marketFaqs = [
+  { question: 'What is the current NJ housing market like in 2026?', answer: 'The NJ housing market in 2026 remains competitive across Burlington, Mercer, and Middlesex Counties. Inventory is limited in most areas, keeping upward pressure on prices. Burlington and Mercer counties are seller\'s markets with median days on market under 30 days in many towns. Use the county pages below for the most current data in your specific area.' },
+  { question: 'Are NJ home prices going up or down?', answer: 'Home prices in NJ have generally appreciated year-over-year across Burlington, Mercer, and Middlesex Counties, though the rate varies significantly by town and zip code. Some areas are seeing price growth of 5–10% YoY, while others are more stable. Check the individual county and town pages for the latest price trend data updated monthly.' },
+  { question: 'Is it a buyer\'s or seller\'s market in Burlington County NJ?', answer: 'Burlington County is generally a seller\'s market, with months of supply below 4 in most towns. This means there are more buyers than available homes, leading to faster sales and stronger offers. However, market conditions vary by price range and specific town — use the Burlington County market page to see the latest data.' },
+  { question: 'What is the median home price in NJ?', answer: 'Median home prices vary widely across NJ. In Burlington County, the median sale price is typically in the $350,000–$450,000 range. Mercer County centers around $400,000–$500,000, while Middlesex County ranges from $400,000 to $550,000+. Check the individual county pages below for the most current figures updated each month.' },
+  { question: 'How do I get a free NJ market report for my area?', answer: 'Fill out the contact form on this site or call Steven Frato at (609) 789-0126. You\'ll receive a personalized market report for your specific town or zip code within hours, covering median prices, days on market, and a recommendation on whether now is a good time to buy or sell.' },
+];
+
+const faqSchema = generateFAQSchema(marketFaqs);
+
 // Page meta
-const title = `New Jersey Real Estate Market Data | ${currentMonthYear}`;
-const description = `Current real estate market trends for Burlington, Mercer, and Middlesex Counties in New Jersey. View median home prices, inventory levels, and market insights updated monthly.`;
+const title = `NJ Real Estate Market Data 2026 — Burlington, Mercer & Middlesex County`;
+const description = `Current NJ housing market data updated monthly. View median home prices, inventory levels, days on market, and trends for Burlington, Mercer, and Middlesex Counties.`;
 ---
 
-<BaseLayout title={title} description={description} schema={breadcrumbSchema}>
+<BaseLayout title={title} description={description} schema={[breadcrumbSchema, faqSchema]}>
   <!-- Hero Section: Primary CTA -->
   <section class="market-hero">
     <div class="container">
@@ -126,10 +136,62 @@ const description = `Current real estate market trends for Burlington, Mercer, a
       </div>
     </div>
   </section>
+
+  <!-- FAQ Section -->
+  <section class="market-faq">
+    <div class="container">
+      <h2>NJ Housing Market — Common Questions</h2>
+      <div class="faq-list">
+        {marketFaqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
   /* Hero Section */
+  .market-faq {
+    padding: var(--space-12) 0;
+    background: #f8f9fa;
+  }
+  .market-faq h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin-bottom: var(--space-6);
+  }
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 800px;
+  }
+  .faq-item {
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+  }
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+  }
+
   .market-hero {
     background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
     padding: var(--space-16) 0;
