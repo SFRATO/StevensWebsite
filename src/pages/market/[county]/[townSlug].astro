@@ -143,41 +143,47 @@ const marketTypeBadgeClass = {
 }[zipData?.market_type ?? 'balanced'];
 
 // SEO
-const metaTitle = `${townName}, NJ Median Home Price & Real Estate Market | ${currentMonthYear}`;
+const metaTitle = `${townName}, NJ House Prices & Real Estate Market | ${currentMonthYear}`;
 const metaDesc = zipData?.median_sale_price
-  ? `${townName}, NJ housing market: median home price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes for sale, ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on market. ${marketTypeLabel}.`
-  : `${townName}, NJ real estate market data and trends. Get a free home value report from local Century 21 agent Steven Frato.`;
+  ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated ${currentMonthYear}.`
+  : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local Century 21 agent Steven Frato.`;
 
 // Dynamic FAQ
 const faqs = [
   {
-    question: `What is the median home price in ${townName}, NJ?`,
+    question: `Home prices in ${townName} NJ?`,
     answer: zipData?.median_sale_price
-      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)} as of ${formatDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `This is ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to the same period last year.` : ''}`
+      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)} as of ${formatDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Home values are ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year.` : ''}`
       : `Contact Steven Frato for current pricing data in ${townName}, NJ.`,
   },
   {
-    question: `Is ${townName}, NJ a seller's or buyer's market?`,
+    question: `${townName} NJ houses for sale?`,
+    answer: zipData?.inventory !== null
+      ? `There are currently ${zipData!.inventory} active listings in the ${townName}, NJ area as of ${formatDate(zipData!.period_end)}. Inventory is ${(zipData!.months_of_supply ?? 4) < 3 ? 'very low — homes go fast and competition is high' : (zipData!.months_of_supply ?? 4) < 5 ? 'moderate — well-priced homes sell within weeks' : 'relatively healthy, giving buyers more options'}. Contact Steven Frato for new listing alerts.`
+      : `Contact Steven Frato to get current listings and new-listing alerts for ${townName}, NJ.`,
+  },
+  {
+    question: `Is ${townName} NJ a seller's or buyer's market?`,
     answer: zipData
       ? (() => {
           const mtLabel = zipData.market_type === 'seller' ? "seller's" : zipData.market_type === 'buyer' ? "buyer's" : 'balanced';
           const supplyNote = zipData.months_of_supply !== null ? `With ${zipData.months_of_supply.toFixed(1)} months of supply, ` : '';
-          const detail = zipData.market_type === 'seller' ? 'inventory is tight and buyer demand is strong.' : zipData.market_type === 'buyer' ? 'there is more inventory available and buyers have more negotiating power.' : 'supply and demand are relatively balanced.';
+          const detail = zipData.market_type === 'seller' ? 'inventory is tight and buyer demand is strong.' : zipData.market_type === 'buyer' ? 'there is more inventory and buyers have more negotiating power.' : 'supply and demand are relatively balanced.';
           return `${townName} is currently a ${mtLabel} market. ${supplyNote}${detail}`;
         })()
       : `Contact Steven Frato for current market conditions in ${townName}.`,
   },
   {
-    question: `How long do homes take to sell in ${townName}, NJ?`,
+    question: `How fast do homes sell in ${townName} NJ?`,
     answer: zipData?.median_dom !== null
-      ? `Homes in ${townName} are currently selling in a median of ${Math.round(zipData!.median_dom!)} days on market${zipData!.median_dom_yoy !== null ? ` (${zipData!.median_dom_yoy > 0 ? 'slower' : 'faster'} than last year)` : ''}.`
+      ? `Homes in ${townName} are selling in a median of ${Math.round(zipData!.median_dom!)} days${zipData!.median_dom_yoy !== null ? ` — ${zipData!.median_dom_yoy > 0 ? 'slower' : 'faster'} than last year` : ''}. ${zipData!.sold_above_list_pct !== null ? `${zipData!.sold_above_list_pct!.toFixed(0)}% of homes sell at or above asking price.` : ''}`
       : `Contact Steven Frato for current days-on-market data for ${townName}.`,
   },
   {
-    question: `What percentage of homes in ${townName} sell above asking price?`,
-    answer: zipData?.sold_above_list_pct !== null
-      ? `${zipData!.sold_above_list_pct!.toFixed(0)}% of homes in ${townName} recently sold at or above their asking price, indicating ${zipData!.sold_above_list_pct! > 40 ? 'strong' : 'moderate'} buyer competition.`
-      : `Contact Steven for current sold-above-list data for ${townName}.`,
+    question: `Good place to buy a home in ${townName} NJ?`,
+    answer: zipData
+      ? `${townName} is part of ${countyName}, NJ — known for its schools, suburban lifestyle, and commute access to Philadelphia and New York. The current market is a ${marketTypeLabel.toLowerCase()}. ${zipData.median_sale_price ? `Median price: ${formatCurrency(zipData.median_sale_price)}.` : ''} For a free consultation, contact Steven Frato at Century 21.`
+      : `${townName} is part of ${countyName}, NJ — a desirable area for buyers and sellers alike. Contact Steven Frato at Century 21 for a personalized assessment.`,
   },
 ];
 

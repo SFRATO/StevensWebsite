@@ -10,6 +10,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyToken } from "../_shared/tokens.ts";
 
 // Environment variables
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -19,23 +20,14 @@ const SITE_URL = Deno.env.get("SITE_URL") || "https://stevenfrato.com";
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-// Helper: Parse token to get lead ID
-function parseToken(token: string): string | null {
-  try {
-    // Token format: base64(leadId:timestamp)
-    const decoded = atob(token);
-    const [leadId] = decoded.split(":");
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(leadId)) {
-      return null;
-    }
-
-    return leadId;
-  } catch {
-    return null;
-  }
+// Helper: Parse token to get lead ID.
+//
+// Tokens are HMAC-signed (see _shared/tokens.ts). Legacy unsigned
+// `base64(leadId:timestamp)` tokens are still accepted so unsubscribe links in
+// already-delivered emails keep working — CAN-SPAM requires them to function.
+// Remove `allowLegacy` once the oldest sent campaign has aged out.
+function parseToken(token: string): Promise<string | null> {
+  return verifyToken("unsubscribe", token, true);
 }
 
 // Generate the confirmation HTML page
@@ -218,7 +210,7 @@ serve(async (req) => {
     }
 
     // Parse the token to get lead ID
-    const leadId = parseToken(token);
+    const leadId = await parseToken(token);
 
     if (!leadId) {
       return new Response(

@@ -8,6 +8,7 @@ import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { calcAffordability, fmtCurrency } from '../../utils/toolsCalc';
 import { trackEvent } from '@utils/analytics';
+import { trackActivity } from '@utils/leadActivity';
 import LocationPickerIsland from './LocationPickerIsland';
 
 interface Props {
@@ -126,6 +127,8 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
     if (result) {
       const t = setTimeout(() => {
         trackEvent('Engagement', 'Tool Calculated', 'Max Home Price', Math.round(result.maxHomePrice / 1000));
+        // Behaviour trigger signal — tool identity only, never income/debt inputs.
+        trackActivity('tool_use', { tool: 'affordability-calculator' });
       }, 600);
       return () => clearTimeout(t);
     }

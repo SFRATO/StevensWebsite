@@ -9,7 +9,7 @@ import MarketCard from '@components/MarketCard.astro';
 import TrendIndicator from '@components/TrendIndicator.astro';
 import MarketReportForm from '@components/MarketReportForm.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
-import { generateBreadcrumbSchema, generateMarketDataSchema } from '@utils/schema';
+import { generateBreadcrumbSchema, generateMarketDataSchema, generateFAQSchema } from '@utils/schema';
 import { getTownsByCountySlug, getTownSlug, serviceAreas } from '../../data/town-mappings';
 import { comparisonPairs } from '../../data/comparisons';
 
@@ -129,12 +129,40 @@ const marketDataSchema = generateMarketDataSchema({
   lastUpdated: county.last_updated,
 });
 
+// County-level FAQs targeting "[county] house prices" queries
+const marketTypeLabel =
+  county.market_type === 'seller' ? "a seller's market" :
+  county.market_type === 'buyer' ? "a buyer's market" : 'a balanced market';
+const yoyText = county.median_sale_price_yoy !== null
+  ? ` That's ${county.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(county.median_sale_price_yoy).toFixed(1)}% from last year.`
+  : '';
+const countyFaqs = [
+  {
+    question: `Home prices in ${county.region} NJ?`,
+    answer: `The median home price in ${county.region}, NJ is ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}.${yoyText} There are currently ${county.inventory ?? 'N/A'} homes for sale across the county.`,
+  },
+  {
+    question: `${county.region} NJ houses for sale?`,
+    answer: `There are currently ${county.inventory ?? 'N/A'} active listings in ${county.region}, NJ. Homes are spending an average of ${county.median_dom ?? 'N/A'} days on market. Use the town grid below to browse by neighborhood, or filter by price range.`,
+  },
+  {
+    question: `Is ${county.region} NJ a buyer's or seller's market?`,
+    answer: `${county.region} is currently ${marketTypeLabel}. ${county.months_of_supply !== null ? `With ${county.months_of_supply.toFixed(1)} months of supply, ` : ''}${county.market_type === 'seller' ? 'demand is strong and buyers should be prepared to act quickly.' : county.market_type === 'buyer' ? 'buyers have more negotiating leverage and time to evaluate homes.' : 'conditions are relatively balanced.'} Contact Steven Frato for a free consultation.`,
+  },
+  {
+    question: `Best value towns in ${county.region} NJ?`,
+    answer: `${county.region} has a wide range of home prices by town. Check the town grid below for individual market data, or browse by price range to find homes within your budget. Steven Frato can help identify the best-value neighborhoods for your needs.`,
+  },
+];
+
+const faqSchema = generateFAQSchema(countyFaqs);
+
 // Combine schemas
-const combinedSchema = [breadcrumbSchema, marketDataSchema];
+const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 
 // Page meta
-const title = `${county.region} Real Estate Market Report | ${currentMonthYear}`;
-const description = `${county.region}, NJ housing market data: median home price ${formatCurrency(county.median_sale_price)}, ${county.inventory} active listings, ${county.median_dom} days on market. Updated ${formatDate(county.period_end)}.`;
+const title = `${county.region} NJ House Prices & Real Estate Market | ${currentMonthYear}`;
+const description = `${county.region} house prices: median ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}. ${county.inventory ?? 'N/A'} active listings, ${county.median_dom ?? 'N/A'} days on market. Updated monthly.`;
 ---
 
 <BaseLayout title={title} description={description} schema={combinedSchema}>
@@ -347,6 +375,21 @@ const description = `${county.region}, NJ housing market data: median home price
           <h3>All Markets</h3>
           <span class="link">Back to Overview</span>
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section for "[county] house prices" SEO -->
+  <section class="county-faq">
+    <div class="container">
+      <h2>{county.region} Real Estate — Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {countyFaqs.map((faq) => (
+          <details class="faq-item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
       </div>
     </div>
   </section>
@@ -702,6 +745,50 @@ const description = `${county.region}, NJ housing market data: median home price
 
   .back-link .link {
     color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* County FAQ */
+  .county-faq {
+    padding: var(--space-12) 0;
+    background: #f8f9fa;
+  }
+
+  .county-faq h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--charcoal);
+    margin-bottom: var(--space-6);
+  }
+
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 800px;
+  }
+
+  .faq-item {
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .faq-item summary {
+    padding: var(--space-4) var(--space-5);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    color: var(--charcoal);
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker { display: none; }
+
+  .faq-item p {
+    padding: 0 var(--space-5) var(--space-4);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
   }
 
   /* Disclaimer */

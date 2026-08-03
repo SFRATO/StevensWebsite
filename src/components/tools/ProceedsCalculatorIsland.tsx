@@ -8,6 +8,7 @@ import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { calcNetProceeds, fmtCurrency, fmtPct } from '../../utils/toolsCalc';
 import { trackEvent } from '@utils/analytics';
+import { trackActivity } from '@utils/leadActivity';
 import LocationPickerIsland from './LocationPickerIsland';
 
 interface Props {
@@ -126,6 +127,9 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
     if (result) {
       const t = setTimeout(() => {
         trackEvent('Engagement', 'Tool Calculated', 'Net Proceeds', Math.round(result.netProceeds / 1000));
+        // Behaviour trigger signal. No-ops for anonymous or non-consenting
+        // visitors; records only which tool was used, never the figures entered.
+        trackActivity('tool_use', { tool: 'proceeds-calculator' });
       }, 600);
       return () => clearTimeout(t);
     }

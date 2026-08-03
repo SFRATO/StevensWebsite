@@ -1,141 +1,222 @@
 ---
 /**
  * ExitIntentPopup Component
- * Simplified lead capture that triggers on exit intent
- * Shows once per session, respects dismissal
+ *
+ * Two-step, stat-led lead capture mounted globally in BaseLayout.
+ *
+ * Step 1 asks for one thing — an email — against a real market stat for the
+ * page the visitor is on. The lead is created the moment step 1 submits, so
+ * nobody is lost to step 2.
+ *
+ * Step 2 asks intent + timeline *after* they've committed, and updates the
+ * lead in place. Nothing is pre-selected: an unanswered question posts nothing
+ * so the server keeps its honest default rather than recording a guess.
+ *
+ * Location comes from the pathname via resolveLocationFromPath() — the
+ * component has no page props but every route encodes its geography.
  */
+import { resolveLocationFromPath, formatLocationStat } from '@utils/pageLocation';
+import { computeMoversAndShakers, formatPercent } from '@utils/market-analysis';
+
 interface Props {
   hideOnPages?: string[];
 }
 
-const {
-  hideOnPages = ['/thank-you', '/contact'],
-} = Astro.props;
+const { hideOnPages = ['/thank-you', '/contact'] } = Astro.props;
 
-// Check if current page should hide the popup
 const currentPath = Astro.url.pathname;
-const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
+const shouldHide = hideOnPages.some((page) => currentPath.startsWith(page));
+
+const location = resolveLocationFromPath(currentPath);
+const statLine = location ? formatLocationStat(location) : null;
+
+// A known zip becomes a hidden field — one less thing to type. County-scoped
+// pages span many towns, so those still ask.
+const knownZip = location?.zipcode ?? null;
+
+// Copy varies by how specific the page is.
+let eyebrow: string;
+let headline: string;
+let subcopy: string;
+let fallbackStat: string | null = null;
+
+if (location && statLine) {
+  eyebrow = location.scope === 'county' ? location.label : `${location.label}, NJ`;
+  headline = `Want next month's ${location.label} numbers?`;
+  subcopy = `A free monthly ${location.label} market update — median price, days on market, and what it means if you're thinking of selling. One email a month.`;
+} else {
+  // No geography (home, about, tools) or no data for this area: lead with the
+  // strongest real number we have across the coverage area.
+  const hottest = computeMoversAndShakers(1).hotMarkets[0];
+  eyebrow = 'New Jersey market';
+  headline = "Want your town's numbers?";
+  subcopy =
+    'A free monthly market update for your area — median price, days on market, and what it means if you\'re thinking of selling. One email a month.';
+  if (hottest && hottest.priceYoY !== null) {
+    fallbackStat = `${hottest.name} is leading the area at ${formatPercent(hottest.priceYoY)} YoY`;
+  }
+}
+
+const displayStat = statLine ?? fallbackStat;
 ---
 
 {!shouldHide && (
-  <div class="exit-popup-overlay" id="exit-popup" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="exit-popup-title">
+  <div
+    class="exit-popup-overlay"
+    id="exit-popup"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="exit-popup-title"
+  >
     <div class="exit-popup">
       <button class="popup-close" aria-label="Close popup" id="exit-popup-close">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
 
-      <div class="popup-content">
-        <div class="popup-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+      <!-- Step 1: the ask -->
+      <div class="popup-step" id="exit-popup-step1">
+        <div class="stat-hook">
+          <p class="stat-eyebrow">{eyebrow}</p>
+          {displayStat && <p class="stat-line">{displayStat}</p>}
         </div>
 
-        <h2 id="exit-popup-title">Before You Go...</h2>
-        <p>Get a free market update for your area — no spam, just helpful data when conditions change.</p>
+        <div class="popup-body">
+          <h2 id="exit-popup-title">{headline}</h2>
+          <p class="popup-sub">{subcopy}</p>
 
-        <form
-          class="popup-form"
-          id="exit-intent-form"
-        >
-          <input type="hidden" name="form-name" value="market-report" />
-          <input type="hidden" name="source-location" value="Exit Intent Popup" />
-          <input type="hidden" name="address" value="Not provided" />
-          <p class="hidden">
-            <label>Don't fill this out: <input name="bot-field" /></label>
-          </p>
+          <form class="popup-form" id="exit-intent-form" novalidate>
+            <input type="hidden" name="form-name" value="market-report" />
+            <input type="hidden" name="source-location" value="Exit Intent Popup" />
+            <input type="hidden" name="address" value="Not provided" />
+            {knownZip && <input type="hidden" name="zipcode" value={knownZip} />}
+            <p class="visually-hidden-field">
+              <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+            </p>
 
-          <!-- Intent Question -->
-          <div class="intent-question">
-            <label class="question-label">What best describes you?</label>
-            <div class="intent-options">
-              <label class="intent-option">
-                <input type="radio" name="interest" value="selling" />
-                <span>Thinking of Selling</span>
-              </label>
-              <label class="intent-option">
-                <input type="radio" name="interest" value="buying" />
-                <span>Looking to Buy</span>
-              </label>
-              <label class="intent-option">
-                <input type="radio" name="interest" value="home-value" checked />
-                <span>Checking Home Value</span>
-              </label>
+            <div class={knownZip ? 'form-row single' : 'form-row'}>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email address"
+                required
+                autocomplete="email"
+                aria-label="Email address"
+                class="popup-input"
+              />
+              {!knownZip && (
+                <input
+                  type="text"
+                  name="zipcode"
+                  placeholder="Zip code"
+                  inputmode="numeric"
+                  pattern="[0-9]{5}"
+                  maxlength="5"
+                  required
+                  autocomplete="postal-code"
+                  aria-label="Zip code"
+                  class="popup-input zip-input"
+                />
+              )}
             </div>
+
+            <p class="form-error" id="exit-popup-error" role="alert" hidden></p>
+
+            <button type="submit" class="popup-submit">Send Me The Numbers</button>
+
+            <p class="privacy-note">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              No spam. Unsubscribe anytime.
+            </p>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 2: qualification, after they've committed -->
+      <div class="popup-step" id="exit-popup-step2" hidden>
+        <div class="popup-body">
+          <div class="step2-confirm">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>You're on the list.</span>
           </div>
 
-          <!-- Timeline Question -->
-          <div class="timeline-question">
-            <label class="question-label">When are you thinking of making a move?</label>
-            <div class="timeline-options">
-              <label class="timeline-option">
-                <input type="radio" name="timeline" value="within-30-days" />
-                <span>Within 30 days</span>
-              </label>
-              <label class="timeline-option">
-                <input type="radio" name="timeline" value="1-3-months" />
-                <span>1-3 months</span>
-              </label>
-              <label class="timeline-option">
-                <input type="radio" name="timeline" value="3-6-months" checked />
-                <span>3-6 months</span>
-              </label>
-              <label class="timeline-option">
-                <input type="radio" name="timeline" value="6-plus-months" />
-                <span>Just curious</span>
-              </label>
+          <h2 id="exit-popup-step2-title">Two quick questions?</h2>
+          <p class="popup-sub">Optional — but it lets me send you numbers that actually apply to you.</p>
+
+          <form class="popup-form" id="exit-qualify-form" novalidate>
+            <div class="chip-question">
+              <span class="question-label" id="q-interest-label">What best describes you?</span>
+              <div class="chip-options chip-3" role="radiogroup" aria-labelledby="q-interest-label">
+                <label class="chip">
+                  <input type="radio" name="interest" value="selling" />
+                  <span>Thinking of selling</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="interest" value="buying" />
+                  <span>Looking to buy</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="interest" value="home-value" />
+                  <span>Checking home value</span>
+                </label>
+              </div>
             </div>
-          </div>
 
-          <input
-            type="text"
-            name="name"
-            placeholder="Your name (optional)"
-            aria-label="Your name"
-            class="popup-input"
-          />
+            <div class="chip-question">
+              <span class="question-label" id="q-timeline-label">When are you thinking of making a move?</span>
+              <div class="chip-options chip-2" role="radiogroup" aria-labelledby="q-timeline-label">
+                <label class="chip">
+                  <input type="radio" name="timeline" value="within-30-days" />
+                  <span>Within 30 days</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="timeline" value="1-3-months" />
+                  <span>1–3 months</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="timeline" value="3-6-months" />
+                  <span>3–6 months</span>
+                </label>
+                <label class="chip">
+                  <input type="radio" name="timeline" value="6-plus-months" />
+                  <span>Just curious</span>
+                </label>
+              </div>
+            </div>
 
-          <div class="form-row">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email address"
-              required
-              aria-label="Email address"
-            />
             <input
               type="text"
-              name="zipcode"
-              placeholder="Zip code"
-              pattern="[0-9]{5}"
-              maxlength="5"
-              required
-              aria-label="Zip code"
+              name="name"
+              placeholder="Your name (optional)"
+              autocomplete="name"
+              aria-label="Your name"
+              class="popup-input"
             />
-          </div>
 
-          <button type="submit" class="popup-submit">
-            Get My Market Update
-          </button>
+            <div class="step2-actions">
+              <button type="button" class="popup-skip" id="exit-popup-skip">Skip</button>
+              <button type="submit" class="popup-submit">Done</button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-          <p class="privacy-note">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            No spam. Unsubscribe anytime.
-          </p>
-        </form>
-
-        <div class="popup-success" id="exit-popup-success" style="display: none;">
+      <!-- Final confirmation -->
+      <div class="popup-step" id="exit-popup-success" hidden>
+        <div class="popup-body popup-success">
           <div class="success-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h3>You're Signed Up!</h3>
-          <p>You'll receive market updates when data changes in your area.</p>
+          <h2 id="exit-popup-success-title">You're all set</h2>
+          <p class="popup-sub">Your first market update is on its way. Watch your inbox.</p>
         </div>
       </div>
     </div>
@@ -144,19 +225,43 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 
 <script>
   import { trackEvent } from '@utils/analytics';
+  import { getConsent } from '@utils/consent';
+  import { identifyLead, isKnownLead } from '@utils/leadIdentity';
 
-  // Session storage key — popup shows once per session
   const STORAGE_KEY = 'exit_popup_shown';
+  const SESSION_START_KEY = 'exit_popup_session_start';
 
   let docListenersBound = false;
   let popupShown = false;
   let mobileTimeout: ReturnType<typeof setTimeout> | undefined;
 
+  /** Element the focus was on before the dialog opened, so we can restore it. */
+  let lastFocused: HTMLElement | null = null;
+
+  /** Token + email from step 1, needed to update the lead in step 2. */
+  let leadToken: string | null = null;
+  let leadEmail = '';
+  let leadZip = '';
+
   // Query fresh each call — the popup element is re-rendered on view transitions.
   const getPopup = () => document.getElementById('exit-popup');
 
+  const FOCUSABLE =
+    'button:not([disabled]), [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])';
+
+  /** Visible focusable elements inside the dialog (hidden steps are excluded). */
+  const focusables = (popup: HTMLElement): HTMLElement[] =>
+    Array.from(popup.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (el) => el.offsetParent !== null || el === document.activeElement
+    );
+
   const showPopup = () => {
     if (popupShown || sessionStorage.getItem(STORAGE_KEY)) return;
+
+    // Don't stack modals: the cookie decision comes first, and there is no point
+    // asking a visitor who already gave us their email.
+    if (getConsent() === null || isKnownLead()) return;
+
     const popup = getPopup();
     if (!popup) return;
 
@@ -165,14 +270,14 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     // submit or an explicit dismiss (see hidePopup / submit handler). Setting it on
     // view previously meant a failed submit could never re-prompt.
 
+    lastFocused = document.activeElement as HTMLElement | null;
+
     popup.classList.add('visible');
     popup.setAttribute('aria-hidden', 'false');
 
-    // Focus trap
-    const firstInput = popup.querySelector('input');
-    if (firstInput) (firstInput as HTMLElement).focus();
+    const firstInput = popup.querySelector<HTMLElement>('input[type="email"]');
+    (firstInput ?? popup.querySelector<HTMLElement>('.popup-close'))?.focus();
 
-    // Track popup view (engagement, not a conversion)
     trackEvent('Engagement', 'Popup View', 'Exit Intent');
   };
 
@@ -184,12 +289,95 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     // Suppress for the rest of the session once dismissed (or auto-closed after a
     // successful submit) so we don't re-nag the visitor.
     sessionStorage.setItem(STORAGE_KEY, 'true');
+
+    lastFocused?.focus?.();
+    lastFocused = null;
+  };
+
+  /** Swap which step is on screen, retitle the dialog, and move focus into it. */
+  const showStep = (id: string) => {
+    const popup = getPopup();
+    if (!popup) return;
+
+    for (const step of popup.querySelectorAll<HTMLElement>('.popup-step')) {
+      step.hidden = step.id !== id;
+    }
+
+    const active = document.getElementById(id);
+    if (!active) return;
+
+    // Keep the dialog's accessible name pointing at the heading that is actually
+    // on screen — otherwise it resolves to a hidden element and reads as unnamed.
+    const heading = active.querySelector<HTMLElement>('h2[id]');
+    if (heading) popup.setAttribute('aria-labelledby', heading.id);
+
+    active.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+  };
+
+  const setError = (message: string | null) => {
+    const el = document.getElementById('exit-popup-error');
+    if (!el) return;
+    el.textContent = message ?? '';
+    el.hidden = !message;
+  };
+
+  const post = async (body: Record<string, string>) => {
+    const response = await fetch('/api/market-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(body).toString(),
+    });
+    if (!response.ok) throw new Error(`Submission failed (${response.status})`);
+    return (await response.json().catch(() => ({}))) as { lead_token?: string };
+  };
+
+  /**
+   * Mobile: show after ~30s of CUMULATIVE engagement across the whole session.
+   * Astro view transitions re-run init on every page, so a per-page timer never
+   * fired for multi-page mobile visitors — track a session start instead.
+   *
+   * `minDelay` gives the visitor a beat after they dismiss the cookie banner,
+   * so accepting cookies doesn't slam a second modal in their face.
+   */
+  const armMobileTimer = (minDelay = 0) => {
+    if (window.innerWidth >= 768 || popupShown) return;
+
+    let sessionStart = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0', 10);
+    if (!sessionStart) {
+      sessionStart = Date.now();
+      sessionStorage.setItem(SESSION_START_KEY, String(sessionStart));
+    }
+
+    const elapsed = Math.max(0, 30000 - (Date.now() - sessionStart));
+    if (mobileTimeout) clearTimeout(mobileTimeout);
+    mobileTimeout = setTimeout(() => {
+      if (!popupShown && document.visibilityState === 'visible') showPopup();
+    }, Math.max(elapsed, minDelay));
   };
 
   // Document/window-level listeners bound once (they survive view transitions).
   const bindGlobalListenersOnce = () => {
     if (docListenersBound) return;
     docListenersBound = true;
+
+    // A visitor who reaches a trigger before deciding on cookies is skipped by
+    // showPopup()'s guard, and on mobile that consumes the one-shot timer. Once
+    // they decide, re-arm the timer and re-check scroll depth so they aren't
+    // silently excluded for the rest of the session.
+    window.addEventListener('sf:consent', () => {
+      if (popupShown || sessionStorage.getItem(STORAGE_KEY)) return;
+
+      armMobileTimer(5000);
+
+      // Same grace period on desktop: dismissing one dialog should not
+      // immediately summon the next.
+      setTimeout(() => {
+        if (popupShown) return;
+        const doc = document.documentElement;
+        const denom = doc.scrollHeight - window.innerHeight;
+        if (denom > 0 && doc.scrollTop / denom >= 0.6) showPopup();
+      }, 5000);
+    });
 
     // Exit intent detection (desktop): mouse leaves viewport from top
     document.addEventListener('mouseout', (e) => {
@@ -198,55 +386,202 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 
     // Scroll-depth trigger (touch devices have no mouseout): show once the visitor
     // has scrolled past ~60% of the page — a strong mobile engagement signal.
-    document.addEventListener('scroll', () => {
-      if (popupShown) return;
-      const doc = document.documentElement;
-      const denom = doc.scrollHeight - window.innerHeight;
-      if (denom > 0 && doc.scrollTop / denom >= 0.6) showPopup();
-    }, { passive: true });
+    document.addEventListener(
+      'scroll',
+      () => {
+        if (popupShown) return;
+        const doc = document.documentElement;
+        const denom = doc.scrollHeight - window.innerHeight;
+        if (denom > 0 && doc.scrollTop / denom >= 0.6) showPopup();
+      },
+      { passive: true }
+    );
 
-    // Close on escape
+    // Escape to close, Tab confined to the dialog while it's open.
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && getPopup()?.classList.contains('visible')) {
+      const popup = getPopup();
+      if (!popup?.classList.contains('visible')) return;
+
+      if (e.key === 'Escape') {
         hidePopup();
+        return;
+      }
+
+      if (e.key !== 'Tab') return;
+
+      const items = focusables(popup);
+      if (items.length === 0) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      // Wrap at both ends, and pull focus back in if it has escaped the dialog.
+      if (e.shiftKey && (active === first || !popup.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !popup.contains(active))) {
+        e.preventDefault();
+        first.focus();
       }
     });
 
-    // Cleanup
     window.addEventListener('beforeunload', () => {
       if (mobileTimeout) clearTimeout(mobileTimeout);
     });
   };
 
-  const initExitPopup = () => {
-    // Nothing to do if already shown/converted this session.
-    if (sessionStorage.getItem(STORAGE_KEY)) return;
+  const bindStep1 = (form: HTMLFormElement) => {
+    if (form.dataset.bound) return;
+    form.dataset.bound = '1';
 
+    form.addEventListener(
+      'focusin',
+      () => trackEvent('Lead', 'Form Start', 'Exit Intent Popup'),
+      { once: true }
+    );
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setError(null);
+
+      const formData = new FormData(form);
+      const email = String(formData.get('email') ?? '').trim();
+      const zipcode = String(formData.get('zipcode') ?? '').trim();
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('Please enter a valid email address.');
+        form.querySelector<HTMLElement>('input[type="email"]')?.focus();
+        return;
+      }
+      if (!/^\d{5}$/.test(zipcode)) {
+        setError('Please enter a 5-digit zip code.');
+        form.querySelector<HTMLElement>('.zip-input')?.focus();
+        return;
+      }
+
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const originalLabel = submitBtn?.textContent ?? 'Send Me The Numbers';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+      }
+
+      try {
+        const result = await post({
+          'form-name': 'market-report',
+          'source-location': 'Exit Intent Popup',
+          address: 'Not provided',
+          'bot-field': String(formData.get('bot-field') ?? ''),
+          email,
+          zipcode,
+          // Real name is asked for in step 2; the server requires a non-empty one.
+          name: 'Website Visitor',
+        });
+
+        leadToken = result.lead_token ?? null;
+        leadEmail = email;
+        leadZip = zipcode;
+
+        // Suppress for the session — the lead exists now even if step 2 is skipped.
+        sessionStorage.setItem(STORAGE_KEY, 'true');
+        await identifyLead(email, leadToken);
+
+        trackEvent('Lead', 'Exit Intent Popup');
+
+        showStep('exit-popup-step2');
+        trackEvent('Engagement', 'Popup Step 2 Shown');
+      } catch {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalLabel;
+        }
+        setError("We couldn't save that just now. Please try again in a moment.");
+      }
+    });
+  };
+
+  const finish = () => {
+    showStep('exit-popup-success');
+    setTimeout(hidePopup, 2500);
+  };
+
+  const bindStep2 = (form: HTMLFormElement) => {
+    if (form.dataset.bound) return;
+    form.dataset.bound = '1';
+
+    form.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.name === 'interest') {
+        trackEvent('Engagement', 'Exit Popup Intent Selected', target.value);
+      }
+      if (target.name === 'timeline') {
+        trackEvent('Engagement', 'Exit Popup Timeline Selected', target.value);
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const interest = String(formData.get('interest') ?? '');
+      const timeline = String(formData.get('timeline') ?? '');
+      const name = String(formData.get('name') ?? '').trim();
+
+      // Nothing answered — same outcome as Skip, no pointless round trip.
+      if (!interest && !timeline && !name) {
+        trackEvent('Engagement', 'Popup Step 2 Skipped', 'Empty');
+        finish();
+        return;
+      }
+
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Saving...';
+      }
+
+      const payload: Record<string, string> = {
+        'form-name': 'market-report',
+        'source-location': 'Exit Intent Popup',
+        qualify: '1',
+        email: leadEmail,
+        zipcode: leadZip,
+        name: name || 'Website Visitor',
+      };
+      if (leadToken) payload.lead_token = leadToken;
+      // Only send what they actually chose — an omitted field must not be guessed.
+      if (interest) payload.interest = interest;
+      if (timeline) payload.timeline = timeline;
+
+      try {
+        await post(payload);
+        trackEvent('Engagement', 'Popup Step 2 Completed', interest || 'unspecified');
+      } catch {
+        // The lead already landed in step 1; qualification is a bonus, so a
+        // failure here should not be shown as an error to the visitor.
+        trackEvent('Engagement', 'Popup Step 2 Failed');
+      }
+
+      finish();
+    });
+  };
+
+  const initExitPopup = () => {
     const popup = getPopup();
     const closeBtn = document.getElementById('exit-popup-close');
-    const form = document.getElementById('exit-intent-form') as HTMLFormElement | null;
-    const successMsg = document.getElementById('exit-popup-success');
+    const step1Form = document.getElementById('exit-intent-form') as HTMLFormElement | null;
+    const step2Form = document.getElementById('exit-qualify-form') as HTMLFormElement | null;
+    const skipBtn = document.getElementById('exit-popup-skip');
 
-    if (!popup || !closeBtn || !form) return;
+    if (!popup || !closeBtn || !step1Form) return;
 
     bindGlobalListenersOnce();
 
-    // Mobile: show after ~30s of CUMULATIVE engagement across the whole session.
-    // Astro view transitions re-run this init on every page, so a per-page timer
-    // never fired for multi-page mobile visitors — track a session start instead.
-    if (window.innerWidth < 768 && !popupShown) {
-      const SESSION_START_KEY = 'exit_popup_session_start';
-      let sessionStart = parseInt(sessionStorage.getItem(SESSION_START_KEY) || '0', 10);
-      if (!sessionStart) {
-        sessionStart = Date.now();
-        sessionStorage.setItem(SESSION_START_KEY, String(sessionStart));
-      }
-      const remaining = Math.max(0, 30000 - (Date.now() - sessionStart));
-      if (mobileTimeout) clearTimeout(mobileTimeout);
-      mobileTimeout = setTimeout(() => {
-        if (!popupShown && document.visibilityState === 'visible') showPopup();
-      }, remaining);
-    }
+    // Nothing more to do if the visitor already saw it, converted, or is known.
+    if (sessionStorage.getItem(STORAGE_KEY) || isKnownLead()) return;
+
+    armMobileTimer();
 
     // Element-level listeners — bind once per freshly-rendered element.
     if (!closeBtn.dataset.bound) {
@@ -261,80 +596,16 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
       });
     }
 
-    if (!form.dataset.bound) {
-      form.dataset.bound = '1';
-
-      // Track form start on first field interaction
-      form.addEventListener(
-        'focusin',
-        () => trackEvent('Lead', 'Form Start', 'Exit Intent Popup'),
-        { once: true }
-      );
-
-      // Track intent and timeline selections
-      form.addEventListener('change', (e) => {
-        const target = e.target as HTMLInputElement;
-        if (target.name === 'interest') {
-          trackEvent('Engagement', 'Exit Popup Intent Selected', target.value);
-        }
-        if (target.name === 'timeline') {
-          trackEvent('Engagement', 'Exit Popup Timeline Selected', target.value);
-        }
-      });
-
-      // Personalize headline based on current page zip
-      const zipMatch = window.location.pathname.match(/\/market\/(\d{5})\//);
-      if (zipMatch) {
-        const titleEl = document.getElementById('exit-popup-title');
-        if (titleEl) titleEl.textContent = `Get Your ${zipMatch[1]} Market Update`;
-      }
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const formData = new FormData(form);
-        // Add a fallback name; do NOT send an empty town — the server derives town
-        // from the zipcode. (Sending town='' previously failed validation 100%.)
-        if (!formData.get('name')) formData.set('name', 'Website Visitor');
-        if (!formData.get('town')) formData.delete('town');
-
-        const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Submitting...';
-        }
-
-        try {
-          const response = await fetch('/api/market-report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(formData as any).toString(),
-          });
-
-          if (response.ok) {
-            // Show success and suppress for the rest of the session.
-            form.style.display = 'none';
-            if (successMsg) successMsg.style.display = 'block';
-            sessionStorage.setItem(STORAGE_KEY, 'true');
-
-            // Track conversion
-            trackEvent('Lead', 'Exit Intent Popup');
-
-            // Auto-close after 3 seconds
-            setTimeout(hidePopup, 3000);
-          } else {
-            throw new Error('Form submission failed');
-          }
-        } catch (error) {
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Get Market Updates';
-          }
-          alert('There was an error. Please try again.');
-        }
+    if (skipBtn && !skipBtn.dataset.bound) {
+      skipBtn.dataset.bound = '1';
+      skipBtn.addEventListener('click', () => {
+        trackEvent('Engagement', 'Popup Step 2 Skipped');
+        finish();
       });
     }
+
+    bindStep1(step1Form);
+    if (step2Form) bindStep2(step2Form);
   };
 
   // Fires on initial load and after every view-transition navigation.
@@ -344,10 +615,7 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
 <style>
   .exit-popup-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
@@ -369,10 +637,13 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     border-radius: var(--radius-xl);
     max-width: 420px;
     width: 100%;
+    /* Short viewports (landscape phones) would otherwise clip the submit button. */
+    max-height: 90dvh;
+    overflow-y: auto;
     position: relative;
-    transform: scale(0.9) translateY(20px);
+    transform: scale(0.95) translateY(16px);
     transition: transform 0.3s ease;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-xl);
   }
 
   .exit-popup-overlay.visible .exit-popup {
@@ -388,46 +659,68 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--off-white);
+    background: rgba(255, 255, 255, 0.85);
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
     color: var(--text-secondary);
     transition: all var(--transition-base);
+    z-index: 1;
   }
 
   .popup-close:hover {
-    background: var(--light-gray);
+    background: var(--white);
     color: var(--text-primary);
   }
 
-  .popup-content {
-    padding: var(--space-8);
+  .popup-close:focus-visible {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 2px;
+  }
+
+  /* --- Stat hook --- */
+  .stat-hook {
+    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    color: var(--white);
+    padding: var(--space-5) var(--space-6);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    /* Leave room for the close button. */
+    padding-right: 56px;
+  }
+
+  .stat-eyebrow {
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    margin: 0 0 var(--space-1);
+  }
+
+  .stat-line {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  /* --- Body --- */
+  .popup-body {
+    padding: var(--space-5) var(--space-6) var(--space-6);
     text-align: center;
   }
 
-  .popup-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
-    border-radius: var(--radius-full);
-    color: var(--white);
-    margin-bottom: var(--space-4);
-  }
-
-  .popup-content h2 {
-    font-size: var(--text-2xl);
+  .popup-body h2 {
+    font-size: var(--text-xl);
     color: var(--text-primary);
-    margin-bottom: var(--space-2);
+    margin: 0 0 var(--space-2);
   }
 
-  .popup-content > p {
+  .popup-sub {
     color: var(--text-secondary);
+    font-size: var(--text-sm);
     line-height: var(--leading-relaxed);
-    margin-bottom: var(--space-6);
+    margin: 0 0 var(--space-5);
   }
 
   .popup-form {
@@ -436,187 +729,72 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     gap: var(--space-3);
   }
 
-  .hidden {
+  .visually-hidden-field {
     display: none !important;
   }
 
+  /*
+    Grid, not flex: flex items default to min-width:auto, which resolves to an
+    <input>'s ~210px intrinsic min-content width and silently overrides any
+    max-width — that is what pushed the zip field outside the modal.
+  */
   .form-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 7.5rem;
     gap: var(--space-3);
   }
 
-  .form-row input[type="email"] {
-    flex: 2;
-  }
-
-  .form-row input[type="text"] {
-    flex: 1;
-    max-width: 100px;
-  }
-
-  /* Intent Question */
-  .intent-question {
-    margin-bottom: var(--space-3);
-    text-align: left;
-  }
-
-  .question-label {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  .intent-options {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-2);
-  }
-
-  .intent-option {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .intent-option input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .intent-option span {
-    display: block;
-    padding: var(--space-2) var(--space-2);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 0.7rem;
-    text-align: center;
-    transition: all var(--transition-base);
-    line-height: 1.3;
-  }
-
-  .intent-option:hover span {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.05);
-  }
-
-  .intent-option input:checked + span {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.1);
-    color: var(--c21-gold-dark);
-    font-weight: var(--font-medium);
-  }
-
-  /* a11y: native radios are visually hidden — surface keyboard focus on the styled
-     label surrogates (WCAG 2.4.7). */
-  .intent-option input:focus-visible + span,
-  .timeline-option input:focus-visible + span {
-    outline: 2px solid var(--cta-primary);
-    outline-offset: 2px;
+  .form-row.single {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .popup-input {
+    min-width: 0;
+    width: 100%;
     padding: var(--space-3) var(--space-4);
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: var(--text-base);
-    width: 100%;
-    box-sizing: border-box;
+    font-family: inherit;
     transition: all var(--transition-base);
   }
 
   .popup-input:focus {
     outline: none;
     border-color: var(--c21-gold);
-    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.15);
   }
 
-  /* Timeline Question */
-  .timeline-question {
-    margin-bottom: var(--space-3);
-    text-align: left;
-  }
-
-  .timeline-label {
-    display: block;
+  .form-error {
+    /* Darkened from --alert-red (#E53935 = 3.9:1 on white) to clear WCAG 1.4.3
+       for body-size text, same rationale as --cta-primary in variables.css. */
+    color: #C62828;
     font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  .timeline-options {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-2);
-  }
-
-  .timeline-option {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .timeline-option input {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .timeline-option span {
-    display: block;
-    padding: var(--space-2) var(--space-3);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: var(--text-xs);
-    text-align: center;
-    transition: all var(--transition-base);
-  }
-
-  .timeline-option:hover span {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.05);
-  }
-
-  .timeline-option input:checked + span {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.1);
-    color: var(--c21-gold-dark);
-    font-weight: var(--font-medium);
-  }
-
-  .popup-form input[type="email"],
-  .popup-form input[type="text"] {
-    padding: var(--space-3) var(--space-4);
-    border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: var(--text-base);
-    transition: all var(--transition-base);
-  }
-
-  .popup-form input[type="email"]:focus,
-  .popup-form input[type="text"]:focus {
-    outline: none;
-    border-color: var(--c21-gold);
-    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+    text-align: left;
+    margin: 0;
   }
 
   .popup-submit {
     padding: var(--space-4);
-    background-color: var(--c21-gold);
+    background-color: var(--cta-primary);
     color: var(--white);
     border: none;
     border-radius: var(--radius-md);
     font-weight: var(--font-semibold);
     font-size: var(--text-base);
+    font-family: inherit;
     cursor: pointer;
+    min-height: 48px;
     transition: all var(--transition-base);
   }
 
-  .popup-submit:hover {
-    background-color: var(--c21-gold-dark);
+  .popup-submit:hover:not(:disabled) {
+    background-color: var(--cta-primary-hover);
+  }
+
+  .popup-submit:focus-visible {
+    outline: 2px solid var(--charcoal);
+    outline-offset: 2px;
   }
 
   .popup-submit:disabled {
@@ -631,43 +809,175 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     gap: var(--space-1);
     font-size: var(--text-xs);
     color: var(--text-secondary);
+    margin: var(--space-1) 0 0;
+  }
+
+  /* --- Step 2 --- */
+  .step2-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: rgba(76, 175, 80, 0.1);
+    /* Darkened from --success-green (#4CAF50 = 2.8:1 on white) for text contrast. */
+    color: #2E7D32;
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    margin-bottom: var(--space-4);
+  }
+
+  .chip-question {
+    text-align: left;
+  }
+
+  .question-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .chip-options {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .chip-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chip-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .chip span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--space-2);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    text-align: center;
+    line-height: 1.3;
+    transition: all var(--transition-base);
+  }
+
+  .chip:hover span {
+    border-color: var(--c21-gold);
+    background: rgba(201, 156, 51, 0.05);
+  }
+
+  .chip input:checked + span {
+    border-color: var(--c21-gold);
+    background: rgba(201, 156, 51, 0.12);
+    color: var(--cta-primary);
+    font-weight: var(--font-semibold);
+  }
+
+  /* a11y: native radios are visually hidden — surface keyboard focus on the styled
+     label surrogates (WCAG 2.4.7). */
+  .chip input:focus-visible + span {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 2px;
+  }
+
+  .step2-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--space-3);
     margin-top: var(--space-2);
   }
 
-  /* Success state */
+  .popup-skip {
+    padding: var(--space-4);
+    background: transparent;
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-family: inherit;
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    min-height: 48px;
+    transition: all var(--transition-base);
+  }
+
+  .popup-skip:hover {
+    background: var(--off-white);
+    color: var(--text-primary);
+  }
+
+  .popup-skip:focus-visible {
+    outline: 2px solid var(--cta-primary);
+    outline-offset: 2px;
+  }
+
+  /* --- Success --- */
   .popup-success {
-    padding: var(--space-4) 0;
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
   }
 
   .popup-success .success-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     background: rgba(76, 175, 80, 0.1);
     border-radius: var(--radius-full);
-    color: var(--accent-green);
+    color: var(--success-green);
     margin-bottom: var(--space-4);
   }
 
-  .popup-success h3 {
-    font-size: var(--text-xl);
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-
-  .popup-success p {
-    color: var(--text-secondary);
+  .popup-success .popup-sub {
+    margin-bottom: 0;
   }
 
   @media (max-width: 479px) {
-    .form-row {
-      flex-direction: column;
+    .exit-popup-overlay {
+      padding: var(--space-3);
     }
 
-    .form-row input[type="text"] {
-      max-width: 100%;
+    .stat-hook {
+      padding: var(--space-4) var(--space-5);
+      padding-right: 56px;
+    }
+
+    .popup-body {
+      padding: var(--space-4) var(--space-5) var(--space-5);
+    }
+
+    /* Two ~210px inputs cannot share a phone-width row — stack them. */
+    .form-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .chip-3 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .exit-popup-overlay,
+    .exit-popup {
+      transition: none;
     }
   }
 </style>

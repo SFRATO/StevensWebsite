@@ -8,6 +8,7 @@ import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { scoreMarketTiming, fmtCurrency } from '../../utils/toolsCalc';
 import { trackEvent } from '@utils/analytics';
+import { trackActivity } from '@utils/leadActivity';
 import LocationPickerIsland from './LocationPickerIsland';
 
 interface Props {
@@ -77,6 +78,8 @@ export default function MarketTimingIsland({ mappings, zipcodes }: Props) {
     const score = scoreMarketTiming(zipData);
     trackEvent('Engagement', 'Tool Result Shown', 'Market Timing Score', score.score);
     trackEvent('Lead', 'Tool Result Shown', `Timing Verdict - ${score.verdict}`);
+    // Behaviour trigger signal — tool identity only, never their inputs.
+    trackActivity('tool_use', { tool: 'should-i-sell-now' });
   };
 
   const handleCTA = () => {

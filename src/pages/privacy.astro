@@ -115,21 +115,39 @@ const lastUpdated = 'February 2026';
         <section class="policy-section">
           <h2>Cookies and Tracking</h2>
           <p>
-            This Site may use cookies and similar tracking technologies to improve
-            your experience and analyze Site usage. Cookies are small data files
-            stored on your device.
+            Cookies are small data files stored on your device. This Site asks for
+            your permission before setting any analytics or advertising cookies —
+            you'll see a banner on your first visit.
           </p>
           <p>
-            You can instruct your browser to refuse all cookies or to indicate when
-            a cookie is being sent. However, some features of the Site may not
-            function properly without cookies.
+            <strong>If you decline</strong>, the Site still works normally. Matomo
+            continues to count anonymous page views without storing anything on your
+            device, Google Analytics is never loaded, and we do not link your
+            browsing to you between visits.
           </p>
+          <p>
+            <strong>If you accept</strong>, we set a first-party cookie so we can
+            recognize you on return visits. If you have given us your email address
+            through one of our forms, this lets us tie the pages you view on this
+            Site to your record so the market updates we send reflect the areas you
+            are actually looking at. We do not track your activity on other websites.
+          </p>
+
+          <h3>Your Choice</h3>
+          <p>
+            You can change your decision at any time:
+          </p>
+          <p>
+            <button type="button" class="consent-manage-btn" id="manage-cookies">
+              Change cookie preferences
+            </button>
+          </p>
+          <p class="consent-status" id="consent-status" aria-live="polite"></p>
+
           <h3>Google Analytics</h3>
           <p>
-            This Site uses Google Analytics to understand how visitors interact with
-            the Site. Google Analytics collects information anonymously and reports
-            website trends without identifying individual visitors. You can opt out
-            of Google Analytics by installing the
+            When enabled, Google Analytics loads only after you accept cookies. You
+            can additionally opt out at the browser level by installing the
             <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">
               Google Analytics Opt-out Browser Add-on
             </a>.
@@ -219,7 +237,75 @@ const lastUpdated = 'February 2026';
   </section>
 </BaseLayout>
 
+<script>
+  import { getConsent, resetConsent } from '@utils/consent';
+
+  const STATUS_TEXT: Record<string, string> = {
+    granted: 'Current setting: cookies accepted.',
+    denied: 'Current setting: cookies declined.',
+  };
+
+  const renderStatus = () => {
+    const statusEl = document.getElementById('consent-status');
+    if (!statusEl) return;
+    const decision = getConsent();
+    statusEl.textContent = decision
+      ? STATUS_TEXT[decision]
+      : 'No preference saved yet — the banner will ask on your next page view.';
+  };
+
+  const initCookiePrefs = () => {
+    const btn = document.getElementById('manage-cookies');
+    if (!btn) return;
+
+    renderStatus();
+
+    if (!btn.dataset.bound) {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', () => {
+        // Clears the stored decision and fires sf:consent-reset, which reopens
+        // the banner (CookieConsent.astro listens for it).
+        resetConsent();
+        renderStatus();
+      });
+    }
+
+    if (!document.body.dataset.consentStatusBound) {
+      document.body.dataset.consentStatusBound = '1';
+      window.addEventListener('sf:consent', renderStatus);
+    }
+  };
+
+  document.addEventListener('astro:page-load', initCookiePrefs);
+</script>
+
 <style>
+  .consent-manage-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: var(--space-3) var(--space-5);
+    background: var(--cta-primary);
+    color: var(--white);
+    border: 2px solid var(--cta-primary);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+
+  .consent-manage-btn:hover {
+    background: var(--cta-primary-hover);
+    border-color: var(--cta-primary-hover);
+  }
+
+  .consent-status {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
   .privacy-page {
     padding: var(--space-12) 0;
     background: var(--white);

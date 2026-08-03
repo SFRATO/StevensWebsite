@@ -9,6 +9,8 @@ import Header from '@components/Header.astro';
 import Footer from '@components/Footer.astro';
 import StickyCTA from '@components/StickyCTA.astro';
 import ExitIntentPopup from '@components/ExitIntentPopup.astro';
+import CookieConsent from '@components/CookieConsent.astro';
+import { resolveLocationFromPath } from '@utils/pageLocation';
 import {
   generateTitle,
   generateDescription,
@@ -56,9 +58,10 @@ const ogImageUrl = ogImage.startsWith('http')
 const agentSchema = generateRealEstateAgentSchema();
 const businessSchema = generateLocalBusinessSchema();
 
-// GA4 measurement ID (optional). GA loads only when a real ID is supplied;
-// Matomo is loaded unconditionally via the Tag Manager container below.
-const gaId = import.meta.env.PUBLIC_GA4_ID;
+// Geographic context of this page, derived from the pathname at build time.
+// Global components (exit popup, activity tracking) have no page props, so the
+// resolved town/zip/county is published as meta tags for client scripts to read.
+const pageLocation = resolveLocationFromPath(Astro.url.pathname);
 
 // Context-aware StickyCTA props based on current page
 const pathname = Astro.url.pathname;
@@ -139,6 +142,23 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- Page geography (read by client scripts; no zipcodes.json in the bundle) -->
+    {pageLocation?.town && <meta name="sf:town" content={pageLocation.town} />}
+    {pageLocation?.zipcode && <meta name="sf:zip" content={pageLocation.zipcode} />}
+    {pageLocation?.county && <meta name="sf:county" content={pageLocation.county} />}
+
+    <!--
+      Consent gate: Matomo boots cookieless and only sets a visitor cookie once
+      the visitor accepts (src/utils/consent.ts pushes rememberCookieConsentGiven).
+      `requireCookieConsent` is deliberate — `requireConsent` would suppress
+      tracking entirely rather than just the cookie. GA4 is not loaded here at
+      all; consent.ts injects it on grant.
+    -->
+    <script is:inline>
+      window._paq = window._paq || [];
+      window._paq.push(['requireCookieConsent']);
+    </script>
+
     <!-- Matomo Tag Manager -->
     <script is:inline>
       var _mtm = window._mtm = window._mtm || [];
@@ -154,27 +174,25 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     </script>
     <!-- End Matomo Tag Manager -->
 
-    <!-- Google Analytics 4 (loads only when PUBLIC_GA4_ID is configured) -->
-    {gaId && (
-      <Fragment>
-        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
-        <script is:inline define:vars={{ gaId }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', gaId);
-          window.gtag = gtag;
-        </script>
-      </Fragment>
-    )}
+    <!--
+      Google Analytics 4 is intentionally NOT loaded here. GA4 sets third-party
+      advertising cookies, so consent.ts injects gtag.js on demand once the
+      visitor accepts (and only when PUBLIC_GA4_ID is configured).
+    -->
 
     <!-- Analytics: virtual pageviews + site-wide tel/mailto click tracking -->
     <script>
       import { initPageviewTracking, initLinkTracking, trackEvent } from '@utils/analytics';
+      import { initLeadIdentity } from '@utils/leadIdentity';
+      import { initLeadActivityTracking } from '@utils/leadActivity';
       initPageviewTracking();
       initLinkTracking();
+      // Keeps the lead cookie in sync with the consent decision (promote on
+      // accept, drop on decline/withdraw).
+      initLeadIdentity();
+      // Per-lead page views. No-ops for anonymous visitors and for anyone who
+      // declined cookies.
+      initLeadActivityTracking();
 
       // Scroll-depth tracking for market and tool pages
       let scrollDepthBound = false;
@@ -231,8 +249,8 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <!-- Exit Intent Popup -->
     <ExitIntentPopup />
 
-    <!-- Cookie Consent (Add if needed for compliance) -->
-    <!-- <div id="cookie-consent">...</div> -->
+    <!-- Cookie Consent (gates Matomo cookies + GA4) -->
+    <CookieConsent />
   </body>
 </html>
 

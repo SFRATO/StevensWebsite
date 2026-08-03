@@ -36,6 +36,7 @@ export function generateRealEstateAgentSchema() {
         name: 'Middlesex County, NJ',
       },
     ],
+    priceRange: '$$',
     memberOf: {
       '@type': 'Organization',
       name: 'Century 21',

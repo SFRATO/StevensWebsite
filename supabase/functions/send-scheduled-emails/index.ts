@@ -13,6 +13,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
+import { createToken } from "../_shared/tokens.ts";
 
 // Types
 interface ScheduledEmailWithDetails {
@@ -116,8 +117,10 @@ function getMarketTypeLabel(marketType: string): string {
 }
 
 // Helper: Generate unsubscribe URL
-function generateUnsubscribeUrl(leadId: string): string {
-  const token = btoa(`${leadId}:${Date.now()}`);
+// HMAC-signed so a guessed lead id can't be used to unsubscribe someone else
+// (see _shared/tokens.ts).
+async function generateUnsubscribeUrl(leadId: string): Promise<string> {
+  const token = await createToken("unsubscribe", leadId);
   return `${SITE_URL}/.netlify/functions/unsubscribe?token=${token}`;
 }
 
@@ -2689,7 +2692,7 @@ async function sendEmail(
   scheduledEmail: ScheduledEmailWithDetails,
   zipData: ZipcodeData | null
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const unsubscribeUrl = generateUnsubscribeUrl(scheduledEmail.lead.id);
+  const unsubscribeUrl = await generateUnsubscribeUrl(scheduledEmail.lead.id);
 
   // Get the template renderer
   const templateRenderer = emailTemplates[scheduledEmail.campaign_step.template_id];

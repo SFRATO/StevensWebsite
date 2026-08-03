@@ -12,6 +12,19 @@
   to = "/.netlify/functions/handle-market-report"
   status = 200
 
+# Per-lead on-site activity beacons (src/utils/leadActivity.ts)
+[[redirects]]
+  from = "/api/track"
+  to = "/.netlify/functions/track-activity"
+  status = 200
+
+# Friendly unsubscribe URL. Emails already in inboxes link straight to
+# /.netlify/functions/unsubscribe, which resolves to the same proxy function.
+[[redirects]]
+  from = "/unsubscribe"
+  to = "/.netlify/functions/unsubscribe"
+  status = 200
+
 # Functions configuration
 [functions]
   node_bundler = "esbuild"
@@ -29,4 +42,8 @@
     # CSP is shipped in Report-Only first so it cannot break Astro islands, Matomo,
     # GA4, or Google Fonts. Review violation reports, then promote to an enforcing
     # `Content-Security-Policy` header before launch.
-    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://analytics.gavinrozzi.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://analytics.gavinrozzi.com https://www.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    # connect-src covers: Matomo, the /api/* Netlify functions ('self', including
+    # the sendBeacon to /api/track), and GA4's regional collect endpoints — gtag
+    # posts to region1.google-analytics.com and *.analytics.google.com, not just
+    # www.google-analytics.com.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://analytics.gavinrozzi.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://analytics.gavinrozzi.com https://*.google-analytics.com https://*.analytics.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"

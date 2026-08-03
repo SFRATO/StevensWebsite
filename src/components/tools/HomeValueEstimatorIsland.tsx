@@ -8,6 +8,7 @@ import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
 import { estimateHomeValue, fmtCurrency } from '../../utils/toolsCalc';
 import { trackEvent } from '@utils/analytics';
+import { trackActivity } from '@utils/leadActivity';
 import LocationPickerIsland from './LocationPickerIsland';
 
 interface Props {
@@ -124,6 +125,8 @@ export default function HomeValueEstimatorIsland({ mappings, zipcodes }: Props) 
       const est = estimateHomeValue(selectedZip, beds, baths, propType);
       if (est.hasData) {
         trackEvent('Lead', 'Tool Result Shown', 'Home Value Estimate', Math.round(est.mid / 1000));
+        // Behaviour trigger signal — tool identity only, never the estimate.
+        trackActivity('tool_use', { tool: 'home-value-estimator' });
       }
     }
   };

@@ -166,6 +166,10 @@ Forms use Netlify Forms with a serverless function handler:
 - `handle-market-report.ts` processes submission
 - `generate-pdf.ts` creates personalized market report PDF
 - `trigger-email-sequence.ts` sends welcome email via Amazon SES and initiates the 5-email drip campaign
+- `unsubscribe.ts` proxies to the Supabase `unsubscribe` edge function. It exists because every email links to `/.netlify/functions/unsubscribe` and no such Netlify function existed — do not delete it or every unsubscribe link 404s again.
+- `track-activity.ts` (`/api/track`) records per-lead page views; requires a valid signed visitor token.
+
+**Repeat submissions update, they don't duplicate.** `handle-form-submission` branches on an existing lead: within 30 minutes with `qualify=1` it is popup step 2 completing the same signup (updates fields, re-campaigns if the intent changed, no second agent notification); otherwise it is a returning lead (updates fields, logs a `resubmit` activity row, **notifies Steven**). Unsubscribed/bounced leads are updated but never re-enrolled.
 
 ### Function Pattern
 
@@ -239,9 +243,14 @@ Required for full functionality:
 | `AWS_REGION` | AWS region (default: us-east-1) | Email sending |
 | `SES_SENDER_EMAIL` | Verified sender email | Email sending |
 | `NETLIFY_BUILD_HOOK` | Auto-rebuild trigger | GitHub Actions |
-| `PUBLIC_GA4_ID` | GA4 Measurement ID (optional; dual-tracks alongside Matomo when set) | Analytics |
+| `PUBLIC_GA4_ID` | GA4 Measurement ID (optional; injected only after cookie consent) | Analytics |
 | `PUBLIC_ANALYTICS_DEBUG` | `true` to enable + log analytics in `npm run dev` | Analytics (local) |
 | `SYNC_SECRET` | Auth token for `sync-zipcode-data` function | Email personalization |
+| `SUPABASE_URL` | Supabase project URL | Lead pipeline |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key | Lead pipeline |
+| `LEAD_TOKEN_SECRET` | HMAC secret for unsubscribe + visitor tokens | Unsubscribe, behavior tracking |
+
+**`LEAD_TOKEN_SECRET` must be identical** in the Netlify env and the Supabase edge-function env — tokens minted by one are verified by the other. Generate with `openssl rand -base64 48`.
 
 **Note**: The `SES_SENDER_EMAIL` must be verified in Amazon SES console before sending emails.
 
@@ -251,9 +260,41 @@ curl -X POST https://stevenfrato.com/.netlify/functions/sync-zipcode-data \
   -H "X-Sync-Secret: $SYNC_SECRET"
 ```
 
+## Consent, Lead Identity & Behavior Tracking
+
+The funnel is: **accept cookies → submit email → lead in Supabase → on-site behavior recorded → behavior-triggered follow-up emails.**
+
+### Consent (`src/utils/consent.ts` + `CookieConsent.astro`)
+
+Opt-in gate, mounted once in `BaseLayout`:
+- Matomo boots with `_paq.push(['requireCookieConsent'])` **before** the MTM container. It tracks *cookieless* (pageviews count, no visitor cookie) until accept, then `rememberCookieConsentGiven`. Deliberately **not** `requireConsent`, which would suppress tracking entirely.
+- GA4 is **never** in the static head. `consent.ts` injects `gtag.js` on grant only.
+- Decision stored in localStorage `sf_consent_v1` + mirrored to the `sf_consent` cookie. `/privacy/` has a "Change cookie preferences" button that calls `resetConsent()`.
+- The exit popup will not fire while the banner is up (`getConsent() === null` guard in `showPopup()`).
+
+### Signed lead tokens
+
+One HMAC secret (`LEAD_TOKEN_SECRET`) backs two token purposes, implemented twice — keep these in sync:
+- `supabase/functions/_shared/tokens.ts` (Deno, WebCrypto)
+- `netlify/functions/_shared/tokens.ts` (Node, `node:crypto`)
+
+Format `base64url(leadId).base64url(hmac("<purpose>:<payload>"))`. Purposes: `unsubscribe`, `visitor`. **The raw lead UUID never reaches the browser.** `verifyToken(..., allowLegacy=true)` still accepts the old unsigned `btoa(leadId:ts)` unsubscribe tokens so already-delivered emails keep working — drop that once the oldest campaign ages out.
+
+### Lead identity (`src/utils/leadIdentity.ts`)
+
+On a successful submit the server returns `lead_token`. Storage depends on consent: **granted** → `sf_lead` cookie (1 year, recognised across visits); **declined** → `sessionStorage` only. Also sets Matomo User ID to `SHA-256(lowercased email)`, consent-gated.
+
+### Behavior tracking
+
+`src/utils/leadActivity.ts` beacons page views to `/api/track` → `netlify/functions/track-activity.ts` → `lead_activity`. It **no-ops unless consent is granted AND a lead token exists** — anonymous visitors are never recorded. Geography comes from the `sf:town` / `sf:zip` / `sf:county` meta tags `BaseLayout` emits (so `zipcodes.json` never ships to the browser). Tool islands call `trackActivity('tool_use', { tool })` — tool identity only, never the figures entered.
+
+`process-behavior-triggers` (daily 11am ET, an hour after the drip) → `send-behavior-triggers` edge function. Rules live in the `behavior_triggers` table: `town_repeat`, `tool_completed`, `high_intent_return` (agent alert only), `dormant_return`. Four suppression rules, all enforced before any send: lead must be `active`; max one behavior email per lead per 7 days; never on a day the drip has something queued/sent; per-trigger per-subject cooldown.
+
+**Not buildable, don't try:** tracking what a lead searches on other websites. Third-party cookie restrictions ended cross-site individual tracking. The legitimate off-site option is ad-platform retargeting audiences (Meta/Google), where the network does the targeting and we never see individual browsing.
+
 ## Analytics
 
-Matomo is loaded site-wide via the **Matomo Tag Manager** container snippet in `BaseLayout.astro` (container `YLdIYnl6` @ `analytics.gavinrozzi.com`, **idSite 27**). Custom events are authored in code through the single helper `src/utils/analytics.ts`:
+Matomo is loaded site-wide via the **Matomo Tag Manager** container snippet in `BaseLayout.astro` (container `YLdIYnl6` @ `analytics.gavinrozzi.com`, **idSite 27**), gated by the consent module above. Custom events are authored in code through the single helper `src/utils/analytics.ts`:
 
 - `trackEvent(category, action, name?, value?)` — dual-dispatches to Matomo (`_paq`) and GA4 (`gtag`, only if `PUBLIC_GA4_ID` set). Categories: `Lead | Contact | Engagement | Navigation`. Tool interactions use `Engagement` for step/result events and `Lead` for CTA clicks.
 - `trackSiteSearch(keyword, category?, count?)` — Matomo Site Search (used by the town/zip autocompletes).

@@ -6,7 +6,13 @@
       "Bash(grep \"primaryTown\" src/pages/market/[zipcode].astro)",
       "Bash(grep -c \"matchingTowns.length > 1\" src/pages/market/[zipcode].astro)",
       "Bash(grep \"getTownGuide\\\\|getTownGuideBySlug\" src/pages/moving-to/[townSlug].astro)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npx astro *)",
+      "PowerShell(npx astro check 2>&1)",
+      "PowerShell(Get-Command node,npm,npx,pnpm,yarn -ErrorAction SilentlyContinue | Select-Object Name,Source | Format-Table -AutoSize; Write-Output \"---PATH---\"; $env:Path -split ';' | Where-Object { $_ -match 'node|nvm|fnm|volta' })",
+      "Read(//c//**)",
+      "Bash(grep -n \"purpose}:\\\\${payload}\\\\|purpose}:\\\\\" + \\\\|:\\\\${payload}\" supabase/functions/_shared/tokens.ts netlify/functions/_shared/tokens.ts)",
+      "Bash(grep -n \"{/\\\\*\" src/components/ExitIntentPopup.astro)"
     ]
   }
 }

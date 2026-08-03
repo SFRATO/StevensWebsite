@@ -16,8 +16,11 @@ interface FormSubmission {
   zipcode: string;
   email: string;
   phone?: string;
-  interest?: string;
+  interest?: string | undefined;
   "source-location": string;
+
+  /** "1" when this is step 2 of the exit-intent popup completing an existing signup. */
+  qualify?: string;
 
   // Qualification fields from multi-step quiz
   intent?: string;
@@ -77,8 +80,13 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       zipcode: params.get("zipcode") || "",
       email: params.get("email") || "",
       phone: params.get("phone") || undefined,
-      interest: params.get("interest") || "selling",
+      // Deliberately NOT defaulted to "selling" here. The Supabase function
+      // applies that fallback itself, and it needs to distinguish "the visitor
+      // chose an intent" from "nothing was submitted" — step 2 of the popup
+      // leaves the question blank when it goes unanswered.
+      interest: params.get("interest") || undefined,
       "source-location": params.get("source-location") || "",
+      qualify: params.get("qualify") || undefined,
 
       // Qualification fields
       intent: params.get("intent") || undefined,
@@ -134,6 +142,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     // the visitor unless the lead actually landed (this handler previously always
     // returned 200, showing a "thank you" even when the lead was lost).
     let leadPersisted = false;
+    // Signed, opaque handle for the browser (never the raw lead UUID). The
+    // client stores it so step 2 of the popup and activity tracking can refer
+    // back to this lead. See netlify/functions/_shared/tokens.ts.
+    let leadToken: string | undefined;
 
     // Forward to Supabase Edge Function for lead management and email campaigns
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
@@ -155,6 +167,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
               zipcode: formData.zipcode,
               interest: formData.interest,
               "source-location": formData["source-location"],
+              qualify: formData.qualify,
               utm_source: utmSource,
               utm_medium: utmMedium,
               utm_campaign: utmCampaign,
@@ -180,6 +193,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           const result = await supabaseResponse.json();
           console.log("Lead created in Supabase:", result);
           leadPersisted = true;
+          leadToken = result?.lead_token;
         }
       } catch (supabaseError) {
         console.error("Failed to call Supabase edge function:", supabaseError);
@@ -219,31 +233,35 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       }
     }
 
-    // Trigger PDF generation (runs independently of email system)
-    try {
-      const pdfResponse = await fetch(
-        `${process.env.URL}/.netlify/functions/generate-pdf`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            location: formData["source-location"],
-            email: formData.email,
-            name: formData.name,
-            address: formData.address,
-            town: formData.town,
-            zipcode: formData.zipcode,
-          }),
-        }
-      );
+    // Trigger PDF generation (runs independently of email system).
+    // Skipped for qualification follow-ups — step 2 of the popup is updating a
+    // lead whose report was already generated seconds earlier.
+    if (formData.qualify !== "1") {
+      try {
+        const pdfResponse = await fetch(
+          `${process.env.URL}/.netlify/functions/generate-pdf`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              location: formData["source-location"],
+              email: formData.email,
+              name: formData.name,
+              address: formData.address,
+              town: formData.town,
+              zipcode: formData.zipcode,
+            }),
+          }
+        );
 
-      if (!pdfResponse.ok) {
-        console.error("Failed to generate PDF:", await pdfResponse.text());
+        if (!pdfResponse.ok) {
+          console.error("Failed to generate PDF:", await pdfResponse.text());
+        }
+      } catch (pdfError) {
+        console.error("Error calling generate-pdf:", pdfError);
       }
-    } catch (pdfError) {
-      console.error("Error calling generate-pdf:", pdfError);
     }
 
     // Only report success if the lead was durably persisted. Otherwise return a
@@ -270,6 +288,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       statusCode: 200,
       body: JSON.stringify({
         success: true,
+        lead_token: leadToken,
         message: "Your market report is being prepared and will be sent to your email shortly.",
       }),
     };

@@ -13,6 +13,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
+import { createToken } from "../_shared/tokens.ts";
 
 // Types
 interface FormSubmissionPayload {
@@ -27,6 +28,13 @@ interface FormSubmissionPayload {
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
+
+  /**
+   * Set by step 2 of the exit-intent popup: this is the same signup completing,
+   * not a returning visitor. Suppresses a duplicate agent notification and
+   * permits re-campaigning within the signup window.
+   */
+  qualify?: boolean | string;
 
   // Qualification fields from multi-step quiz
   intent?: string;
@@ -234,10 +242,103 @@ function calculateScheduledTime(signupDate: Date, delayDays: number, sendHour: n
   return scheduledDate;
 }
 
-// Helper: Generate unsubscribe URL
-function generateUnsubscribeUrl(leadId: string): string {
-  // Simple token for now - in production, use signed tokens
-  const token = btoa(`${leadId}:${Date.now()}`);
+/**
+ * Move a lead onto a different campaign and rebuild its pending queue.
+ *
+ * Used when step 2 of the exit-intent popup reveals a different intent than the
+ * default the lead was enrolled under (e.g. signed up as a seller, then said
+ * "looking to buy"). Only steps the lead has not already been sent are
+ * scheduled, so nobody receives a day-0 welcome twice.
+ *
+ * Returns the number of emails scheduled (0 if nothing changed).
+ */
+async function recampaignLead(
+  leadId: string,
+  interestType: string,
+  signupIso: string,
+): Promise<number> {
+  const { data: campaign } = await supabase
+    .from("campaigns")
+    .select("id")
+    .contains("interest_types", [interestType])
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!campaign) {
+    console.warn(`No active campaign for interest_type '${interestType}' — keeping current campaign.`);
+    return 0;
+  }
+
+  // Steps already sent (or in flight) must not be re-queued.
+  const { data: sentRows } = await supabase
+    .from("scheduled_emails")
+    .select("campaign_step:campaign_steps(step_number)")
+    .eq("lead_id", leadId)
+    .neq("status", "pending");
+
+  const highestSentStep = (sentRows ?? []).reduce((max: number, row: any) => {
+    const n = row?.campaign_step?.step_number ?? 0;
+    return n > max ? n : max;
+  }, 0);
+
+  const { data: steps } = await supabase
+    .from("campaign_steps")
+    .select("id, step_number, delay_days, send_hour")
+    .eq("campaign_id", campaign.id)
+    .order("step_number", { ascending: true });
+
+  if (!steps?.length) return 0;
+
+  // Drop the old queue first so the unique (lead_id, campaign_step_id) constraint
+  // can't collide with the rows we're about to write.
+  const { error: deleteError } = await supabase
+    .from("scheduled_emails")
+    .delete()
+    .eq("lead_id", leadId)
+    .eq("status", "pending");
+
+  if (deleteError) {
+    console.error("Re-campaign: failed to clear pending emails:", deleteError);
+    return 0;
+  }
+
+  const signupDate = new Date(signupIso);
+  const rows = steps
+    .filter((step) => step.step_number > highestSentStep)
+    .map((step) => ({
+      lead_id: leadId,
+      campaign_step_id: step.id,
+      scheduled_for: calculateScheduledTime(signupDate, step.delay_days, step.send_hour).toISOString(),
+      status: "pending",
+    }));
+
+  if (rows.length > 0) {
+    const { error: insertError } = await supabase.from("scheduled_emails").insert(rows);
+    if (insertError) {
+      console.error("Re-campaign: failed to schedule new emails:", insertError);
+      return 0;
+    }
+  }
+
+  const next = rows[0];
+  await supabase
+    .from("leads")
+    .update({
+      campaign_id: campaign.id,
+      current_step: highestSentStep,
+      next_email_at: next?.scheduled_for ?? null,
+    })
+    .eq("id", leadId);
+
+  console.log(`Re-campaigned lead ${leadId} to '${interestType}' — ${rows.length} emails queued.`);
+  return rows.length;
+}
+
+// Helper: Generate unsubscribe URL. Token is HMAC-signed (see _shared/tokens.ts)
+// so a lead id alone is not enough to unsubscribe someone else.
+async function generateUnsubscribeUrl(leadId: string): Promise<string> {
+  const token = await createToken("unsubscribe", leadId);
   return `${SITE_URL}/.netlify/functions/unsubscribe?token=${token}`;
 }
 
@@ -771,28 +872,14 @@ serve(async (req) => {
       return last;
     };
 
-    // Check for existing lead
+    // Check for existing lead. Handling happens further down, once interest type,
+    // zip data and the lead score have been derived — a repeat submission updates
+    // the existing record rather than being discarded (see "Existing lead" below).
     const { data: existingLead } = await supabase
       .from("leads")
-      .select("id, status")
+      .select("id, status, name, created_at, current_step, interest_type, campaign_id")
       .ilike("email", payload.email)
       .single();
-
-    if (existingLead) {
-      // If lead exists and is active, don't create duplicate
-      if (existingLead.status === "active") {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            message: "Lead already exists",
-            lead_id: existingLead.id,
-            duplicate: true,
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
-        );
-      }
-      // If lead was unsubscribed/bounced, we could reactivate, but for now treat as duplicate
-    }
 
     // Determine interest type - prefer new intent field, fall back to interest
     const intent = payload.intent || payload.interest || "selling";
@@ -851,6 +938,146 @@ serve(async (req) => {
     const finalLeadPriority = leadScoreData.priority;
 
     console.log(`Lead score calculated: ${finalLeadScore} (${finalLeadTemperature})`);
+
+    // ---------------------------------------------------------------------
+    // Existing lead: update, don't discard.
+    //
+    // This previously returned `{duplicate: true}` and did nothing else, which
+    // threw away two valuable signals: the second step of the exit-intent popup
+    // (which submits qualification moments after the email), and a past lead
+    // coming back to re-submit — one of the strongest buying signals there is.
+    // ---------------------------------------------------------------------
+    if (existingLead) {
+      const ageMs = Date.now() - new Date(existingLead.created_at).getTime();
+
+      // The popup's step 2 lands within seconds of step 1. Treat anything inside
+      // 30 minutes on an un-progressed lead as completing that same signup
+      // rather than as a returning visitor.
+      const isQualificationFollowUp =
+        (payload.qualify === true || payload.qualify === "1") &&
+        ageMs < 30 * 60 * 1000 &&
+        (existingLead.current_step ?? 0) <= 1;
+
+      // Only overwrite columns this submission actually carries — a step-2 post
+      // that skipped the timeline question must not blank an existing value.
+      const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+      if (payload.timeline) updates.timeline = payload.timeline;
+      if (payload["property-type"]) updates.property_type = payload["property-type"];
+      if (payload["value-range"]) updates.value_range = payload["value-range"];
+      if (payload["budget-range"]) updates.budget_range = payload["budget-range"];
+      if (payload["important-factor"]) updates.important_factor = payload["important-factor"];
+      if (payload["contact-preference"]) updates.contact_preference = payload["contact-preference"];
+      if (preApprovedValue !== null) updates.pre_approved = preApprovedValue;
+      if (payload.phone) updates.phone = payload.phone;
+      if (payload.address) updates.address = payload.address;
+      if (payload.town || zipData?.town) updates.town = payload.town || zipData?.town;
+      if (payload.zipcode) updates.zipcode = payload.zipcode;
+      // "Website Visitor" is the popup's step-1 placeholder — never let it
+      // overwrite a real name we already hold.
+      if (payload.name && payload.name !== "Website Visitor") updates.name = payload.name;
+
+      // An explicit new intent wins; the "selling" default must not silently
+      // re-categorise someone who told us otherwise earlier.
+      const intentWasStated = Boolean(payload.intent || payload.interest);
+      if (intentWasStated) updates.interest_type = finalInterestType;
+
+      // The auto_calculate_lead_score BEFORE UPDATE trigger recomputes
+      // lead_score/temperature/priority from these columns, so we don't set them.
+      const { error: updateError } = await withRetry("existing lead update", () =>
+        supabase.from("leads").update(updates).eq("id", existingLead.id).select("id")
+      );
+      if (updateError) {
+        console.error("Failed to update existing lead:", existingLead.id, updateError);
+      }
+
+      const interestChanged =
+        intentWasStated && finalInterestType !== existingLead.interest_type;
+
+      // Re-campaign only during the signup window. Past that, the lead is
+      // mid-drip and swapping campaigns would re-send emails they've had.
+      let rescheduled = 0;
+      if (isQualificationFollowUp && interestChanged) {
+        rescheduled = await recampaignLead(existingLead.id, finalInterestType, existingLead.created_at);
+      }
+
+      // Ping Steven for a genuine return visit — but not for step 2 of a signup
+      // he was already notified about seconds ago.
+      if (!isQualificationFollowUp) {
+        const { data: refreshed } = await supabase
+          .from("leads")
+          .select("lead_score, lead_temperature, lead_priority, town, zipcode")
+          .eq("id", existingLead.id)
+          .single();
+
+        try {
+          await sendLeadNotification(
+            {
+              email: payload.email,
+              name: (updates.name as string) || existingLead.name,
+              phone: payload.phone,
+              address: payload.address || "Not provided",
+              town: payload.town || refreshed?.town || zipData?.town || "Not provided",
+              zipcode: payload.zipcode || refreshed?.zipcode || "Not provided",
+            },
+            intentWasStated ? finalInterestType : existingLead.interest_type,
+            `${sourceUrl} (returning lead — re-submitted)`,
+            {
+              intent: payload.intent || finalInterestType,
+              timeline: payload.timeline,
+              propertyType: payload["property-type"],
+              valueRange: payload["value-range"],
+              budgetRange: payload["budget-range"],
+              importantFactor: payload["important-factor"],
+              preApproved: preApprovedValue,
+              contactPreference: payload["contact-preference"],
+              leadScore: refreshed?.lead_score ?? finalLeadScore,
+              leadTemperature: refreshed?.lead_temperature ?? finalLeadTemperature,
+              leadPriority: refreshed?.lead_priority ?? finalLeadPriority,
+            }
+          );
+        } catch (notifyErr) {
+          console.error("Returning-lead notification failed:", notifyErr);
+        }
+
+        // Leave a trail so behaviour triggers can see the re-engagement.
+        await supabase.from("lead_activity").insert({
+          lead_id: existingLead.id,
+          event_type: "resubmit",
+          path: payload["source-location"] || "form",
+          town: payload.town || zipData?.town || null,
+          zipcode: payload.zipcode || null,
+          county: zipData?.county || null,
+          metadata: { status: existingLead.status },
+        });
+      }
+
+      // Unsubscribed/bounced leads are updated and reported, but never
+      // re-enrolled — re-subscribing someone who opted out is not ours to do.
+      if (existingLead.status !== "active") {
+        console.log(
+          `Existing ${existingLead.status} lead ${existingLead.id} re-submitted — updated, not re-enrolled.`
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: isQualificationFollowUp ? "Lead qualification updated" : "Lead updated",
+          lead_id: existingLead.id,
+          lead_token: await createToken("visitor", existingLead.id),
+          duplicate: true,
+          qualification_update: isQualificationFollowUp,
+          emails_rescheduled: rescheduled,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+        }
+      );
+    }
 
     // Insert lead (campaign will be auto-assigned via trigger)
     const { data: newLead, error: insertError } = await withRetry("lead insert", () => supabase
@@ -944,7 +1171,7 @@ serve(async (req) => {
     }
 
     // Generate unsubscribe URL
-    const unsubscribeUrl = generateUnsubscribeUrl(newLead.id);
+    const unsubscribeUrl = await generateUnsubscribeUrl(newLead.id);
 
     // Send welcome email immediately (step 1)
     if (payload.address && payload.town && payload.zipcode) {
@@ -1056,6 +1283,10 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         lead_id: newLead.id,
+        // Opaque signed handle for the browser. The raw UUID must never leave
+        // the server — this is what the client stores and replays for step 2 of
+        // the popup and for activity tracking.
+        lead_token: await createToken("visitor", newLead.id),
         campaign_slug: campaign?.slug || "unknown",
         emails_scheduled: scheduledEmails.length,
         welcome_email_sent: !!welcomeEmailSesId,
