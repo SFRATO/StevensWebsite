@@ -143,9 +143,11 @@
     right: 0;
     /* Above the sticky CTA and the exit popup — the cookie decision comes first. */
     z-index: var(--z-popover);
-    background: var(--white);
-    border-top: 3px solid var(--c21-gold);
-    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.16);
+    background: rgba(12, 14, 17, 0.97);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--accent-line);
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.7);
     padding: var(--space-4);
     padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
     transform: translateY(100%);
@@ -179,7 +181,7 @@
   }
 
   .consent-text a {
-    color: var(--cta-primary);
+    color: var(--accent-bright);
     text-decoration: underline;
     white-space: nowrap;
   }
@@ -202,30 +204,32 @@
   }
 
   .consent-btn:focus-visible {
-    outline: 2px solid var(--cta-primary);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 
   .consent-accept {
-    background: var(--cta-primary);
-    color: var(--white);
-    border: 2px solid var(--cta-primary);
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: 1px solid var(--accent);
   }
 
   .consent-accept:hover {
-    background: var(--cta-primary-hover);
-    border-color: var(--cta-primary-hover);
+    background: var(--accent-bright);
+    border-color: var(--accent-bright);
+    box-shadow: var(--glow-soft);
   }
 
   .consent-decline {
-    background: var(--white);
+    background: transparent;
     color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--rule-strong);
   }
 
   .consent-decline:hover {
-    background: var(--off-white);
-    border-color: var(--text-secondary);
+    background: var(--accent-wash);
+    border-color: var(--accent);
+    color: var(--accent-bright);
   }
 
   /* Mobile: the sticky CTA also docks to the bottom — one bar at a time. */

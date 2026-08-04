@@ -216,9 +216,9 @@ const description = `${locationName} real estate market: median price ${formatCu
   <nav class="breadcrumb">
     <div class="container">
       <a href="/market/">Market Data</a>
-      <span class="separator">/</span>
+      <span class="separator" aria-hidden="true">/</span>
       <a href={`/market/${parentCountySlug}/`}>{zipData.county}</a>
-      <span class="separator">/</span>
+      <span class="separator" aria-hidden="true">/</span>
       <span class="current">{zipData.zipcode}</span>
     </div>
   </nav>
@@ -472,7 +472,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .breadcrumb a {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     text-decoration: none;
   }
 
@@ -491,7 +491,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   /* Market Snapshot */
   .market-snapshot {
     padding: var(--space-10) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .market-snapshot h2 {
@@ -529,7 +529,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .detail-card {
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -571,7 +571,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .detail-card.highlight {
-    border: 2px solid var(--c21-gold);
+    border: 2px solid var(--rule-strong);
   }
 
   .recommendation {
@@ -600,8 +600,8 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .rec-badge.neutral {
-    background: rgba(201, 156, 51, 0.1);
-    color: var(--c21-gold);
+    background: rgba(61, 139, 255, 0.12);
+    color: var(--text-primary);
   }
 
   .recommendation p {
@@ -612,13 +612,13 @@ const description = `${locationName} real estate market: median price ${formatCu
   .urgency-note {
     font-size: var(--text-sm);
     padding: var(--space-3);
-    background: rgba(201, 156, 51, 0.1);
+    background: rgba(61, 139, 255, 0.12);
     border-radius: var(--radius-sm);
     margin-top: var(--space-2);
   }
 
   .urgency-note strong {
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   .recommendation .btn-block {
@@ -631,15 +631,15 @@ const description = `${locationName} real estate market: median price ${formatCu
   /* AI Insight */
   .ai-insight {
     padding: var(--space-8) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .insight-box {
     max-width: 700px;
     margin: 0 auto;
     padding: var(--space-5);
-    background: linear-gradient(135deg, rgba(201, 156, 51, 0.05) 0%, rgba(201, 156, 51, 0.1) 100%);
-    border-left: 4px solid var(--c21-gold);
+    background: linear-gradient(135deg, rgba(61, 139, 255, 0.08) 0%, rgba(61, 139, 255, 0.12) 100%);
+    border-left: 4px solid var(--rule-strong);
     border-radius: var(--radius-md);
   }
 
@@ -647,7 +647,7 @@ const description = `${locationName} real estate market: median price ${formatCu
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     font-weight: var(--font-semibold);
     margin-bottom: var(--space-3);
   }
@@ -660,7 +660,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   /* Section Divider */
   .section-divider {
     padding: var(--space-8) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .divider-content {
@@ -672,13 +672,13 @@ const description = `${locationName} real estate market: median price ${formatCu
   .divider-line {
     flex: 1;
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--c21-gold), transparent);
+    background: linear-gradient(to right, transparent, var(--accent-wash-strong), transparent);
   }
 
   .divider-text {
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     white-space: nowrap;
@@ -693,7 +693,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   /* Nearby Zips */
   .nearby-zips {
     padding: var(--space-10) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .nearby-zips h2 {
@@ -727,7 +727,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .nearby-card:hover {
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
 
@@ -756,7 +756,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   .zip-price .price {
     font-size: var(--text-lg);
     font-weight: var(--font-semibold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   /* Parent County */
@@ -770,7 +770,7 @@ const description = `${locationName} real estate market: median price ${formatCu
     justify-content: space-between;
     align-items: center;
     padding: var(--space-4) var(--space-5);
-    background: var(--white);
+    background: var(--surface-1);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     text-decoration: none;
@@ -779,7 +779,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .county-link:hover {
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
 
@@ -790,7 +790,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   }
 
   .link-content svg {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .link-label {
@@ -810,7 +810,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   .county-price {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
 </style>

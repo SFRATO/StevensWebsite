@@ -223,9 +223,9 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
 
 <style>
   .guide-hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%);
     padding: var(--space-12) 0 var(--space-10);
-    color: #fff;
+    color: var(--text-primary);
   }
 
   .breadcrumb {
@@ -233,20 +233,20 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
     gap: 0.5rem;
     align-items: center;
     font-size: 0.875rem;
-    color: #aaa;
+    color: var(--text-muted);
     margin-bottom: var(--space-4);
   }
-  .breadcrumb a { color: #aaa; text-decoration: none; }
-  .breadcrumb a:hover { color: #fff; }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--text-primary); }
 
   h1 {
     font-family: var(--font-heading);
     font-size: clamp(1.75rem, 4vw, 2.75rem);
     margin: 0 0 var(--space-3);
-    color: #fff;
+    color: var(--text-primary);
   }
 
-  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; max-width: 640px; line-height: 1.7; }
+  .hero-sub { font-size: var(--text-base); color: var(--text-muted); margin: 0; max-width: 640px; line-height: 1.7; }
 
   .guide-body { padding: var(--space-12) 0; }
 
@@ -263,8 +263,8 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
   }
 
   .market-summary {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
     border-radius: 1rem;
     padding: var(--space-6);
     margin-bottom: var(--space-8);
@@ -273,41 +273,41 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
   .market-summary h2 {
     font-family: var(--font-heading);
     font-size: var(--text-xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-4);
   }
 
   .snapshot-grid { display: flex; gap: var(--space-4); flex-wrap: wrap; margin-bottom: var(--space-4); }
 
   .snap-stat {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     padding: var(--space-3) var(--space-4);
     min-width: 130px;
   }
 
-  .snap-val { font-size: 1.35rem; font-weight: 800; color: var(--charcoal); }
+  .snap-val { font-size: 1.35rem; font-weight: 800; color: var(--text-primary); }
   .snap-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
   .snap-trend { font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; }
-  .snap-trend.up { color: #16a34a; }
-  .snap-trend.down { color: #dc2626; }
+  .snap-trend.up { color: var(--accent-green); }
+  .snap-trend.down { color: var(--accent-red); }
 
   .market-note { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; }
-  .market-note a { color: var(--c21-gold); font-weight: 600; text-decoration: none; margin-left: 0.5rem; }
+  .market-note a { color: var(--accent-bright); font-weight: 600; text-decoration: none; margin-left: 0.5rem; }
 
   .guide-section { margin-bottom: var(--space-8); }
 
   .guide-section h2 {
     font-family: var(--font-heading);
     font-size: var(--text-xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-4);
   }
 
   .info-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     padding: var(--space-5);
     display: flex;
@@ -320,25 +320,25 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
   .info-card p { margin: 0 0 var(--space-2); color: var(--text-secondary); line-height: 1.7; font-size: var(--text-sm); }
   .info-card p:last-child { margin: 0; }
 
-  .disclaimer { font-size: 0.75rem !important; color: #94a3b8 !important; font-style: italic; }
+  .disclaimer { font-size: 0.75rem !important; color: var(--text-muted) !important; font-style: italic; }
 
   .faq-section { margin-top: var(--space-8); }
-  .faq-section h2 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--charcoal); margin: 0 0 var(--space-4); }
+  .faq-section h2 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); margin: 0 0 var(--space-4); }
 
   .faq-list { display: flex; flex-direction: column; gap: var(--space-3); }
 
-  .faq-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+  .faq-item { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 0.75rem; overflow: hidden; }
 
   .faq-item summary {
     padding: var(--space-4) var(--space-5);
     font-weight: 600;
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
     font-size: var(--text-sm);
   }
 
-  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item summary::after { content: ' +'; color: var(--accent-bright); }
   .faq-item[open] summary::after { content: ' −'; }
 
   .faq-item p {
@@ -350,28 +350,28 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
   }
 
   .sidebar-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     padding: var(--space-5);
     margin-bottom: var(--space-4);
   }
 
-  .sidebar-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0 0 var(--space-2); }
+  .sidebar-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--text-primary); margin: 0 0 var(--space-2); }
   .sidebar-card p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-3); }
-  .sidebar-link { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+  .sidebar-link { color: var(--accent-bright); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
 
   .nearby-section { padding: var(--space-4); }
   .nearby-section h3 { font-size: var(--text-sm); font-weight: 700; color: var(--text-secondary); margin: 0 0 var(--space-2); text-transform: uppercase; letter-spacing: 0.05em; }
 
   .nearby-links { display: flex; flex-direction: column; gap: var(--space-2); }
-  .nearby-links a { color: var(--c21-gold); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
+  .nearby-links a { color: var(--accent-bright); text-decoration: none; font-size: var(--text-sm); font-weight: 500; }
 
-  .form-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .form-section { padding: var(--space-12) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .form-intro { text-align: center; max-width: 580px; margin: 0 auto var(--space-8); }
 
-  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--text-primary); margin: 0 0 var(--space-3); }
 
   .form-intro p { color: var(--text-secondary); margin: 0; }
 </style>

@@ -102,9 +102,9 @@ const schema = [
 
 <style>
   .tool-hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%);
     padding: var(--space-12) 0 var(--space-10);
-    color: #fff;
+    color: var(--text-primary);
   }
 
   .breadcrumb {
@@ -112,23 +112,23 @@ const schema = [
     gap: 0.5rem;
     align-items: center;
     font-size: 0.875rem;
-    color: #aaa;
+    color: var(--text-muted);
     margin-bottom: var(--space-4);
   }
 
-  .breadcrumb a { color: #aaa; text-decoration: none; }
-  .breadcrumb a:hover { color: #fff; }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+  .breadcrumb a:hover { color: var(--text-primary); }
 
   h1 {
     font-family: var(--font-heading);
     font-size: clamp(1.75rem, 4vw, 2.75rem);
     margin: 0 0 var(--space-3);
-    color: #fff;
+    color: var(--text-primary);
   }
 
-  .hero-sub { font-size: var(--text-lg); color: #ccc; margin: 0; max-width: 640px; }
+  .hero-sub { font-size: var(--text-lg); color: var(--text-muted); margin: 0; max-width: 640px; }
 
-  .tool-section { padding: var(--space-10) 0; background: #f8fafc; }
+  .tool-section { padding: var(--space-10) 0; background: var(--surface-2); }
   .tool-section .container { max-width: 760px; }
 
   .form-section { padding: var(--space-12) 0; text-align: center; }
@@ -141,7 +141,7 @@ const schema = [
   .form-intro h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-3);
   }
 
@@ -157,8 +157,8 @@ const schema = [
   .btn-primary {
     display: inline-block;
     padding: 1rem 2rem;
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;
@@ -168,29 +168,29 @@ const schema = [
   .btn-secondary {
     display: inline-block;
     padding: 1rem 2rem;
-    border: 2px solid var(--charcoal);
-    color: var(--charcoal);
+    border: 2px solid var(--rule-strong);
+    color: var(--text-primary);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;
     font-size: 1rem;
   }
 
-  .faq-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .faq-section { padding: var(--space-12) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .faq-section h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
     margin: 0 0 var(--space-6);
-    color: var(--charcoal);
+    color: var(--text-primary);
     text-align: center;
   }
 
   .faq-list { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-3); }
 
   .faq-item {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     overflow: hidden;
   }
@@ -199,11 +199,11 @@ const schema = [
     padding: var(--space-4) var(--space-5);
     font-weight: 600;
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
 
-  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item summary::after { content: ' +'; color: var(--accent-bright); }
   .faq-item[open] summary::after { content: ' −'; }
 
   .faq-item p {

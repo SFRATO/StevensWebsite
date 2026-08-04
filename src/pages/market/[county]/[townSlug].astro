@@ -428,13 +428,13 @@ const schema = [
     margin-bottom: var(--space-2);
   }
   .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
-  .breadcrumb a:hover { color: var(--c21-gold); }
+  .breadcrumb a: hover { color: var(--text-primary); }
 
   .market-snapshot { padding: var(--space-10) 0; }
   .section-title {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-6);
   }
 
@@ -451,7 +451,7 @@ const schema = [
     .market-cards { grid-template-columns: 1fr; }
   }
 
-  .market-details { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .market-details { padding: var(--space-8) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .details-grid {
     display: grid;
@@ -464,7 +464,7 @@ const schema = [
   .detail-col h3 {
     font-size: var(--text-lg);
     font-weight: 700;
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-4);
   }
 
@@ -475,14 +475,14 @@ const schema = [
     justify-content: space-between;
     align-items: center;
     padding: var(--space-2) 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--rule);
     font-size: var(--text-sm);
     color: var(--text-secondary);
   }
 
-  .stat-val { font-weight: 600; color: var(--charcoal); }
+  .stat-val { font-weight: 600; color: var(--text-primary); }
 
-  .recommendation-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: var(--space-4); }
+  .recommendation-box { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 0.75rem; padding: var(--space-4); }
 
   .rec-badge {
     display: inline-block;
@@ -493,20 +493,20 @@ const schema = [
     margin-bottom: var(--space-3);
   }
 
-  .rec-favorable { background: #dcfce7; color: #15803d; }
-  .rec-neutral { background: #fef9ee; color: #92400e; }
-  .rec-cautious { background: #fef2f2; color: #991b1b; }
+  .rec-favorable { background: rgba(74, 222, 128, 0.12); color: var(--accent-green); }
+  .rec-neutral { background: var(--accent-wash); color: var(--text-secondary); }
+  .rec-cautious { background: rgba(255, 107, 107, 0.12); color: var(--accent-red); }
 
   .recommendation-box p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-2); }
 
-  .scarcity-note { color: #991b1b; font-weight: 600; margin-top: var(--space-2) !important; }
+  .scarcity-note { color: var(--accent-red); font-weight: 600; margin-top: var(--space-2) !important; }
 
   .insight-section { padding: var(--space-8) 0; }
 
   .insight-box {
-    background: linear-gradient(135deg, #fef9ee, #fff);
-    border: 1px solid var(--c21-gold);
-    border-left: 4px solid var(--c21-gold);
+    background: linear-gradient(135deg, var(--accent-wash), var(--surface-1));
+    border: 1px solid var(--rule-strong);
+    border-left: 4px solid var(--rule-strong);
     border-radius: 0.75rem;
     padding: var(--space-5);
   }
@@ -514,17 +514,17 @@ const schema = [
   .insight-label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--c21-gold);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: var(--space-2);
   }
 
-  .insight-box p { margin: 0; color: var(--charcoal); line-height: 1.7; }
+  .insight-box p { margin: 0; color: var(--text-primary); line-height: 1.7; }
 
   .lead-form-section { padding: var(--space-12) 0; }
 
-  .nearby-section { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .nearby-section { padding: var(--space-8) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .nearby-grid {
     display: grid;
@@ -539,33 +539,33 @@ const schema = [
     flex-direction: column;
     gap: 0.25rem;
     padding: var(--space-4);
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     text-decoration: none;
     transition: all 0.2s;
   }
 
-  .nearby-card:hover { border-color: var(--c21-gold); box-shadow: 0 4px 12px rgba(201, 156, 51, 0.1); }
+  .nearby-card: hover { border-color: var(--text-primary); box-shadow: 0 4px 12px rgba(61, 139, 255, 0.12); }
 
-  .nearby-name { font-weight: 600; color: var(--charcoal); font-size: var(--text-sm); }
+  .nearby-name { font-weight: 600; color: var(--text-primary); font-size: var(--text-sm); }
   .nearby-price { font-size: 0.8rem; color: var(--text-secondary); }
 
-  .faq-section { padding: var(--space-10) 0; border-top: 1px solid #e2e8f0; }
+  .faq-section { padding: var(--space-10) 0; border-top: 1px solid var(--rule); }
 
   .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-3); }
 
-  .faq-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+  .faq-item { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 0.75rem; overflow: hidden; }
 
   .faq-item summary {
     padding: var(--space-4) var(--space-5);
     font-weight: 600;
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
 
-  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item summary::after { content: ' +'; color: var(--accent-bright); }
   .faq-item[open] summary::after { content: ' −'; }
 
   .faq-item p {
@@ -576,7 +576,7 @@ const schema = [
     font-size: var(--text-sm);
   }
 
-  .county-link { padding: var(--space-6) 0; border-top: 1px solid #e2e8f0; }
+  .county-link { padding: var(--space-6) 0; border-top: 1px solid var(--rule); }
 
   .cross-links {
     display: flex;
@@ -585,14 +585,14 @@ const schema = [
     align-items: center;
   }
 
-  .cross-links a { color: var(--c21-gold); text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
+  .cross-links a { color: var(--accent-bright); text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
   .cross-links a:hover { text-decoration: underline; }
 
   .no-data-section { padding: var(--space-12) 0; }
   .no-data-section h1 {
     font-family: var(--font-heading);
     font-size: var(--text-3xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: var(--space-6) 0;
   }
 

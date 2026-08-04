@@ -295,7 +295,7 @@ export default function TownSearchIsland({ towns }: Props) {
         .search-icon {
           position: absolute;
           left: 16px;
-          color: #6B6B6B;
+          color: var(--text-secondary);
           pointer-events: none;
         }
 
@@ -303,20 +303,20 @@ export default function TownSearchIsland({ towns }: Props) {
           width: 100%;
           padding: 16px 48px;
           font-size: 16px;
-          border: 2px solid #E0E0E0;
+          border: 2px solid var(--rule-strong);
           border-radius: 9999px;
-          background: #FFFFFF;
+          background: var(--ink-800);
           transition: all 0.25s ease;
         }
 
         .search-input:focus {
           outline: none;
-          border-color: #C99C33;
-          box-shadow: 0 0 0 4px rgba(201, 156, 51, 0.1);
+          border-color: var(--accent);
+          box-shadow: 0 0 0 4px rgba(61, 139, 255, 0.12);
         }
 
         .search-input::placeholder {
-          color: #6B6B6B;
+          color: var(--text-secondary);
         }
 
         .clear-btn {
@@ -326,7 +326,7 @@ export default function TownSearchIsland({ towns }: Props) {
           background: transparent;
           border: none;
           cursor: pointer;
-          color: #6B6B6B;
+          color: var(--text-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -335,8 +335,8 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .clear-btn:hover {
-          background: #F5F5F5;
-          color: #2C2C2C;
+          background: var(--ink-700);
+          color: var(--text-primary);
         }
 
         .results-dropdown {
@@ -344,8 +344,8 @@ export default function TownSearchIsland({ towns }: Props) {
           top: calc(100% + 8px);
           left: 0;
           right: 0;
-          background: #FFFFFF;
-          border: 1px solid #E0E0E0;
+          background: var(--ink-800);
+          border: 1px solid var(--rule-strong);
           border-radius: 12px;
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
           max-height: 400px;
@@ -361,7 +361,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .county-group:not(:last-child) {
-          border-bottom: 1px solid #F5F5F5;
+          border-bottom: 1px solid var(--ink-700);
           padding-bottom: 8px;
           margin-bottom: 8px;
         }
@@ -371,7 +371,7 @@ export default function TownSearchIsland({ towns }: Props) {
           padding: 8px 12px 4px;
           font-size: 11px;
           font-weight: 600;
-          color: #6B6B6B;
+          color: var(--text-secondary);
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -394,11 +394,11 @@ export default function TownSearchIsland({ towns }: Props) {
 
         .town-item:hover,
         .town-item.selected {
-          background: #FAFAFA;
+          background: var(--ink-700);
         }
 
         .town-item.selected {
-          background: rgba(201, 156, 51, 0.1);
+          background: rgba(61, 139, 255, 0.12);
         }
 
         .town-info {
@@ -409,12 +409,12 @@ export default function TownSearchIsland({ towns }: Props) {
 
         .town-name {
           font-weight: 600;
-          color: #2C2C2C;
+          color: var(--text-primary);
         }
 
         .town-zip {
           font-size: 12px;
-          color: #6B6B6B;
+          color: var(--text-secondary);
         }
 
         .town-metrics {
@@ -425,7 +425,7 @@ export default function TownSearchIsland({ towns }: Props) {
 
         .town-price {
           font-weight: 600;
-          color: #C99C33;
+          color: var(--accent);
           font-size: 14px;
         }
 
@@ -438,17 +438,17 @@ export default function TownSearchIsland({ towns }: Props) {
 
         .badge-seller {
           background: rgba(76, 175, 80, 0.15);
-          color: #2e7d32;
+          color: var(--accent-green);
         }
 
         .badge-buyer {
           background: rgba(229, 57, 53, 0.15);
-          color: #c62828;
+          color: var(--accent-red);
         }
 
         .badge-balanced {
-          background: rgba(201, 156, 51, 0.15);
-          color: #B38A1F;
+          background: rgba(61, 139, 255, 0.18);
+          color: var(--accent-bright);
         }
 
         .no-results {
@@ -456,8 +456,8 @@ export default function TownSearchIsland({ towns }: Props) {
           top: calc(100% + 8px);
           left: 0;
           right: 0;
-          background: #FFFFFF;
-          border: 1px solid #E0E0E0;
+          background: var(--ink-800);
+          border: 1px solid var(--rule-strong);
           border-radius: 12px;
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
           padding: 24px;
@@ -466,12 +466,12 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .no-results p {
-          color: #6B6B6B;
+          color: var(--text-secondary);
           margin: 0 0 12px;
         }
 
         .contact-link {
-          color: #C99C33;
+          color: var(--accent);
           font-weight: 500;
           text-decoration: none;
         }

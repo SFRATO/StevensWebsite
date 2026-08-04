@@ -1,10 +1,11 @@
-/* Global Styles for Steven Frato Century 21 Real Estate Website */
+/* Global Styles — Steven Frato Real Estate
+   Dark academia / watchmaker's workshop at night. See variables.css for the
+   accent-discipline rule that governs where electric blue may appear. */
 
 /* Import Design Tokens */
 @import './variables.css';
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+/* Fonts are preloaded in BaseLayout.astro (a chained @import here blocks render). */
 
 /* CSS Reset & Base Styles */
 *,
@@ -20,6 +21,10 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  /* Renders native form controls, scrollbars and autofill dark. Without this,
+     inputs and select menus stay white boxes on the dark page. */
+  color-scheme: dark;
+  background-color: var(--bg-primary);
 }
 
 body {
@@ -29,6 +34,45 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   min-height: 100vh;
+  position: relative;
+}
+
+/* --- Workshop atmosphere -------------------------------------------------
+   A cool pool of light near the top of the page falling off to near-black at
+   the edges, plus a fine grain so the flat blacks read as a surface rather
+   than as empty space. Both are inert: fixed, non-interactive, no animation. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(61, 139, 255, 0.055) 0%, transparent 60%),
+    radial-gradient(100% 100% at 50% 40%, rgba(255, 255, 255, 0.022) 0%, transparent 70%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Content sits above the atmosphere layers. */
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--accent-wash-strong);
+  color: var(--text-primary);
 }
 
 /* Typography */
@@ -74,18 +118,23 @@ p {
 }
 
 a {
-  color: var(--info-blue);
+  color: var(--accent-bright);
   text-decoration: none;
   transition: color var(--transition-base);
 }
 
 a:hover {
-  color: var(--cta-primary);
+  color: var(--accent);
   text-decoration: underline;
 }
 
-a:focus-visible {
-  outline: 2px solid var(--cta-primary);
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -115,14 +164,43 @@ button {
   border: none;
   background: none;
   padding: 0;
+  color: inherit;
 }
 
-/* Forms */
+/* Forms — dark wells with a hairline edge; the accent only appears on focus. */
 input,
 textarea,
 select {
   font-family: var(--font-primary);
   font-size: var(--text-base);
+  color: var(--text-primary);
+  background-color: var(--surface-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+  outline: none;
+}
+
+/* Chrome autofill paints its own near-white background; repaint it dark. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-3) inset;
+  caret-color: var(--text-primary);
 }
 
 /* Container Utility */
@@ -165,8 +243,9 @@ section {
   top: -100px;
   left: 0;
   padding: var(--space-3) var(--space-4);
-  background: var(--cta-primary);
-  color: var(--white);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: var(--font-semibold);
   text-decoration: none;
   z-index: var(--z-tooltip);
 }
@@ -196,16 +275,30 @@ section {
   font-weight: var(--font-semibold);
 }
 
-.text-gold {
-  color: var(--c21-gold);
-}
-
 .text-secondary {
   color: var(--text-secondary);
 }
 
 .bg-gray {
-  background-color: var(--light-gray);
+  background-color: var(--bg-secondary);
+}
+
+/* Engraved dial-plate label — small, letterspaced, uppercase. Neutral, never accent. */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-primary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hairline rule */
+.hairline {
+  height: 1px;
+  border: 0;
+  background: var(--rule);
 }
 
 /* Button Styles */
@@ -219,30 +312,40 @@ section {
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
 }
 
+/* The lit sign: accent fill with near-black text (~8:1) rather than the
+   marginal white-on-blue ratio. */
 .btn-primary {
-  background-color: var(--cta-primary);
-  color: var(--white);
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 .btn-primary:hover {
-  background-color: var(--cta-primary-hover);
+  background-color: var(--accent-bright);
+  color: var(--accent-ink);
   text-decoration: none;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glow);
+}
+
+.btn-primary:active {
+  background-color: var(--accent-deep);
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: var(--white);
-  color: var(--cta-primary);
-  border-color: var(--cta-primary);
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--rule-strong);
 }
 
 .btn-secondary:hover {
-  background-color: var(--cta-primary);
-  color: var(--white);
+  background-color: var(--accent-wash);
+  border-color: var(--accent);
+  color: var(--accent-bright);
   text-decoration: none;
 }
 
@@ -251,9 +354,10 @@ section {
   font-size: var(--text-lg);
 }
 
-/* Card Styles */
+/* Card Styles — panel on the bench, hairline edge, lamp catches it on hover. */
 .card {
-  background: var(--white);
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--shadow-md);
@@ -261,6 +365,8 @@ section {
 }
 
 .card:hover {
+  background: var(--surface-2);
+  border-color: var(--accent-line);
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
 }
@@ -280,15 +386,15 @@ section {
 }
 
 @media (min-width: 768px) {
-  .md\\:grid-2 {
+  .md\:grid-2 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .md\\:grid-3 {
+  .md\:grid-3 {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .md\\:grid-4 {
+  .md\:grid-4 {
     grid-template-columns: repeat(4, 1fr);
   }
 }
@@ -303,5 +409,28 @@ section {
 @media (min-width: 768px) {
   .hide-desktop {
     display: none;
+  }
+}
+
+/* Reduced Motion — global. Previously only the popup and consent banner
+   honored this, while every card and button hover still translated. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover,
+  .btn-primary:hover,
+  .btn:hover {
+    transform: none;
   }
 }

@@ -452,7 +452,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .trend-item {
-    background: var(--white);
+    background: var(--surface-1);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
@@ -497,18 +497,19 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .market-type-seller { color: var(--accent-green); }
   .market-type-buyer { color: var(--accent-red); }
-  .market-type-balanced { color: var(--c21-gold); }
+  .market-type-balanced { color: var(--text-primary); }
 
   /* Market Insight */
   .market-insight {
     padding: var(--space-8) 0;
-    background: linear-gradient(135deg, var(--c21-gold-light) 0%, var(--c21-gold) 100%);
+    background: var(--accent-wash-strong);
+  border: 1px solid var(--accent-line);
   }
 
   .insight-card {
     display: flex;
     gap: var(--space-5);
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -523,7 +524,8 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     width: 64px;
     height: 64px;
     min-width: 64px;
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-full);
     color: var(--white);
   }
@@ -573,13 +575,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .price-range-nav {
     margin-top: var(--space-8);
     padding-top: var(--space-6);
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--rule);
   }
 
   .price-range-nav h3 {
     font-size: var(--text-base);
     font-weight: 700;
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-3);
   }
 
@@ -592,9 +594,9 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .price-range-links a {
     display: inline-block;
     padding: 0.4rem 0.875rem;
-    border: 2px solid var(--c21-gold);
+    border: 2px solid var(--rule-strong);
     border-radius: 999px;
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     font-weight: 600;
     font-size: var(--text-sm);
     text-decoration: none;
@@ -602,8 +604,8 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .price-range-links a:hover {
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent-bright);
+    color: var(--text-primary);
   }
 
   .zip-grid {
@@ -629,7 +631,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     flex-direction: column;
     gap: var(--space-2);
     padding: var(--space-4);
-    background: var(--white);
+    background: var(--surface-1);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     text-decoration: none;
@@ -638,7 +640,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .zip-card:hover {
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
 
@@ -667,7 +669,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .zip-stats .price {
     font-size: var(--text-lg);
     font-weight: var(--font-semibold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   .more-zips {
@@ -702,7 +704,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .related-card {
     padding: var(--space-5);
-    background: var(--white);
+    background: var(--surface-1);
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
@@ -712,7 +714,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .related-card:hover {
     box-shadow: var(--shadow-md);
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
   }
 
   .related-card h3 {
@@ -724,7 +726,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     display: block;
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     margin-bottom: var(--space-2);
   }
 
@@ -734,13 +736,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .back-link {
-    background: var(--charcoal);
-    border-color: var(--charcoal);
+    background: var(--ink-850);
+    border-color: var(--rule-strong);
     color: var(--white);
   }
 
   .back-link:hover {
-    background: #2a2a2a;
+    background: var(--ink-800);
   }
 
   .back-link .link {
@@ -750,13 +752,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   /* County FAQ */
   .county-faq {
     padding: var(--space-12) 0;
-    background: #f8f9fa;
+    background: var(--surface-2);
   }
 
   .county-faq h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin-bottom: var(--space-6);
   }
 
@@ -768,9 +770,9 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .faq-item {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--surface-1);
     overflow: hidden;
   }
 
@@ -778,7 +780,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     padding: var(--space-4) var(--space-5);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
 

@@ -130,12 +130,12 @@ const schema = [
 <style>
   .contact-faq {
     padding: var(--space-12) 0;
-    background: #f8f9fa;
+    background: var(--surface-2);
   }
   .contact-faq h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin-bottom: var(--space-6);
   }
   .faq-list {
@@ -145,16 +145,16 @@ const schema = [
     max-width: 800px;
   }
   .faq-item {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--surface-1);
     overflow: hidden;
   }
   .faq-item summary {
     padding: var(--space-4) var(--space-5);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
   .faq-item summary::-webkit-details-marker { display: none; }
@@ -167,7 +167,7 @@ const schema = [
 
   .page-header {
     padding: var(--space-10) 0 var(--space-6);
-    background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-850) 70%, var(--accent-wash-strong) 100%);
     text-align: center;
   }
 
@@ -205,7 +205,7 @@ const schema = [
 
   /* Contact Info */
   .contact-info {
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
@@ -244,7 +244,7 @@ const schema = [
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--c21-gold);
+    background: var(--accent-wash-strong);
     border-radius: var(--radius-md);
     color: var(--white);
   }
@@ -265,7 +265,7 @@ const schema = [
   }
 
   .contact-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .contact-text {

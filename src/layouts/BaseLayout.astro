@@ -91,6 +91,8 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#08090B" />
 
     <!-- Primary Meta Tags -->
     <title>{fullTitle}</title>
@@ -142,6 +144,26 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- Fonts. Loaded here rather than via an @import in global.css, which
+         chained two blocking requests before the first paint. -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      />
+    </noscript>
+
     <!-- Page geography (read by client scripts; no zipcodes.json in the bundle) -->
     {pageLocation?.town && <meta name="sf:town" content={pageLocation.town} />}
     {pageLocation?.zipcode && <meta name="sf:zip" content={pageLocation.zipcode} />}
@@ -185,6 +207,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
       import { initPageviewTracking, initLinkTracking, trackEvent } from '@utils/analytics';
       import { initLeadIdentity } from '@utils/leadIdentity';
       import { initLeadActivityTracking } from '@utils/leadActivity';
+      import { initScrollNarrative } from '@utils/scrollReveal';
       initPageviewTracking();
       initLinkTracking();
       // Keeps the lead cookie in sync with the consent decision (promote on
@@ -222,6 +245,9 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
       document.addEventListener('astro:page-load', () => {
         scrollDepthBound = false;
         initScrollDepth();
+        // Scroll reveals + the sticky market scrollytelling scene. No-ops on
+        // pages without [data-reveal] / [data-scrolly].
+        initScrollNarrative();
       });
     </script>
   </head>

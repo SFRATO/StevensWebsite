@@ -3,6 +3,7 @@
  * Data-driven verdict on whether now is a good time to sell.
  */
 
+import { theme } from '@utils/theme';
 import { useState } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
@@ -16,18 +17,16 @@ interface Props {
   zipcodes: ZipData[];
 }
 
-const gold = '#C99C33';
-const charcoal = '#1a1a1a';
 
 const s = {
-  card: { background: '#fff', borderRadius: '1rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' as const },
+  card: { background: theme.surface1, border: `1px solid ${theme.rule}`, borderRadius: '1rem', boxShadow: theme.shadowLg, overflow: 'hidden' as const },
   section: { padding: '2rem' },
-  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: gold, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.5rem' },
-  heading: { fontSize: '1.25rem', fontWeight: 700, color: charcoal, margin: '0 0 1.5rem' },
+  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.5rem' },
+  heading: { fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: '0 0 1.5rem' },
   verdictBand: (color: string) => ({
     background: color,
     padding: '2rem',
-    color: '#fff',
+    color: theme.accentInk,
     textAlign: 'center' as const,
   }),
   verdictLabel: { fontSize: '0.8rem', textTransform: 'uppercase' as const, letterSpacing: '0.1em', opacity: 0.85 },
@@ -37,28 +36,28 @@ const s = {
   scoreFill: (score: number) => ({
     height: '100%',
     width: `${score}%`,
-    background: '#fff',
+    background: theme.surface1,
     borderRadius: '999px',
   }),
   scoreNum: { fontSize: '1.1rem', fontWeight: 700 },
   reasonsSection: { padding: '1.5rem 2rem' },
   reasonsList: { listStyle: 'none', padding: 0, margin: 0 },
-  reasonItem: { display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.5rem 0', fontSize: '0.95rem', color: charcoal },
+  reasonItem: { display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.5rem 0', fontSize: '0.95rem', color: theme.textPrimary },
   reasonIcon: { flexShrink: 0, width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', marginTop: '0.1rem' },
-  checkIcon: { background: '#dcfce7', color: '#16a34a' },
-  warnIcon: { background: '#fef3c7', color: '#92400e' },
-  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', padding: '1rem 2rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' },
-  stat: { padding: '0.75rem', background: '#fff', borderRadius: '0.5rem', border: '1px solid #e2e8f0' },
-  statValue: { fontSize: '1.25rem', fontWeight: 700, color: charcoal },
-  statLabel: { fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' },
-  cta: { padding: '1.5rem 2rem', borderTop: '1px solid #e2e8f0' },
-  ctaText: { fontSize: '1rem', fontWeight: 600, color: charcoal, marginBottom: '0.5rem' },
+  checkIcon: { background: theme.greenWash, color: theme.green },
+  warnIcon: { background: theme.accentWash, color: theme.accentBright },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', padding: '1rem 2rem', background: theme.surface2, borderTop: `1px solid ${theme.ruleStrong}` },
+  stat: { padding: '0.75rem', background: theme.surface1, borderRadius: '0.5rem', border: `1px solid ${theme.ruleStrong}` },
+  statValue: { fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary },
+  statLabel: { fontSize: '0.75rem', color: theme.textSecondary, marginTop: '0.25rem' },
+  cta: { padding: '1.5rem 2rem', borderTop: `1px solid ${theme.ruleStrong}` },
+  ctaText: { fontSize: '1rem', fontWeight: 600, color: theme.textPrimary, marginBottom: '0.5rem' },
   ctaBtn: {
     display: 'block',
     width: '100%',
     padding: '0.875rem',
-    background: gold,
-    color: '#fff',
+    background: theme.accent,
+    color: theme.accentInk,
     border: 'none',
     borderRadius: '0.5rem',
     fontWeight: 700,

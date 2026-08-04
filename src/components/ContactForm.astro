@@ -285,7 +285,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 <style>
   .contact-section {
     padding: var(--space-12) 0;
-    background: linear-gradient(135deg, var(--light-gray) 0%, var(--off-white) 100%);
+    background: linear-gradient(180deg, var(--ink-900) 0%, var(--ink-850) 100%);
+    border-top: 1px solid var(--rule);
   }
 
   .contact-grid {
@@ -334,9 +335,10 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--c21-gold);
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-md);
-    color: var(--white);
+    color: var(--accent-bright);
   }
 
   .contact-label {
@@ -354,7 +356,7 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .contact-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .contact-text {
@@ -365,7 +367,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 
   /* Form Wrapper */
   .contact-form-wrapper {
-    background: var(--white);
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
@@ -400,9 +403,9 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
     padding: var(--space-3);
     font-size: var(--text-base);
     font-family: var(--font-primary);
-    border: 2px solid var(--border-color);
+    border: 1px solid var(--rule-strong);
     border-radius: var(--radius-md);
-    background: var(--white);
+    background: var(--surface-3);
     color: var(--text-primary);
     transition: all var(--transition-base);
   }
@@ -411,13 +414,13 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
   .form-select:focus,
   .form-textarea:focus {
     outline: none;
-    border-color: var(--c21-gold);
-    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
   }
 
   .form-input::placeholder,
   .form-textarea::placeholder {
-    color: var(--dark-gray);
+    color: var(--text-muted);
   }
 
   .form-textarea {

@@ -743,7 +743,8 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
 
 <style>
   .quiz-wrapper {
-    background: var(--white);
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     overflow: hidden;
@@ -752,8 +753,10 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .quiz-header {
-    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
-    color: var(--white);
+    background: linear-gradient(180deg, var(--ink-700) 0%, var(--ink-800) 100%);
+    border-bottom: 1px solid var(--rule);
+    box-shadow: inset 0 2px 0 var(--accent);
+    color: var(--text-primary);
     padding: var(--space-6);
     text-align: center;
   }
@@ -764,7 +767,9 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
     justify-content: center;
     width: 64px;
     height: 64px;
-    background: var(--c21-gold);
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
+    color: var(--accent-bright);
     border-radius: var(--radius-full);
     margin-bottom: var(--space-4);
   }
@@ -772,12 +777,12 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   .quiz-title {
     font-size: var(--text-xl);
     margin-bottom: var(--space-2);
-    color: var(--white);
+    color: var(--text-primary);
   }
 
   .quiz-subtitle {
     font-size: var(--text-sm);
-    opacity: 0.9;
+    color: var(--text-secondary);
     margin-bottom: var(--space-5);
   }
 
@@ -789,7 +794,7 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
 
   .progress-bar {
     height: 4px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--rule-strong);
     border-radius: var(--radius-full);
     overflow: hidden;
     margin-bottom: var(--space-3);
@@ -797,7 +802,8 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
 
   .progress-fill {
     height: 100%;
-    background: var(--c21-gold);
+    background: var(--accent);
+    box-shadow: var(--glow-soft);
     transition: width var(--transition-base);
   }
 
@@ -810,8 +816,8 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
     width: 28px;
     height: 28px;
     border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.6);
+    background: var(--surface-3);
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -821,13 +827,13 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .step-indicator.active {
-    background: var(--c21-gold);
-    color: var(--white);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
 
   .step-indicator.completed {
-    background: var(--success-green);
-    color: var(--white);
+    background: var(--accent-green);
+    color: var(--accent-ink);
   }
 
   /* Form */
@@ -918,26 +924,27 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-4);
-    border: 2px solid var(--border-color);
+    background: var(--surface-2);
+    border: 1px solid var(--rule-strong);
     border-radius: var(--radius-md);
     text-align: center;
     transition: all var(--transition-base);
   }
 
   .option-card:hover .option-content {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.05);
+    border-color: var(--accent);
+    background: var(--accent-wash);
   }
 
   .option-card input:checked + .option-content {
-    border-color: var(--c21-gold);
-    background: rgba(201, 156, 51, 0.1);
+    border-color: var(--accent);
+    background: var(--accent-wash-strong);
   }
 
   /* a11y: the native radio is visually hidden, so surface keyboard focus on the
      styled card surrogate (WCAG 2.4.7). */
   .option-card input:focus-visible + .option-content {
-    outline: 2px solid var(--cta-primary);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 
@@ -955,7 +962,7 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
     justify-content: center;
     width: 48px;
     height: 48px;
-    background: var(--light-gray);
+    background: var(--surface-3);
     border-radius: var(--radius-md);
     color: var(--text-secondary);
     transition: all var(--transition-base);
@@ -967,8 +974,8 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .option-card input:checked + .option-content .option-icon {
-    background: var(--c21-gold);
-    color: var(--white);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
 
   .option-text {
@@ -992,8 +999,8 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .option-badge.hot {
-    background: rgba(229, 57, 53, 0.1);
-    color: var(--alert-red);
+    background: rgba(255, 107, 107, 0.12);
+    color: var(--accent-red);
   }
 
   /* Form inputs */
@@ -1016,7 +1023,9 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   .form-select {
     width: 100%;
     padding: var(--space-3) var(--space-4);
-    border: 2px solid var(--border-color);
+    background: var(--surface-3);
+    color: var(--text-primary);
+    border: 1px solid var(--rule-strong);
     border-radius: var(--radius-md);
     font-size: var(--text-base);
     transition: all var(--transition-base);
@@ -1025,12 +1034,12 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   .form-input:focus,
   .form-select:focus {
     outline: none;
-    border-color: var(--c21-gold);
-    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
   }
 
   .form-input::placeholder {
-    color: var(--dark-gray);
+    color: var(--text-muted);
   }
 
   /* Navigation buttons */
@@ -1054,21 +1063,25 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .btn-primary {
-    background: var(--c21-gold);
-    color: var(--white);
+    background: var(--accent);
+    color: var(--accent-ink);
   }
 
   .btn-primary:hover {
-    background: var(--c21-gold-dark);
+    background: var(--accent-bright);
+    box-shadow: var(--glow-soft);
   }
 
   .btn-secondary {
-    background: var(--light-gray);
+    background: transparent;
     color: var(--text-primary);
+    border: 1px solid var(--rule-strong);
   }
 
   .btn-secondary:hover {
-    background: var(--medium-gray);
+    background: var(--accent-wash);
+    border-color: var(--accent);
+    color: var(--accent-bright);
   }
 
   .btn:disabled {

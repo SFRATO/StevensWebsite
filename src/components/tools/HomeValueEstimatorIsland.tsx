@@ -3,6 +3,7 @@
  * Instant home value estimate using local median sale price + adjustment factors.
  */
 
+import { theme } from '@utils/theme';
 import { useState } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
@@ -26,46 +27,44 @@ const PROPERTY_TYPES = [
 const BED_OPTIONS = ['1', '2', '3', '4', '5+'];
 const BATH_OPTIONS = ['1', '1.5', '2', '2.5', '3+'];
 
-const gold = '#C99C33';
-const charcoal = '#1a1a1a';
 
 const s = {
-  card: { background: '#fff', borderRadius: '1rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' as const },
+  card: { background: theme.surface1, border: `1px solid ${theme.rule}`, borderRadius: '1rem', boxShadow: theme.shadowLg, overflow: 'hidden' as const },
   section: { padding: '2rem' },
-  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: gold, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.5rem' },
-  heading: { fontSize: '1.25rem', fontWeight: 700, color: charcoal, margin: '0 0 1.5rem' },
+  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.5rem' },
+  heading: { fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: '0 0 1.5rem' },
   optionGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', marginBottom: '1.5rem' },
   option: (active: boolean) => ({
     padding: '0.875rem 0.5rem',
-    border: `2px solid ${active ? gold : '#e2e8f0'}`,
+    border: `2px solid ${active ? theme.accent : theme.ruleStrong}`,
     borderRadius: '0.5rem',
-    background: active ? '#fef9ee' : '#fff',
+    background: active ? theme.accentWash : theme.surface2,
     cursor: 'pointer',
     textAlign: 'center' as const,
     transition: 'all 0.15s',
     fontSize: '0.875rem',
     fontWeight: active ? 600 : 400,
-    color: active ? charcoal : '#64748b',
+    color: active ? theme.textPrimary : theme.textSecondary,
   }),
   optionIcon: { display: 'block', fontSize: '1.5rem', marginBottom: '0.25rem' },
   pillRow: { display: 'flex', flexWrap: 'wrap' as const, gap: '0.5rem', marginBottom: '1.25rem' },
   pill: (active: boolean) => ({
     padding: '0.5rem 1rem',
     borderRadius: '999px',
-    border: `2px solid ${active ? gold : '#e2e8f0'}`,
-    background: active ? gold : '#fff',
-    color: active ? '#fff' : charcoal,
+    border: `2px solid ${active ? theme.accent : theme.ruleStrong}`,
+    background: active ? theme.accent : theme.surface2,
+    color: active ? theme.accentInk : theme.textSecondary,
     cursor: 'pointer',
     fontWeight: active ? 600 : 400,
     fontSize: '0.9rem',
     transition: 'all 0.15s',
   }),
-  pillLabel: { fontSize: '0.75rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 500 },
+  pillLabel: { fontSize: '0.75rem', color: theme.textSecondary, marginBottom: '0.5rem', fontWeight: 500 },
   btn: {
     width: '100%',
     padding: '1rem',
-    background: gold,
-    color: '#fff',
+    background: theme.accent,
+    color: theme.accentInk,
     border: 'none',
     borderRadius: '0.5rem',
     fontSize: '1rem',
@@ -73,25 +72,25 @@ const s = {
     cursor: 'pointer',
     marginTop: '1rem',
   },
-  resultBand: { background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)', padding: '2rem', color: '#fff' },
-  resultLabel: { fontSize: '0.8rem', color: '#aaa', textTransform: 'uppercase' as const, letterSpacing: '0.08em' },
-  resultValue: { fontSize: '2rem', fontWeight: 800, color: gold, margin: '0.25rem 0' },
+  resultBand: { background: `linear-gradient(180deg, ${theme.surface2} 0%, ${theme.surface1} 100%)`, padding: '2rem', color: theme.textPrimary, borderTop: `1px solid ${theme.accentLine}` },
+  resultLabel: { fontSize: '0.8rem', color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em' },
+  resultValue: { fontSize: '2rem', fontWeight: 800, color: theme.textPrimary, margin: '0.25rem 0' },
   rangeRow: { display: 'flex', gap: '2rem', marginTop: '1rem' },
   rangeItem: { flex: 1 },
-  rangeItemLabel: { fontSize: '0.75rem', color: '#aaa' },
-  rangeItemValue: { fontSize: '1.1rem', fontWeight: 600, color: '#e2e8f0' },
-  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', padding: '1.5rem 2rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0' },
+  rangeItemLabel: { fontSize: '0.75rem', color: theme.textMuted },
+  rangeItemValue: { fontSize: '1.1rem', fontWeight: 600, color: theme.ruleStrong },
+  statsRow: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', padding: '1.5rem 2rem', background: theme.surface2, borderTop: `1px solid ${theme.ruleStrong}` },
   stat: { textAlign: 'center' as const },
-  statValue: { fontSize: '1.25rem', fontWeight: 700, color: charcoal },
-  statLabel: { fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' },
-  cta: { padding: '1.5rem 2rem', borderTop: '1px solid #e2e8f0', background: '#fff' },
-  ctaText: { fontSize: '1rem', fontWeight: 600, color: charcoal, marginBottom: '0.5rem' },
-  ctaSub: { fontSize: '0.875rem', color: '#64748b', marginBottom: '1rem' },
+  statValue: { fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary },
+  statLabel: { fontSize: '0.75rem', color: theme.textSecondary, marginTop: '0.25rem' },
+  cta: { padding: '1.5rem 2rem', borderTop: `1px solid ${theme.ruleStrong}`, background: theme.surface1 },
+  ctaText: { fontSize: '1rem', fontWeight: 600, color: theme.textPrimary, marginBottom: '0.5rem' },
+  ctaSub: { fontSize: '0.875rem', color: theme.textSecondary, marginBottom: '1rem' },
   ctaBtn: {
     display: 'inline-block',
     padding: '0.875rem 2rem',
-    background: gold,
-    color: '#fff',
+    background: theme.accent,
+    color: theme.accentInk,
     borderRadius: '0.5rem',
     fontWeight: 700,
     textDecoration: 'none',
@@ -99,8 +98,8 @@ const s = {
     border: 'none',
     fontSize: '1rem',
   },
-  basisNote: { fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.75rem', fontStyle: 'italic' as const },
-  noDataNote: { padding: '1rem', background: '#fef2f2', borderRadius: '0.5rem', color: '#991b1b', fontSize: '0.9rem' },
+  basisNote: { fontSize: '0.8rem', color: theme.textMuted, marginTop: '0.75rem', fontStyle: 'italic' as const },
+  noDataNote: { padding: '1rem', background: theme.redWash, borderRadius: '0.5rem', color: theme.red, fontSize: '0.9rem' },
 };
 
 export default function HomeValueEstimatorIsland({ mappings, zipcodes }: Props) {

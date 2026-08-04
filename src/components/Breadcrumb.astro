@@ -37,7 +37,8 @@ const { items } = Astro.props;
 <style>
   .breadcrumb {
     padding: var(--space-4) 0;
-    background: var(--off-white);
+    background: var(--ink-850);
+    border-bottom: 1px solid var(--rule);
     border-bottom: 1px solid var(--border-color);
   }
 
@@ -59,13 +60,13 @@ const { items } = Astro.props;
   }
 
   .breadcrumb-item a {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     text-decoration: none;
     transition: color var(--transition-base);
   }
 
   .breadcrumb-item a:hover {
-    color: var(--c21-gold-dark);
+    color: var(--accent);
     text-decoration: underline;
   }
 
