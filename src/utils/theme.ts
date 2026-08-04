@@ -49,6 +49,14 @@ export const theme = {
   /* Elevation */
   shadowMd: 'var(--shadow-md)',
   shadowLg: 'var(--shadow-lg)',
+
+  /* Type. Islands inherit `body`, which is Rokkitt — correct for their prose,
+     wrong for their labels, inputs and buttons. See the TYPE DISCIPLINE block
+     in variables.css: fontUi is for anything you operate, fontBody for
+     anything you read, fontHeading for headings and display figures. */
+  fontHeading: 'var(--font-heading)',
+  fontUi: 'var(--font-ui)',
+  fontBody: 'var(--font-body)',
 } as const;
 
 export default theme;

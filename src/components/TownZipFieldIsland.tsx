@@ -204,6 +204,7 @@ export default function TownZipFieldIsland({
       position: 'relative' as const,
     },
     label: {
+      fontFamily: theme.fontUi,
       fontSize: '0.875rem',
       fontWeight: 500,
       color: theme.textPrimary,
@@ -212,6 +213,7 @@ export default function TownZipFieldIsland({
       color: theme.red,
     },
     input: {
+      fontFamily: theme.fontUi,
       padding: '0.75rem 1rem',
       border: `1px solid ${theme.ruleStrong}`,
       borderRadius: '0.5rem',
@@ -241,6 +243,7 @@ export default function TownZipFieldIsland({
       padding: '0.25rem 0',
     },
     dropdownItem: {
+      fontFamily: theme.fontUi,
       padding: '0.75rem 1rem',
       cursor: 'pointer',
       display: 'flex',
@@ -252,14 +255,17 @@ export default function TownZipFieldIsland({
       backgroundColor: theme.surface2,
     },
     townName: {
+      fontFamily: theme.fontUi,
       fontWeight: 500,
       color: theme.textPrimary,
     },
     townMeta: {
+      fontFamily: theme.fontUi,
       fontSize: '0.75rem',
       color: theme.textSecondary,
     },
     error: {
+      fontFamily: theme.fontUi,
       fontSize: '0.75rem',
       color: theme.red,
       marginTop: '0.25rem',

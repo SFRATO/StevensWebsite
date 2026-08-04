@@ -25,12 +25,12 @@ function parseNum(s: string): number {
 const s = {
   card: { background: theme.surface1, border: `1px solid ${theme.rule}`, borderRadius: '1rem', boxShadow: theme.shadowLg, overflow: 'hidden' as const },
   header: { padding: '1.5rem 2rem', borderBottom: `1px solid ${theme.ruleStrong}` },
-  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
-  heading: { fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: 0 },
+  stepLabel: { fontFamily: theme.fontUi, fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
+  heading: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: 0 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', padding: '1.5rem 2rem' },
   formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '0.4rem' },
-  label: { fontSize: '0.8rem', fontWeight: 600, color: theme.textSecondary },
-  input: {
+  label: { fontFamily: theme.fontUi, fontSize: '0.8rem', fontWeight: 600, color: theme.textSecondary },
+  input: { fontFamily: theme.fontUi,
     padding: '0.75rem 1rem',
     border: `1.5px solid ${theme.ruleStrong}`,
     borderRadius: '0.5rem',
@@ -40,7 +40,7 @@ const s = {
     outline: 'none',
   },
   termRow: { display: 'flex', gap: '0.5rem' },
-  termBtn: (active: boolean) => ({
+  termBtn: (active: boolean) => ({ fontFamily: theme.fontUi,
     flex: 1,
     padding: '0.6rem',
     border: `2px solid ${active ? theme.accent : theme.ruleStrong}`,
@@ -57,7 +57,7 @@ const s = {
     background: verdict === 'strong' ? theme.greenWash : verdict === 'good' ? theme.accentWash : verdict === 'stretch' ? theme.accentWash : theme.redWash,
     borderTop: `1px solid ${theme.ruleStrong}`,
   }),
-  verdictBadge: (verdict: string) => ({
+  verdictBadge: (verdict: string) => ({ fontFamily: theme.fontUi,
     display: 'inline-block',
     padding: '0.3rem 0.75rem',
     borderRadius: '999px',
@@ -67,16 +67,16 @@ const s = {
     fontWeight: 700,
     marginBottom: '0.75rem',
   }),
-  maxPrice: { fontSize: '2.5rem', fontWeight: 800, color: theme.textPrimary },
-  maxLabel: { fontSize: '0.875rem', color: theme.textSecondary, marginTop: '0.25rem' },
+  maxPrice: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '2.5rem', fontWeight: 700, color: theme.textPrimary },
+  maxLabel: { fontFamily: theme.fontUi, fontSize: '0.875rem', color: theme.textSecondary, marginTop: '0.25rem' },
   paymentBreak: { display: 'flex', gap: '1.5rem', marginTop: '1.25rem', flexWrap: 'wrap' as const },
   payItem: {},
-  payValue: { fontSize: '1.1rem', fontWeight: 700, color: theme.textPrimary },
-  payLabel: { fontSize: '0.75rem', color: theme.textSecondary },
+  payValue: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '1.1rem', fontWeight: 700, color: theme.textPrimary },
+  payLabel: { fontFamily: theme.fontUi, fontSize: '0.75rem', color: theme.textSecondary },
   context: { padding: '1rem 2rem', background: theme.surface2, borderTop: `1px solid ${theme.ruleStrong}`, fontSize: '0.9rem', color: theme.textSecondary },
   cta: { padding: '1.5rem 2rem', borderTop: `1px solid ${theme.ruleStrong}` },
   ctaText: { fontSize: '1rem', fontWeight: 600, color: theme.textPrimary, marginBottom: '0.5rem' },
-  ctaBtn: {
+  ctaBtn: { fontFamily: theme.fontUi,
     display: 'block',
     width: '100%',
     padding: '0.875rem',
@@ -88,7 +88,7 @@ const s = {
     fontSize: '1rem',
     cursor: 'pointer',
   },
-  disclaimer: { padding: '0.75rem 2rem 1.5rem', fontSize: '0.75rem', color: theme.textMuted, fontStyle: 'italic' as const },
+  disclaimer: { fontFamily: theme.fontUi, padding: '0.75rem 2rem 1.5rem', fontSize: '0.75rem', color: theme.textMuted, fontStyle: 'italic' as const },
 };
 
 export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Props) {

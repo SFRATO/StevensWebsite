@@ -42,8 +42,8 @@ function matchScore(query: string, target: string): number {
 
 const styles = {
   wrapper: { position: 'relative' as const },
-  label: { display: 'block', fontSize: '0.875rem', fontWeight: 500, color: theme.textPrimary, marginBottom: '0.5rem' },
-  input: {
+  label: { fontFamily: theme.fontUi, display: 'block', fontSize: '0.875rem', fontWeight: 500, color: theme.textPrimary, marginBottom: '0.5rem' },
+  input: { fontFamily: theme.fontUi,
     width: '100%',
     padding: '0.875rem 1rem',
     border: `2px solid ${theme.ruleStrong}`,
@@ -53,7 +53,7 @@ const styles = {
     boxSizing: 'border-box' as const,
     transition: 'border-color 0.2s',
   },
-  inputFocused: { borderColor: theme.accent },
+  inputFocused: { fontFamily: theme.fontUi, borderColor: theme.accent },
   dropdown: {
     position: 'absolute' as const,
     top: '100%',
@@ -71,10 +71,10 @@ const styles = {
     margin: 0,
     padding: '0.25rem 0',
   },
-  item: { padding: '0.75rem 1rem', cursor: 'pointer', transition: 'background 0.1s' },
-  itemActive: { backgroundColor: theme.accentWash },
+  item: { fontFamily: theme.fontUi, padding: '0.75rem 1rem', cursor: 'pointer', transition: 'background 0.1s' },
+  itemActive: { fontFamily: theme.fontUi, backgroundColor: theme.accentWash },
   townName: { fontWeight: 500, color: theme.textPrimary, display: 'block' },
-  townMeta: { fontSize: '0.75rem', color: theme.textSecondary },
+  townMeta: { fontFamily: theme.fontUi, fontSize: '0.75rem', color: theme.textSecondary },
 };
 
 export default function LocationPickerIsland({

@@ -300,6 +300,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .search-input {
+          font-family: var(--font-ui);
           width: 100%;
           padding: 16px 48px;
           font-size: 16px;
@@ -320,6 +321,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .clear-btn {
+          font-family: var(--font-ui);
           position: absolute;
           right: 12px;
           padding: 8px;
@@ -367,6 +369,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .county-label {
+          font-family: var(--font-ui);
           display: block;
           padding: 8px 12px 4px;
           font-size: 11px;
@@ -408,11 +411,13 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .town-name {
+          font-family: var(--font-ui);
           font-weight: 600;
           color: var(--text-primary);
         }
 
         .town-zip {
+          font-family: var(--font-ui);
           font-size: 12px;
           color: var(--text-secondary);
         }
@@ -424,12 +429,15 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .town-price {
+          font-family: var(--font-heading);
+          font-variant-numeric: tabular-nums;
           font-weight: 600;
           color: var(--accent);
           font-size: 14px;
         }
 
         .market-badge {
+          font-family: var(--font-ui);
           font-size: 10px;
           font-weight: 600;
           padding: 2px 8px;
@@ -452,6 +460,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .no-results {
+          font-family: var(--font-ui);
           position: absolute;
           top: calc(100% + 8px);
           left: 0;
@@ -471,6 +480,7 @@ export default function TownSearchIsland({ towns }: Props) {
         }
 
         .contact-link {
+          font-family: var(--font-ui);
           color: var(--accent);
           font-weight: 500;
           text-decoration: none;

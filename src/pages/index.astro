@@ -350,7 +350,8 @@ const tools = [
     margin-bottom: var(--space-6);
   }
 
-  /* The quote is the hero's centrepiece — serif, large, framed by hairlines. */
+  /* The quote is the hero's centrepiece — the one place the slab serif carries
+     a display-size line, set against the sans name directly above it. */
   .hero-quote {
     margin: 0 auto var(--space-6);
     padding: var(--space-6) 0;
@@ -360,7 +361,11 @@ const tools = [
   }
 
   .hero-quote blockquote p {
-    font-family: var(--font-heading);
+    font-family: var(--font-body);
+    /* 400, not the body 500: at display size Rokkitt needs no weight
+       compensation, and the lighter cut reads as a quotation rather than a
+       heading. */
+    font-weight: var(--font-normal);
     font-size: var(--text-3xl);
     line-height: 1.25;
     color: var(--text-primary);
@@ -636,7 +641,9 @@ const tools = [
     border-bottom: 1px solid var(--rule);
   }
 
+  /* The term is a label for the figure beside it, not prose. */
   .panel-stat dt {
+    font-family: var(--font-ui);
     font-size: var(--text-sm);
     color: var(--text-secondary);
   }
@@ -653,7 +660,7 @@ const tools = [
   }
 
   .delta {
-    font-family: var(--font-primary);
+    font-family: var(--font-ui);
     font-size: var(--text-xs);
     font-weight: var(--font-semibold);
   }

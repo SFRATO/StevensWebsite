@@ -287,7 +287,7 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
     min-width: 130px;
   }
 
-  .snap-val { font-size: 1.35rem; font-weight: 800; color: var(--text-primary); }
+  .snap-val { font-family: var(--font-heading); font-variant-numeric: tabular-nums; font-size: 1.35rem; font-weight: 700; color: var(--text-primary); }
   .snap-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; }
   .snap-trend { font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; }
   .snap-trend.up { color: var(--accent-green); }
@@ -320,7 +320,8 @@ const metaDesc = `${townName}, NJ city guide: schools, commute, neighborhoods, a
   .info-card p { margin: 0 0 var(--space-2); color: var(--text-secondary); line-height: 1.7; font-size: var(--text-sm); }
   .info-card p:last-child { margin: 0; }
 
-  .disclaimer { font-size: 0.75rem !important; color: var(--text-muted) !important; font-style: italic; }
+  /* Ubuntu Italic — Rokkitt has no italic and would be faked. */
+  .disclaimer { font-family: var(--font-ui); font-size: 0.75rem !important; color: var(--text-muted) !important; font-style: italic; }
 
   .faq-section { margin-top: var(--space-8); }
   .faq-section h2 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); margin: 0 0 var(--space-4); }

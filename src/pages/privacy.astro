@@ -301,6 +301,8 @@ const lastUpdated = 'February 2026';
   }
 
   .consent-status {
+    /* Rokkitt ships no italic; the browser would fake one. Meta text uses the UI face, which has a real italic. */
+    font-family: var(--font-ui);
     font-size: var(--text-sm);
     color: var(--text-secondary);
     font-style: italic;

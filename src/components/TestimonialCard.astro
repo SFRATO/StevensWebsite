@@ -82,7 +82,9 @@ const { quote, author, location, rating = 5, context } = Astro.props;
     color: var(--text-primary);
     line-height: 1.7;
     margin: 0;
-    font-style: italic;
+    /* Deliberately upright: Rokkitt has no italic, and a synthesized slant on a
+       slab serif at quote size is visibly wrong. The quotation marks and the
+       serif itself carry the voice. */
   }
 
   .attribution {

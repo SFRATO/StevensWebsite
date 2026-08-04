@@ -253,6 +253,8 @@ const lastUpdated = counties[0]?.period_end
   }
 
   .stat-value {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     font-size: var(--text-2xl);
     color: var(--text-primary);
     font-weight: var(--font-bold);
@@ -278,6 +280,8 @@ const lastUpdated = counties[0]?.period_end
   }
 
   .disclaimer {
+    /* Rokkitt ships no italic; the browser would fake one. Meta text uses the UI face, which has a real italic. */
+    font-family: var(--font-ui);
     text-align: center;
     font-size: var(--text-sm);
     color: var(--text-secondary);
