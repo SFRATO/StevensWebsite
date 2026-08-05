@@ -345,7 +345,7 @@ const MarketReportPDF = ({
         <View style={styles.header}>
           <View style={styles.logo}>
             <Text style={styles.logoName}>Steven Frato</Text>
-            <Text style={styles.logoCompany}>CENTURY 21</Text>
+            <Text style={styles.logoCompany}>NJ Real Estate</Text>
           </View>
           <View>
             <Text style={styles.reportDate}>Report Generated: {currentDate}</Text>
@@ -477,10 +477,7 @@ const MarketReportPDF = ({
             <View>
               <Text style={styles.footerContact}>
                 <Text style={styles.footerContactBold}>Steven Frato</Text> |
-                Century 21
-              </Text>
-              <Text style={styles.footerContact}>
-                136 Farnsworth Ave, Bordentown, NJ 08505
+                NJ Licensed Real Estate Salesperson
               </Text>
               <Text style={styles.footerContact}>
                 (609) 789-0126 | sf@stevenfrato.com

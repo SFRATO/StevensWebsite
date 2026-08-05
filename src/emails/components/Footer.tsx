@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Section, Text, Link, Hr } from "@react-email/components";
+import { AGENT_NAME, PHONE, EMAIL, LICENSE_LINE, MAILING_ADDRESS } from "../../data/contact";
 
 interface FooterProps {
   unsubscribeUrl?: string;
@@ -9,14 +10,19 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
   return (
     <Section style={footer}>
       <Hr style={divider} />
+      {/* CAN-SPAM requires a physical postal address. MAILING_ADDRESS is empty
+          until Steven supplies one — the line is omitted rather than rendered
+          blank. See the TODO in src/data/contact.ts. */}
       <Text style={contact}>
-        <strong>Steven Frato</strong>
+        <strong>{AGENT_NAME}</strong>
         <br />
-        CENTURY 21 Action Plus Realty
-        <br />
-        136 Farnsworth Ave, Bordentown, NJ 08505
-        <br />
-        (609) 789-0126 | sf@stevenfrato.com
+        {MAILING_ADDRESS && (
+          <>
+            {MAILING_ADDRESS}
+            <br />
+          </>
+        )}
+        {PHONE} | {EMAIL}
       </Text>
       <Text style={links}>
         <Link href="https://stevenfrato.com" style={link}>
@@ -33,10 +39,9 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
       </Text>
       <Text style={disclaimer}>
         You're receiving this email because you requested a market report from
-        stevenfrato.com. Each office is independently owned and operated.
+        stevenfrato.com.
         <br />
-        Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370.
-        {" "}Equal Housing Opportunity.
+        {LICENSE_LINE} Equal Housing Opportunity.
       </Text>
       {unsubscribeUrl && (
         <Text style={unsubscribe}>

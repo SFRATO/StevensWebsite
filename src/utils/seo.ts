@@ -15,7 +15,7 @@ export interface SEOProps {
  * Generate full page title with site branding
  */
 export function generateTitle(title: string, includeBrand: boolean = true): string {
-  const brandSuffix = ' | Steven Frato - Century 21';
+  const brandSuffix = ' | Steven Frato';
   return includeBrand ? `${title}${brandSuffix}` : title;
 }
 
@@ -105,7 +105,6 @@ export function generateKeywords(customKeywords?: string[]): string {
     'Mercer County NJ',
     'Middlesex County NJ',
     'first time homebuyer',
-    'Century 21',
     'homes for sale',
     'Steven Frato',
   ];

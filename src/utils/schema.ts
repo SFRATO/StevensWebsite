@@ -1,6 +1,15 @@
 /**
  * Schema.org Structured Data Generators
  * Generate JSON-LD markup for SEO enhancement
+ *
+ * Removed: generatePersonSchema() and generateOrganizationSchema(). Both were
+ * dead (no call sites), both named a brand affiliation that no longer applies,
+ * and the latter pointed `logo` at /images/century21-logo.svg, which has never
+ * existed in public/images/.
+ *
+ * Steven is a service-area agent: no street address is published anywhere in
+ * this file. The only PostalAddress with a streetAddress is a LISTING's own
+ * address in generateListingSchema(), which is a different thing entirely.
  */
 
 /**
@@ -14,9 +23,11 @@ export function generateRealEstateAgentSchema() {
     image: 'https://stevenfrato.com/images/headshot.jpg',
     telephone: '+1-609-789-0126',
     email: 'sf@stevenfrato.com',
+    // Service-area business: no street address is published. A PostalAddress
+    // without streetAddress is valid and still satisfies Google's `address`
+    // requirement structurally; areaServed below carries the local signal.
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '136 Farnsworth Ave',
       addressLocality: 'Bordentown',
       addressRegion: 'NJ',
       postalCode: '08505',
@@ -37,10 +48,6 @@ export function generateRealEstateAgentSchema() {
       },
     ],
     priceRange: '$$',
-    memberOf: {
-      '@type': 'Organization',
-      name: 'Century 21',
-    },
     knowsAbout: ['Residential Real Estate', 'First-Time Homebuyers', 'Property Investment'],
     url: 'https://stevenfrato.com',
     sameAs: [
@@ -57,7 +64,7 @@ export function generateLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
-    name: 'Steven Frato - Century 21',
+    name: 'Steven Frato',
     image: 'https://stevenfrato.com/images/headshot.jpg',
     '@id': 'https://stevenfrato.com',
     url: 'https://stevenfrato.com',
@@ -65,12 +72,16 @@ export function generateLocalBusinessSchema() {
     priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '136 Farnsworth Ave',
       addressLocality: 'Bordentown',
       addressRegion: 'NJ',
       postalCode: '08505',
       addressCountry: 'US',
     },
+    areaServed: [
+      { '@type': 'City', name: 'Burlington County, NJ' },
+      { '@type': 'City', name: 'Mercer County, NJ' },
+      { '@type': 'City', name: 'Middlesex County, NJ' },
+    ],
     geo: {
       '@type': 'GeoCoordinates',
       latitude: '40.0583',
@@ -147,31 +158,6 @@ export function generateListingSchema(listing: {
 }
 
 /**
- * Generate Person schema
- */
-export function generatePersonSchema() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Steven Frato',
-    jobTitle: 'Real Estate Agent',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'Century 21',
-    },
-    url: 'https://stevenfrato.com',
-    image: 'https://stevenfrato.com/images/headshot.jpg',
-    sameAs: [
-      'https://www.linkedin.com/in/steven-frato/',
-    ],
-    alumniOf: {
-      '@type': 'EducationalOrganization',
-      name: 'Stockton University',
-    },
-  };
-}
-
-/**
  * Generate Breadcrumb schema
  */
 export function generateBreadcrumbSchema(breadcrumbs: Array<{ name: string; url: string }>) {
@@ -184,29 +170,6 @@ export function generateBreadcrumbSchema(breadcrumbs: Array<{ name: string; url:
       name: crumb.name,
       item: crumb.url,
     })),
-  };
-}
-
-/**
- * Generate Organization schema
- */
-export function generateOrganizationSchema() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Steven Frato - Century 21',
-    url: 'https://stevenfrato.com',
-    logo: 'https://stevenfrato.com/images/century21-logo.svg',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: '+1-609-789-0126',
-      contactType: 'customer service',
-      areaServed: 'US-NJ',
-      availableLanguage: 'English',
-    },
-    sameAs: [
-      'https://www.linkedin.com/in/steven-frato/',
-    ],
   };
 }
 
@@ -350,7 +313,7 @@ export function generateWebsiteSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Steven Frato — Century 21 NJ Real Estate',
+    name: 'Steven Frato — NJ Real Estate',
     url: 'https://stevenfrato.com',
     description: 'NJ real estate market data, free calculators, and expert guidance for buyers and sellers in Burlington, Mercer, and Middlesex Counties.',
     potentialAction: {

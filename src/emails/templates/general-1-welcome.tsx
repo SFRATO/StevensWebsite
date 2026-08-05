@@ -48,7 +48,7 @@ export const GeneralWelcomeEmail: React.FC<GeneralWelcomeEmailProps> = ({
             <Section style={introBox}>
               <Text style={introTitle}>A Bit About Me</Text>
               <Text style={introText}>
-                I'm a local real estate agent with Century 21, serving {county}{" "}
+                I'm a local real estate agent serving {county}{" "}
                 and the surrounding areas. I believe in providing honest,
                 straightforward advice - no pressure, just helpful information
                 to guide your decisions.
@@ -109,8 +109,6 @@ export const GeneralWelcomeEmail: React.FC<GeneralWelcomeEmailProps> = ({
               Looking forward to helping you,
               <br />
               <strong>Steven Frato</strong>
-              <br />
-              Century 21
               <br />
               (609) 789-0126
             </Text>

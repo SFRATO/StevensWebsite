@@ -125,8 +125,6 @@ export const GeneralAvailableEmail: React.FC<GeneralAvailableEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
-              <br />
               Your {county} Real Estate Resource
             </Text>
 

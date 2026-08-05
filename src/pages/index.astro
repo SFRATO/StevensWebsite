@@ -77,7 +77,7 @@ const tools = [
 ---
 
 <BaseLayout
-  title="NJ Realtor | Steven Frato — Burlington County Real Estate"
+  title="NJ Realtor — Burlington County Real Estate"
   description="Steven Frato, licensed NJ realtor (License #2567370). I help buyers and sellers in Burlington County get into a home for the lowest price and start building equity. Call (609) 789-0126."
   ogImage="/images/headshot.jpg"
   schema={generateWebsiteSchema()}
@@ -113,7 +113,9 @@ const tools = [
           </svg>
           Call (609) 789-0126
         </a>
-        <a href="#contact" class="btn btn-secondary btn-large">Send a Message</a>
+        <button type="button" id="hero-town-value" class="btn btn-secondary btn-large">
+          What&rsquo;s your town worth?
+        </button>
       </div>
 
       <a href="#proof" class="scroll-cue" aria-label="Scroll to continue">
@@ -310,6 +312,29 @@ const tools = [
   <!-- ACT V — Contact. Keeps id="contact". -->
   <ContactForm />
 </BaseLayout>
+
+<script>
+  import { trackEvent } from '@utils/analytics';
+
+  /**
+   * The hero's second CTA opens the lead popup instead of jumping to the form.
+   *
+   * Cross-component triggering goes through a window CustomEvent — the same
+   * pattern consent.ts uses for `sf:consent-reset`. ExitIntentPopup listens for
+   * `sf:open-lead-popup` and opens in "manual" mode, which deliberately
+   * bypasses the once-per-session gate: a deliberate click is not a nag.
+   */
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('hero-town-value');
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+
+    btn.addEventListener('click', () => {
+      trackEvent('Lead', 'CTA Click', 'Hero — Town Value');
+      window.dispatchEvent(new CustomEvent('sf:open-lead-popup'));
+    });
+  });
+</script>
 
 <style>
   /* ==========================================================================

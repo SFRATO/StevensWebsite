@@ -171,7 +171,7 @@ const emailTemplates: Record<
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -220,11 +220,10 @@ const emailTemplates: Record<
 
       <p>I'll be sending you more insights about the ${town} market over the coming weeks.</p>
 
-      <p>Best regards,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -246,7 +245,6 @@ Want to discuss your options? Schedule a consultation: ${SITE_URL}/contact/
 
 Best regards,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---
@@ -272,7 +270,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -325,7 +323,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -373,7 +371,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -418,7 +416,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -465,7 +463,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -532,7 +530,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -578,7 +576,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -614,7 +612,6 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p style="margin-top: 25px;">Looking forward to connecting,</p>
       <p><strong>Steven Frato</strong><br>
-      Century 21<br>
       Your ${town} Real Estate Expert</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
@@ -623,7 +620,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -653,7 +650,6 @@ Text: Same number - I respond quickly!
 
 Looking forward to connecting,
 Steven Frato
-Century 21
 
 P.S. ${town}'s ${marketType.toLowerCase()} conditions won't last forever. If you've been thinking about selling, now might be a great time to explore your options.
 
@@ -690,7 +686,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -738,11 +734,10 @@ Unsubscribe: ${unsubscribeUrl}`,
         <p style="margin: 0; font-size: 14px; color: #666;">I'd love to learn about what you're looking for in your next home. Reply to this email or give me a call - I'm here to help, no pressure.</p>
       </div>
 
-      <p>Looking forward to helping you find home,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Looking forward to helping you find home,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -769,7 +764,6 @@ Let's start your home search: ${SITE_URL}/contact/
 
 Looking forward to helping you find home,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---
@@ -792,7 +786,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -851,7 +845,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -902,7 +896,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -949,7 +943,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1001,7 +995,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1048,7 +1042,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1094,7 +1088,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1129,7 +1123,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       </ul>
 
       <p style="margin-top: 25px;">Looking forward to helping you find home,</p>
-      <p><strong>Steven Frato</strong><br>Century 21<br>Your ${town} Real Estate Guide</p>
+      <p><strong>Steven Frato</strong><br>Your ${town} Real Estate Guide</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
         <strong>P.S.</strong> The best homes don't stay on the market long. Even if you're not ready to buy today, let's talk about what you're looking for so I can keep an eye out for you.
@@ -1137,7 +1131,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1167,7 +1161,6 @@ Text: Same number - I respond quickly!
 
 Looking forward to helping you find home,
 Steven Frato
-Century 21
 
 P.S. The best homes don't stay on the market long. Let's talk about what you're looking for.
 
@@ -1196,7 +1189,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1242,11 +1235,10 @@ Unsubscribe: ${unsubscribeUrl}`,
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Let's Discuss Your Plan</a>
       </div>
 
-      <p>Looking forward to helping you make your move,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Looking forward to helping you make your move,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1273,7 +1265,6 @@ Let's discuss your plan: ${SITE_URL}/contact/
 
 Looking forward to helping you make your move,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---
@@ -1296,7 +1287,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1343,7 +1334,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1395,7 +1386,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1435,7 +1426,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1482,7 +1473,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1527,7 +1518,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1573,7 +1564,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1620,7 +1611,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1667,7 +1658,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1703,7 +1694,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       </ul>
 
       <p style="margin-top: 25px;">Looking forward to helping you make your move,</p>
-      <p><strong>Steven Frato</strong><br>Century 21<br>Your ${town} Real Estate Partner</p>
+      <p><strong>Steven Frato</strong><br>Your ${town} Real Estate Partner</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
         <strong>P.S.</strong> The most successful buy-and-sell transactions start with a solid plan. Let's create yours together - no obligation, just good advice.
@@ -1711,7 +1702,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1739,7 +1730,6 @@ Text: Same number!
 
 Looking forward to helping you make your move,
 Steven Frato
-Century 21
 
 P.S. The most successful buy-and-sell transactions start with a solid plan.
 
@@ -1770,7 +1760,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1816,11 +1806,10 @@ Unsubscribe: ${unsubscribeUrl}`,
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Discuss Investment Opportunities</a>
       </div>
 
-      <p>Looking forward to helping you invest wisely,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Looking forward to helping you invest wisely,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1846,7 +1835,6 @@ Discuss investment opportunities: ${SITE_URL}/contact/
 
 Looking forward to helping you invest wisely,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---
@@ -1869,7 +1857,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -1916,7 +1904,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1963,7 +1951,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2013,7 +2001,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2064,7 +2052,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2113,7 +2101,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2163,7 +2151,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2199,7 +2187,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       </ul>
 
       <p style="margin-top: 25px;">Looking forward to helping you build wealth through real estate,</p>
-      <p><strong>Steven Frato</strong><br>Century 21<br>Your ${county} Investment Partner</p>
+      <p><strong>Steven Frato</strong><br>Your ${county} Investment Partner</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
         <strong>P.S.</strong> Investment-grade properties don't stay on the market long. Let me know your criteria and I'll alert you when matching opportunities arise.
@@ -2207,7 +2195,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2235,7 +2223,6 @@ Text: Same number!
 
 Looking forward to helping you build wealth through real estate,
 Steven Frato
-Century 21
 
 P.S. Investment-grade properties don't stay on the market long. Let me know your criteria.
 
@@ -2263,7 +2250,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2275,7 +2262,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 3px solid #C99C33;">
         <p style="font-size: 14px; font-weight: 600; color: #C99C33; text-transform: uppercase; margin: 0 0 10px;">A Bit About Me</p>
-        <p style="margin: 0; font-size: 15px; color: #666;">I'm a local real estate agent with Century 21, serving ${county} and the surrounding areas. I believe in providing honest, straightforward advice - no pressure, just helpful information to guide your decisions.</p>
+        <p style="margin: 0; font-size: 15px; color: #666;">I'm a local real estate agent serving ${county} and the surrounding areas. I believe in providing honest, straightforward advice - no pressure, just helpful information to guide your decisions.</p>
       </div>
 
       <h3 style="color: #1a1a1a;">How I Can Help</h3>
@@ -2312,11 +2299,10 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>Over the next couple of weeks, I'll share some helpful information about the ${county} real estate market. If you have specific questions before then, don't hesitate to reach out.</p>
 
-      <p>Looking forward to helping you,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Looking forward to helping you,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2339,7 +2325,6 @@ Let's connect: ${SITE_URL}/contact/
 
 Looking forward to helping you,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---
@@ -2364,7 +2349,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2427,7 +2412,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2465,7 +2450,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2510,7 +2495,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2555,7 +2540,7 @@ Unsubscribe: ${unsubscribeUrl}`,
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2583,7 +2568,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       </div>
 
       <p>Wishing you all the best,</p>
-      <p><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p><strong>Steven Frato</strong><br>(609) 789-0126</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
         <strong>P.S.</strong> This is my last scheduled email, but I'm always just a phone call or email away. Don't hesitate to reach out with any questions.
@@ -2591,7 +2576,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505 | (609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 789-0126</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2613,7 +2598,6 @@ View market data: ${SITE_URL}/market/
 
 Wishing you all the best,
 Steven Frato
-Century 21
 
 P.S. This is my last scheduled email, but I'm always just a phone call away.
 
@@ -2649,7 +2633,7 @@ function defaultTemplate(
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -2659,7 +2643,7 @@ function defaultTemplate(
       <div style="text-align: center; margin: 30px 0;">
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Get in Touch</a>
       </div>
-      <p>Best regards,<br><strong>Steven Frato</strong><br>Century 21<br>(609) 789-0126</p>
+      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -2679,7 +2663,6 @@ Get in touch: ${SITE_URL}/contact/
 
 Best regards,
 Steven Frato
-Century 21
 (609) 789-0126
 
 ---

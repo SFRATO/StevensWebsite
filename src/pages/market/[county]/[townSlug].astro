@@ -146,7 +146,7 @@ const marketTypeBadgeClass = {
 const metaTitle = `${townName}, NJ House Prices & Real Estate Market | ${currentMonthYear}`;
 const metaDesc = zipData?.median_sale_price
   ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated ${currentMonthYear}.`
-  : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local Century 21 agent Steven Frato.`;
+  : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local agent Steven Frato.`;
 
 // Dynamic FAQ
 const faqs = [
@@ -182,8 +182,8 @@ const faqs = [
   {
     question: `Good place to buy a home in ${townName} NJ?`,
     answer: zipData
-      ? `${townName} is part of ${countyName}, NJ — known for its schools, suburban lifestyle, and commute access to Philadelphia and New York. The current market is a ${marketTypeLabel.toLowerCase()}. ${zipData.median_sale_price ? `Median price: ${formatCurrency(zipData.median_sale_price)}.` : ''} For a free consultation, contact Steven Frato at Century 21.`
-      : `${townName} is part of ${countyName}, NJ — a desirable area for buyers and sellers alike. Contact Steven Frato at Century 21 for a personalized assessment.`,
+      ? `${townName} is part of ${countyName}, NJ — known for its schools, suburban lifestyle, and commute access to Philadelphia and New York. The current market is a ${marketTypeLabel.toLowerCase()}. ${zipData.median_sale_price ? `Median price: ${formatCurrency(zipData.median_sale_price)}.` : ''} For a free consultation, contact Steven Frato.`
+      : `${townName} is part of ${countyName}, NJ — a desirable area for buyers and sellers alike. Contact Steven Frato for a personalized assessment.`,
   },
 ];
 

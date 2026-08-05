@@ -147,8 +147,6 @@ export const InvestorConsultationEmail: React.FC<InvestorConsultationEmailProps>
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
-              <br />
               Your {county} Investment Property Specialist
             </Text>
 

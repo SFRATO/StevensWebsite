@@ -255,12 +255,31 @@ const displayStat = statLine ?? fallbackStat;
       (el) => el.offsetParent !== null || el === document.activeElement
     );
 
-  const showPopup = () => {
-    if (popupShown || sessionStorage.getItem(STORAGE_KEY)) return;
+  /**
+   * Open the dialog.
+   *
+   * `manual: true` means a visitor deliberately asked for it (the hero's
+   * "What's your town worth?" button, via the sf:open-lead-popup event). That
+   * bypasses every suppression guard, because a click is not a nag:
+   *
+   *  - popupShown / exit_popup_shown — the once-per-session limit exists to stop
+   *    US interrupting THEM; it should never make a button look broken.
+   *  - isKnownLead() — a returning lead re-submitting is handled server-side as
+   *    an update, not a duplicate (see handle-form-submission).
+   *  - getConsent() === null — a first-time visitor still has the cookie banner
+   *    up, and that is exactly when they are most likely to click. Refusing here
+   *    would break the button for the most common case.
+   *
+   * Automatic triggers keep all four guards.
+   */
+  const openPopup = ({ manual = false }: { manual?: boolean } = {}) => {
+    if (!manual) {
+      if (popupShown || sessionStorage.getItem(STORAGE_KEY)) return;
 
-    // Don't stack modals: the cookie decision comes first, and there is no point
-    // asking a visitor who already gave us their email.
-    if (getConsent() === null || isKnownLead()) return;
+      // Don't stack modals: the cookie decision comes first, and there is no point
+      // asking a visitor who already gave us their email.
+      if (getConsent() === null || isKnownLead()) return;
+    }
 
     const popup = getPopup();
     if (!popup) return;
@@ -270,6 +289,13 @@ const displayStat = statLine ?? fallbackStat;
     // submit or an explicit dismiss (see hidePopup / submit handler). Setting it on
     // view previously meant a failed submit could never re-prompt.
 
+    // showStep() is never rewound, so a second manual open would otherwise land
+    // on whichever step the last visit ended on — usually the success panel.
+    if (manual) {
+      showStep('exit-popup-step1');
+      setError(null);
+    }
+
     lastFocused = document.activeElement as HTMLElement | null;
 
     popup.classList.add('visible');
@@ -278,8 +304,11 @@ const displayStat = statLine ?? fallbackStat;
     const firstInput = popup.querySelector<HTMLElement>('input[type="email"]');
     (firstInput ?? popup.querySelector<HTMLElement>('.popup-close'))?.focus();
 
-    trackEvent('Engagement', 'Popup View', 'Exit Intent');
+    trackEvent('Engagement', 'Popup View', manual ? 'Hero CTA' : 'Exit Intent');
   };
+
+  /** Automatic triggers only. Kept as a name so trigger call sites read clearly. */
+  const showPopup = () => openPopup();
 
   const hidePopup = () => {
     const popup = getPopup();
@@ -359,6 +388,11 @@ const displayStat = statLine ?? fallbackStat;
   const bindGlobalListenersOnce = () => {
     if (docListenersBound) return;
     docListenersBound = true;
+
+    // Deliberate open, dispatched by the homepage hero's "What's your town
+    // worth?" button. Same cross-component pattern consent.ts uses for
+    // sf:consent-reset. Always opens — see openPopup()'s manual branch.
+    window.addEventListener('sf:open-lead-popup', () => openPopup({ manual: true }));
 
     // A visitor who reaches a trigger before deciding on cookies is skipped by
     // showPopup()'s guard, and on mobile that consumes the one-shot timer. Once
@@ -578,23 +612,27 @@ const displayStat = statLine ?? fallbackStat;
 
     bindGlobalListenersOnce();
 
-    // Nothing more to do if the visitor already saw it, converted, or is known.
-    if (sessionStorage.getItem(STORAGE_KEY) || isKnownLead()) return;
+    /*
+      Element listeners are bound UNCONDITIONALLY.
 
-    armMobileTimer();
+      They used to sit behind the suppression check below, which was safe only
+      while nothing could open the dialog in a suppressed state. The hero button
+      can, so binding late would produce a dialog with a dead ✕ and a dead
+      submit button — openable, but not closable or usable.
 
-    // Element-level listeners — bind once per freshly-rendered element.
+      Only the automatic mobile timer is gated.
+    */
     if (!closeBtn.dataset.bound) {
       closeBtn.dataset.bound = '1';
       closeBtn.addEventListener('click', hidePopup);
     }
 
-    if (!popup.dataset.bound) {
-      popup.dataset.bound = '1';
-      popup.addEventListener('click', (e) => {
-        if (e.target === popup) hidePopup();
-      });
-    }
+    /*
+      No backdrop-click dismissal, deliberately. Clicking outside is too easy to
+      do by accident on a form a visitor has started filling in; they must use
+      the ✕ or Escape. (Escape stays — removing it would trap keyboard and
+      screen-reader users, WCAG 2.1.2.)
+    */
 
     if (skipBtn && !skipBtn.dataset.bound) {
       skipBtn.dataset.bound = '1';
@@ -606,6 +644,12 @@ const displayStat = statLine ?? fallbackStat;
 
     bindStep1(step1Form);
     if (step2Form) bindStep2(step2Form);
+
+    // Automatic triggers only: don't re-nag someone who already saw it,
+    // converted, or is a known lead. The hero button still works for all three.
+    if (sessionStorage.getItem(STORAGE_KEY) || isKnownLead()) return;
+
+    armMobileTimer();
   };
 
   // Fires on initial load and after every view-transition navigation.
@@ -627,6 +671,16 @@ const displayStat = statLine ?? fallbackStat;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     padding: var(--space-4);
+  }
+
+  /*
+    The hero button can open this while the cookie banner is still up, and that
+    banner sits at --z-popover (600) above this dialog's --z-modal (500). Reserve
+    room for it so the submit button is never covered. Mirrors the existing
+    `html.consent-open .sticky-cta` rule in CookieConsent.astro.
+  */
+  :global(html.consent-open) .exit-popup-overlay {
+    padding-bottom: 180px;
   }
 
   .exit-popup-overlay.visible {

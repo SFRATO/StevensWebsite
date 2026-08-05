@@ -338,7 +338,7 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
     <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-    <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+    <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
   </div>
 
   <div style="padding: 30px 0;">
@@ -373,13 +373,11 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
 
     <p>Best regards,</p>
     <p><strong>Steven Frato</strong><br>
-    Century 21<br>
     (609) 789-0126<br>
     sf@stevenfrato.com</p>
   </div>
 
   <div style="border-top: 1px solid #ddd; padding-top: 20px; font-size: 12px; color: #666; text-align: center;">
-    <p>136 Farnsworth Ave, Bordentown, NJ 08505</p>
     <p>You're receiving this email because you requested a market report from stevenfrato.com</p>
     <p><a href="${siteUrl}" style="color: #C99C33;">stevenfrato.com</a></p>
   </div>
@@ -430,12 +428,10 @@ I'll be sending you more insights about the ${data.town} market over the coming 
 
 Best regards,
 Steven Frato
-Century 21
 (609) 789-0126
 sf@stevenfrato.com
 
 ---
-136 Farnsworth Ave, Bordentown, NJ 08505
 You're receiving this email because you requested a market report from stevenfrato.com
 ${siteUrl}
   `.trim();

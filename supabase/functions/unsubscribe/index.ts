@@ -156,7 +156,7 @@ function generateConfirmationPage(success: boolean, message: string): string {
   <div class="container">
     <div class="header">
       <h1>Steven Frato</h1>
-      <p>CENTURY 21</p>
+      <p>NJ Real Estate</p>
     </div>
 
     <div class="content">
@@ -173,7 +173,6 @@ function generateConfirmationPage(success: boolean, message: string): string {
 
     <div class="footer">
       <p>Questions? Contact us at <a href="mailto:sf@stevenfrato.com">sf@stevenfrato.com</a></p>
-      <p style="margin-top: 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
     </div>
   </div>
 </body>

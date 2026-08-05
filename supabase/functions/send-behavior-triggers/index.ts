@@ -157,13 +157,13 @@ function emailShell(bodyHtml: string, unsubscribeUrl: string): string {
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
     <div style="background:#1a1a1a;color:#ffffff;padding:24px 30px;">
       <h1 style="margin:0;font-size:20px;">Steven Frato</h1>
-      <p style="margin:4px 0 0;color:#C99C33;font-size:12px;letter-spacing:1px;font-weight:600;">CENTURY 21</p>
+      <p style="margin:4px 0 0;color:#666;font-size:12px;letter-spacing:1px;font-weight:600;">NJ Real Estate</p>
     </div>
     <div style="padding:30px;line-height:1.6;">
       ${bodyHtml}
     </div>
     <div style="border-top:1px solid #eee;padding:20px 30px;font-size:12px;color:#999;text-align:center;">
-      <p style="margin:0 0 8px;">Steven Frato &middot; Century 21 &middot; 136 Farnsworth Ave, Bordentown, NJ 08505</p>
+      <p style="margin:0 0 8px;">Steven Frato &middot; NJ Licensed Real Estate Salesperson</p>
       <p style="margin:0;"><a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a></p>
     </div>
   </div>
