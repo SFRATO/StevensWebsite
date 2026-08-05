@@ -17,6 +17,7 @@ import {
   getTownSlug,
 } from '../../data/town-mappings';
 import zipcodesData from '../../../data/processed/zipcodes.json';
+import { DATA_FRESHNESS } from '../../data/dataSource';
 
 interface ZipData {
   zipcode: string;
@@ -72,9 +73,6 @@ const slug = getTownSlug(townName);
 const fmtCurrency = (v: number | null) =>
   v === null ? 'N/A' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
 
-const fmtDate = (d: string) =>
-  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
 const currentYear = new Date().getFullYear();
 
 const faqs = [
@@ -85,7 +83,7 @@ const faqs = [
   {
     question: `What is the average home price in ${townName}, NJ?`,
     answer: zipData?.median_sale_price
-      ? `The median sale price in ${townName} is currently ${fmtCurrency(zipData.median_sale_price)} as of ${fmtDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Prices have ${zipData.median_sale_price_yoy > 0 ? 'increased' : 'decreased'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% over the past year.` : ''}`
+      ? `The median sale price in ${townName} is currently ${fmtCurrency(zipData.median_sale_price)}. ${zipData.median_sale_price_yoy !== null ? `Prices have ${zipData.median_sale_price_yoy > 0 ? 'increased' : 'decreased'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% over the past year.` : ''}`
       : `Contact Steven Frato for current market pricing in ${townName}, NJ.`,
   },
   {
@@ -138,7 +136,7 @@ const schema = [
         location={townName}
         townName={townName}
         formName="market-report"
-        lastUpdated={zipData ? fmtDate(zipData.period_end) : undefined}
+        lastUpdated={DATA_FRESHNESS}
         priceChangeYoY={zipData?.median_sale_price_yoy}
         marketType={zipData?.market_type}
         prefillTown={townName}

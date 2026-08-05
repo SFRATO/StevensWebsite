@@ -11,6 +11,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import ContactForm from '@components/ContactForm.astro';
 import { generateWebsiteSchema } from '@utils/schema';
+import { DATA_SOURCE, DATA_FRESHNESS } from '../data/dataSource';
 
 // Import market data
 import countiesData from '../../data/processed/counties.json';
@@ -36,11 +37,6 @@ const totalZipcodes = zipcodesData.length;
 
 // Calculate total homes tracked (sum of inventory across all zipcodes)
 const totalHomesTracked = zipcodesData.reduce((sum: number, zip: any) => sum + (zip.inventory || 0), 0);
-
-// Get last updated date
-const lastUpdatedDate = counties[0]?.period_end
-  ? new Date(counties[0].period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-  : 'Recently';
 
 // Format currency
 const formatCurrency = (value: number | null): string => {
@@ -90,62 +86,68 @@ const tools = [
   -->
   <section class="hero market-hero">
     <div class="container hero-inner">
-      <p class="eyebrow hero-eyebrow">Real Estate &middot; Burlington County, New Jersey</p>
+      <div class="hero-copy">
+        {/* The name lives here rather than in the H1: /about/ owns the brand
+            query, and the headline is better spent on the value proposition. */}
+        <p class="eyebrow hero-eyebrow">Steven Frato &middot; Licensed NJ Agent</p>
 
-      <h1 class="hero-name">Steven Frato</h1>
+        <h1 class="hero-headline">Get in a house and start building your equity.</h1>
 
-      <figure class="hero-quote">
-        <blockquote>
-          <p>&ldquo;Get in a house and start building your equity.&rdquo;</p>
-        </blockquote>
-      </figure>
+        <p class="hero-sub">
+          I help buyers and sellers across Burlington, Mercer and Middlesex Counties
+          pay less and own more from day one — priced on real local sales data,
+          not on a guess.
+        </p>
 
-      <p class="hero-sub">
-        I work with buyers and sellers across Burlington County — getting people into a home
-        for the lowest price the market will allow, so the equity starts working for them
-        from the first mortgage payment.
-      </p>
+        {/* One primary action. The phone stays a link, not a button, and stays
+            inside .hero so analytics.ts still buckets the click as "Hero". */}
+        <div class="hero-cta">
+          <button type="button" id="hero-town-value" class="btn btn-primary btn-large">
+            What&rsquo;s your town worth?
+          </button>
+          <p class="hero-call-line">
+            or call
+            <a href="tel:+16097890126" class="hero-call">(609) 789-0126</a>
+          </p>
+        </div>
 
-      <div class="hero-cta">
-        <a href="tel:+16097890126" class="btn btn-primary btn-large hero-call">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-          </svg>
-          Call (609) 789-0126
-        </a>
-        <button type="button" id="hero-town-value" class="btn btn-secondary btn-large">
-          What&rsquo;s your town worth?
-        </button>
+        <p class="hero-trust">
+          <span class="hero-trust-stats">
+            {totalZipcodes} ZIP codes &middot; {totalHomesTracked.toLocaleString()} listings tracked
+            &middot; {counties.length} counties &middot; updated {DATA_FRESHNESS}
+          </span>
+          <span class="hero-trust-source">
+            Source: {DATA_SOURCE} &middot; built and maintained by a former data analyst
+          </span>
+        </p>
       </div>
 
-      <a href="#proof" class="scroll-cue" aria-label="Scroll to continue">
+      {/* The product visual: the live data itself. Three rows, one per county,
+          so the panel matches the tri-county claim above and previews Act III. */}
+      <aside class="hero-panel" aria-label="Current market snapshot">
+        <p class="hero-panel-head">This month across the counties I serve</p>
+
+        <ul class="hero-panel-list">
+          {counties.map((county) => (
+            <li class="hero-panel-row">
+              <a href={`/market/${county.slug}/`} class="hero-panel-link">
+                <span class="hero-panel-county">{county.region.replace(' County', '')}</span>
+                <span class="hero-panel-figure figure">{formatCurrency(county.median_sale_price)}</span>
+                <span class={`hero-panel-verdict verdict-${county.market_type}`}>
+                  {marketLabel(county.market_type)}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <p class="hero-panel-foot">Median sale price &middot; updated {DATA_FRESHNESS}</p>
+      </aside>
+
+      <a href="#about" class="scroll-cue" aria-label="Scroll to continue">
         <span class="scroll-cue-line" aria-hidden="true"></span>
         <span class="scroll-cue-text">Scroll</span>
       </a>
-    </div>
-  </section>
-
-  <!-- ACT I — Proof. Engraved figures on hairline rules. -->
-  <section class="act proof" id="proof">
-    <div class="container">
-      <div class="proof-grid" data-reveal>
-        <div class="proof-item">
-          <span class="proof-number">{totalZipcodes}+</span>
-          <span class="proof-label">Zip Codes Tracked</span>
-        </div>
-        <div class="proof-item">
-          <span class="proof-number">{totalHomesTracked.toLocaleString()}+</span>
-          <span class="proof-label">Active Listings Monitored</span>
-        </div>
-        <div class="proof-item">
-          <span class="proof-number">{counties.length}</span>
-          <span class="proof-label">Counties Covered</span>
-        </div>
-        <div class="proof-item">
-          <span class="proof-number proof-number-sm">{lastUpdatedDate}</span>
-          <span class="proof-label">Data Last Updated</span>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -361,65 +363,174 @@ const tools = [
 
   .hero-inner {
     position: relative;
-    text-align: center;
-    max-width: 900px;
+    display: grid;
+    gap: var(--space-10);
+    align-items: center;
   }
 
   .hero-eyebrow {
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-5);
   }
 
-  .hero-name {
-    font-size: var(--text-4xl);
-    letter-spacing: -0.01em;
-    margin-bottom: var(--space-6);
-  }
-
-  /* The quote is the hero's centrepiece — the one place the slab serif carries
-     a display-size line, set against the sans name directly above it. */
-  .hero-quote {
-    margin: 0 auto var(--space-6);
-    padding: var(--space-6) 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
-    max-width: 760px;
-  }
-
-  .hero-quote blockquote p {
+  /* The headline carries the value proposition, so it takes the display slot
+     the pull quote used to hold — Rokkitt at 400, which reads as a spoken line
+     rather than a label. */
+  .hero-headline {
     font-family: var(--font-body);
-    /* 400, not the body 500: at display size Rokkitt needs no weight
-       compensation, and the lighter cut reads as a quotation rather than a
-       heading. */
     font-weight: var(--font-normal);
     font-size: var(--text-3xl);
-    line-height: 1.25;
+    line-height: 1.2;
+    letter-spacing: normal;
     color: var(--text-primary);
-    margin: 0;
+    margin-bottom: var(--space-5);
     text-wrap: balance;
   }
 
   .hero-sub {
-    max-width: 620px;
-    margin: 0 auto var(--space-8);
+    max-width: 560px;
+    margin: 0 0 var(--space-8);
     color: var(--text-secondary);
     line-height: var(--leading-relaxed);
   }
 
+  /* One filled button; the phone sits beside it as text so the hierarchy is
+     unambiguous. Both remain inside .hero for the analytics bucket. */
   .hero-cta {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-4);
-    justify-content: center;
-    margin-bottom: var(--space-10);
+    margin-bottom: var(--space-8);
+  }
+
+  .hero-call-line {
+    margin: 0;
+    color: var(--text-secondary);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
   }
 
   .hero-call {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
+    color: var(--text-primary);
+    font-weight: var(--font-semibold);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--rule-strong);
+    transition: color var(--transition-base), border-color var(--transition-base);
   }
 
+  .hero-call:hover {
+    color: var(--accent-bright);
+    border-bottom-color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* Trust signal: provenance, not praise. Every figure is build-time real. */
+  .hero-trust {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+  }
+
+  .hero-trust-stats {
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero-trust-source {
+    color: var(--text-muted);
+  }
+
+  /* ---- The product visual: live market data ---- */
+  .hero-panel {
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-5) var(--space-6) var(--space-4);
+  }
+
+  .hero-panel-head,
+  .hero-panel-foot {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .hero-panel-head {
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .hero-panel-foot {
+    padding-top: var(--space-3);
+  }
+
+  .hero-panel-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hero-panel-row {
+    margin: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .hero-panel-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    row-gap: var(--space-1);
+    column-gap: var(--space-4);
+    align-items: baseline;
+    padding: var(--space-4) 0;
+    text-decoration: none;
+    transition: opacity var(--transition-base);
+  }
+
+  .hero-panel-link:hover {
+    text-decoration: none;
+    opacity: 0.75;
+  }
+
+  .hero-panel-county {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+  }
+
+  .hero-panel-figure {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    text-align: right;
+  }
+
+  .hero-panel-verdict {
+    grid-column: 1 / -1;
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+  }
+
+  .verdict-seller { color: var(--accent-green); }
+  .verdict-buyer { color: var(--accent-red); }
+
+  /* Third grid child: spans the full width and centres itself under both
+     columns rather than landing in one of them. */
   .scroll-cue {
+    grid-column: 1 / -1;
+    justify-self: center;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
@@ -476,46 +587,6 @@ const tools = [
   [data-reveal].in-view {
     opacity: 1;
     transform: none;
-  }
-
-  /* ==========================================================================
-     ACT I — Proof
-     ========================================================================== */
-  .proof {
-    background: var(--ink-850);
-  }
-
-  .proof-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-  }
-
-  .proof-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--rule);
-  }
-
-  .proof-number {
-    font-family: var(--font-heading);
-    font-size: var(--text-3xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    line-height: 1;
-  }
-
-  .proof-number-sm {
-    font-size: var(--text-xl);
-  }
-
-  .proof-label {
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-eyebrow);
-    text-transform: uppercase;
-    color: var(--text-muted);
   }
 
   /* ==========================================================================
@@ -808,23 +879,22 @@ const tools = [
      Responsive
      ========================================================================== */
   @media (min-width: 640px) {
-    .proof-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
     .tools-rail {
       grid-template-columns: repeat(2, 1fr);
     }
   }
 
   @media (min-width: 1024px) {
-    .hero-name {
-      font-size: var(--text-5xl);
+    /* Copy left, live data right. Below this the panel stacks under the CTA,
+       so the headline and the one action still own the first screen. */
+    .hero-inner {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: var(--space-12);
+      max-width: var(--container-max);
     }
 
-    .proof-grid {
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-8);
+    .hero-headline {
+      font-size: var(--text-4xl);
     }
 
     .about-grid {

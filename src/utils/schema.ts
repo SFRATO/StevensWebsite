@@ -183,7 +183,6 @@ export function generateMarketDataSchema(data: {
   medianPrice: number | null;
   priceChange: number | null;
   inventory: number | null;
-  lastUpdated: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -197,7 +196,9 @@ export function generateMarketDataSchema(data: {
       `${data.location} homes for sale`,
     ],
     url: `https://stevenfrato.com/market/${data.locationType === 'county' ? data.location.toLowerCase().replace(/\s+/g, '-') : data.location}/`,
-    dateModified: data.lastUpdated,
+    // No dateModified: the site deliberately never publishes a data date, in
+    // structured data or anywhere else. Trade-off: gives up the recency signal
+    // Google uses on these pages. Reversible in one line.
     spatialCoverage: {
       '@type': 'Place',
       name: `${data.location}, ${data.state}`,

@@ -27,6 +27,7 @@ import { getTownGuide } from '../../../data/town-guides';
 
 import zipcodesData from '../../../../data/processed/zipcodes.json';
 import countiesData from '../../../../data/processed/counties.json';
+import { DATA_FRESHNESS } from '../../../data/dataSource';
 
 interface ZipData {
   zipcode: string;
@@ -108,9 +109,6 @@ const formatPct = (v: number | null, sign = true) => {
   return `${s}${v.toFixed(1)}%`;
 };
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
 const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
 // Resolve nearby town slugs for internal linking
@@ -145,7 +143,7 @@ const marketTypeBadgeClass = {
 // SEO
 const metaTitle = `${townName}, NJ House Prices & Real Estate Market | ${currentMonthYear}`;
 const metaDesc = zipData?.median_sale_price
-  ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated ${currentMonthYear}.`
+  ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated monthly.`
   : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local agent Steven Frato.`;
 
 // Dynamic FAQ
@@ -153,13 +151,13 @@ const faqs = [
   {
     question: `Home prices in ${townName} NJ?`,
     answer: zipData?.median_sale_price
-      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)} as of ${formatDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Home values are ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year.` : ''}`
+      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)}. ${zipData.median_sale_price_yoy !== null ? `Home values are ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year.` : ''}`
       : `Contact Steven Frato for current pricing data in ${townName}, NJ.`,
   },
   {
     question: `${townName} NJ houses for sale?`,
     answer: zipData?.inventory !== null
-      ? `There are currently ${zipData!.inventory} active listings in the ${townName}, NJ area as of ${formatDate(zipData!.period_end)}. Inventory is ${(zipData!.months_of_supply ?? 4) < 3 ? 'very low — homes go fast and competition is high' : (zipData!.months_of_supply ?? 4) < 5 ? 'moderate — well-priced homes sell within weeks' : 'relatively healthy, giving buyers more options'}. Contact Steven Frato for new listing alerts.`
+      ? `There are currently ${zipData!.inventory} active listings in the ${townName}, NJ area. Inventory is ${(zipData!.months_of_supply ?? 4) < 3 ? 'very low — homes go fast and competition is high' : (zipData!.months_of_supply ?? 4) < 5 ? 'moderate — well-priced homes sell within weeks' : 'relatively healthy, giving buyers more options'}. Contact Steven Frato for new listing alerts.`
       : `Contact Steven Frato to get current listings and new-listing alerts for ${townName}, NJ.`,
   },
   {
@@ -204,7 +202,6 @@ const schema = [
     medianPrice: zipData.median_sale_price,
     priceChange: zipData.median_sale_price_yoy,
     inventory: zipData.inventory,
-    lastUpdated: zipData.last_updated,
   })] : []),
 ];
 ---
@@ -223,7 +220,7 @@ const schema = [
         marketType={zipData.market_type}
         medianPrice={zipData.median_sale_price}
         medianDom={zipData.median_dom}
-        lastUpdated={formatDate(zipData.period_end)}
+        lastUpdated={DATA_FRESHNESS}
       />
 
       <div class="container" style="padding-top: var(--space-4);">
@@ -337,7 +334,7 @@ const schema = [
             location={townName}
             townName={townName}
             formName="market-report"
-            lastUpdated={formatDate(zipData.period_end)}
+            lastUpdated={DATA_FRESHNESS}
             priceChangeYoY={zipData.median_sale_price_yoy}
             marketType={zipData.market_type}
             prefillTown={townName}

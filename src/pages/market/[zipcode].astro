@@ -15,6 +15,7 @@ import { getTownsByZipcode, getTownSlug } from '../../data/town-mappings';
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
 import zipcodesData from '../../../data/processed/zipcodes.json';
+import { DATA_FRESHNESS } from '../../data/dataSource';
 
 interface ZipData {
   zipcode: string;
@@ -89,11 +90,6 @@ const formatCurrency = (value: number | null): string => {
   }).format(value);
 };
 
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-};
-
 // Calculate sale-to-list ratio
 const saleToListRatio = (zipData.median_sale_price && zipData.median_list_price)
   ? (zipData.median_sale_price / zipData.median_list_price * 100)
@@ -154,7 +150,6 @@ const marketDataSchema = generateMarketDataSchema({
   medianPrice: zipData.median_sale_price,
   priceChange: zipData.median_sale_price_yoy,
   inventory: zipData.inventory,
-  lastUpdated: zipData.last_updated,
 });
 
 // Generate FAQ schema for "Is Now a Good Time to Sell?" section
@@ -208,7 +203,7 @@ const description = `${locationName} real estate market: median price ${formatCu
     title={`What's Your ${townDisplayName} Home Worth?`}
     subtitle={heroSubtitle}
     location={`${zipData.zipcode}, ${zipData.county}`}
-    lastUpdated={formatDate(zipData.period_end)}
+    lastUpdated={DATA_FRESHNESS}
     marketType={zipData.market_type}
   />
 
@@ -227,7 +222,7 @@ const description = `${locationName} real estate market: median price ${formatCu
   <div class="container" style="padding-top: var(--space-4);">
     <UrgencyBanner
       location={townDisplayName}
-      lastUpdated={formatDate(zipData.period_end)}
+      lastUpdated={DATA_FRESHNESS}
       priceChangeYoY={zipData.median_sale_price_yoy}
       marketType={zipData.market_type}
     />
@@ -402,7 +397,7 @@ const description = `${locationName} real estate market: median price ${formatCu
       <MarketReportForm
         location={locationName}
         townName={townDisplayName}
-        lastUpdated={formatDate(zipData.period_end)}
+        lastUpdated={DATA_FRESHNESS}
         priceChangeYoY={zipData.median_sale_price_yoy}
         marketType={zipData.market_type}
         prefillTown={townDisplayName}

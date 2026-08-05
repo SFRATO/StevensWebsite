@@ -9,6 +9,7 @@ import MarketTimingIsland from '@components/tools/MarketTimingIsland';
 import { generateBreadcrumbSchema, generateSoftwareApplicationSchema, generateFAQSchema } from '@utils/schema';
 import { getTownZipMappings, getAllValidZipcodes } from '../../data/town-mappings';
 import zipcodesData from '../../../data/processed/zipcodes.json';
+import { withoutDates } from '../../data/dataSource';
 
 const mappings = getTownZipMappings();
 
@@ -62,7 +63,7 @@ const schema = [
         <MarketTimingIsland
           client:load
           mappings={mappings}
-          zipcodes={zipcodesData as any}
+          zipcodes={withoutDates(zipcodesData as any) as any}
         />
       </div>
       <aside class="tool-sidebar">

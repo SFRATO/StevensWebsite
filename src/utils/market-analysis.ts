@@ -50,7 +50,6 @@ export interface EnrichedTown {
   inventoryYoY: number | null;
   marketType: 'seller' | 'buyer' | 'balanced';
   trendDirection: 'up' | 'down' | 'stable';
-  periodEnd: string;
 }
 
 // Movers and Shakers categories
@@ -92,7 +91,6 @@ export function getEnrichedTowns(): EnrichedTown[] {
         inventoryYoY: zipData.inventory_yoy,
         marketType: zipData.market_type,
         trendDirection: zipData.trend_direction,
-        periodEnd: zipData.period_end,
       });
       processedZips.add(town.zipcode);
     } else if (zipData && processedZips.has(town.zipcode)) {

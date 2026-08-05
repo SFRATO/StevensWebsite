@@ -14,11 +14,6 @@ import zipcodesData from '../../data/processed/zipcodes.json';
 const totalZipcodes = zipcodesData.length;
 const totalCounties = countiesData.length;
 
-// Get last updated date from data
-const lastUpdated = countiesData[0]?.period_end
-  ? new Date(countiesData[0].period_end).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  : 'Monthly';
-
 const phone = '(609) 789-0126';
 const phoneHref = 'tel:+16097890126';
 const email = 'sf@stevenfrato.com';
@@ -200,7 +195,7 @@ const email = 'sf@stevenfrato.com';
       </div>
 
       <p class="data-source">
-        Market data sourced from Redfin Data Center. Last updated: {lastUpdated}
+        Market data sourced from Redfin Data Center, updated monthly.
       </p>
     </div>
   </section>

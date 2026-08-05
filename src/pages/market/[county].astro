@@ -16,6 +16,7 @@ import { comparisonPairs } from '../../data/comparisons';
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
 import zipcodesData from '../../../data/processed/zipcodes.json';
+import { DATA_FRESHNESS } from '../../data/dataSource';
 
 interface CountyData {
   region: string;
@@ -100,11 +101,6 @@ const formatCurrency = (value: number | null): string => {
   }).format(value);
 };
 
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-};
-
 // Get current month/year for title
 const currentDate = new Date();
 const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -126,7 +122,6 @@ const marketDataSchema = generateMarketDataSchema({
   medianPrice: county.median_sale_price,
   priceChange: county.median_sale_price_yoy,
   inventory: county.inventory,
-  lastUpdated: county.last_updated,
 });
 
 // County-level FAQs targeting "[county] house prices" queries
@@ -139,7 +134,7 @@ const yoyText = county.median_sale_price_yoy !== null
 const countyFaqs = [
   {
     question: `Home prices in ${county.region} NJ?`,
-    answer: `The median home price in ${county.region}, NJ is ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}.${yoyText} There are currently ${county.inventory ?? 'N/A'} homes for sale across the county.`,
+    answer: `The median home price in ${county.region}, NJ is ${formatCurrency(county.median_sale_price)}.${yoyText} There are currently ${county.inventory ?? 'N/A'} homes for sale across the county.`,
   },
   {
     question: `${county.region} NJ houses for sale?`,
@@ -162,7 +157,7 @@ const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 
 // Page meta
 const title = `${county.region} NJ House Prices & Real Estate Market | ${currentMonthYear}`;
-const description = `${county.region} house prices: median ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}. ${county.inventory ?? 'N/A'} active listings, ${county.median_dom ?? 'N/A'} days on market. Updated monthly.`;
+const description = `${county.region} house prices: median ${formatCurrency(county.median_sale_price)}. ${county.inventory ?? 'N/A'} active listings, ${county.median_dom ?? 'N/A'} days on market. Updated monthly.`;
 ---
 
 <BaseLayout title={title} description={description} schema={combinedSchema}>
@@ -170,7 +165,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     title={`${county.region} Real Estate Market`}
     subtitle={`Comprehensive market data and trends for home sellers in ${county.region}, New Jersey.`}
     location={`${county.region}, NJ`}
-    lastUpdated={formatDate(county.period_end)}
+    lastUpdated={DATA_FRESHNESS}
     marketType={county.market_type}
   />
 
@@ -293,7 +288,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     <div class="container">
       <MarketReportForm
         location={county.region}
-        lastUpdated={formatDate(county.period_end)}
+        lastUpdated={DATA_FRESHNESS}
         priceChangeYoY={county.median_sale_price_yoy}
         marketType={county.market_type}
       />
@@ -398,7 +393,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   <section class="disclaimer">
     <div class="container">
       <p>
-        <strong>Data Source:</strong> Redfin Data Center, updated {formatDate(county.period_end)}.
+        <strong>Data Source:</strong> Redfin Data Center, updated monthly.
         Market statistics are based on all residential property types. Past performance does not guarantee
         future results. Contact Steven Frato for personalized guidance specific to your property.
       </p>

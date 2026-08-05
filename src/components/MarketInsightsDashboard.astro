@@ -42,9 +42,6 @@ const fmtYoY = (v: number | null) => {
 };
 
 // Data freshness
-const lastUpdated = counties[0]?.period_end
-  ? new Date(counties[0].period_end).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  : 'Recently';
 ---
 
 <section class="market-insights">
@@ -52,7 +49,7 @@ const lastUpdated = counties[0]?.period_end
     <div class="section-header">
       <h2>Live Market Data — Updated Monthly</h2>
       <p class="section-subtitle">
-        Real numbers from recent sales across Burlington, Mercer, and Middlesex Counties. Data through {lastUpdated}.
+        Real numbers from recent sales across Burlington, Mercer, and Middlesex Counties. Data through monthly.
       </p>
     </div>
 
