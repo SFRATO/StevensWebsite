@@ -74,7 +74,12 @@ const SITE_URL = Deno.env.get("SITE_URL") || "https://stevenfrato.com";
 
 // Processing configuration
 const BATCH_SIZE = 50; // Process 50 emails at a time
-const SES_RATE_LIMIT_MS = 100; // 10 emails per second max
+// SES sandbox enforces MaxSendRate = 1.0/sec; production default is 14/sec.
+// Default here is sandbox-safe (1100ms). Once production access is granted,
+// set SES_RATE_LIMIT_MS=100 in the function env to restore 10/sec. Sending
+// faster than MaxSendRate returns Throttling errors, which burn `attempts`
+// and push rows to `failed`.
+const SES_RATE_LIMIT_MS = Number(Deno.env.get("SES_RATE_LIMIT_MS") ?? 1100);
 
 // Initialize clients
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

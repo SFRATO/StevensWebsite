@@ -29,6 +29,10 @@ const sesClient = new SESClient({
 
 // Verified sender email (must be verified in SES)
 const SENDER_EMAIL = process.env.SES_SENDER_EMAIL || "reports@stevenfrato.com";
+// Must match the SES configuration set created in AWS, so bounces/complaints on
+// this legacy fallback path still reach the SNS webhook and email_events.
+const SES_CONFIGURATION_SET =
+  process.env.SES_CONFIGURATION_SET || "steven-frato-emails";
 
 // Steven's email for lead notifications
 const STEVEN_EMAIL = "sf@stevenfrato.com";
@@ -113,6 +117,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           },
         },
         ReplyToAddresses: [body.email],
+        ConfigurationSetName: SES_CONFIGURATION_SET,
       });
 
       await sesClient.send(notificationCommand);
@@ -149,6 +154,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
           },
         },
         ReplyToAddresses: [STEVEN_EMAIL],
+        ConfigurationSetName: SES_CONFIGURATION_SET,
       });
 
       await sesClient.send(sendCommand);

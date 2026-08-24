@@ -51,7 +51,12 @@ const HIGH_INTENT_WINDOW_HOURS = 48;
 const DORMANT_DAYS = 30;
 const LOOKBACK_DAYS = 30;           // how far back a run considers activity
 const MAX_LEADS_PER_RUN = 200;
-const SES_RATE_LIMIT_MS = 100;
+// SES sandbox enforces MaxSendRate = 1.0/sec; production default is 14/sec.
+// Default here is sandbox-safe (1100ms). Once production access is granted,
+// set SES_RATE_LIMIT_MS=100 in the function env to restore 10/sec. Sending
+// faster than MaxSendRate returns Throttling errors, which burn `attempts`
+// and push rows to `failed`.
+const SES_RATE_LIMIT_MS = Number(Deno.env.get("SES_RATE_LIMIT_MS") ?? 1100);
 
 // Types
 interface TriggerRule {

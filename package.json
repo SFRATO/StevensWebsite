@@ -13,11 +13,14 @@
     "data:all": "npm run data:fetch && npm run data:process && npm run data:insights"
   },
   "dependencies": {
+    "@astrojs/netlify": "^6.6.5",
     "@astrojs/react": "^4.2.1",
     "@astrojs/sitemap": "^3.7.0",
     "@aws-sdk/client-ses": "^3.700.0",
     "@react-email/components": "^0.0.34",
     "@react-pdf/renderer": "^4.3.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "astro": "^5.16.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

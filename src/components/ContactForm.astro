@@ -77,7 +77,7 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
       <div class="contact-form-wrapper" data-form-id={formId}>
         <!-- Success State -->
         <div class="contact-success-wrapper" id={`${formId}-success`} style="display: none;">
-          <FormSuccess formType="contact" showEmailTimeline={true} />
+          <FormSuccess formType="contact" showEmailTimeline={false} />
         </div>
 
         <!-- Form -->
@@ -85,13 +85,22 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
         <form
           name={formName}
           method="POST"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
           class="contact-form"
           id={formId}
         >
-          <!-- Hidden fields for Netlify -->
+          <!-- Submission is intercepted below and POSTed to /api/market-report.
+               The Netlify Forms attributes were inert at runtime and only caused
+               Netlify to register a phantom form at build time. -->
           <input type="hidden" name="form-name" value={formName} />
+
+          <!-- Tells the handler this is a question, not a report request: zipcode
+               becomes optional (it is presented as optional here) and no PDF is
+               generated. -->
+          <input type="hidden" name="submission-type" value="contact" />
+
+          <!-- Without this the handler builds source_url as "/market//" and the
+               agent notification links to a 404. -->
+          <input type="hidden" name="source-path" value={Astro.url.pathname} />
 
           <!-- Honeypot spam protection -->
           <p class="visually-hidden">
@@ -256,7 +265,12 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
             body: new URLSearchParams(formData as any).toString(),
           });
 
-          if (response.ok) {
+          if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error || 'Form submission failed');
+          }
+
+          {
             // Show success state
             formContainer.style.display = 'none';
             successWrapper.style.display = 'block';
@@ -266,8 +280,6 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 
             // Track conversion
             trackEvent('Lead', 'Contact Form');
-          } else {
-            throw new Error('Form submission failed');
           }
         } catch (error) {
           // Re-enable button on error
@@ -275,7 +287,17 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
             submitBtn.disabled = false;
             submitBtn.textContent = 'Send Message';
           }
-          alert('There was an error submitting the form. Please try again or call us directly.');
+          const message = error instanceof Error && error.message
+            ? error.message
+            : 'Something went wrong sending your message.';
+          let errorEl = form.querySelector('.form-error') as HTMLElement | null;
+          if (!errorEl) {
+            errorEl = document.createElement('p');
+            errorEl.className = 'form-error';
+            errorEl.setAttribute('role', 'alert');
+            submitBtn?.insertAdjacentElement('beforebegin', errorEl);
+          }
+          errorEl.textContent = `${message} You can also call (609) 789-0126 directly.`;
         }
       });
     });

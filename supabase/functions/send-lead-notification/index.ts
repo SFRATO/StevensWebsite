@@ -45,6 +45,11 @@ const AWS_ACCESS_KEY_ID = Deno.env.get("AWS_ACCESS_KEY_ID")!;
 const AWS_SECRET_ACCESS_KEY = Deno.env.get("AWS_SECRET_ACCESS_KEY")!;
 const AWS_REGION = Deno.env.get("AWS_REGION") || "us-east-1";
 const SES_SENDER_EMAIL = Deno.env.get("SES_SENDER_EMAIL") || "reports@stevenfrato.com";
+// Must match the SES configuration set created in AWS. Without it, bounces and
+// complaints on agent-notification mail never reach email_events, so the measured
+// bounce rate reads lower than the one AWS is enforcing against.
+const SES_CONFIGURATION_SET =
+  Deno.env.get("SES_CONFIGURATION_SET") || "steven-frato-emails";
 const STEVEN_EMAIL = "sf@stevenfrato.com";
 
 // Initialize SES client
@@ -416,6 +421,7 @@ serve(async (req) => {
         },
       },
       ReplyToAddresses: [payload.email],
+      ConfigurationSetName: SES_CONFIGURATION_SET,
     });
 
     const result = await sesClient.send(command);

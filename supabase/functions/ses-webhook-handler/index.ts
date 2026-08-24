@@ -14,6 +14,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifySnsSignature, isAwsSigningUrl } from "../_shared/snsVerify.ts";
 
 // Types for SES events
 interface SESMailObject {
@@ -81,11 +82,19 @@ interface SNSNotification {
   Timestamp: string;
   SubscribeURL?: string;
   Token?: string;
+  Signature?: string;
+  SignatureVersion?: string;
+  SigningCertURL?: string;
+  Subject?: string;
 }
 
 // Environment variables
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+// Only accept events from our own SES topic. Set this in the function env to the
+// ARN created for the `steven-frato-emails` configuration set. If unset we still
+// verify the signature, but we cannot pin the sender — so log loudly.
+const SES_SNS_TOPIC_ARN = Deno.env.get("SES_SNS_TOPIC_ARN") ?? "";
 
 // Initialize Supabase client
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -112,6 +121,13 @@ function mapEventTypeToStatus(
 
 // Helper: Confirm SNS subscription
 async function confirmSubscription(subscribeUrl: string): Promise<void> {
+  // Never fetch an arbitrary URL from a request body. Without this guard the
+  // function is an open relay: any caller could make it issue a GET to a host
+  // of their choosing.
+  if (!isAwsSigningUrl(subscribeUrl)) {
+    console.error("Refusing to confirm subscription: non-AWS SubscribeURL:", subscribeUrl);
+    return;
+  }
   try {
     const response = await fetch(subscribeUrl);
     if (response.ok) {
@@ -397,6 +413,40 @@ serve(async (req) => {
     }
 
     console.log(`Received SNS notification type: ${notification.Type}`);
+
+    // ---- Authenticity gate -------------------------------------------------
+    // This endpoint is necessarily unauthenticated (SNS cannot send a JWT), so
+    // the signature IS the authentication. Everything below this point mutates
+    // lead state — a forged Bounce would mark a real lead bounced and cancel
+    // their whole drip — so reject anything we cannot cryptographically verify.
+    const signatureOk = await verifySnsSignature(
+      notification as unknown as Record<string, unknown>,
+    );
+    if (!signatureOk) {
+      console.error("Rejected SNS message with invalid signature", {
+        type: notification.Type,
+        topicArn: notification.TopicArn,
+        messageId: notification.MessageId,
+      });
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Pin the sender to our own topic. A valid AWS signature only proves the
+    // message came from *some* SNS topic, not necessarily ours.
+    if (SES_SNS_TOPIC_ARN && notification.TopicArn !== SES_SNS_TOPIC_ARN) {
+      console.error("Rejected SNS message from unexpected topic:", notification.TopicArn);
+      return new Response(JSON.stringify({ error: "Unexpected topic" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (!SES_SNS_TOPIC_ARN) {
+      console.warn("SES_SNS_TOPIC_ARN is unset — signature verified but topic not pinned.");
+    }
+    // ------------------------------------------------------------------------
 
     // Handle subscription confirmation
     if (notification.Type === "SubscriptionConfirmation") {

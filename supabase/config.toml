@@ -38,14 +38,33 @@ additional_redirect_urls = ["http://localhost:4321"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
-enable_signup = true
+# The only account that should exist is the single /admin user, created by hand and
+# allow-listed in the admin_users table. Self-service signup would hand any stranger
+# an `authenticated` JWT (and enable_confirmations = false means without even owning
+# the mailbox). NOTE: this file governs the LOCAL stack only — the hosted project's
+# setting lives in Dashboard > Authentication > Providers > Email and must be turned
+# off there too.
+enable_signup = false
 
 [auth.email]
-enable_signup = true
+enable_signup = false
 double_confirm_changes = true
 enable_confirmations = false
 
 [functions]
+# Default closed. Each function below opts out only if it genuinely cannot present a
+# JWT. A blanket `verify_jwt = false` left handle-form-submission open as an
+# unauthenticated lead-and-email injection endpoint.
+verify_jwt = true
+
+# Amazon SNS cannot send an Authorization header. Request authenticity is instead
+# established by verifying the SNS message signature inside the function.
+[functions.ses-webhook-handler]
+verify_jwt = false
+
+# Reached directly from a link in a delivered email; the browser has no JWT.
+# Authority comes from the HMAC-signed token in the query string.
+[functions.unsubscribe]
 verify_jwt = false
 
 [analytics]

@@ -22,6 +22,19 @@ interface FormSubmission {
   /** "1" when this is step 2 of the exit-intent popup completing an existing signup. */
   qualify?: string;
 
+  /**
+   * "contact" for the general contact form, "market-report" (default) otherwise.
+   * Contact submissions are a question, not a report request: zipcode is optional
+   * and no PDF is generated for them.
+   */
+  "submission-type"?: string;
+
+  /** Free-text message body from the contact form. */
+  message?: string;
+
+  /** Pathname the form was submitted from, used to build an accurate source_url. */
+  "source-path"?: string;
+
   // Qualification fields from multi-step quiz
   intent?: string;
   timeline?: string;
@@ -99,16 +112,35 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       "contact-preference": params.get("contact-preference") || undefined,
       "lead-score": params.get("lead-score") || undefined,
       "lead-temperature": params.get("lead-temperature") || undefined,
+
+      "submission-type": params.get("submission-type") || undefined,
+      "source-path": params.get("source-path") || undefined,
+      // Deliberately NOT run through the 200-char sanitizer the other fields use —
+      // this is a prose body. The edge function caps and sanitizes it.
+      message: params.get("message") || undefined,
     };
+
+    const submissionType =
+      formData["submission-type"] === "contact" ? "contact" : "market-report";
 
     // Validate required fields. town/address are OPTIONAL — the Supabase edge
     // function derives town from zipcode (zipcode_data). Requiring a non-empty town
     // here previously rejected the exit-intent popup (which sends town='') 100% of
     // the time, so the only pipeline-connected form created zero leads.
-    if (!formData.email || !formData.name || !formData.zipcode) {
+    if (!formData.email || !formData.name) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing required fields (name, email, zipcode)." }),
+        body: JSON.stringify({ error: "Missing required fields (name, email)." }),
+      };
+    }
+    // Zipcode drives the zipcode_data lookup, the PDF, and every {town} token in
+    // the drip subjects, so it stays required for report requests. The contact
+    // form presents it as optional, so requiring it there returned 400 on every
+    // submission that skipped it.
+    if (submissionType === "market-report" && !formData.zipcode) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing required field (zipcode)." }),
       };
     }
 
@@ -182,6 +214,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
               "contact-preference": formData["contact-preference"],
               "lead-score": formData["lead-score"],
               "lead-temperature": formData["lead-temperature"],
+              // Contact-form additions
+              submission_type: submissionType,
+              message: formData.message,
+              source_path: formData["source-path"],
             }),
           }
         );
@@ -235,8 +271,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
     // Trigger PDF generation (runs independently of email system).
     // Skipped for qualification follow-ups — step 2 of the popup is updating a
-    // lead whose report was already generated seconds earlier.
-    if (formData.qualify !== "1") {
+    // lead whose report was already generated seconds earlier — and for contact
+    // submissions, which asked a question rather than requesting a report and may
+    // carry no address or zipcode to build one from.
+    if (formData.qualify !== "1" && submissionType !== "contact") {
       try {
         const pdfResponse = await fetch(
           `${process.env.URL}/.netlify/functions/generate-pdf`,
