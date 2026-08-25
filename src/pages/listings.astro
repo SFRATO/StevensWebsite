@@ -1,15 +1,27 @@
 ---
 /**
- * Listings Page (Placeholder)
- * Will be enhanced with MLS/IDX integration or content collections
+ * Listings index — /listings/
+ *
+ * Lists every published listing, each linking to its own single-property page.
+ * Falls back to the previous "coming soon" card when there are none.
+ *
+ * noindex is now CONDITIONAL. It was previously unconditional while
+ * astro.config.mjs simultaneously gave /listings sitemap priority 0.7 and
+ * changefreq weekly — advertising a page in the sitemap while telling crawlers
+ * to ignore it. With real listings there is something worth indexing; with none
+ * there still isn't, so the flag follows the content.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { getPublishedListings, displayPrice, factLine } from '../lib/listings';
+
+const listings = await getPublishedListings();
+const hasListings = listings.length > 0;
 ---
 
 <BaseLayout
   title="Homes for Sale in Burlington, Mercer & Middlesex County NJ"
   description="Looking to buy in Burlington, Mercer, or Middlesex County NJ? Steven Frato can search the MLS on your behalf and set up new-listing alerts tailored to your search."
-  noindex={true}
+  noindex={!hasListings}
 >
   <!-- Page Header -->
   <section class="page-header">
@@ -21,7 +33,31 @@ import BaseLayout from '@layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- Coming Soon -->
+  {hasListings && (
+    <section class="listing-grid-section">
+      <div class="container">
+        <div class="listing-grid">
+          {listings.map((l) => (
+            <a class="listing-card" href={`/listings/${l.slug}/`}>
+              {l.images[0]
+                ? <img src={l.images[0]} alt={`${l.address}, ${l.town}`} loading="lazy" decoding="async" />
+                : <div class="listing-card-noimg" aria-hidden="true"></div>}
+              <div class="listing-card-body">
+                {l.status === 'sold' && <span class="card-sold">Sold</span>}
+                <h2>{l.address}</h2>
+                <p class="card-locality">{l.town}, {l.state}</p>
+                {displayPrice(l) && <p class="card-price">{displayPrice(l)}</p>}
+                {factLine(l) && <p class="card-facts">{factLine(l)}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Coming Soon (only when there is nothing published) -->
+  {!hasListings && (
   <section class="listings-placeholder">
     <div class="container">
       <div class="placeholder-card">
@@ -73,6 +109,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       </div>
     </div>
   </section>
+  )}
 </BaseLayout>
 
 <style>

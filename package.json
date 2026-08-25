@@ -10,7 +10,11 @@
     "data:fetch": "tsx data/scripts/fetch-data.ts",
     "data:process": "tsx data/scripts/process-data.ts",
     "data:insights": "tsx data/scripts/generate-insights.ts",
-    "data:all": "npm run data:fetch && npm run data:process && npm run data:insights"
+    "data:all": "npm run data:fetch && npm run data:process && npm run data:insights",
+    "listing:add": "tsx data/scripts/add-listing.ts",
+    "listing:publish": "curl -fsS -X POST \"$NETLIFY_BUILD_HOOK\" && echo 'Build triggered \u2014 live in ~2 min.'",
+    "listing:import": "tsx data/scripts/import-mls.ts",
+    "listing:photos": "tsx data/scripts/upload-listing-photos.ts"
   },
   "dependencies": {
     "@astrojs/netlify": "^6.6.5",

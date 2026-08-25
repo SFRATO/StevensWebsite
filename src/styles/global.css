@@ -479,3 +479,66 @@ summary,
     transform: none;
   }
 }
+
+/* ============================================================================
+   Modal primitives — shared
+   ============================================================================
+   There is no modal system in this codebase; these are the first pieces of one.
+   ExitIntentPopup.astro predates them and still rolls its own focus trap and
+   overlay. Collapsing the two is worth doing later; deliberately NOT done here,
+   because that component works and this change should not risk it.
+   ========================================================================== */
+
+/* `inert` is the primary mechanism: one attribute removes descendants from the
+   tab order, from hit-testing, AND from the accessibility tree. Baseline since
+   2023. These two declarations cover the pre-2023 browser tail only — they are
+   NOT the mechanism. Note we deliberately do not add `aria-hidden` here: on an
+   ancestor of focusable content that is itself a WCAG failure, which is the bug
+   `inert` was invented to fix. JS applies aria-hidden only where inert is
+   genuinely unsupported. */
+[inert] {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Body scroll lock. `position: fixed` plus a negative `top` preserves the scroll
+   position; plain `overflow: hidden` on <body> is ignored by iOS Safari. The JS
+   that adds this class is responsible for setting and clearing body.style.top
+   and for restoring scrollTop on release. */
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+}
+html.scroll-locked body {
+  position: fixed;
+  width: 100%;
+}
+
+/* Reserve the scrollbar so locking scroll does not shift the layout underneath
+   an overlay. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* ---------------------------------------------------------------------------
+   The listing registration gate (see RegistrationGate.astro)
+   ---------------------------------------------------------------------------
+   Applied by JS only. No-JS visitors and non-rendering crawlers get the page
+   unobstructed — that is the point: the HTTP response is byte-identical for
+   every requester, so this is a gate, not cloaking.
+
+   WARNING: `filter` establishes a containing block for `position: fixed`
+   descendants. NOTHING position:fixed may live inside the gated element.
+   `position: sticky` is unaffected. Today StickyCTA, CookieConsent and
+   ExitIntentPopup all mount outside <main> in BaseLayout, so they are safe.
+   -------------------------------------------------------------------------- */
+html.listing-gated #listing-gated {
+  filter: blur(9px) saturate(0.7);
+  transition: filter var(--transition-slow);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.listing-gated #listing-gated {
+    transition: none;
+  }
+}

@@ -31,6 +31,16 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   schema?: any; // Additional schema markup
+  /**
+   * Suppress the exit-intent popup on this page.
+   *
+   * Listing pages carry their own registration gate. Post-registration the
+   * popup self-suppresses via isKnownLead(), but BEFORE registration its
+   * mouseout trigger can still fire on top of the gate — two dialogs stacked,
+   * which is the failure mode ExitIntentPopup already guards against for the
+   * cookie banner.
+   */
+  suppressExitPopup?: boolean;
 }
 
 const {
@@ -40,6 +50,7 @@ const {
   noindex = false,
   canonical,
   schema,
+  suppressExitPopup = false,
 } = Astro.props;
 
 // Generate meta values
@@ -273,7 +284,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <StickyCTA ctaHref={stickyCTAHref} ctaText={stickyCTAText} />
 
     <!-- Exit Intent Popup -->
-    <ExitIntentPopup />
+    {!suppressExitPopup && <ExitIntentPopup />}
 
     <!-- Cookie Consent (gates Matomo cookies + GA4) -->
     <CookieConsent />

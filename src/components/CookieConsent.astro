@@ -125,12 +125,32 @@
       declineBtn.addEventListener('click', () => decide('denied'));
     }
 
-    if (decision === null) {
-      openBanner();
-    } else {
+    if (decision !== null) {
       closeBanner();
+      return;
     }
+
+    // A listing page's registration gate is a hard block: nothing on the page
+    // is reachable until it is satisfied. Stacking the cookie banner on top of
+    // it puts two modal asks on screen at once, and the banner's z-index is
+    // higher, so it would sit over the gate's own submit button. Defer — the
+    // gate dispatches sf:gate-released when it lets the visitor through.
+    //
+    // Nothing is lost by waiting: no analytics cookie is set before a decision,
+    // and the gate's own sf_gate_ok flag is strictly necessary and therefore
+    // consent-exempt (see src/utils/gateAccess.ts).
+    if (document.documentElement.classList.contains('listing-gated')) {
+      closeBanner();
+      return;
+    }
+
+    openBanner();
   };
+
+  // Bound at module scope so it survives view transitions.
+  window.addEventListener('sf:gate-released', () => {
+    if (getConsent() === null) openBanner();
+  });
 
   document.addEventListener('astro:page-load', initConsent);
 </script>

@@ -180,6 +180,15 @@
   --z-modal: 500;
   --z-popover: 600;
   --z-tooltip: 700;
+
+  /* ---------------------------------------------------------------------
+     Layout metrics
+     ---------------------------------------------------------------------
+     Header.astro is position:sticky with no intrinsic height token, so
+     anything that needs to sit below it (sticky sidebars, scroll-margin)
+     was guessing. Header.astro consumes this so the two cannot drift.
+     -------------------------------------------------------------------- */
+  --header-height: 72px;
 }
 
 /* Responsive Breakpoints (for media queries) */

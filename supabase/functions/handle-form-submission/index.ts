@@ -25,6 +25,18 @@ interface FormSubmissionPayload {
   phone?: string;
   interest?: string;
   "source-location"?: string;
+  /**
+   * Real pathname of the page the form was on, e.g. "/listings/37-wesley-burlington/".
+   *
+   * NOTE THE UNDERSCORE. handle-market-report.ts forwards the contact-form trio
+   * (submission_type, message, source_path) in snake_case while every other key
+   * in the same payload is kebab-case. Reading this as "source-path" silently
+   * yielded undefined, and the agent notification kept linking to a 404.
+   */
+  source_path?: string;
+  submission_type?: string;
+  /** Free-text body from the contact form / listing registration gate. */
+  message?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
@@ -587,7 +599,9 @@ async function sendLeadNotification(
   lead: { email: string; name: string; phone?: string; address: string; town: string; zipcode: string },
   interestType: string,
   sourceUrl: string,
-  qualification?: QualificationNotificationData
+  qualification?: QualificationNotificationData,
+  /** What they typed, and where they were. Both were previously dropped. */
+  context?: { message?: string; sourceLabel?: string }
 ): Promise<void> {
   const submittedAt = new Date().toLocaleString("en-US", {
     dateStyle: "full",
@@ -769,9 +783,16 @@ async function sendLeadNotification(
       </table>
     </div>
 
+    ${context?.message ? `
+    <div style="padding: 15px 25px; border-top: 1px solid #eee;">
+      <p style="margin: 0 0 6px; font-size: 13px; color: #666; font-weight: 600;">Message</p>
+      <p style="margin: 0; color: #1a1a1a; white-space: pre-wrap;">${context.message}</p>
+    </div>
+    ` : ""}
+
     <div style="padding: 15px 25px; border-top: 1px solid #eee;">
       <p style="margin: 0; font-size: 13px; color: #666;">
-        Source: <a href="${sourceUrl}" style="color: #C99C33;">${sourceUrl}</a>
+        Source: <a href="${sourceUrl}" style="color: #C99C33;">${context?.sourceLabel || sourceUrl}</a>
       </p>
       <p style="margin: 5px 0 0; font-size: 13px; color: #999;">${submittedAt}</p>
     </div>
@@ -858,6 +879,25 @@ serve(async (req) => {
     payload.zipcode = sanitizeField(payload.zipcode, 10);
     payload.email = sanitizeField(payload.email, 160);
     if (payload.phone) payload.phone = sanitizeField(payload.phone, 30);
+    // A prose body, so it keeps its newlines — but angle brackets and control
+    // characters still come out, same as every other field, because it lands in
+    // an HTML email. Capped far higher than the 200-char default.
+    if (payload.message) {
+      payload.message = (payload.message ?? "")
+        .replace(/[<>]/g, "")
+        .replace(/[\r\t]+/g, " ")
+        .trim()
+        .slice(0, 5000);
+    }
+    if (payload["source-location"]) {
+      payload["source-location"] = sanitizeField(payload["source-location"], 120);
+    }
+    if (payload.source_path) {
+      // Must be a same-site absolute path — never a full URL, or the notification
+      // link becomes an open redirect to whatever a submitter puts in the field.
+      const raw = sanitizeField(payload.source_path, 200);
+      payload.source_path = /^\/[A-Za-z0-9\-._~/]*$/.test(raw) ? raw : undefined;
+    }
 
     console.log("Processing form submission for:", payload.email);
 
@@ -900,8 +940,17 @@ serve(async (req) => {
     const validInterestTypes = ["selling", "buying", "both", "investment", "consultation"];
     const finalInterestType = validInterestTypes.includes(interestType) ? interestType : "selling";
 
-    // Determine source URL
-    const sourceUrl = payload["source-location"]
+    // Determine source URL.
+    //
+    // `source_path` wins because it is the ONLY field that is an actual URL path.
+    // `source-location` is a human label — the listing gate sends
+    // "Listing Gate — 37 Wesley Ln, Burlington" — so interpolating it into
+    // /market/<...>/ produced a 404 full of spaces and an em dash, and the agent
+    // notification linked there. Any form that sends a path now links correctly;
+    // the two older branches are unchanged for forms that don't.
+    const sourceUrl = payload.source_path
+      ? `${SITE_URL}${payload.source_path}`
+      : payload["source-location"]
       ? `${SITE_URL}/market/${payload["source-location"]}/`
       : `${SITE_URL}/market/${payload.zipcode}/`;
 
@@ -1270,6 +1319,10 @@ serve(async (req) => {
             leadScore: newLead.lead_score || finalLeadScore,
             leadTemperature: newLead.lead_temperature || finalLeadTemperature,
             leadPriority: newLead.lead_priority || finalLeadPriority,
+          },
+          {
+            message: payload.message,
+            sourceLabel: payload["source-location"],
           }
         );
         leadNotified = true;

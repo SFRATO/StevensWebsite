@@ -1,0 +1,45 @@
+{
+  "_comment_1": "Copy this file, rename it, edit it, then run:  npm run listing:add -- data/listings/your-file.json",
+  "_comment_2": "Add --publish to go live. Without it, the listing is saved as a draft and is not visible to anyone.",
+
+  "slug": "14-oak-street",
+  "_comment_slug": "Becomes the public URL: /listings/14-oak-street/. Lowercase, hyphens only. Treat as permanent once published — changing it 404s every link you've shared.",
+
+  "address": "14 Oak Street",
+  "town": "Bordentown",
+  "county": "Burlington County",
+  "zipcode": "08505",
+  "state": "NJ",
+
+  "price": 439000,
+  "beds": 4,
+  "baths": 2,
+  "sqft": 1850,
+  "lot_size": "0.25 acres",
+  "year_built": 1994,
+  "property_type": "single-family",
+  "mls_number": "NJBL2012345",
+
+  "description": "A four-bedroom colonial on a quarter-acre lot, two blocks from the Delaware River waterfront. The kitchen was renovated in 2024 with quartz counters and a gas range. The primary bedroom is on the first floor. Natural gas heat, central air, two-car garage with interior access.",
+
+  "_comment_highlights": "Short factual bullets. DESCRIBE THE PROPERTY, NEVER THE PERSON — the script blocks Fair Housing problems before anything is written.",
+  "highlights": [
+    "Kitchen renovated in 2024",
+    "First-floor primary bedroom",
+    "Fenced quarter-acre lot",
+    "Two-car garage with interior access",
+    "Two blocks from the Delaware River waterfront"
+  ],
+
+  "_comment_images": "Full URLs. First image is used as the hero and as the social-share preview.",
+  "images": [],
+
+  "_comment_attribution": "is_own_listing false = another broker's listing. Publishing one then REQUIRES listing_brokerage and permission_confirmed — NJ requires the listing broker be identified, and permission to advertise it at all.",
+  "is_own_listing": true,
+  "listing_brokerage": null,
+  "permission_confirmed": false,
+
+  "_comment_sold": "Only for status sold — set these and the page renders as social proof instead of an active listing.",
+  "sold_price": null,
+  "sold_date": null
+}

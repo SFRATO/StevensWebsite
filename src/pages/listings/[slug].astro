@@ -1,0 +1,720 @@
+---
+/**
+ * Single-property page — /listings/<slug>/
+ *
+ * One prerendered page per published listing. Same getStaticPaths shape as the
+ * ~130 town pages: fetch once, pass everything through props so the template
+ * does zero lookups.
+ *
+ * Hosted on stevenfrato.com rather than a vendor domain, so the SEO value of
+ * every shared link accrues here.
+ *
+ * LAYOUT INTENT — "mini MLS". Photos lead; the address and price are present but
+ * subordinate; the description sits in the left column ABOVE the fold rather
+ * than below a wall of images. The full photo set lives in a <dialog>, so the
+ * page opens on five and the other thirty-odd are one click away.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import RegistrationGate from '@components/RegistrationGate.astro';
+import {
+  getPublishedListings,
+  attributionLine,
+  agentCredit,
+  displayPrice,
+  factLine,
+  type Listing,
+} from '../../lib/listings';
+import { generateListingSchema, generateBreadcrumbSchema } from '@utils/schema';
+import { PHONE, PHONE_HREF, EMAIL, EMAIL_HREF, AGENT_NAME, LICENSE_LINE } from '../../data/contact';
+
+export async function getStaticPaths() {
+  const listings = await getPublishedListings();
+  return listings.map((listing) => ({
+    params: { slug: listing.slug },
+    props: { listing },
+  }));
+}
+
+interface Props {
+  listing: Listing;
+}
+
+const { listing } = Astro.props;
+
+const price = displayPrice(listing);
+const facts = factLine(listing);
+const attribution = attributionLine(listing);
+const credit = agentCredit(listing);
+const isSold = listing.status === 'sold';
+
+const heroImages = listing.images.slice(0, 5);
+const totalImages = listing.images.length;
+
+const title = `${listing.address}, ${listing.town}, ${listing.state}`;
+const description =
+  listing.description?.slice(0, 155) ??
+  `${facts ? `${facts}. ` : ''}${listing.address} in ${listing.town}, New Jersey.`;
+
+// generateListingSchema() has existed unused in src/utils/schema.ts since before
+// this feature — it emits SingleFamilyResidence + Offer, which is what makes a
+// listing eligible for rich results. Reused rather than rewritten.
+const schema = [
+  generateBreadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Listings', url: '/listings/' },
+    { name: listing.address, url: `/listings/${listing.slug}/` },
+  ]),
+  generateListingSchema({
+    title,
+    address: listing.address,
+    city: listing.town,
+    state: listing.state,
+    zipCode: listing.zipcode ?? '',
+    price: Number(listing.price ?? 0),
+    beds: Number(listing.beds ?? 0),
+    baths: Number(listing.baths ?? 0),
+    sqft: Number(listing.sqft ?? 0),
+    description: listing.description ?? '',
+    images: listing.images,
+  }),
+  // Google's flexible-sampling markup. Declaring the gate is the sanctioned
+  // "we're gating, not cloaking" signal — the alternative (staying silent while
+  // rendered content is obscured) is what looks evasive.
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    isAccessibleForFree: false,
+    hasPart: {
+      '@type': 'WebPageElement',
+      isAccessibleForFree: false,
+      cssSelector: '#listing-gated',
+    },
+  },
+];
+
+const detailRows: Array<[string, string]> = [
+  listing.property_type ? ['Property type', listing.property_type.replace('-', ' ')] : null,
+  listing.beds ? ['Bedrooms', String(listing.beds)] : null,
+  listing.baths ? ['Bathrooms', String(listing.baths)] : null,
+  listing.sqft ? ['Square feet', listing.sqft.toLocaleString('en-US')] : null,
+  listing.year_built ? ['Year built', String(listing.year_built)] : null,
+  listing.lot_size ? ['Lot size', listing.lot_size] : null,
+  listing.mls_number ? ['MLS #', listing.mls_number] : null,
+  listing.county ? ['County', listing.county] : null,
+  isSold && listing.sold_date ? ['Sold', listing.sold_date] : null,
+].filter(Boolean) as Array<[string, string]>;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={`https://stevenfrato.com/listings/${listing.slug}/`}
+  ogImage={listing.images[0]}
+  schema={schema}
+  suppressExitPopup={true}
+>
+  {/*
+    Runs before first paint, so there is no frame in which an unregistered
+    visitor sees the listing sharp. It cannot import modules, so the two key
+    names below are duplicated from src/utils/gateAccess.ts and
+    src/utils/leadIdentity.ts — KEEP THEM IN SYNC. Under view transitions this
+    only fires on a hard load; the gate's own astro:page-load handler is the
+    authoritative path for soft navigations.
+  */}
+  <script is:inline>
+    (function () {
+      try {
+        var ok =
+          document.cookie.indexOf('sf_gate_ok=1') > -1 ||
+          document.cookie.indexOf('sf_lead=') > -1 ||
+          sessionStorage.getItem('sf_lead_token') ||
+          sessionStorage.getItem('sf_gate_ok');
+        if (!ok) document.documentElement.classList.add('listing-gated');
+      } catch (e) {
+        /* private mode — the module script re-evaluates on astro:page-load */
+      }
+    })();
+  </script>
+
+  <div id="listing-gated">
+    <article class="listing">
+      {/*
+        Hero banner. The address sits ON the photo rather than above it — the
+        photo is what the page leads with, and the address is a caption on it.
+      */}
+      {listing.images[0] && (
+        <header class="hero">
+          <img
+            class="hero-img"
+            src={listing.images[0]}
+            alt={`${listing.address} — exterior`}
+            loading="eager"
+            decoding="async"
+          />
+          <div class="hero-overlay">
+            <div class="hero-id">
+              <img class="hero-headshot" src="/images/headshot.jpg" alt="" width="64" height="64" />
+              <div>
+                <h1>{listing.address}</h1>
+                <p class="hero-locality">{listing.town}, {listing.state} {listing.zipcode}</p>
+              </div>
+            </div>
+            {isSold && <p class="sold-flag">Sold</p>}
+          </div>
+        </header>
+      )}
+
+      <div class="container">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a> <span aria-hidden="true">/</span>
+          <a href="/listings/">Listings</a> <span aria-hidden="true">/</span>
+          <span aria-current="page">{listing.address}</span>
+        </nav>
+
+        {/* Photo left, the numbers and the description right — the reference shape. */}
+        <div class="showcase">
+          {listing.images[1] && (
+            <img
+              class="showcase-img"
+              src={listing.images[1]}
+              alt={`${listing.address} — photo 2 of ${totalImages}`}
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+
+          <div class="showcase-facts">
+            {price && <p class="price-pill">{price}</p>}
+
+            <ul class="spec-pills">
+              {listing.beds && <li>{listing.beds} beds</li>}
+              {listing.baths && <li>{listing.baths} baths</li>}
+              {listing.sqft && <li>{listing.sqft.toLocaleString('en-US')} sqft</li>}
+            </ul>
+
+            {listing.description && <p class="showcase-desc">{listing.description}</p>}
+
+            <div class="showcase-cta">
+              <a href={PHONE_HREF} class="btn btn-primary">Call or text <span class="nb">{PHONE}</span></a>
+              <a href={EMAIL_HREF} class="btn btn-secondary">Email {AGENT_NAME.split(' ')[0]}</a>
+            </div>
+          </div>
+        </div>
+
+        {/* The next three photos, with the rest one click away. */}
+        {listing.images.length > 2 && (
+          <div class="photo-strip">
+            {listing.images.slice(2, 5).map((src, i) => (
+              <img
+                src={src}
+                alt={`${listing.address} — photo ${i + 3} of ${totalImages}`}
+                loading="lazy"
+                decoding="async"
+              />
+            ))}
+            {totalImages > 5 && (
+              <button type="button" class="gallery-open" id="gallery-open">
+                View all {totalImages} photos
+              </button>
+            )}
+          </div>
+        )}
+
+        <div class="listing-body">
+          <div class="listing-main">
+            {listing.highlights.length > 0 && (
+              <section class="block">
+                <h2>Highlights</h2>
+                <ul class="highlights">
+                  {listing.highlights.map((h) => <li>{h}</li>)}
+                </ul>
+              </section>
+            )}
+
+            {detailRows.length > 0 && (
+              <section class="block" id="listing-details">
+                <h2>Details</h2>
+                <dl class="details">
+                  {detailRows.map(([k, v]) => (
+                    <div class="detail-row"><dt>{k}</dt><dd>{v}</dd></div>
+                  ))}
+                </dl>
+              </section>
+            )}
+
+            {/*
+              Required when advertising another broker's listing. Migration 008
+              makes the brokerage mandatory to publish and 009 makes the listing
+              agent mandatory, so neither of these can render an empty credit.
+            */}
+            {attribution && <p class="attribution">{attribution}</p>}
+          </div>
+
+          <aside class="agent-card">
+            <p class="agent-eyebrow">Questions about this home?</p>
+            <p class="agent-name">{AGENT_NAME}</p>
+            <div class="agent-actions">
+              <a href={PHONE_HREF} class="btn btn-primary">Call or text <span class="nb">{PHONE}</span></a>
+              <a href={EMAIL_HREF} class="btn btn-secondary"><span class="nb">{EMAIL}</span></a>
+            </div>
+
+            {!credit.isOwn && (
+              <p class="agent-credit">
+                Listing agent: {credit.name}{credit.phone && <> · <span class="nb">{credit.phone}</span></>}
+              </p>
+            )}
+
+            <p class="agent-license">{LICENSE_LINE}</p>
+          </aside>
+        </div>
+      </div>
+    </article>
+
+    {totalImages > 0 && (
+      <dialog id="listing-gallery" class="gallery-dialog" aria-label={`All ${totalImages} photos`}>
+        <button type="button" class="gallery-close" id="gallery-close" aria-label="Close gallery">
+          Close
+        </button>
+        <div class="gallery-scroll">
+          {listing.images.map((src, i) => (
+            <img
+              src={src}
+              alt={`${listing.address} — photo ${i + 1} of ${totalImages}`}
+              loading="lazy"
+              decoding="async"
+            />
+          ))}
+        </div>
+      </dialog>
+    )}
+  </div>
+
+  <RegistrationGate
+    sourceLocation={`Listing Gate — ${listing.address}, ${listing.town}`}
+    address={listing.address}
+    town={listing.town}
+    zipcode={listing.zipcode ?? ''}
+  />
+</BaseLayout>
+
+<script>
+  // Bind on astro:page-load, not DOMContentLoaded — view transitions don't
+  // re-fire the latter. dataset.bound guards against double-binding.
+  function initGallery() {
+    const dlg = document.getElementById('listing-gallery') as HTMLDialogElement | null;
+    const openBtn = document.getElementById('gallery-open');
+    const closeBtn = document.getElementById('gallery-close');
+    if (!dlg || !openBtn || openBtn.dataset.bound) return;
+    openBtn.dataset.bound = '1';
+
+    openBtn.addEventListener('click', () => {
+      // The trigger is inside the gated wrapper and therefore inert while the
+      // gate is up, so this should be unreachable. Belt and braces: an element
+      // promoted to the top layer is NOT exempt from an inert ancestor, but it
+      // would render unblurred if it somehow opened.
+      if (document.documentElement.classList.contains('listing-gated')) return;
+      if (typeof dlg.showModal === 'function') dlg.showModal();
+      else dlg.setAttribute('open', '');
+    });
+
+    closeBtn?.addEventListener('click', () => dlg.close());
+  }
+
+  document.addEventListener('astro:page-load', initGallery);
+</script>
+
+<style>
+  .listing { padding: 0 0 var(--space-8); }
+  .listing .container { padding-top: var(--space-5); }
+
+  .crumbs {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin-bottom: var(--space-5);
+  }
+  .crumbs a { color: var(--text-secondary); text-decoration: none; }
+  .crumbs a:hover { color: var(--accent); }
+  .crumbs span { margin: 0 var(--space-1); }
+
+  /* --- hero banner ---------------------------------------------------------- */
+
+  .hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    max-height: 52vh;
+    overflow: hidden;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Scrim only at the foot of the image, so the photo stays the subject and the
+     address stays legible over whatever happens to be in frame. */
+  .hero-overlay {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-8) var(--space-6) var(--space-5);
+    background: linear-gradient(to top, rgba(4, 5, 7, 0.88) 0%, rgba(4, 5, 7, 0) 100%);
+  }
+
+  .hero-id {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .hero-headshot {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+  }
+
+  .hero-id h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-medium);
+    letter-spacing: var(--tracking-tight);
+    color: #fff;
+    margin: 0;
+    line-height: var(--leading-tight);
+  }
+
+  .hero-locality {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.78);
+    margin: 2px 0 0;
+  }
+
+  .sold-flag {
+    flex: 0 0 auto;
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--accent-green);
+    background: rgba(12, 14, 17, 0.86);
+    border: 1px solid var(--accent-green);
+    border-radius: var(--radius-full);
+    padding: 2px var(--space-3);
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .hero { aspect-ratio: 4 / 3; max-height: none; }
+    .hero-overlay { padding: var(--space-6) var(--space-4) var(--space-4); }
+    .hero-id h1 { font-size: var(--text-xl); }
+    .hero-headshot { width: 48px; height: 48px; }
+  }
+
+  /* --- showcase: photo left, numbers + description right --------------------- */
+
+  .showcase {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: stretch;
+    margin-bottom: var(--space-6);
+  }
+
+  @media (max-width: 900px) {
+    .showcase { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  .showcase-img {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--rule);
+  }
+
+  .showcase-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .price-pill {
+    align-self: flex-start;
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    background: var(--surface-1);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-full);
+    padding: var(--space-2) var(--space-5);
+    margin: 0;
+  }
+
+  .spec-pills {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: 0;
+    margin: 0;
+  }
+
+  .spec-pills li {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-full);
+    padding: var(--space-2) var(--space-4);
+    white-space: nowrap;
+  }
+
+  .showcase-desc {
+    color: var(--text-secondary);
+    line-height: var(--leading-body);
+    margin: 0;
+  }
+
+  .showcase-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: auto;
+  }
+
+  /* --- photo strip ----------------------------------------------------------- */
+
+  .photo-strip {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+  }
+
+  @media (max-width: 640px) {
+    .photo-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  .photo-strip img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--rule);
+  }
+
+  .gallery-open {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    background: rgba(12, 14, 17, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+  }
+  .gallery-open:hover { border-color: var(--accent); color: var(--accent-bright); }
+  .gallery-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* --- body grid ----------------------------------------------------------- */
+
+  .listing-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: var(--space-10);
+    align-items: start;
+  }
+
+  @media (max-width: 1023px) {
+    .listing-body { grid-template-columns: minmax(0, 1fr); gap: var(--space-8); }
+  }
+
+  .block { margin-bottom: var(--space-8); }
+  .block h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+  }
+  .block p { color: var(--text-secondary); line-height: var(--leading-body); }
+
+  .highlights { list-style: none; padding: 0; display: grid; gap: var(--space-2); }
+  .highlights li {
+    color: var(--text-secondary);
+    padding-left: var(--space-4);
+    position: relative;
+  }
+  .highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0.6em;
+    width: 6px; height: 6px;
+    border-radius: var(--radius-full);
+    background: var(--text-muted);
+  }
+
+  /* Two-column spec sheet — the MLS shape. */
+  .details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 var(--space-6);
+    border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 640px) { .details { grid-template-columns: minmax(0, 1fr); } }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .detail-row dt { color: var(--text-muted); font-family: var(--font-ui); font-size: var(--text-sm); }
+  .detail-row dd {
+    color: var(--text-primary);
+    margin: 0;
+    text-transform: capitalize;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .attribution {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    border-left: 2px solid var(--rule-strong);
+    padding-left: var(--space-3);
+  }
+
+  /* --- sticky agent card ---------------------------------------------------- */
+  /* `position: sticky` is used deliberately, NOT fixed: the gate blurs an
+     ancestor, and `filter` makes that ancestor a containing block for fixed
+     descendants. Sticky is unaffected. */
+
+  .agent-card {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    background: var(--surface-1);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (max-width: 1023px) { .agent-card { position: static; } }
+
+  .agent-eyebrow {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-2);
+  }
+
+  .agent-name {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-4);
+  }
+
+  /* A phone number, an email address or an MLS id must never wrap mid-token.
+     The 340px rail was ~4px too narrow for "Call or text (609) 789-0126" at the
+     base button size, so it broke the number across two lines. Two fixes, both
+     needed: .nb stops the break happening INSIDE the number at any width, and
+     the tighter padding here lets the whole label sit on one line in this rail. */
+  .nb { white-space: nowrap; }
+
+  .agent-actions { display: grid; gap: var(--space-3); }
+  .agent-actions .btn {
+    width: 100%;
+    text-align: center;
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .agent-credit,
+  .agent-license {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: var(--leading-body);
+    margin: var(--space-4) 0 0;
+  }
+
+  .agent-credit {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* --- full gallery dialog --------------------------------------------------- */
+
+  .gallery-dialog {
+    border: 0;
+    padding: 0;
+    max-width: 100vw;
+    max-height: 100dvh;
+    width: 100%;
+    height: 100%;
+    background: var(--ink-900);
+  }
+
+  .gallery-dialog::backdrop { background: rgba(4, 5, 7, 0.92); }
+
+  .gallery-close {
+    position: fixed;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 1;
+    min-height: 44px;
+    padding: var(--space-2) var(--space-5);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    background: rgba(12, 14, 17, 0.9);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+  }
+  .gallery-close:hover { border-color: var(--accent); color: var(--accent-bright); }
+
+  .gallery-scroll {
+    height: 100dvh;
+    overflow-y: auto;
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  .gallery-scroll img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--rule);
+  }
+</style>

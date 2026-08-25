@@ -116,7 +116,9 @@ export default defineConfig({
           };
         }
 
-        // Listings page
+        // Listings — index and each single-property page. These are now real,
+        // indexable pages; previously /listings carried an unconditional noindex
+        // while still being advertised here at priority 0.7.
         if (url.includes('/listings')) {
           return {
             ...item,
