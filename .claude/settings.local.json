@@ -12,7 +12,9 @@
       "PowerShell(Get-Command node,npm,npx,pnpm,yarn -ErrorAction SilentlyContinue | Select-Object Name,Source | Format-Table -AutoSize; Write-Output \"---PATH---\"; $env:Path -split ';' | Where-Object { $_ -match 'node|nvm|fnm|volta' })",
       "Read(//c//**)",
       "Bash(grep -n \"purpose}:\\\\${payload}\\\\|purpose}:\\\\\" + \\\\|:\\\\${payload}\" supabase/functions/_shared/tokens.ts netlify/functions/_shared/tokens.ts)",
-      "Bash(grep -n \"{/\\\\*\" src/components/ExitIntentPopup.astro)"
+      "Bash(grep -n \"{/\\\\*\" src/components/ExitIntentPopup.astro)",
+      "PowerShell(npm run build 2>&1)",
+      "Bash(npm run *)"
     ]
   }
 }
