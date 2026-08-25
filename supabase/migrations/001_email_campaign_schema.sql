@@ -1,9 +1,13 @@
 -- Email Campaign Database Schema
 -- This migration creates all tables needed for the email drip campaign system
 
--- Enable required extensions
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- No extensions required.
+--
+-- This schema deliberately uses gen_random_uuid(), which has been a CORE server
+-- function since PostgreSQL 13 (this project runs 17) and needs no extension.
+-- The original gen_random_uuid() comes from "uuid-ossp", which Supabase installs
+-- into the `extensions` schema — not on the search_path during a migration apply,
+-- so every DEFAULT referencing it failed with 42883 on a fresh project.
 
 -- =============================================================================
 -- ENUMS
@@ -28,6 +32,11 @@ CREATE TYPE lead_status AS ENUM (
 );
 
 -- Email delivery status
+-- 'cancelled' is a terminal, NON-ERROR state: a queued step was deliberately
+-- pulled (pipeline close-out, or a manual cancel from the CRM) before it reached
+-- SES. It is deliberately distinct from 'failed', which means a real delivery
+-- problem. Without the distinction every closed deal reads as a deliverability
+-- incident in the health rollups. See campaign_metrics in 006, which excludes it.
 CREATE TYPE email_status AS ENUM (
   'pending',
   'sending',
@@ -37,7 +46,8 @@ CREATE TYPE email_status AS ENUM (
   'clicked',
   'bounced',
   'complained',
-  'failed'
+  'failed',
+  'cancelled'
 );
 
 -- Market type classification
@@ -52,7 +62,7 @@ CREATE TYPE market_type AS ENUM (
 -- =============================================================================
 
 CREATE TABLE campaigns (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   slug VARCHAR(50) UNIQUE NOT NULL,
   description TEXT,
@@ -75,7 +85,7 @@ INSERT INTO campaigns (name, slug, description, interest_types) VALUES
 -- =============================================================================
 
 CREATE TABLE campaign_steps (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   campaign_id UUID NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
   step_number INTEGER NOT NULL,
   template_id VARCHAR(50) NOT NULL,
@@ -197,7 +207,7 @@ FROM campaigns WHERE slug = 'general';
 -- =============================================================================
 
 CREATE TABLE leads (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Contact information
   email VARCHAR(255) NOT NULL,
@@ -253,7 +263,7 @@ CREATE INDEX leads_interest_type_idx ON leads (interest_type);
 -- =============================================================================
 
 CREATE TABLE scheduled_emails (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
   campaign_step_id UUID NOT NULL REFERENCES campaign_steps(id) ON DELETE CASCADE,
 
@@ -264,6 +274,13 @@ CREATE TABLE scheduled_emails (
   status email_status DEFAULT 'pending',
   attempts INTEGER DEFAULT 0,
   max_attempts INTEGER DEFAULT 3,
+
+  -- Which pass through a campaign this row belongs to. Defaults to 1, so every
+  -- existing INSERT (handle-form-submission, recampaignLead) keeps working
+  -- verbatim and no edge-function change is required. crm_enroll_lead() in 006
+  -- bumps it, which is what lets a deliberate re-enrollment coexist with the
+  -- history of the previous pass instead of colliding with it.
+  enrollment_seq INTEGER NOT NULL DEFAULT 1,
 
   -- SES tracking
   ses_message_id VARCHAR(100),
@@ -277,8 +294,12 @@ CREATE TABLE scheduled_emails (
   failed_at TIMESTAMPTZ,
   error_message TEXT,
 
-  -- Prevent duplicate emails
-  UNIQUE(lead_id, campaign_step_id)
+  -- Prevent duplicate emails WITHIN ONE ENROLLMENT.
+  --
+  -- enrollment_seq (above) is what makes a second pass through the same campaign
+  -- possible. With the original two-column key, re-running a lead through a
+  -- campaign they had already completed raised 23505 on every already-sent step.
+  UNIQUE(lead_id, campaign_step_id, enrollment_seq)
 );
 
 -- Index for processing pending emails
@@ -294,7 +315,7 @@ CREATE INDEX scheduled_emails_ses_id_idx ON scheduled_emails (ses_message_id)
 -- =============================================================================
 
 CREATE TABLE email_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   scheduled_email_id UUID REFERENCES scheduled_emails(id) ON DELETE CASCADE,
   ses_message_id VARCHAR(100),
 
@@ -417,24 +438,13 @@ CREATE TRIGGER assign_campaign_on_lead_insert
   WHEN (NEW.campaign_id IS NULL)
   EXECUTE FUNCTION assign_campaign_to_lead();
 
--- Function to generate unsubscribe token
-CREATE OR REPLACE FUNCTION generate_unsubscribe_token(lead_id UUID)
-RETURNS TEXT AS $$
-DECLARE
-  token TEXT;
-BEGIN
-  -- Create HMAC-signed token with lead_id
-  token := encode(
-    hmac(
-      lead_id::text || extract(epoch from now())::text,
-      current_setting('app.settings.secret_key', true),
-      'sha256'
-    ),
-    'hex'
-  );
-  RETURN lead_id::text || '.' || token;
-END;
-$$ LANGUAGE plpgsql;
+-- NOTE: generate_unsubscribe_token() used to live here and has been removed.
+-- It was dead code (real tokens are HMAC-minted in TypeScript by
+-- supabase/functions/_shared/tokens.ts), broken (it read an unset GUC
+-- app.settings.secret_key, so hmac() returned NULL), publicly EXECUTE-able by
+-- `anon` via PostgREST, and the schema's only dependency on pgcrypto.
+-- 006 keeps a DROP FUNCTION IF EXISTS as a safety net for any environment where
+-- an older copy of this migration was already applied.
 
 -- =============================================================================
 -- ROW LEVEL SECURITY (RLS)

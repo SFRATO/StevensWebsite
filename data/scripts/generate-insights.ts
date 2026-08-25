@@ -83,7 +83,7 @@ Market Data for ${data.region}, NJ (as of ${data.period_end}):
 Write the insight in second person ("you" language) directed at homeowners. Be specific with numbers but conversational in tone. Do not use quotes or markdown formatting.`;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-opus-5",
     max_tokens: 200,
     messages: [{ role: "user", content: prompt }],
   });
@@ -112,7 +112,7 @@ Market Data for ${locationName} (most recent data):
 Write in second person directed at homeowners. Be concise and specific. Do not use quotes or markdown formatting.`;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-opus-5",
     max_tokens: 150,
     messages: [{ role: "user", content: prompt }],
   });

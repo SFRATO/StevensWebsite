@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/cli/config
 
 [project]
-id = ""  # Will be set after project creation
+id = "vvyrkazsnbkwwvzlcqzx"  # "Stevie's Website" (us-east-1)
 name = "steven-frato-emails"
 
 [api]
@@ -51,21 +51,38 @@ enable_signup = false
 double_confirm_changes = true
 enable_confirmations = false
 
-[functions]
-# Default closed. Each function below opts out only if it genuinely cannot present a
-# JWT. A blanket `verify_jwt = false` left handle-form-submission open as an
-# unauthenticated lead-and-email injection endpoint.
-verify_jwt = true
+# Per-function JWT verification. There is deliberately no blanket setting: the
+# Supabase config schema only accepts verify_jwt inside a [functions.<slug>]
+# table, and a global `verify_jwt = false` was what left handle-form-submission
+# open as an unauthenticated lead-and-email injection endpoint.
+#
+# Default posture is CLOSED. Two functions opt out because they genuinely cannot
+# present a JWT; each establishes authenticity another way.
 
-# Amazon SNS cannot send an Authorization header. Request authenticity is instead
-# established by verifying the SNS message signature inside the function.
+# Amazon SNS cannot send an Authorization header. Authenticity is established by
+# verifying the SNS message signature inside the function (see _shared/snsVerify.ts).
 [functions.ses-webhook-handler]
 verify_jwt = false
 
-# Reached directly from a link in a delivered email; the browser has no JWT.
+# Reached directly from a link in a delivered email; a mail client has no JWT.
 # Authority comes from the HMAC-signed token in the query string.
 [functions.unsubscribe]
 verify_jwt = false
+
+# Called server-to-server by netlify/functions/handle-market-report.ts, which
+# already sends `Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY`.
+[functions.handle-form-submission]
+verify_jwt = true
+
+# Invoked by the scheduled Netlify functions, which send the service-role key.
+[functions.send-scheduled-emails]
+verify_jwt = true
+
+[functions.send-behavior-triggers]
+verify_jwt = true
+
+[functions.send-lead-notification]
+verify_jwt = true
 
 [analytics]
 enabled = false

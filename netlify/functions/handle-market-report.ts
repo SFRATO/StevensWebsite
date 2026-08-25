@@ -261,9 +261,19 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
         if (!emailResponse.ok) {
           console.error("Failed to trigger email sequence:", await emailResponse.text());
-        } else {
-          leadPersisted = true;
         }
+        // NOTE: leadPersisted is deliberately NOT set here.
+        //
+        // trigger-email-sequence writes to no database — it sends two emails and
+        // console.logs the sequence it "would" schedule. It also swallows its own
+        // SES errors and returns 200 regardless, so `emailResponse.ok` says nothing
+        // about whether the lead was stored. Treating it as persistence produced a
+        // "thank you" for leads that existed nowhere, which is the exact failure the
+        // leadPersisted guard below was written to prevent.
+        //
+        // Reaching this branch at all means SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
+        // are unset, which is a misconfiguration. Returning 502 surfaces it instead
+        // of hiding it behind a success message.
       } catch (emailError) {
         console.error("Error calling trigger-email-sequence:", emailError);
       }

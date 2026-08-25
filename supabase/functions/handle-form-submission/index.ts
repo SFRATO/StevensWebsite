@@ -180,6 +180,15 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const AWS_ACCESS_KEY_ID = Deno.env.get("AWS_ACCESS_KEY_ID")!;
 const AWS_SECRET_ACCESS_KEY = Deno.env.get("AWS_SECRET_ACCESS_KEY")!;
 const AWS_REGION = Deno.env.get("AWS_REGION") || "us-east-1";
+// GO-LIVE GATE. When false (the default), leads are still captured, the agent is
+// still notified, and inbound messages are still recorded — but NO automated mail
+// goes to the lead: the drip queue rows are not created and the welcome email is
+// not sent. Gating the CREATION of queue rows rather than their sending is
+// deliberate: a suppressed queue would otherwise flood inboxes the moment the
+// flag flips. Set DRIP_AUTO_ENROLL=true once the templates have been reviewed.
+const DRIP_AUTO_ENROLL =
+  (Deno.env.get("DRIP_AUTO_ENROLL") ?? "false").toLowerCase() === "true";
+
 const SES_SENDER_EMAIL = Deno.env.get("SES_SENDER_EMAIL") || "reports@stevenfrato.com";
 const SES_CONFIGURATION_SET = Deno.env.get("SES_CONFIGURATION_SET") || "steven-frato-emails";
 const STEVEN_EMAIL = "sf@stevenfrato.com";
@@ -1139,7 +1148,7 @@ serve(async (req) => {
 
     let welcomeEmailSesId: string | null = null;
 
-    for (const step of campaignSteps || []) {
+    for (const step of DRIP_AUTO_ENROLL ? campaignSteps || [] : []) {
       const scheduledFor = calculateScheduledTime(signupDate, step.delay_days, step.send_hour);
 
       scheduledEmails.push({
@@ -1169,8 +1178,16 @@ serve(async (req) => {
     // Generate unsubscribe URL
     const unsubscribeUrl = await generateUnsubscribeUrl(newLead.id);
 
+    if (!DRIP_AUTO_ENROLL) {
+      console.log(
+        `DRIP_AUTO_ENROLL is off — lead ${newLead.id} captured and the agent notified, ` +
+          `but no drip enrolled and no welcome email sent. Enroll from the CRM, or set ` +
+          `DRIP_AUTO_ENROLL=true to resume automatic enrollment.`
+      );
+    }
+
     // Send welcome email immediately (step 1)
-    if (payload.address && payload.town && payload.zipcode) {
+    if (DRIP_AUTO_ENROLL && payload.address && payload.town && payload.zipcode) {
       welcomeEmailSesId = await sendWelcomeEmail(
         {
           email: payload.email,
@@ -1215,7 +1232,7 @@ serve(async (req) => {
     // possible since those are optional — or a send failure), reset its day-0
     // scheduled row from "sending" back to "pending" so the cron retries it instead
     // of orphaning it in "sending" forever.
-    if (!welcomeEmailSesId && scheduledEmails.length > 0) {
+    if (DRIP_AUTO_ENROLL && !welcomeEmailSesId && scheduledEmails.length > 0) {
       const firstEmail = scheduledEmails[0];
       await supabase
         .from("scheduled_emails")
