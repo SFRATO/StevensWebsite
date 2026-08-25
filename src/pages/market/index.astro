@@ -79,7 +79,7 @@ const description = `Current NJ housing market data updated monthly. View median
         </a>
       </div>
 
-      <p class="trust-line">Century 21 | Serving Burlington, Mercer & Middlesex Counties</p>
+      <p class="trust-line">Serving Burlington, Mercer &amp; Middlesex Counties</p>
     </div>
   </section>
 
@@ -157,12 +157,12 @@ const description = `Current NJ housing market data updated monthly. View median
   /* Hero Section */
   .market-faq {
     padding: var(--space-12) 0;
-    background: #f8f9fa;
+    background: var(--surface-2);
   }
   .market-faq h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin-bottom: var(--space-6);
   }
   .faq-list {
@@ -172,16 +172,16 @@ const description = `Current NJ housing market data updated monthly. View median
     max-width: 800px;
   }
   .faq-item {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--surface-1);
     overflow: hidden;
   }
   .faq-item summary {
     padding: var(--space-4) var(--space-5);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
   .faq-item summary::-webkit-details-marker { display: none; }
@@ -193,7 +193,7 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .market-hero {
-    background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-850) 70%, var(--accent-wash-strong) 100%);
     padding: var(--space-16) 0;
     text-align: center;
   }
@@ -237,12 +237,12 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .btn-primary {
-    background-color: var(--c21-gold);
-    color: var(--white);
+    background-color: var(--accent);
+    color: var(--accent-ink);
   }
 
   .btn-primary:hover {
-    background-color: var(--c21-gold-dark);
+    background-color: var(--accent-bright);
     transform: translateY(-2px);
   }
 
@@ -314,7 +314,7 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .county-card {
-    background: var(--white);
+    background: var(--surface-1);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
     box-shadow: var(--shadow-md);
@@ -365,8 +365,8 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .badge-balanced {
-    background-color: rgba(201, 156, 51, 0.1);
-    color: var(--c21-gold);
+    background-color: rgba(61, 139, 255, 0.12);
+    color: var(--text-primary);
   }
 
   .county-stats {
@@ -390,6 +390,8 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .stat-value {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
     color: var(--text-primary);
@@ -421,7 +423,7 @@ const description = `Current NJ housing market data updated monthly. View median
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     font-weight: var(--font-semibold);
     font-size: var(--text-sm);
   }
@@ -438,16 +440,16 @@ const description = `Current NJ housing market data updated monthly. View median
     gap: var(--space-3);
     margin-top: var(--space-8);
     padding-top: var(--space-6);
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--rule);
   }
 
   .tool-pill {
     display: inline-block;
     padding: 0.5rem 1rem;
-    background: #fff;
-    border: 2px solid var(--c21-gold);
+    background: var(--surface-1);
+    border: 2px solid var(--rule-strong);
     border-radius: 999px;
-    color: var(--c21-gold);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: var(--text-sm);
     text-decoration: none;
@@ -455,7 +457,7 @@ const description = `Current NJ housing market data updated monthly. View median
   }
 
   .tool-pill:hover {
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent-bright);
+    color: var(--text-primary);
   }
 </style>

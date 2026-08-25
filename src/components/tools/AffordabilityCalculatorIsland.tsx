@@ -3,6 +3,7 @@
  * Shows max home price based on income, down payment, and local market data.
  */
 
+import { theme } from '@utils/theme';
 import { useState, useEffect, useCallback } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
@@ -20,20 +21,18 @@ function parseNum(s: string): number {
   return parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
 }
 
-const gold = '#C99C33';
-const charcoal = '#1a1a1a';
 
 const s = {
-  card: { background: '#fff', borderRadius: '1rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' as const },
-  header: { padding: '1.5rem 2rem', borderBottom: '1px solid #e2e8f0' },
-  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: gold, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
-  heading: { fontSize: '1.25rem', fontWeight: 700, color: charcoal, margin: 0 },
+  card: { background: theme.surface1, border: `1px solid ${theme.rule}`, borderRadius: '1rem', boxShadow: theme.shadowLg, overflow: 'hidden' as const },
+  header: { padding: '1.5rem 2rem', borderBottom: `1px solid ${theme.ruleStrong}` },
+  stepLabel: { fontFamily: theme.fontUi, fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
+  heading: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: 0 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', padding: '1.5rem 2rem' },
   formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '0.4rem' },
-  label: { fontSize: '0.8rem', fontWeight: 600, color: '#475569' },
-  input: {
+  label: { fontFamily: theme.fontUi, fontSize: '0.8rem', fontWeight: 600, color: theme.textSecondary },
+  input: { fontFamily: theme.fontUi,
     padding: '0.75rem 1rem',
-    border: '1.5px solid #e2e8f0',
+    border: `1.5px solid ${theme.ruleStrong}`,
     borderRadius: '0.5rem',
     fontSize: '1rem',
     width: '100%',
@@ -41,55 +40,55 @@ const s = {
     outline: 'none',
   },
   termRow: { display: 'flex', gap: '0.5rem' },
-  termBtn: (active: boolean) => ({
+  termBtn: (active: boolean) => ({ fontFamily: theme.fontUi,
     flex: 1,
     padding: '0.6rem',
-    border: `2px solid ${active ? gold : '#e2e8f0'}`,
+    border: `2px solid ${active ? theme.accent : theme.ruleStrong}`,
     borderRadius: '0.5rem',
-    background: active ? '#fef9ee' : '#fff',
-    color: active ? charcoal : '#64748b',
+    background: active ? theme.accentWash : theme.surface2,
+    color: active ? theme.textPrimary : theme.textSecondary,
     fontWeight: active ? 700 : 400,
     cursor: 'pointer',
     fontSize: '0.85rem',
   }),
-  divider: { height: '1px', background: '#e2e8f0', margin: '0 2rem' },
+  divider: { height: '1px', background: theme.ruleStrong, margin: '0 2rem' },
   resultBand: (verdict: string) => ({
     padding: '1.5rem 2rem',
-    background: verdict === 'strong' ? '#f0fdf4' : verdict === 'good' ? '#fef9ee' : verdict === 'stretch' ? '#fef3c7' : '#fef2f2',
-    borderTop: '1px solid #e2e8f0',
+    background: verdict === 'strong' ? theme.greenWash : verdict === 'good' ? theme.accentWash : verdict === 'stretch' ? theme.accentWash : theme.redWash,
+    borderTop: `1px solid ${theme.ruleStrong}`,
   }),
-  verdictBadge: (verdict: string) => ({
+  verdictBadge: (verdict: string) => ({ fontFamily: theme.fontUi,
     display: 'inline-block',
     padding: '0.3rem 0.75rem',
     borderRadius: '999px',
-    background: verdict === 'strong' ? '#16a34a' : verdict === 'good' ? gold : verdict === 'stretch' ? '#d97706' : '#dc2626',
-    color: '#fff',
+    background: verdict === 'strong' ? theme.green : verdict === 'good' ? theme.accent : verdict === 'stretch' ? theme.accentBright : theme.red,
+    color: theme.accentInk,
     fontSize: '0.8rem',
     fontWeight: 700,
     marginBottom: '0.75rem',
   }),
-  maxPrice: { fontSize: '2.5rem', fontWeight: 800, color: charcoal },
-  maxLabel: { fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' },
+  maxPrice: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '2.5rem', fontWeight: 700, color: theme.textPrimary },
+  maxLabel: { fontFamily: theme.fontUi, fontSize: '0.875rem', color: theme.textSecondary, marginTop: '0.25rem' },
   paymentBreak: { display: 'flex', gap: '1.5rem', marginTop: '1.25rem', flexWrap: 'wrap' as const },
   payItem: {},
-  payValue: { fontSize: '1.1rem', fontWeight: 700, color: charcoal },
-  payLabel: { fontSize: '0.75rem', color: '#64748b' },
-  context: { padding: '1rem 2rem', background: '#f8fafc', borderTop: '1px solid #e2e8f0', fontSize: '0.9rem', color: '#475569' },
-  cta: { padding: '1.5rem 2rem', borderTop: '1px solid #e2e8f0' },
-  ctaText: { fontSize: '1rem', fontWeight: 600, color: charcoal, marginBottom: '0.5rem' },
-  ctaBtn: {
+  payValue: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '1.1rem', fontWeight: 700, color: theme.textPrimary },
+  payLabel: { fontFamily: theme.fontUi, fontSize: '0.75rem', color: theme.textSecondary },
+  context: { padding: '1rem 2rem', background: theme.surface2, borderTop: `1px solid ${theme.ruleStrong}`, fontSize: '0.9rem', color: theme.textSecondary },
+  cta: { padding: '1.5rem 2rem', borderTop: `1px solid ${theme.ruleStrong}` },
+  ctaText: { fontSize: '1rem', fontWeight: 600, color: theme.textPrimary, marginBottom: '0.5rem' },
+  ctaBtn: { fontFamily: theme.fontUi,
     display: 'block',
     width: '100%',
     padding: '0.875rem',
-    background: gold,
-    color: '#fff',
+    background: theme.accent,
+    color: theme.accentInk,
     border: 'none',
     borderRadius: '0.5rem',
     fontWeight: 700,
     fontSize: '1rem',
     cursor: 'pointer',
   },
-  disclaimer: { padding: '0.75rem 2rem 1.5rem', fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic' as const },
+  disclaimer: { fontFamily: theme.fontUi, padding: '0.75rem 2rem 1.5rem', fontSize: '0.75rem', color: theme.textMuted, fontStyle: 'italic' as const },
 };
 
 export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Props) {
@@ -271,7 +270,7 @@ export default function AffordabilityCalculatorIsland({ mappings, zipcodes }: Pr
       )}
 
       {!result && (
-        <div style={{ padding: '1rem 2rem 2rem', fontSize: '0.875rem', color: '#64748b', textAlign: 'center' as const }}>
+        <div style={{ padding: '1rem 2rem 2rem', fontSize: '0.875rem', color: theme.textSecondary, textAlign: 'center' as const }}>
           Enter your annual income above to see how much home you can afford.
         </div>
       )}

@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/cli/config
 
 [project]
-id = ""  # Will be set after project creation
+id = "vvyrkazsnbkwwvzlcqzx"  # "Stevie's Website" (us-east-1)
 name = "steven-frato-emails"
 
 [api]
@@ -38,15 +38,48 @@ additional_redirect_urls = ["http://localhost:4321"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
-enable_signup = true
+# The only account that should exist is the single /admin user, created by hand and
+# allow-listed in the admin_users table. Self-service signup would hand any stranger
+# an `authenticated` JWT (and enable_confirmations = false means without even owning
+# the mailbox). NOTE: this file governs the LOCAL stack only — the hosted project's
+# setting lives in Dashboard > Authentication > Providers > Email and must be turned
+# off there too.
+enable_signup = false
 
 [auth.email]
-enable_signup = true
+enable_signup = false
 double_confirm_changes = true
 enable_confirmations = false
 
-[functions]
+# Per-function JWT verification. There is deliberately no blanket setting: the
+# Supabase config schema only accepts verify_jwt inside a [functions.<slug>]
+# table, and a global `verify_jwt = false` was what left handle-form-submission
+# open as an unauthenticated lead-and-email injection endpoint.
+#
+# Default posture is CLOSED. Two functions opt out because they genuinely cannot
+# present a JWT; each establishes authenticity another way.
+
+# Amazon SNS cannot send an Authorization header. Authenticity is established by
+# verifying the SNS message signature inside the function (see _shared/snsVerify.ts).
+[functions.ses-webhook-handler]
 verify_jwt = false
+
+# Reached directly from a link in a delivered email; a mail client has no JWT.
+# Authority comes from the HMAC-signed token in the query string.
+[functions.unsubscribe]
+verify_jwt = false
+
+# Called server-to-server by netlify/functions/handle-market-report.ts, which
+# already sends `Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY`.
+[functions.handle-form-submission]
+verify_jwt = true
+
+# Invoked by the scheduled Netlify functions, which send the service-role key.
+[functions.send-scheduled-emails]
+verify_jwt = true
+
+[functions.send-behavior-triggers]
+verify_jwt = true
 
 [analytics]
 enabled = false

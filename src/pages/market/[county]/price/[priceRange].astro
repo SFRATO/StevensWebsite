@@ -164,35 +164,35 @@ const schema = [
 </BaseLayout>
 
 <style>
-  .hero { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: var(--space-12) 0 var(--space-10); color: #fff; }
-  .breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.875rem; color: #aaa; margin-bottom: var(--space-4); }
-  .breadcrumb a { color: #aaa; text-decoration: none; }
-  h1 { font-family: var(--font-heading); font-size: clamp(1.5rem, 3.5vw, 2.5rem); margin: 0 0 var(--space-3); color: #fff; }
-  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; }
+  .hero { background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%); padding: var(--space-12) 0 var(--space-10); color: var(--text-primary); }
+  .breadcrumb { display: flex; gap: 0.5rem; align-items: center; font-size: 0.875rem; color: var(--text-muted); margin-bottom: var(--space-4); }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+  h1 { font-family: var(--font-heading); font-size: clamp(1.5rem, 3.5vw, 2.5rem); margin: 0 0 var(--space-3); color: var(--text-primary); }
+  .hero-sub { font-size: var(--text-base); color: var(--text-muted); margin: 0; }
 
   .results-section { padding: var(--space-10) 0; }
   .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-bottom: var(--space-8); }
   @media (max-width: 768px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .results-grid { grid-template-columns: 1fr; } }
 
-  .result-card { display: flex; flex-direction: column; gap: 0.5rem; padding: var(--space-4); background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; text-decoration: none; transition: all 0.2s; }
-  .result-card:hover { border-color: var(--c21-gold); box-shadow: 0 4px 12px rgba(201,156,51,0.1); transform: translateY(-1px); }
-  .result-town { font-weight: 700; color: var(--charcoal); font-size: var(--text-base); }
-  .result-price { font-size: 1.25rem; font-weight: 800; color: var(--c21-gold); }
+  .result-card { display: flex; flex-direction: column; gap: 0.5rem; padding: var(--space-4); background: var(--surface-1); border: 1px solid var(--rule); border-radius: 0.75rem; text-decoration: none; transition: all 0.2s; }
+  .result-card: hover { border-color: var(--text-primary); box-shadow: 0 4px 12px rgba(61, 139, 255, 0.12); transform: translateY(-1px); }
+  .result-town { font-weight: 700; color: var(--text-primary); font-size: var(--text-base); }
+  .result-price { font-family: var(--font-heading); font-variant-numeric: tabular-nums; font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
   .result-meta { display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem; flex-wrap: wrap; }
   .badge { padding: 0.2rem 0.5rem; border-radius: 999px; font-weight: 600; text-transform: capitalize; }
-  .badge-seller { background: #dcfce7; color: #15803d; }
-  .badge-buyer { background: #fef2f2; color: #991b1b; }
-  .badge-balanced { background: #fef9ee; color: #92400e; }
+  .badge-seller { background: rgba(74, 222, 128, 0.12); color: var(--accent-green); }
+  .badge-buyer { background: rgba(255, 107, 107, 0.12); color: var(--accent-red); }
+  .badge-balanced { background: var(--accent-wash); color: var(--text-secondary); }
   .dom { color: var(--text-secondary); }
 
-  .price-bands { padding: var(--space-6) 0; border-top: 1px solid #e2e8f0; }
-  .price-bands h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .price-bands { padding: var(--space-6) 0; border-top: 1px solid var(--rule); }
+  .price-bands h3 { font-size: var(--text-base); font-weight: 700; color: var(--text-primary); margin: 0 0 var(--space-3); }
   .bands-row { display: flex; gap: var(--space-4); flex-wrap: wrap; }
-  .bands-row a { color: var(--c21-gold); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
+  .bands-row a { color: var(--accent-bright); font-weight: 600; text-decoration: none; font-size: var(--text-sm); }
 
-  .form-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .form-section { padding: var(--space-12) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
   .form-intro { text-align: center; max-width: 560px; margin: 0 auto var(--space-8); }
-  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--charcoal); margin: 0 0 var(--space-3); }
+  .form-intro h2 { font-family: var(--font-heading); font-size: var(--text-2xl); color: var(--text-primary); margin: 0 0 var(--space-3); }
   .form-intro p { color: var(--text-secondary); margin: 0; }
 </style>

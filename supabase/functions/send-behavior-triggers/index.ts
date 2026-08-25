@@ -51,7 +51,12 @@ const HIGH_INTENT_WINDOW_HOURS = 48;
 const DORMANT_DAYS = 30;
 const LOOKBACK_DAYS = 30;           // how far back a run considers activity
 const MAX_LEADS_PER_RUN = 200;
-const SES_RATE_LIMIT_MS = 100;
+// SES sandbox enforces MaxSendRate = 1.0/sec; production default is 14/sec.
+// Default here is sandbox-safe (1100ms). Once production access is granted,
+// set SES_RATE_LIMIT_MS=100 in the function env to restore 10/sec. Sending
+// faster than MaxSendRate returns Throttling errors, which burn `attempts`
+// and push rows to `failed`.
+const SES_RATE_LIMIT_MS = Number(Deno.env.get("SES_RATE_LIMIT_MS") ?? 1100);
 
 // Types
 interface TriggerRule {
@@ -157,13 +162,13 @@ function emailShell(bodyHtml: string, unsubscribeUrl: string): string {
   <div style="max-width:600px;margin:0 auto;background:#ffffff;">
     <div style="background:#1a1a1a;color:#ffffff;padding:24px 30px;">
       <h1 style="margin:0;font-size:20px;">Steven Frato</h1>
-      <p style="margin:4px 0 0;color:#C99C33;font-size:12px;letter-spacing:1px;font-weight:600;">CENTURY 21</p>
+      <p style="margin:4px 0 0;color:#666;font-size:12px;letter-spacing:1px;font-weight:600;">NJ Real Estate</p>
     </div>
     <div style="padding:30px;line-height:1.6;">
       ${bodyHtml}
     </div>
     <div style="border-top:1px solid #eee;padding:20px 30px;font-size:12px;color:#999;text-align:center;">
-      <p style="margin:0 0 8px;">Steven Frato &middot; Century 21 &middot; 136 Farnsworth Ave, Bordentown, NJ 08505</p>
+      <p style="margin:0 0 8px;">Steven Frato &middot; NJ Licensed Real Estate Salesperson</p>
       <p style="margin:0;"><a href="${unsubscribeUrl}" style="color:#999;">Unsubscribe</a></p>
     </div>
   </div>

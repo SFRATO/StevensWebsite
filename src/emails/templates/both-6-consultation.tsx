@@ -133,8 +133,6 @@ export const BothConsultationEmail: React.FC<BothConsultationEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
-              <br />
               Your {town} Real Estate Expert
             </Text>
 

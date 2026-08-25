@@ -1,6 +1,6 @@
 # Steven Frato Real Estate Website
 
-A modern, SEO-optimized real estate website for Steven Frato, Century 21 agent serving Burlington, Mercer, and Middlesex Counties in New Jersey.
+A modern, SEO-optimized real estate website for Steven Frato, a licensed New Jersey real estate salesperson serving Burlington, Mercer, and Middlesex Counties.
 
 Built with [Astro](https://astro.build) for optimal performance and SEO.
 
@@ -11,7 +11,7 @@ Built with [Astro](https://astro.build) for optimal performance and SEO.
 - **Email Drip Campaign** - 5-email nurture sequence for leads
 - **Automated Data Pipeline** - Monthly market data updates via GitHub Actions
 - **Schema.org Markup** - Rich structured data for search engines
-- **Responsive Design** - Mobile-first Century 21 branded design
+- **Responsive Design** - Mobile-first dark theme with a single electric-blue accent
 
 ## Quick Start
 
@@ -160,7 +160,7 @@ Email templates are in `src/emails/templates/`. They use React Email components 
 
 ### Updating Design Tokens
 
-Design tokens are in `src/styles/variables.css`. The site uses Century 21 brand colors.
+Design tokens are in `src/styles/variables.css`, which documents the accent and type discipline rules.
 
 ## Deployment
 

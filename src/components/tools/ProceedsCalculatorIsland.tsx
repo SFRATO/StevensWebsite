@@ -3,6 +3,7 @@
  * Estimates seller's take-home after all NJ closing costs.
  */
 
+import { theme } from '@utils/theme';
 import { useState, useEffect, useCallback } from 'react';
 import type { ZipData } from '../../utils/market-analysis';
 import type { TownZipMapping } from '../../data/town-mappings';
@@ -16,8 +17,6 @@ interface Props {
   zipcodes: ZipData[];
 }
 
-const gold = '#C99C33';
-const charcoal = '#1a1a1a';
 
 function parseNum(s: string): number {
   return parseFloat(s.replace(/[^0-9.]/g, '')) || 0;
@@ -29,17 +28,17 @@ function fmtInput(n: number): string {
 }
 
 const s = {
-  card: { background: '#fff', borderRadius: '1rem', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', overflow: 'hidden' as const },
-  header: { padding: '1.5rem 2rem', borderBottom: '1px solid #e2e8f0' },
-  stepLabel: { fontSize: '0.75rem', fontWeight: 700, color: gold, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
-  heading: { fontSize: '1.25rem', fontWeight: 700, color: charcoal, margin: 0 },
+  card: { background: theme.surface1, border: `1px solid ${theme.rule}`, borderRadius: '1rem', boxShadow: theme.shadowLg, overflow: 'hidden' as const },
+  header: { padding: '1.5rem 2rem', borderBottom: `1px solid ${theme.ruleStrong}` },
+  stepLabel: { fontFamily: theme.fontUi, fontSize: '0.75rem', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: '0.25rem' },
+  heading: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '1.25rem', fontWeight: 700, color: theme.textPrimary, margin: 0 },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', padding: '1.5rem 2rem' },
   gridFull: { display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', padding: '0 2rem 1.5rem' },
   formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '0.4rem' },
-  label: { fontSize: '0.8rem', fontWeight: 600, color: '#475569' },
-  input: {
+  label: { fontFamily: theme.fontUi, fontSize: '0.8rem', fontWeight: 600, color: theme.textSecondary },
+  input: { fontFamily: theme.fontUi,
     padding: '0.75rem 1rem',
-    border: '1.5px solid #e2e8f0',
+    border: `1.5px solid ${theme.ruleStrong}`,
     borderRadius: '0.5rem',
     fontSize: '1rem',
     width: '100%',
@@ -47,41 +46,41 @@ const s = {
     outline: 'none',
   },
   sliderRow: { display: 'flex', alignItems: 'center', gap: '0.75rem' },
-  slider: { flex: 1, accentColor: gold },
-  sliderVal: { fontSize: '0.9rem', fontWeight: 600, color: gold, width: '3rem', textAlign: 'right' as const },
+  slider: { flex: 1, accentColor: theme.accent },
+  sliderVal: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '0.9rem', fontWeight: 600, color: theme.textPrimary, width: '3rem', textAlign: 'right' as const },
   toggleRow: { display: 'flex', gap: '0.5rem' },
-  toggleBtn: (active: boolean) => ({
+  toggleBtn: (active: boolean) => ({ fontFamily: theme.fontUi,
     flex: 1,
     padding: '0.6rem',
-    border: `2px solid ${active ? gold : '#e2e8f0'}`,
+    border: `2px solid ${active ? theme.accent : theme.ruleStrong}`,
     borderRadius: '0.5rem',
-    background: active ? '#fef9ee' : '#fff',
-    color: active ? charcoal : '#64748b',
+    background: active ? theme.accentWash : theme.surface2,
+    color: active ? theme.textPrimary : theme.textSecondary,
     fontWeight: active ? 700 : 400,
     cursor: 'pointer',
     fontSize: '0.85rem',
   }),
-  divider: { height: '1px', background: '#e2e8f0', margin: '0 2rem' },
-  resultsHeader: { padding: '1.5rem 2rem 0.5rem', background: '#f8fafc' },
-  netProceeds: { padding: '1rem 2rem', background: '#f8fafc' },
-  netValue: { fontSize: '2.25rem', fontWeight: 800, color: charcoal },
-  netNegative: { fontSize: '2.25rem', fontWeight: 800, color: '#dc2626' },
-  netLabel: { fontSize: '0.8rem', color: '#64748b', marginBottom: '0.25rem' },
-  breakdown: { padding: '0 2rem 1.5rem', background: '#f8fafc' },
-  bkRow: { display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: '1px solid #e2e8f0', fontSize: '0.9rem' },
-  bkLabel: { color: '#64748b' },
-  bkValue: { fontWeight: 600, color: charcoal },
-  bkNegative: { fontWeight: 600, color: '#dc2626' },
-  bkTotal: { display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 700, color: charcoal, borderTop: '2px solid #1a1a1a', marginTop: '0.5rem' },
-  note: { margin: '0.5rem 2rem 1rem', padding: '0.75rem 1rem', background: '#fef9ee', borderRadius: '0.5rem', fontSize: '0.8rem', color: '#92400e', lineHeight: 1.5 },
-  cta: { padding: '1.5rem 2rem', borderTop: '1px solid #e2e8f0' },
-  ctaText: { fontSize: '1rem', fontWeight: 600, color: charcoal, marginBottom: '0.5rem' },
-  ctaBtn: {
+  divider: { height: '1px', background: theme.ruleStrong, margin: '0 2rem' },
+  resultsHeader: { padding: '1.5rem 2rem 0.5rem', background: theme.surface2 },
+  netProceeds: { padding: '1rem 2rem', background: theme.surface2 },
+  netValue: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '2.25rem', fontWeight: 700, color: theme.textPrimary },
+  netNegative: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '2.25rem', fontWeight: 700, color: theme.red },
+  netLabel: { fontFamily: theme.fontUi, fontSize: '0.8rem', color: theme.textSecondary, marginBottom: '0.25rem' },
+  breakdown: { padding: '0 2rem 1.5rem', background: theme.surface2 },
+  bkRow: { display: 'flex', justifyContent: 'space-between', padding: '0.6rem 0', borderBottom: `1px solid ${theme.ruleStrong}`, fontSize: '0.9rem' },
+  bkLabel: { fontFamily: theme.fontUi, color: theme.textSecondary },
+  bkValue: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontWeight: 600, color: theme.textPrimary },
+  bkNegative: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontWeight: 600, color: theme.red },
+  bkTotal: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, display: 'flex', justifyContent: 'space-between', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 700, color: theme.textPrimary, borderTop: `2px solid ${theme.ruleStrong}`, marginTop: '0.5rem' },
+  note: { margin: '0.5rem 2rem 1rem', padding: '0.75rem 1rem', background: theme.accentWash, borderRadius: '0.5rem', fontSize: '0.8rem', color: theme.accentBright, lineHeight: 1.5 },
+  cta: { padding: '1.5rem 2rem', borderTop: `1px solid ${theme.ruleStrong}` },
+  ctaText: { fontSize: '1rem', fontWeight: 600, color: theme.textPrimary, marginBottom: '0.5rem' },
+  ctaBtn: { fontFamily: theme.fontUi,
     display: 'block',
     width: '100%',
     padding: '0.875rem',
-    background: gold,
-    color: '#fff',
+    background: theme.accent,
+    color: theme.accentInk,
     border: 'none',
     borderRadius: '0.5rem',
     fontWeight: 700,
@@ -235,7 +234,7 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
             <div style={result.underwater ? s.netNegative : s.netValue}>
               {fmtCurrency(result.netProceeds)}
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.25rem' }}>
+            <div style={{ fontSize: '0.8rem', color: theme.textSecondary, marginTop: '0.25rem' }}>
               {fmtPct(result.netPct)} of sale price
             </div>
           </div>
@@ -299,7 +298,7 @@ export default function ProceedsCalculatorIsland({ mappings, zipcodes }: Props) 
       )}
 
       {!result && (
-        <div style={{ padding: '1rem 2rem 2rem', fontSize: '0.875rem', color: '#64748b', textAlign: 'center' as const }}>
+        <div style={{ padding: '1rem 2rem 2rem', fontSize: '0.875rem', color: theme.textSecondary, textAlign: 'center' as const }}>
           Enter your expected sale price above to see your estimated net proceeds.
         </div>
       )}

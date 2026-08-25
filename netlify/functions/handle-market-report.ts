@@ -7,6 +7,7 @@
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
+import { checkEmail } from "./_shared/emailCheck";
 
 interface FormSubmission {
   "form-name": string;
@@ -21,6 +22,19 @@ interface FormSubmission {
 
   /** "1" when this is step 2 of the exit-intent popup completing an existing signup. */
   qualify?: string;
+
+  /**
+   * "contact" for the general contact form, "market-report" (default) otherwise.
+   * Contact submissions are a question, not a report request: zipcode is optional
+   * and no PDF is generated for them.
+   */
+  "submission-type"?: string;
+
+  /** Free-text message body from the contact form. */
+  message?: string;
+
+  /** Pathname the form was submitted from, used to build an accurate source_url. */
+  "source-path"?: string;
 
   // Qualification fields from multi-step quiz
   intent?: string;
@@ -99,18 +113,80 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       "contact-preference": params.get("contact-preference") || undefined,
       "lead-score": params.get("lead-score") || undefined,
       "lead-temperature": params.get("lead-temperature") || undefined,
+
+      "submission-type": params.get("submission-type") || undefined,
+      "source-path": params.get("source-path") || undefined,
+      // Deliberately NOT run through the 200-char sanitizer the other fields use —
+      // this is a prose body. The edge function caps and sanitizes it.
+      message: params.get("message") || undefined,
     };
+
+    const submissionType =
+      formData["submission-type"] === "contact" ? "contact" : "market-report";
 
     // Validate required fields. town/address are OPTIONAL — the Supabase edge
     // function derives town from zipcode (zipcode_data). Requiring a non-empty town
     // here previously rejected the exit-intent popup (which sends town='') 100% of
     // the time, so the only pipeline-connected form created zero leads.
-    if (!formData.email || !formData.name || !formData.zipcode) {
+    if (!formData.email || !formData.name) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing required fields (name, email, zipcode)." }),
+        body: JSON.stringify({ error: "Missing required fields (name, email)." }),
       };
     }
+    // Zipcode drives the zipcode_data lookup, the PDF, and every {town} token in
+    // the drip subjects, so it stays required for report requests. The contact
+    // form presents it as optional, so requiring it there returned 400 on every
+    // submission that skipped it.
+    if (submissionType === "market-report" && !formData.zipcode) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Missing required field (zipcode)." }),
+      };
+    }
+
+    // --- email verification (blocking) ------------------------------------
+    // Bots never get here: the honeypot short-circuits above, so no DNS lookup
+    // is ever spent on one.
+    //
+    // Fails OPEN on any DNS trouble — see _shared/emailCheck.ts. It cannot tell
+    // whether a mailbox exists, only whether the domain can receive mail; what
+    // it does catch is typos, which is where real leads are actually lost.
+    const emailCheck = await checkEmail(formData.email, {
+      // The visitor deliberately re-submitted an address we warned about.
+      allowOverride: params.get("email-confirmed") === "1",
+      // Step 2 of the exit-intent popup re-sends an address that step 1 verified
+      // seconds ago. Re-running DNS there risks rejecting someone mid-funnel for
+      // no gain.
+      syntaxOnly: formData.qualify === "1",
+    });
+
+    // Domain and code only — never the address. This handler is already flagged
+    // for logging full addresses elsewhere; don't add another.
+    console.log("email check:", {
+      ok: emailCheck.ok,
+      code: emailCheck.code,
+      ...emailCheck.trace,
+    });
+
+    if (!emailCheck.ok) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          // `error` stays the human string so ContactForm, which already reads
+          // payload.error, keeps working with no change. Everything else is additive.
+          error: emailCheck.message,
+          field: "email",
+          code: emailCheck.code,
+          suggestion: emailCheck.suggestion,
+          canOverride: emailCheck.canOverride,
+        }),
+      };
+    }
+
+    // Everything downstream — the Supabase forward, generate-pdf, SES — uses the
+    // normalized address, so casing and stray whitespace can't create duplicates.
+    formData.email = emailCheck.normalized;
 
     // Extract UTM parameters from referrer if available
     let utmSource: string | undefined;
@@ -129,10 +205,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       }
     }
 
+    // No name, no email — this line is for tracing volume and routing, and
+    // Netlify function logs are not a place to accumulate PII. The lead row in
+    // Supabase is the record of who submitted.
     console.log("Market report request received:", {
-      name: formData.name,
+      type: submissionType,
       location: formData["source-location"],
-      email: formData.email,
       town: formData.town,
       zipcode: formData.zipcode,
       interest: formData.interest,
@@ -182,6 +260,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
               "contact-preference": formData["contact-preference"],
               "lead-score": formData["lead-score"],
               "lead-temperature": formData["lead-temperature"],
+              // Contact-form additions
+              submission_type: submissionType,
+              message: formData.message,
+              source_path: formData["source-path"],
             }),
           }
         );
@@ -225,9 +307,19 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
         if (!emailResponse.ok) {
           console.error("Failed to trigger email sequence:", await emailResponse.text());
-        } else {
-          leadPersisted = true;
         }
+        // NOTE: leadPersisted is deliberately NOT set here.
+        //
+        // trigger-email-sequence writes to no database — it sends two emails and
+        // console.logs the sequence it "would" schedule. It also swallows its own
+        // SES errors and returns 200 regardless, so `emailResponse.ok` says nothing
+        // about whether the lead was stored. Treating it as persistence produced a
+        // "thank you" for leads that existed nowhere, which is the exact failure the
+        // leadPersisted guard below was written to prevent.
+        //
+        // Reaching this branch at all means SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY
+        // are unset, which is a misconfiguration. Returning 502 surfaces it instead
+        // of hiding it behind a success message.
       } catch (emailError) {
         console.error("Error calling trigger-email-sequence:", emailError);
       }
@@ -235,8 +327,10 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 
     // Trigger PDF generation (runs independently of email system).
     // Skipped for qualification follow-ups — step 2 of the popup is updating a
-    // lead whose report was already generated seconds earlier.
-    if (formData.qualify !== "1") {
+    // lead whose report was already generated seconds earlier — and for contact
+    // submissions, which asked a question rather than requesting a report and may
+    // carry no address or zipcode to build one from.
+    if (formData.qualify !== "1" && submissionType !== "contact") {
       try {
         const pdfResponse = await fetch(
           `${process.env.URL}/.netlify/functions/generate-pdf`,

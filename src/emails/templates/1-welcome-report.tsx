@@ -102,8 +102,6 @@ export const WelcomeReportEmail: React.FC<WelcomeReportEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              Century 21
-              <br />
               (609) 789-0126
             </Text>
           </Section>

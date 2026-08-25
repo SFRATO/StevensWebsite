@@ -5,6 +5,7 @@
  * Instead of rendering hidden form fields, calls onSelect with the full ZipData.
  */
 
+import { theme } from '@utils/theme';
 import { useState, useRef, useEffect, useCallback, useId } from 'react';
 import type { TownZipMapping } from '../../data/town-mappings';
 import type { ZipData } from '../../utils/market-analysis';
@@ -41,26 +42,26 @@ function matchScore(query: string, target: string): number {
 
 const styles = {
   wrapper: { position: 'relative' as const },
-  label: { display: 'block', fontSize: '0.875rem', fontWeight: 500, color: '#1a1a1a', marginBottom: '0.5rem' },
-  input: {
+  label: { fontFamily: theme.fontUi, display: 'block', fontSize: '0.875rem', fontWeight: 500, color: theme.textPrimary, marginBottom: '0.5rem' },
+  input: { fontFamily: theme.fontUi,
     width: '100%',
     padding: '0.875rem 1rem',
-    border: '2px solid #e2e8f0',
+    border: `2px solid ${theme.ruleStrong}`,
     borderRadius: '0.5rem',
     fontSize: '1rem',
     outline: 'none',
     boxSizing: 'border-box' as const,
     transition: 'border-color 0.2s',
   },
-  inputFocused: { borderColor: '#C99C33' },
+  inputFocused: { fontFamily: theme.fontUi, borderColor: theme.accent },
   dropdown: {
     position: 'absolute' as const,
     top: '100%',
     left: 0,
     right: 0,
     marginTop: '0.25rem',
-    background: '#fff',
-    border: '1px solid #e2e8f0',
+    background: theme.surface1,
+    border: `1px solid ${theme.ruleStrong}`,
     borderRadius: '0.5rem',
     boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
     zIndex: 50,
@@ -70,10 +71,10 @@ const styles = {
     margin: 0,
     padding: '0.25rem 0',
   },
-  item: { padding: '0.75rem 1rem', cursor: 'pointer', transition: 'background 0.1s' },
-  itemActive: { backgroundColor: '#fef9ee' },
-  townName: { fontWeight: 500, color: '#1a1a1a', display: 'block' },
-  townMeta: { fontSize: '0.75rem', color: '#64748b' },
+  item: { fontFamily: theme.fontUi, padding: '0.75rem 1rem', cursor: 'pointer', transition: 'background 0.1s' },
+  itemActive: { fontFamily: theme.fontUi, backgroundColor: theme.accentWash },
+  townName: { fontWeight: 500, color: theme.textPrimary, display: 'block' },
+  townMeta: { fontFamily: theme.fontUi, fontSize: '0.75rem', color: theme.textSecondary },
 };
 
 export default function LocationPickerIsland({

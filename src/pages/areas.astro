@@ -105,7 +105,7 @@ const description = "What's your home worth? Search your town to discover local 
                   <span>{towns.length} towns</span>
                   {avgPrice && (
                     <>
-                      <span class="separator">|</span>
+                      <span class="separator" aria-hidden="true">|</span>
                       <span>Avg. {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(avgPrice)}</span>
                     </>
                   )}
@@ -180,7 +180,7 @@ const description = "What's your home worth? Search your town to discover local 
 <style>
   /* Hero Section */
   .areas-hero {
-    background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-850) 70%, var(--accent-wash-strong) 100%);
     color: var(--white);
     padding: var(--space-12) 0 var(--space-10);
     text-align: center;
@@ -219,10 +219,12 @@ const description = "What's your home worth? Search your town to discover local 
   }
 
   .stat-value {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     display: block;
     font-size: var(--text-2xl);
     font-weight: var(--font-bold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   .stat-label {
@@ -233,7 +235,7 @@ const description = "What's your home worth? Search your town to discover local 
   /* Browse by County */
   .browse-counties {
     padding: var(--space-10) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .section-header {
@@ -260,7 +262,7 @@ const description = "What's your home worth? Search your town to discover local 
 
   .county-section {
     padding-top: var(--space-6);
-    border-top: 2px solid var(--c21-gold);
+    border-top: 2px solid var(--rule-strong);
   }
 
   .county-header {
@@ -289,7 +291,7 @@ const description = "What's your home worth? Search your town to discover local 
   }
 
   .county-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .county-link svg {
@@ -311,8 +313,10 @@ const description = "What's your home worth? Search your town to discover local 
     color: var(--text-secondary);
   }
 
+  /* Purely decorative divider between two metadata values — hidden from
+     assistive tech, so it is exempt from the text-contrast minimum. */
   .county-meta .separator {
-    color: var(--border-color);
+    color: var(--rule-strong);
   }
 
   .towns-grid {
@@ -342,12 +346,12 @@ const description = "What's your home worth? Search your town to discover local 
   /* CTA Section */
   .cta-section {
     padding: var(--space-8) 0 var(--space-12);
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .cta-box {
     padding: var(--space-8);
-    background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a2a 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%);
     border-radius: var(--radius-lg);
     text-align: center;
     color: var(--white);
@@ -385,14 +389,14 @@ const description = "What's your home worth? Search your town to discover local 
   /* Quick Tools */
   .quick-tools {
     padding: var(--space-10) 0;
-    background: #fef9ee;
-    border-top: 2px solid var(--c21-gold);
+    background: var(--accent-wash);
+    border-top: 2px solid var(--rule-strong);
   }
 
   .quick-tools h2 {
     font-family: var(--font-heading);
     font-size: var(--text-xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-5);
     text-align: center;
   }
@@ -409,10 +413,10 @@ const description = "What's your home worth? Search your town to discover local 
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-3) var(--space-5);
-    background: #fff;
-    border: 2px solid var(--c21-gold);
+    background: var(--surface-1);
+    border: 2px solid var(--rule-strong);
     border-radius: 999px;
-    color: var(--charcoal);
+    color: var(--text-primary);
     font-weight: 600;
     font-size: var(--text-sm);
     text-decoration: none;
@@ -420,8 +424,8 @@ const description = "What's your home worth? Search your town to discover local 
   }
 
   .tool-link:hover {
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent-bright);
+    color: var(--text-primary);
   }
 
   .tool-emoji { font-size: 1.1rem; }

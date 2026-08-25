@@ -72,7 +72,7 @@ const formatChange = (val: number | null | undefined): string => {
 
 <style>
   .market-card {
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-5);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
@@ -94,9 +94,10 @@ const formatChange = (val: number | null | undefined): string => {
     width: 48px;
     height: 48px;
     min-width: 48px;
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-full);
-    color: var(--white);
+    color: var(--accent-bright);
   }
 
   .card-content {
@@ -111,6 +112,8 @@ const formatChange = (val: number | null | undefined): string => {
   }
 
   .card-value {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     font-size: var(--text-2xl);
     color: var(--text-primary);
     font-weight: var(--font-bold);

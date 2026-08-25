@@ -20,10 +20,11 @@ const marketTypeLabels = {
   balanced: "Balanced Market",
 };
 
+// Tuned for the near-black hero surface; all clear WCAG AA at badge size.
 const marketTypeColors = {
-  seller: '#6FCF7C',  /* Lighter green for dark backgrounds - WCAG AA compliant */
-  buyer: '#FF8A80',   /* Lighter red for dark backgrounds - WCAG AA compliant */
-  balanced: '#E8C468', /* Lighter gold for dark backgrounds - WCAG AA compliant */
+  seller: 'var(--accent-green)',
+  buyer: 'var(--accent-red)',
+  balanced: 'var(--text-secondary)',
 };
 ---
 
@@ -64,7 +65,7 @@ const marketTypeColors = {
 
 <style>
   .market-hero {
-    background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal) 70%, var(--c21-gold-dark) 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-850) 70%, var(--accent-wash-strong) 100%);
     padding: var(--space-12) 0 var(--space-10);
     color: var(--white);
   }
@@ -99,7 +100,7 @@ const marketTypeColors = {
 
   .subtitle {
     font-size: var(--text-lg);
-    color: #D1D1D1; /* WCAG AA compliant - 8.5:1 contrast on #2C2C2C */
+    color: var(--text-secondary); /* WCAG AA compliant - 8.5:1 contrast on var(--text-primary) */
     line-height: var(--leading-relaxed);
     margin-bottom: var(--space-6);
   }
@@ -109,7 +110,7 @@ const marketTypeColors = {
     flex-wrap: wrap;
     gap: var(--space-4);
     font-size: var(--text-sm);
-    color: #B8B8B8; /* WCAG AA compliant - 6.2:1 contrast on #2C2C2C */
+    color: var(--text-secondary); /* WCAG AA compliant - 6.2:1 contrast on var(--text-primary) */
   }
 
   .hero-meta span {

@@ -4,7 +4,7 @@ This file provides context for AI assistants (like Claude) working on this codeb
 
 ## Project Overview
 
-This is a real estate website for Steven Frato, a Century 21 agent in New Jersey. The site focuses on seller-focused programmatic SEO with automated market data pages, lead capture, and email nurturing.
+This is a real estate website for Steven Frato, an independent licensed real estate salesperson in New Jersey (NJ License #2567370). He works as a service-area agent — the site names the counties served and publishes NO office address and NO brokerage affiliation. The site focuses on seller-focused programmatic SEO with automated market data pages, lead capture, and email nurturing.
 
 ## Architecture
 
@@ -113,19 +113,27 @@ interface ZipData {
 ### CSS Variables (from `variables.css`)
 
 ```css
-/* Colors - Century 21 Brand */
---c21-gold: #C99C33
---c21-gold-dark: #B38A1F
---charcoal: #1a1a1a
+/* Surfaces — "watchmaker's workshop at night" */
+--ink-900: #08090B   /* page */    --ink-800: #101318  /* card */
+--rule: #1C222B      /* hairline */ --rule-strong: #2A323E
+
+/* Text */
+--text-primary: #F4F6F8   --text-secondary: #A2AAB5   --text-muted: #838D9A
+
+/* Accent — electric blue, CTAs / active nav / hover ONLY, never headings or body */
+--accent: #3D8BFF   --accent-bright: #6FB2FF   --accent-ink: #06070A
 
 /* Spacing Scale */
 --space-1 through --space-16
 
-/* Typography */
---text-xs through --text-4xl
---font-heading: 'Playfair Display'
---font-body: 'Inter'
+/* Typography — three tokens, not two */
+--font-heading: 'Ubuntu'   /* h1–h6, display numerals */
+--font-ui: 'Ubuntu'        /* nav, buttons, inputs, labels, badges */
+--font-body: 'Rokkitt'     /* prose */
 ```
+
+Century 21 gold (`--c21-gold*`) and Playfair/Inter are **retired**. See the
+ACCENT DISCIPLINE and TYPE DISCIPLINE blocks at the top of `variables.css`.
 
 ### Component Styling Pattern
 

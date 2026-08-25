@@ -9,6 +9,7 @@
  * - Validation for service area zipcodes
  */
 
+import { theme } from '@utils/theme';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { TownZipMapping } from '../data/town-mappings';
 import { trackSiteSearch } from '@utils/analytics';
@@ -203,16 +204,18 @@ export default function TownZipFieldIsland({
       position: 'relative' as const,
     },
     label: {
+      fontFamily: theme.fontUi,
       fontSize: '0.875rem',
       fontWeight: 500,
-      color: '#1a1a1a',
+      color: theme.textPrimary,
     },
     required: {
-      color: '#dc2626',
+      color: theme.red,
     },
     input: {
+      fontFamily: theme.fontUi,
       padding: '0.75rem 1rem',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${theme.ruleStrong}`,
       borderRadius: '0.5rem',
       fontSize: '1rem',
       transition: 'all 0.2s ease',
@@ -220,7 +223,7 @@ export default function TownZipFieldIsland({
       boxSizing: 'border-box' as const,
     },
     inputError: {
-      borderColor: '#dc2626',
+      borderColor: theme.red,
     },
     dropdown: {
       position: 'absolute' as const,
@@ -228,8 +231,8 @@ export default function TownZipFieldIsland({
       left: 0,
       right: 0,
       marginTop: '0.25rem',
-      background: '#fff',
-      border: '1px solid #e2e8f0',
+      background: theme.surface1,
+      border: `1px solid ${theme.ruleStrong}`,
       borderRadius: '0.5rem',
       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
       zIndex: 50,
@@ -240,6 +243,7 @@ export default function TownZipFieldIsland({
       padding: '0.25rem 0',
     },
     dropdownItem: {
+      fontFamily: theme.fontUi,
       padding: '0.75rem 1rem',
       cursor: 'pointer',
       display: 'flex',
@@ -248,19 +252,22 @@ export default function TownZipFieldIsland({
       transition: 'background-color 0.1s ease',
     },
     dropdownItemHighlighted: {
-      backgroundColor: '#f1f5f9',
+      backgroundColor: theme.surface2,
     },
     townName: {
+      fontFamily: theme.fontUi,
       fontWeight: 500,
-      color: '#1a1a1a',
+      color: theme.textPrimary,
     },
     townMeta: {
+      fontFamily: theme.fontUi,
       fontSize: '0.75rem',
-      color: '#64748b',
+      color: theme.textSecondary,
     },
     error: {
+      fontFamily: theme.fontUi,
       fontSize: '0.75rem',
-      color: '#dc2626',
+      color: theme.red,
       marginTop: '0.25rem',
     },
   };

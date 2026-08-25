@@ -16,6 +16,7 @@ import { comparisonPairs } from '../../data/comparisons';
 // Import market data
 import countiesData from '../../../data/processed/counties.json';
 import zipcodesData from '../../../data/processed/zipcodes.json';
+import { DATA_FRESHNESS } from '../../data/dataSource';
 
 interface CountyData {
   region: string;
@@ -100,11 +101,6 @@ const formatCurrency = (value: number | null): string => {
   }).format(value);
 };
 
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-};
-
 // Get current month/year for title
 const currentDate = new Date();
 const currentMonthYear = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -126,7 +122,6 @@ const marketDataSchema = generateMarketDataSchema({
   medianPrice: county.median_sale_price,
   priceChange: county.median_sale_price_yoy,
   inventory: county.inventory,
-  lastUpdated: county.last_updated,
 });
 
 // County-level FAQs targeting "[county] house prices" queries
@@ -139,7 +134,7 @@ const yoyText = county.median_sale_price_yoy !== null
 const countyFaqs = [
   {
     question: `Home prices in ${county.region} NJ?`,
-    answer: `The median home price in ${county.region}, NJ is ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}.${yoyText} There are currently ${county.inventory ?? 'N/A'} homes for sale across the county.`,
+    answer: `The median home price in ${county.region}, NJ is ${formatCurrency(county.median_sale_price)}.${yoyText} There are currently ${county.inventory ?? 'N/A'} homes for sale across the county.`,
   },
   {
     question: `${county.region} NJ houses for sale?`,
@@ -162,7 +157,7 @@ const combinedSchema = [breadcrumbSchema, marketDataSchema, faqSchema];
 
 // Page meta
 const title = `${county.region} NJ House Prices & Real Estate Market | ${currentMonthYear}`;
-const description = `${county.region} house prices: median ${formatCurrency(county.median_sale_price)} as of ${currentMonthYear}. ${county.inventory ?? 'N/A'} active listings, ${county.median_dom ?? 'N/A'} days on market. Updated monthly.`;
+const description = `${county.region} house prices: median ${formatCurrency(county.median_sale_price)}. ${county.inventory ?? 'N/A'} active listings, ${county.median_dom ?? 'N/A'} days on market. Updated monthly.`;
 ---
 
 <BaseLayout title={title} description={description} schema={combinedSchema}>
@@ -170,7 +165,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     title={`${county.region} Real Estate Market`}
     subtitle={`Comprehensive market data and trends for home sellers in ${county.region}, New Jersey.`}
     location={`${county.region}, NJ`}
-    lastUpdated={formatDate(county.period_end)}
+    lastUpdated={DATA_FRESHNESS}
     marketType={county.market_type}
   />
 
@@ -293,7 +288,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     <div class="container">
       <MarketReportForm
         location={county.region}
-        lastUpdated={formatDate(county.period_end)}
+        lastUpdated={DATA_FRESHNESS}
         priceChangeYoY={county.median_sale_price_yoy}
         marketType={county.market_type}
       />
@@ -398,7 +393,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   <section class="disclaimer">
     <div class="container">
       <p>
-        <strong>Data Source:</strong> Redfin Data Center, updated {formatDate(county.period_end)}.
+        <strong>Data Source:</strong> Redfin Data Center, updated monthly.
         Market statistics are based on all residential property types. Past performance does not guarantee
         future results. Contact Steven Frato for personalized guidance specific to your property.
       </p>
@@ -452,7 +447,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .trend-item {
-    background: var(--white);
+    background: var(--surface-1);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
@@ -497,18 +492,19 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .market-type-seller { color: var(--accent-green); }
   .market-type-buyer { color: var(--accent-red); }
-  .market-type-balanced { color: var(--c21-gold); }
+  .market-type-balanced { color: var(--text-primary); }
 
   /* Market Insight */
   .market-insight {
     padding: var(--space-8) 0;
-    background: linear-gradient(135deg, var(--c21-gold-light) 0%, var(--c21-gold) 100%);
+    background: var(--accent-wash-strong);
+  border: 1px solid var(--accent-line);
   }
 
   .insight-card {
     display: flex;
     gap: var(--space-5);
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
@@ -523,7 +519,8 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     width: 64px;
     height: 64px;
     min-width: 64px;
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-full);
     color: var(--white);
   }
@@ -573,13 +570,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .price-range-nav {
     margin-top: var(--space-8);
     padding-top: var(--space-6);
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--rule);
   }
 
   .price-range-nav h3 {
     font-size: var(--text-base);
     font-weight: 700;
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-3);
   }
 
@@ -592,9 +589,9 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .price-range-links a {
     display: inline-block;
     padding: 0.4rem 0.875rem;
-    border: 2px solid var(--c21-gold);
+    border: 2px solid var(--rule-strong);
     border-radius: 999px;
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     font-weight: 600;
     font-size: var(--text-sm);
     text-decoration: none;
@@ -602,8 +599,8 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .price-range-links a:hover {
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent-bright);
+    color: var(--text-primary);
   }
 
   .zip-grid {
@@ -629,7 +626,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     flex-direction: column;
     gap: var(--space-2);
     padding: var(--space-4);
-    background: var(--white);
+    background: var(--surface-1);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     text-decoration: none;
@@ -638,7 +635,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .zip-card:hover {
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
     box-shadow: var(--shadow-md);
   }
 
@@ -667,7 +664,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   .zip-stats .price {
     font-size: var(--text-lg);
     font-weight: var(--font-semibold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   .more-zips {
@@ -702,7 +699,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .related-card {
     padding: var(--space-5);
-    background: var(--white);
+    background: var(--surface-1);
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
@@ -712,7 +709,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
 
   .related-card:hover {
     box-shadow: var(--shadow-md);
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
   }
 
   .related-card h3 {
@@ -724,7 +721,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     display: block;
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     margin-bottom: var(--space-2);
   }
 
@@ -734,13 +731,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .back-link {
-    background: var(--charcoal);
-    border-color: var(--charcoal);
+    background: var(--ink-850);
+    border-color: var(--rule-strong);
     color: var(--white);
   }
 
   .back-link:hover {
-    background: #2a2a2a;
+    background: var(--ink-800);
   }
 
   .back-link .link {
@@ -750,13 +747,13 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   /* County FAQ */
   .county-faq {
     padding: var(--space-12) 0;
-    background: #f8f9fa;
+    background: var(--surface-2);
   }
 
   .county-faq h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin-bottom: var(--space-6);
   }
 
@@ -768,9 +765,9 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
   }
 
   .faq-item {
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--rule);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--surface-1);
     overflow: hidden;
   }
 
@@ -778,7 +775,7 @@ const description = `${county.region} house prices: median ${formatCurrency(coun
     padding: var(--space-4) var(--space-5);
     font-weight: var(--font-semibold);
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
 

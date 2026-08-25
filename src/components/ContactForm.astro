@@ -66,8 +66,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
               </svg>
             </div>
             <div>
-              <div class="contact-label">Office</div>
-              <div class="contact-text">136 Farnsworth Ave, Bordentown, NJ</div>
+              <div class="contact-label">Service Area</div>
+              <div class="contact-text">Burlington, Mercer &amp; Middlesex Counties, NJ</div>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
       <div class="contact-form-wrapper" data-form-id={formId}>
         <!-- Success State -->
         <div class="contact-success-wrapper" id={`${formId}-success`} style="display: none;">
-          <FormSuccess formType="contact" showEmailTimeline={true} />
+          <FormSuccess formType="contact" showEmailTimeline={false} />
         </div>
 
         <!-- Form -->
@@ -85,13 +85,22 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
         <form
           name={formName}
           method="POST"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
           class="contact-form"
           id={formId}
         >
-          <!-- Hidden fields for Netlify -->
+          <!-- Submission is intercepted below and POSTed to /api/market-report.
+               The Netlify Forms attributes were inert at runtime and only caused
+               Netlify to register a phantom form at build time. -->
           <input type="hidden" name="form-name" value={formName} />
+
+          <!-- Tells the handler this is a question, not a report request: zipcode
+               becomes optional (it is presented as optional here) and no PDF is
+               generated. -->
+          <input type="hidden" name="submission-type" value="contact" />
+
+          <!-- Without this the handler builds source_url as "/market//" and the
+               agent notification links to a 404. -->
+          <input type="hidden" name="source-path" value={Astro.url.pathname} />
 
           <!-- Honeypot spam protection -->
           <p class="visually-hidden">
@@ -256,7 +265,12 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
             body: new URLSearchParams(formData as any).toString(),
           });
 
-          if (response.ok) {
+          if (!response.ok) {
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error || 'Form submission failed');
+          }
+
+          {
             // Show success state
             formContainer.style.display = 'none';
             successWrapper.style.display = 'block';
@@ -266,8 +280,6 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 
             // Track conversion
             trackEvent('Lead', 'Contact Form');
-          } else {
-            throw new Error('Form submission failed');
           }
         } catch (error) {
           // Re-enable button on error
@@ -275,7 +287,17 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
             submitBtn.disabled = false;
             submitBtn.textContent = 'Send Message';
           }
-          alert('There was an error submitting the form. Please try again or call us directly.');
+          const message = error instanceof Error && error.message
+            ? error.message
+            : 'Something went wrong sending your message.';
+          let errorEl = form.querySelector('.form-error') as HTMLElement | null;
+          if (!errorEl) {
+            errorEl = document.createElement('p');
+            errorEl.className = 'form-error';
+            errorEl.setAttribute('role', 'alert');
+            submitBtn?.insertAdjacentElement('beforebegin', errorEl);
+          }
+          errorEl.textContent = `${message} You can also call (609) 789-0126 directly.`;
         }
       });
     });
@@ -285,7 +307,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 <style>
   .contact-section {
     padding: var(--space-12) 0;
-    background: linear-gradient(135deg, var(--light-gray) 0%, var(--off-white) 100%);
+    background: linear-gradient(180deg, var(--ink-900) 0%, var(--ink-850) 100%);
+    border-top: 1px solid var(--rule);
   }
 
   .contact-grid {
@@ -334,9 +357,10 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--c21-gold);
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-md);
-    color: var(--white);
+    color: var(--accent-bright);
   }
 
   .contact-label {
@@ -354,7 +378,7 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   .contact-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .contact-text {
@@ -365,7 +389,8 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
 
   /* Form Wrapper */
   .contact-form-wrapper {
-    background: var(--white);
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     padding: var(--space-8);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-lg);
@@ -399,10 +424,10 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
     width: 100%;
     padding: var(--space-3);
     font-size: var(--text-base);
-    font-family: var(--font-primary);
-    border: 2px solid var(--border-color);
+    font-family: var(--font-ui);
+    border: 1px solid var(--rule-strong);
     border-radius: var(--radius-md);
-    background: var(--white);
+    background: var(--surface-3);
     color: var(--text-primary);
     transition: all var(--transition-base);
   }
@@ -411,13 +436,13 @@ const formId = `contact-form-${Math.random().toString(36).substr(2, 9)}`;
   .form-select:focus,
   .form-textarea:focus {
     outline: none;
-    border-color: var(--c21-gold);
-    box-shadow: 0 0 0 3px rgba(201, 156, 51, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
   }
 
   .form-input::placeholder,
   .form-textarea::placeholder {
-    color: var(--dark-gray);
+    color: var(--text-muted);
   }
 
   .form-textarea {

@@ -123,12 +123,15 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--charcoal);
+    background: rgba(12, 14, 17, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--rule);
     padding: var(--space-3) 0;
     z-index: var(--z-sticky);
     transform: translateY(100%);
     transition: transform 0.3s ease-out;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.6);
   }
 
   .sticky-cta.visible {
@@ -146,14 +149,14 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--white);
+    color: var(--text-primary);
     text-decoration: none;
     font-weight: var(--font-medium);
     transition: color var(--transition-base);
   }
 
   .sticky-phone:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .sticky-phone svg {
@@ -165,8 +168,8 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     align-items: center;
     justify-content: center;
     padding: var(--space-2) var(--space-5);
-    background-color: var(--c21-gold);
-    color: var(--white);
+    background-color: var(--accent);
+    color: var(--accent-ink);
     border-radius: var(--radius-md);
     font-weight: var(--font-semibold);
     font-size: var(--text-sm);
@@ -176,7 +179,8 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
   }
 
   .sticky-btn:hover {
-    background-color: var(--c21-gold-dark);
+    background-color: var(--accent-bright);
+    box-shadow: var(--glow);
     transform: translateY(-1px);
   }
 
@@ -186,7 +190,9 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
       top: 0;
       bottom: auto;
       transform: translateY(-100%);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border-top: 0;
+      border-bottom: 1px solid var(--rule);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
     }
 
     .sticky-cta.visible {
@@ -213,7 +219,9 @@ const shouldHide = hideOnPages.some(page => currentPath.startsWith(page));
     .sticky-phone {
       width: 44px;
       height: 44px;
-      background: var(--c21-gold);
+      background: var(--accent-wash-strong);
+      color: var(--accent-bright);
+      border: 1px solid var(--accent-line);
       border-radius: var(--radius-full);
       justify-content: center;
     }

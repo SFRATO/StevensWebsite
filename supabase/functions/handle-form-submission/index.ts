@@ -14,6 +14,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
 import { createToken } from "../_shared/tokens.ts";
+import { EMAIL as AGENT_EMAIL_DEFAULT } from "../_shared/contact.ts";
 
 // Types
 interface FormSubmissionPayload {
@@ -25,6 +26,18 @@ interface FormSubmissionPayload {
   phone?: string;
   interest?: string;
   "source-location"?: string;
+  /**
+   * Real pathname of the page the form was on, e.g. "/listings/37-wesley-burlington/".
+   *
+   * NOTE THE UNDERSCORE. handle-market-report.ts forwards the contact-form trio
+   * (submission_type, message, source_path) in snake_case while every other key
+   * in the same payload is kebab-case. Reading this as "source-path" silently
+   * yielded undefined, and the agent notification kept linking to a 404.
+   */
+  source_path?: string;
+  submission_type?: string;
+  /** Free-text body from the contact form / listing registration gate. */
+  message?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
@@ -180,9 +193,40 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const AWS_ACCESS_KEY_ID = Deno.env.get("AWS_ACCESS_KEY_ID")!;
 const AWS_SECRET_ACCESS_KEY = Deno.env.get("AWS_SECRET_ACCESS_KEY")!;
 const AWS_REGION = Deno.env.get("AWS_REGION") || "us-east-1";
+// GO-LIVE GATE. When false (the default), leads are still captured, the agent is
+// still notified, and inbound messages are still recorded — but NO automated mail
+// goes to the lead: the drip queue rows are not created and the welcome email is
+// not sent. Gating the CREATION of queue rows rather than their sending is
+// deliberate: a suppressed queue would otherwise flood inboxes the moment the
+// flag flips. Set DRIP_AUTO_ENROLL=true once the templates have been reviewed.
+const DRIP_AUTO_ENROLL =
+  (Deno.env.get("DRIP_AUTO_ENROLL") ?? "false").toLowerCase() === "true";
+
 const SES_SENDER_EMAIL = Deno.env.get("SES_SENDER_EMAIL") || "reports@stevenfrato.com";
 const SES_CONFIGURATION_SET = Deno.env.get("SES_CONFIGURATION_SET") || "steven-frato-emails";
-const STEVEN_EMAIL = "sf@stevenfrato.com";
+/**
+ * Who gets the "new lead" alert.
+ *
+ * Env-driven with _shared/contact.ts as the fallback, so the literal address
+ * lives in one place and a second recipient (assistant, CRM inbound-parse
+ * address) needs an env var rather than a deploy. Comma-separated.
+ *
+ * Every recipient must be a VERIFIED SES identity while the account is in the
+ * SES sandbox, or SES rejects the entire send — hence the validation and the
+ * loud log rather than a silent fallback.
+ */
+const AGENT_NOTIFY_EMAILS: string[] = (() => {
+  const ADDR_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const raw = Deno.env.get("AGENT_NOTIFY_EMAIL") ?? AGENT_EMAIL_DEFAULT;
+  const all = raw.split(",").map((a) => a.trim()).filter(Boolean).slice(0, 10);
+  const bad = all.filter((a) => !ADDR_RE.test(a));
+  if (bad.length) console.error("AGENT_NOTIFY_EMAIL has invalid address(es):", bad);
+  const good = all.filter((a) => ADDR_RE.test(a));
+  return good.length ? good : [AGENT_EMAIL_DEFAULT];
+})();
+
+/** Non-SES escape hatch for "SES itself is broken". Slack/Discord/ntfy webhook. */
+const AGENT_ALERT_WEBHOOK_URL = Deno.env.get("AGENT_ALERT_WEBHOOK_URL") || "";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://stevenfrato.com";
 
 // Initialize clients
@@ -376,7 +420,7 @@ async function sendWelcomeEmail(
   <div style="background: #ffffff; border-radius: 8px; overflow: hidden;">
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #C99C33;">
       <h1 style="color: #1a1a1a; margin: 0;">Steven Frato</h1>
-      <p style="color: #C99C33; margin: 5px 0 0; font-weight: 600;">CENTURY 21</p>
+      <p style="color: #666; margin: 5px 0 0; font-weight: 600;">NJ Real Estate</p>
     </div>
 
     <div style="padding: 30px;">
@@ -431,13 +475,11 @@ async function sendWelcomeEmail(
 
       <p>Best regards,</p>
       <p><strong>Steven Frato</strong><br>
-      Century 21<br>
       (609) 789-0126<br>
       sf@stevenfrato.com</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">136 Farnsworth Ave, Bordentown, NJ 08505</p>
       <p style="margin: 0 0 10px;">You're receiving this email because you requested a market report from stevenfrato.com</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
@@ -469,12 +511,10 @@ I'll be sending you more insights about the ${lead.town} market over the coming 
 
 Best regards,
 Steven Frato
-Century 21
 (609) 789-0126
 sf@stevenfrato.com
 
 ---
-136 Farnsworth Ave, Bordentown, NJ 08505
 Unsubscribe: ${unsubscribeUrl}
   `.trim();
 
@@ -494,7 +534,7 @@ Unsubscribe: ${unsubscribeUrl}
           Text: { Data: textBody, Charset: "UTF-8" },
         },
       },
-      ReplyToAddresses: [STEVEN_EMAIL],
+      ReplyToAddresses: [AGENT_NOTIFY_EMAILS[0]],
       ConfigurationSetName: SES_CONFIGURATION_SET,
     });
 
@@ -582,8 +622,10 @@ async function sendLeadNotification(
   lead: { email: string; name: string; phone?: string; address: string; town: string; zipcode: string },
   interestType: string,
   sourceUrl: string,
-  qualification?: QualificationNotificationData
-): Promise<void> {
+  qualification?: QualificationNotificationData,
+  /** What they typed, and where they were. Both were previously dropped. */
+  context?: { message?: string; sourceLabel?: string }
+): Promise<string> {
   const submittedAt = new Date().toLocaleString("en-US", {
     dateStyle: "full",
     timeStyle: "short",
@@ -764,9 +806,16 @@ async function sendLeadNotification(
       </table>
     </div>
 
+    ${context?.message ? `
+    <div style="padding: 15px 25px; border-top: 1px solid #eee;">
+      <p style="margin: 0 0 6px; font-size: 13px; color: #666; font-weight: 600;">Message</p>
+      <p style="margin: 0; color: #1a1a1a; white-space: pre-wrap;">${context.message}</p>
+    </div>
+    ` : ""}
+
     <div style="padding: 15px 25px; border-top: 1px solid #eee;">
       <p style="margin: 0; font-size: 13px; color: #666;">
-        Source: <a href="${sourceUrl}" style="color: #C99C33;">${sourceUrl}</a>
+        Source: <a href="${sourceUrl}" style="color: #C99C33;">${context?.sourceLabel || sourceUrl}</a>
       </p>
       <p style="margin: 5px 0 0; font-size: 13px; color: #999;">${submittedAt}</p>
     </div>
@@ -779,28 +828,106 @@ async function sendLeadNotification(
 </html>
   `;
 
-  try {
-    const command = new SendEmailCommand({
-      Source: `Lead Notifications <${SES_SENDER_EMAIL}>`,
-      Destination: {
-        ToAddresses: [STEVEN_EMAIL],
+  const command = new SendEmailCommand({
+    Source: `Lead Notifications <${SES_SENDER_EMAIL}>`,
+    Destination: {
+      ToAddresses: AGENT_NOTIFY_EMAILS,
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+        Charset: "UTF-8",
       },
-      Message: {
-        Subject: {
-          Data: subject,
-          Charset: "UTF-8",
-        },
-        Body: {
-          Html: { Data: htmlBody, Charset: "UTF-8" },
-        },
+      Body: {
+        Html: { Data: htmlBody, Charset: "UTF-8" },
       },
-      ReplyToAddresses: [lead.email],
-    });
+    },
+    ReplyToAddresses: [lead.email],
+    // The welcome email has always set this; this one never did, so notification
+    // bounces never reached the SES event destination and did not count toward
+    // reputation accounting. Safe to add: ses-webhook-handler's processBounce
+    // resolves events via scheduled_emails.ses_message_id and RETURNS EARLY when
+    // no row matches, so a notification bounce cannot mis-mark a lead.
+    ConfigurationSetName: SES_CONFIGURATION_SET,
+  });
 
-    await sesClient.send(command);
-    console.log(`Lead notification sent to Steven (${hasQualification ? qualification.leadTemperature : 'no score'})`);
-  } catch (error) {
-    console.error("Failed to send lead notification:", error);
+  // DELIBERATELY NO try/catch. This used to swallow its own SES error and return
+  // void, which made the caller's retry loop a no-op — it set leadNotified=true
+  // on the first pass every time, so the second attempt never ran and the
+  // "notification FAILED" alarm was unreachable. Callers own the error now.
+  const result = await sesClient.send(command);
+  console.log(
+    `Lead notification sent to ${AGENT_NOTIFY_EMAILS.join(", ")} ` +
+      `(${hasQualification ? qualification.leadTemperature : "no score"}) ses=${result.MessageId}`,
+  );
+  return result.MessageId ?? "";
+}
+
+/**
+ * Send the agent alert with real retries, and report whether it worked.
+ *
+ * Not reusing the file-local withRetry(): that helper expects its callee to
+ * RESOLVE with a supabase-style { data, error } and never catches a throw, so a
+ * throwing SES call would blow straight through it.
+ */
+async function notifyAgent(
+  args: Parameters<typeof sendLeadNotification>,
+  label: string,
+): Promise<{ ok: true; messageId: string } | { ok: false; error: string }> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const messageId = await sendLeadNotification(...args);
+      return { ok: true, messageId };
+    } catch (err) {
+      lastErr = err;
+      console.error(`${label}: notification attempt ${attempt}/3 failed:`, err);
+      // SES throttling is the likeliest transient cause; back off before retrying.
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 300 * attempt));
+    }
+  }
+  return { ok: false, error: lastErr instanceof Error ? lastErr.message : String(lastErr) };
+}
+
+/**
+ * Record whether the agent was actually told about this lead.
+ *
+ * The visitor still gets a 200 either way — the lead IS saved, and failing their
+ * request because our alerting broke would be worse. But a silent failure means
+ * a lead nobody ever calls, so it has to be queryable afterwards:
+ *   select * from leads where agent_notified_at is null;
+ */
+async function recordNotifyOutcome(
+  leadId: string,
+  r: { ok: true; messageId: string } | { ok: false; error: string },
+): Promise<void> {
+  try {
+    await supabase
+      .from("leads")
+      .update(
+        r.ok
+          ? { agent_notified_at: new Date().toISOString(), agent_notify_error: null }
+          : { agent_notify_error: r.error.slice(0, 500) },
+      )
+      .eq("id", leadId);
+  } catch (err) {
+    console.error("Could not record notification outcome:", err);
+  }
+
+  if (r.ok || !AGENT_ALERT_WEBHOOK_URL) return;
+
+  // Deliberately NOT over SES — this fires precisely when SES is the thing that
+  // is broken. Never allowed to fail the request.
+  try {
+    await fetch(AGENT_ALERT_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: `Lead alert email FAILED for lead ${leadId}. Check the CRM — nobody was emailed. (${r.error})`,
+      }),
+    });
+  } catch (err) {
+    console.error("Fallback alert webhook also failed:", err);
   }
 }
 
@@ -853,6 +980,25 @@ serve(async (req) => {
     payload.zipcode = sanitizeField(payload.zipcode, 10);
     payload.email = sanitizeField(payload.email, 160);
     if (payload.phone) payload.phone = sanitizeField(payload.phone, 30);
+    // A prose body, so it keeps its newlines — but angle brackets and control
+    // characters still come out, same as every other field, because it lands in
+    // an HTML email. Capped far higher than the 200-char default.
+    if (payload.message) {
+      payload.message = (payload.message ?? "")
+        .replace(/[<>]/g, "")
+        .replace(/[\r\t]+/g, " ")
+        .trim()
+        .slice(0, 5000);
+    }
+    if (payload["source-location"]) {
+      payload["source-location"] = sanitizeField(payload["source-location"], 120);
+    }
+    if (payload.source_path) {
+      // Must be a same-site absolute path — never a full URL, or the notification
+      // link becomes an open redirect to whatever a submitter puts in the field.
+      const raw = sanitizeField(payload.source_path, 200);
+      payload.source_path = /^\/[A-Za-z0-9\-._~/]*$/.test(raw) ? raw : undefined;
+    }
 
     console.log("Processing form submission for:", payload.email);
 
@@ -895,8 +1041,17 @@ serve(async (req) => {
     const validInterestTypes = ["selling", "buying", "both", "investment", "consultation"];
     const finalInterestType = validInterestTypes.includes(interestType) ? interestType : "selling";
 
-    // Determine source URL
-    const sourceUrl = payload["source-location"]
+    // Determine source URL.
+    //
+    // `source_path` wins because it is the ONLY field that is an actual URL path.
+    // `source-location` is a human label — the listing gate sends
+    // "Listing Gate — 37 Wesley Ln, Burlington" — so interpolating it into
+    // /market/<...>/ produced a 404 full of spaces and an em dash, and the agent
+    // notification linked there. Any form that sends a path now links correctly;
+    // the two older branches are unchanged for forms that don't.
+    const sourceUrl = payload.source_path
+      ? `${SITE_URL}${payload.source_path}`
+      : payload["source-location"]
       ? `${SITE_URL}/market/${payload["source-location"]}/`
       : `${SITE_URL}/market/${payload.zipcode}/`;
 
@@ -1009,8 +1164,8 @@ serve(async (req) => {
           .eq("id", existingLead.id)
           .single();
 
-        try {
-          await sendLeadNotification(
+        const notify = await notifyAgent(
+          [
             {
               email: payload.email,
               name: (updates.name as string) || existingLead.name,
@@ -1033,11 +1188,12 @@ serve(async (req) => {
               leadScore: refreshed?.lead_score ?? finalLeadScore,
               leadTemperature: refreshed?.lead_temperature ?? finalLeadTemperature,
               leadPriority: refreshed?.lead_priority ?? finalLeadPriority,
-            }
-          );
-        } catch (notifyErr) {
-          console.error("Returning-lead notification failed:", notifyErr);
-        }
+            },
+            { message: payload.message, sourceLabel: payload["source-location"] },
+          ],
+          `returning lead ${existingLead.id}`,
+        );
+        await recordNotifyOutcome(existingLead.id, notify);
 
         // Leave a trail so behaviour triggers can see the re-engagement.
         await supabase.from("lead_activity").insert({
@@ -1143,7 +1299,7 @@ serve(async (req) => {
 
     let welcomeEmailSesId: string | null = null;
 
-    for (const step of campaignSteps || []) {
+    for (const step of DRIP_AUTO_ENROLL ? campaignSteps || [] : []) {
       const scheduledFor = calculateScheduledTime(signupDate, step.delay_days, step.send_hour);
 
       scheduledEmails.push({
@@ -1173,8 +1329,16 @@ serve(async (req) => {
     // Generate unsubscribe URL
     const unsubscribeUrl = await generateUnsubscribeUrl(newLead.id);
 
+    if (!DRIP_AUTO_ENROLL) {
+      console.log(
+        `DRIP_AUTO_ENROLL is off — lead ${newLead.id} captured and the agent notified, ` +
+          `but no drip enrolled and no welcome email sent. Enroll from the CRM, or set ` +
+          `DRIP_AUTO_ENROLL=true to resume automatic enrollment.`
+      );
+    }
+
     // Send welcome email immediately (step 1)
-    if (payload.address && payload.town && payload.zipcode) {
+    if (DRIP_AUTO_ENROLL && payload.address && payload.town && payload.zipcode) {
       welcomeEmailSesId = await sendWelcomeEmail(
         {
           email: payload.email,
@@ -1219,7 +1383,7 @@ serve(async (req) => {
     // possible since those are optional — or a send failure), reset its day-0
     // scheduled row from "sending" back to "pending" so the cron retries it instead
     // of orphaning it in "sending" forever.
-    if (!welcomeEmailSesId && scheduledEmails.length > 0) {
+    if (DRIP_AUTO_ENROLL && !welcomeEmailSesId && scheduledEmails.length > 0) {
       const firstEmail = scheduledEmails[0];
       await supabase
         .from("scheduled_emails")
@@ -1229,48 +1393,43 @@ serve(async (req) => {
         .eq("status", "sending");
     }
 
-    // Send lead notification to Steven (retry once; never fail the request — the
-    // lead is already saved). On persistent failure, log loudly for monitoring.
-    let leadNotified = false;
-    for (let nAttempt = 0; nAttempt < 2 && !leadNotified; nAttempt++) {
-      try {
-        await sendLeadNotification(
-          {
-            email: payload.email,
-            name: payload.name,
-            phone: payload.phone,
-            address: payload.address || "Not provided",
-            town: payload.town || zipData?.town || "Not provided",
-            zipcode: payload.zipcode || "Not provided",
-          },
-          finalInterestType,
-          sourceUrl,
-          {
-            intent: payload.intent || finalInterestType,
-            timeline: payload.timeline,
-            propertyType: payload["property-type"],
-            valueRange: payload["value-range"],
-            budgetRange: payload["budget-range"],
-            importantFactor: payload["important-factor"],
-            preApproved: preApprovedValue,
-            contactPreference: payload["contact-preference"],
-            leadScore: newLead.lead_score || finalLeadScore,
-            leadTemperature: newLead.lead_temperature || finalLeadTemperature,
-            leadPriority: newLead.lead_priority || finalLeadPriority,
-          }
-        );
-        leadNotified = true;
-      } catch (notifyErr) {
-        console.error(`Lead notification attempt ${nAttempt + 1} failed:`, notifyErr);
-      }
-    }
-    if (!leadNotified) {
-      console.error(
-        "ALERT: lead notification FAILED after retries for lead", newLead.id,
-        `(${finalLeadTemperature}) — Steven was NOT pinged; reconcile manually.`
-      );
-      // TODO(reliability): alert a secondary channel (SNS / webhook / backup SES) for HOT leads.
-    }
+    // Tell Steven. Never fails the request — the lead is already saved, and
+    // breaking their submit because our alerting broke would be strictly worse.
+    // But the outcome IS recorded, so a silent failure is queryable afterwards
+    // instead of just vanishing (see recordNotifyOutcome).
+    const notify = await notifyAgent(
+      [
+        {
+          email: payload.email,
+          name: payload.name,
+          phone: payload.phone,
+          address: payload.address || "Not provided",
+          town: payload.town || zipData?.town || "Not provided",
+          zipcode: payload.zipcode || "Not provided",
+        },
+        finalInterestType,
+        sourceUrl,
+        {
+          intent: payload.intent || finalInterestType,
+          timeline: payload.timeline,
+          propertyType: payload["property-type"],
+          valueRange: payload["value-range"],
+          budgetRange: payload["budget-range"],
+          importantFactor: payload["important-factor"],
+          preApproved: preApprovedValue,
+          contactPreference: payload["contact-preference"],
+          leadScore: newLead.lead_score || finalLeadScore,
+          leadTemperature: newLead.lead_temperature || finalLeadTemperature,
+          leadPriority: newLead.lead_priority || finalLeadPriority,
+        },
+        {
+          message: payload.message,
+          sourceLabel: payload["source-location"],
+        },
+      ],
+      `lead ${newLead.id} (${finalLeadTemperature})`,
+    );
+    await recordNotifyOutcome(newLead.id, notify);
 
     // Get campaign slug for response
     const { data: campaign } = await supabase

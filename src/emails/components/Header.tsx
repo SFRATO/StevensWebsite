@@ -5,7 +5,7 @@ export const Header: React.FC = () => {
   return (
     <Section style={header}>
       <Text style={logoName}>Steven Frato</Text>
-      <Text style={logoCompany}>CENTURY 21</Text>
+      <Text style={logoTagline}>NJ Real Estate</Text>
       <Hr style={divider} />
     </Section>
   );
@@ -23,10 +23,10 @@ const logoName: React.CSSProperties = {
   margin: "0",
 };
 
-const logoCompany: React.CSSProperties = {
+const logoTagline: React.CSSProperties = {
   fontSize: "14px",
   fontWeight: "600",
-  color: "#C99C33",
+  color: "#666",
   margin: "5px 0 0",
   letterSpacing: "1px",
 };

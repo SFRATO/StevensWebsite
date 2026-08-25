@@ -90,7 +90,8 @@ const phoneHref = 'tel:+16097890126';
   .form-success {
     text-align: center;
     padding: var(--space-8);
-    background: var(--white);
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     max-width: 500px;
@@ -103,7 +104,7 @@ const phoneHref = 'tel:+16097890126';
     justify-content: center;
     width: 80px;
     height: 80px;
-    background: rgba(76, 175, 80, 0.1);
+    background: rgba(74, 222, 128, 0.12);
     border-radius: var(--radius-full);
     color: var(--accent-green);
     margin-bottom: var(--space-4);
@@ -122,7 +123,8 @@ const phoneHref = 'tel:+16097890126';
   }
 
   .what-next {
-    background: var(--off-white);
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
     padding: var(--space-5);
     border-radius: var(--radius-md);
     margin-bottom: var(--space-6);
@@ -132,8 +134,8 @@ const phoneHref = 'tel:+16097890126';
   .what-next h4 {
     font-size: var(--text-sm);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--c21-gold);
+    letter-spacing: var(--tracking-eyebrow);
+    color: var(--text-muted);
     margin-bottom: var(--space-4);
     text-align: center;
   }
@@ -160,8 +162,8 @@ const phoneHref = 'tel:+16097890126';
     width: 24px;
     height: 24px;
     min-width: 24px;
-    background: var(--c21-gold);
-    color: var(--white);
+    background: var(--accent);
+    color: var(--accent-ink);
     border-radius: var(--radius-full);
     font-size: var(--text-xs);
     font-weight: var(--font-bold);
@@ -190,8 +192,8 @@ const phoneHref = 'tel:+16097890126';
     justify-content: center;
     gap: var(--space-2);
     padding: var(--space-3) var(--space-6);
-    background-color: var(--c21-gold);
-    color: var(--white);
+    background-color: var(--accent);
+    color: var(--accent-ink);
     border-radius: var(--radius-md);
     font-weight: var(--font-semibold);
     text-decoration: none;
@@ -199,6 +201,7 @@ const phoneHref = 'tel:+16097890126';
   }
 
   .success-cta .btn:hover {
-    background-color: var(--c21-gold-dark);
+    background-color: var(--accent-bright);
+    box-shadow: var(--glow-soft);
   }
 </style>

@@ -31,6 +31,16 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   schema?: any; // Additional schema markup
+  /**
+   * Suppress the exit-intent popup on this page.
+   *
+   * Listing pages carry their own registration gate. Post-registration the
+   * popup self-suppresses via isKnownLead(), but BEFORE registration its
+   * mouseout trigger can still fire on top of the gate — two dialogs stacked,
+   * which is the failure mode ExitIntentPopup already guards against for the
+   * cookie banner.
+   */
+  suppressExitPopup?: boolean;
 }
 
 const {
@@ -40,6 +50,7 @@ const {
   noindex = false,
   canonical,
   schema,
+  suppressExitPopup = false,
 } = Astro.props;
 
 // Generate meta values
@@ -91,6 +102,8 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#08090B" />
 
     <!-- Primary Meta Tags -->
     <title>{fullTitle}</title>
@@ -110,7 +123,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={metaDescription} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:site_name" content="Steven Frato - Century 21" />
+    <meta property="og:site_name" content="Steven Frato" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -141,6 +154,26 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Fonts. Loaded here rather than via an @import in global.css, which
+         chained two blocking requests before the first paint. -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Rokkitt:wght@400..700&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Rokkitt:wght@400..700&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Rokkitt:wght@400..700&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap"
+      />
+    </noscript>
 
     <!-- Page geography (read by client scripts; no zipcodes.json in the bundle) -->
     {pageLocation?.town && <meta name="sf:town" content={pageLocation.town} />}
@@ -185,6 +218,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
       import { initPageviewTracking, initLinkTracking, trackEvent } from '@utils/analytics';
       import { initLeadIdentity } from '@utils/leadIdentity';
       import { initLeadActivityTracking } from '@utils/leadActivity';
+      import { initScrollNarrative } from '@utils/scrollReveal';
       initPageviewTracking();
       initLinkTracking();
       // Keeps the lead cookie in sync with the consent decision (promote on
@@ -222,6 +256,9 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
       document.addEventListener('astro:page-load', () => {
         scrollDepthBound = false;
         initScrollDepth();
+        // Scroll reveals + the sticky market scrollytelling scene. No-ops on
+        // pages without [data-reveal] / [data-scrolly].
+        initScrollNarrative();
       });
     </script>
 
@@ -265,7 +302,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <StickyCTA ctaHref={stickyCTAHref} ctaText={stickyCTAText} />
 
     <!-- Exit Intent Popup -->
-    <ExitIntentPopup />
+    {!suppressExitPopup && <ExitIntentPopup />}
 
     <!-- Cookie Consent (gates Matomo cookies + GA4) -->
     <CookieConsent />

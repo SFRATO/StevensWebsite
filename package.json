@@ -10,21 +10,28 @@
     "data:fetch": "tsx data/scripts/fetch-data.ts",
     "data:process": "tsx data/scripts/process-data.ts",
     "data:insights": "tsx data/scripts/generate-insights.ts",
-    "data:all": "npm run data:fetch && npm run data:process && npm run data:insights"
+    "data:all": "npm run data:fetch && npm run data:process && npm run data:insights",
+    "listing:add": "tsx data/scripts/add-listing.ts",
+    "listing:publish": "curl -fsS -X POST \"$NETLIFY_BUILD_HOOK\" && echo 'Build triggered \u2014 live in ~2 min.'",
+    "listing:import": "tsx data/scripts/import-mls.ts",
+    "listing:photos": "tsx data/scripts/upload-listing-photos.ts"
   },
   "dependencies": {
+    "@astrojs/netlify": "^6.6.5",
     "@astrojs/react": "^4.2.1",
     "@astrojs/sitemap": "^3.7.0",
     "@aws-sdk/client-ses": "^3.700.0",
     "@react-email/components": "^0.0.34",
     "@react-pdf/renderer": "^4.3.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
     "astro": "^5.16.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sharp": "^0.34.5"
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^0.52.0",
+    "@anthropic-ai/sdk": "^0.120.0",
     "@netlify/functions": "^5.1.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

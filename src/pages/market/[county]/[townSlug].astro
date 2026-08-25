@@ -27,6 +27,7 @@ import { getTownGuide } from '../../../data/town-guides';
 
 import zipcodesData from '../../../../data/processed/zipcodes.json';
 import countiesData from '../../../../data/processed/counties.json';
+import { DATA_FRESHNESS } from '../../../data/dataSource';
 
 interface ZipData {
   zipcode: string;
@@ -108,9 +109,6 @@ const formatPct = (v: number | null, sign = true) => {
   return `${s}${v.toFixed(1)}%`;
 };
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
 const currentMonthYear = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
 // Resolve nearby town slugs for internal linking
@@ -145,21 +143,21 @@ const marketTypeBadgeClass = {
 // SEO
 const metaTitle = `${townName}, NJ House Prices & Real Estate Market | ${currentMonthYear}`;
 const metaDesc = zipData?.median_sale_price
-  ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated ${currentMonthYear}.`
-  : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local Century 21 agent Steven Frato.`;
+  ? `${townName}, NJ house prices: median sale price ${formatCurrency(zipData.median_sale_price)}, ${zipData.inventory ?? 'N/A'} homes currently for sale, selling in ${zipData.median_dom != null ? `${Math.round(zipData.median_dom)} days` : 'N/A'} on average. ${marketTypeLabel} — updated monthly.`
+  : `${townName}, NJ house prices, homes for sale, and real estate market data. Free home value report from local agent Steven Frato.`;
 
 // Dynamic FAQ
 const faqs = [
   {
     question: `Home prices in ${townName} NJ?`,
     answer: zipData?.median_sale_price
-      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)} as of ${formatDate(zipData.period_end)}. ${zipData.median_sale_price_yoy !== null ? `Home values are ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year.` : ''}`
+      ? `The median sale price in ${townName}, NJ is ${formatCurrency(zipData.median_sale_price)}. ${zipData.median_sale_price_yoy !== null ? `Home values are ${zipData.median_sale_price_yoy > 0 ? 'up' : 'down'} ${Math.abs(zipData.median_sale_price_yoy).toFixed(1)}% compared to last year.` : ''}`
       : `Contact Steven Frato for current pricing data in ${townName}, NJ.`,
   },
   {
     question: `${townName} NJ houses for sale?`,
     answer: zipData?.inventory !== null
-      ? `There are currently ${zipData!.inventory} active listings in the ${townName}, NJ area as of ${formatDate(zipData!.period_end)}. Inventory is ${(zipData!.months_of_supply ?? 4) < 3 ? 'very low — homes go fast and competition is high' : (zipData!.months_of_supply ?? 4) < 5 ? 'moderate — well-priced homes sell within weeks' : 'relatively healthy, giving buyers more options'}. Contact Steven Frato for new listing alerts.`
+      ? `There are currently ${zipData!.inventory} active listings in the ${townName}, NJ area. Inventory is ${(zipData!.months_of_supply ?? 4) < 3 ? 'very low — homes go fast and competition is high' : (zipData!.months_of_supply ?? 4) < 5 ? 'moderate — well-priced homes sell within weeks' : 'relatively healthy, giving buyers more options'}. Contact Steven Frato for new listing alerts.`
       : `Contact Steven Frato to get current listings and new-listing alerts for ${townName}, NJ.`,
   },
   {
@@ -182,8 +180,8 @@ const faqs = [
   {
     question: `Good place to buy a home in ${townName} NJ?`,
     answer: zipData
-      ? `${townName} is part of ${countyName}, NJ — known for its schools, suburban lifestyle, and commute access to Philadelphia and New York. The current market is a ${marketTypeLabel.toLowerCase()}. ${zipData.median_sale_price ? `Median price: ${formatCurrency(zipData.median_sale_price)}.` : ''} For a free consultation, contact Steven Frato at Century 21.`
-      : `${townName} is part of ${countyName}, NJ — a desirable area for buyers and sellers alike. Contact Steven Frato at Century 21 for a personalized assessment.`,
+      ? `${townName} is part of ${countyName}, NJ — known for its schools, suburban lifestyle, and commute access to Philadelphia and New York. The current market is a ${marketTypeLabel.toLowerCase()}. ${zipData.median_sale_price ? `Median price: ${formatCurrency(zipData.median_sale_price)}.` : ''} For a free consultation, contact Steven Frato.`
+      : `${townName} is part of ${countyName}, NJ — a desirable area for buyers and sellers alike. Contact Steven Frato for a personalized assessment.`,
   },
 ];
 
@@ -204,7 +202,6 @@ const schema = [
     medianPrice: zipData.median_sale_price,
     priceChange: zipData.median_sale_price_yoy,
     inventory: zipData.inventory,
-    lastUpdated: zipData.last_updated,
   })] : []),
 ];
 ---
@@ -223,7 +220,7 @@ const schema = [
         marketType={zipData.market_type}
         medianPrice={zipData.median_sale_price}
         medianDom={zipData.median_dom}
-        lastUpdated={formatDate(zipData.period_end)}
+        lastUpdated={DATA_FRESHNESS}
       />
 
       <div class="container" style="padding-top: var(--space-4);">
@@ -337,7 +334,7 @@ const schema = [
             location={townName}
             townName={townName}
             formName="market-report"
-            lastUpdated={formatDate(zipData.period_end)}
+            lastUpdated={DATA_FRESHNESS}
             priceChangeYoY={zipData.median_sale_price_yoy}
             marketType={zipData.market_type}
             prefillTown={townName}
@@ -428,13 +425,13 @@ const schema = [
     margin-bottom: var(--space-2);
   }
   .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
-  .breadcrumb a:hover { color: var(--c21-gold); }
+  .breadcrumb a: hover { color: var(--text-primary); }
 
   .market-snapshot { padding: var(--space-10) 0; }
   .section-title {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-6);
   }
 
@@ -451,7 +448,7 @@ const schema = [
     .market-cards { grid-template-columns: 1fr; }
   }
 
-  .market-details { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .market-details { padding: var(--space-8) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .details-grid {
     display: grid;
@@ -464,7 +461,7 @@ const schema = [
   .detail-col h3 {
     font-size: var(--text-lg);
     font-weight: 700;
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-4);
   }
 
@@ -475,14 +472,14 @@ const schema = [
     justify-content: space-between;
     align-items: center;
     padding: var(--space-2) 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--rule);
     font-size: var(--text-sm);
     color: var(--text-secondary);
   }
 
-  .stat-val { font-weight: 600; color: var(--charcoal); }
+  .stat-val { font-family: var(--font-heading); font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-primary); }
 
-  .recommendation-box { background: #fff; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: var(--space-4); }
+  .recommendation-box { background: var(--surface-1); border: 1px solid var(--rule); border-radius: 0.75rem; padding: var(--space-4); }
 
   .rec-badge {
     display: inline-block;
@@ -493,20 +490,20 @@ const schema = [
     margin-bottom: var(--space-3);
   }
 
-  .rec-favorable { background: #dcfce7; color: #15803d; }
-  .rec-neutral { background: #fef9ee; color: #92400e; }
-  .rec-cautious { background: #fef2f2; color: #991b1b; }
+  .rec-favorable { background: rgba(74, 222, 128, 0.12); color: var(--accent-green); }
+  .rec-neutral { background: var(--accent-wash); color: var(--text-secondary); }
+  .rec-cautious { background: rgba(255, 107, 107, 0.12); color: var(--accent-red); }
 
   .recommendation-box p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0 0 var(--space-2); }
 
-  .scarcity-note { color: #991b1b; font-weight: 600; margin-top: var(--space-2) !important; }
+  .scarcity-note { color: var(--accent-red); font-weight: 600; margin-top: var(--space-2) !important; }
 
   .insight-section { padding: var(--space-8) 0; }
 
   .insight-box {
-    background: linear-gradient(135deg, #fef9ee, #fff);
-    border: 1px solid var(--c21-gold);
-    border-left: 4px solid var(--c21-gold);
+    background: linear-gradient(135deg, var(--accent-wash), var(--surface-1));
+    border: 1px solid var(--rule-strong);
+    border-left: 4px solid var(--rule-strong);
     border-radius: 0.75rem;
     padding: var(--space-5);
   }
@@ -514,17 +511,17 @@ const schema = [
   .insight-label {
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--c21-gold);
+    color: var(--text-primary);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: var(--space-2);
   }
 
-  .insight-box p { margin: 0; color: var(--charcoal); line-height: 1.7; }
+  .insight-box p { margin: 0; color: var(--text-primary); line-height: 1.7; }
 
   .lead-form-section { padding: var(--space-12) 0; }
 
-  .nearby-section { padding: var(--space-8) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .nearby-section { padding: var(--space-8) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .nearby-grid {
     display: grid;
@@ -539,33 +536,33 @@ const schema = [
     flex-direction: column;
     gap: 0.25rem;
     padding: var(--space-4);
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     text-decoration: none;
     transition: all 0.2s;
   }
 
-  .nearby-card:hover { border-color: var(--c21-gold); box-shadow: 0 4px 12px rgba(201, 156, 51, 0.1); }
+  .nearby-card: hover { border-color: var(--text-primary); box-shadow: 0 4px 12px rgba(61, 139, 255, 0.12); }
 
-  .nearby-name { font-weight: 600; color: var(--charcoal); font-size: var(--text-sm); }
+  .nearby-name { font-weight: 600; color: var(--text-primary); font-size: var(--text-sm); }
   .nearby-price { font-size: 0.8rem; color: var(--text-secondary); }
 
-  .faq-section { padding: var(--space-10) 0; border-top: 1px solid #e2e8f0; }
+  .faq-section { padding: var(--space-10) 0; border-top: 1px solid var(--rule); }
 
   .faq-list { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-3); }
 
-  .faq-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.75rem; overflow: hidden; }
+  .faq-item { background: var(--surface-2); border: 1px solid var(--rule); border-radius: 0.75rem; overflow: hidden; }
 
   .faq-item summary {
     padding: var(--space-4) var(--space-5);
     font-weight: 600;
     cursor: pointer;
-    color: var(--charcoal);
+    color: var(--text-primary);
     list-style: none;
   }
 
-  .faq-item summary::after { content: ' +'; color: var(--c21-gold); }
+  .faq-item summary::after { content: ' +'; color: var(--accent-bright); }
   .faq-item[open] summary::after { content: ' −'; }
 
   .faq-item p {
@@ -576,7 +573,7 @@ const schema = [
     font-size: var(--text-sm);
   }
 
-  .county-link { padding: var(--space-6) 0; border-top: 1px solid #e2e8f0; }
+  .county-link { padding: var(--space-6) 0; border-top: 1px solid var(--rule); }
 
   .cross-links {
     display: flex;
@@ -585,14 +582,14 @@ const schema = [
     align-items: center;
   }
 
-  .cross-links a { color: var(--c21-gold); text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
+  .cross-links a { color: var(--accent-bright); text-decoration: none; font-weight: 600; font-size: var(--text-sm); }
   .cross-links a:hover { text-decoration: underline; }
 
   .no-data-section { padding: var(--space-12) 0; }
   .no-data-section h1 {
     font-family: var(--font-heading);
     font-size: var(--text-3xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: var(--space-6) 0;
   }
 

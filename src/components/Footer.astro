@@ -4,20 +4,17 @@
  * Site-wide footer with contact info, links, and compliance
  */
 
+import { PHONE, PHONE_HREF, EMAIL, EMAIL_HREF, LICENSE_LINE, SERVICE_AREA } from '../data/contact';
+
 const currentYear = new Date().getFullYear();
 
-// Contact information
+// No office address: Steven works as a service-area agent, so the footer names
+// the counties served rather than a street. See src/data/contact.ts.
 const contactInfo = {
-  phone: '(609) 789-0126',
-  phoneHref: 'tel:+16097890126',
-  email: 'sf@stevenfrato.com',
-  emailHref: 'mailto:sf@stevenfrato.com',
-  address: {
-    street: '136 Farnsworth Ave',
-    city: 'Bordentown',
-    state: 'NJ',
-    zip: '08505',
-  },
+  phone: PHONE,
+  phoneHref: PHONE_HREF,
+  email: EMAIL,
+  emailHref: EMAIL_HREF,
 };
 
 const serviceAreas = [
@@ -81,10 +78,7 @@ const socialLinks = [
             <svg class="icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" fill="currentColor"/>
             </svg>
-            <div>
-              <div>{contactInfo.address.street}</div>
-              <div>{contactInfo.address.city}, {contactInfo.address.state} {contactInfo.address.zip}</div>
-            </div>
+            <div>{SERVICE_AREA}</div>
           </div>
         </div>
       </div>
@@ -143,12 +137,6 @@ const socialLinks = [
           ))}
         </div>
 
-        <div class="footer-branding">
-          <div class="century21-badge">
-            <span class="badge-text">Proud member of</span>
-            <span class="badge-logo">CENTURY 21</span>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -173,11 +161,8 @@ const socialLinks = [
           <small>
             {/* PA identification (license + brokerage) must still be added before
                 publishing any Bucks County, PA content. */}
-            CENTURY 21 Action Plus Realty, Licensed Real Estate Broker ·
-            136 Farnsworth Ave, Bordentown, NJ · (609) 789-0126<br />
-            Steven Frato, NJ Licensed Real Estate Salesperson, License #2567370.<br />
-            Each office is independently owned and operated. Information deemed reliable but not guaranteed.
-            Market data provided by Redfin.
+            {LICENSE_LINE}<br />
+            Information deemed reliable but not guaranteed. Market data provided by Redfin.
           </small>
         </p>
       </div>
@@ -187,8 +172,9 @@ const socialLinks = [
 
 <style>
   .footer {
-    background-color: var(--charcoal);
-    color: var(--white);
+    background-color: var(--ink-850);
+    border-top: 1px solid var(--rule);
+    color: var(--text-secondary);
     padding: var(--space-10) 0 var(--space-6);
     margin-top: var(--space-12);
   }
@@ -220,7 +206,7 @@ const socialLinks = [
   .footer-heading {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     margin-bottom: var(--space-4);
   }
 
@@ -235,13 +221,13 @@ const socialLinks = [
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--white);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-base);
   }
 
   .contact-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     text-decoration: none;
   }
 
@@ -249,7 +235,7 @@ const socialLinks = [
     display: flex;
     align-items: flex-start;
     gap: var(--space-2);
-    color: var(--white);
+    color: var(--text-secondary);
   }
 
   .icon {
@@ -268,13 +254,13 @@ const socialLinks = [
   }
 
   .footer-link {
-    color: var(--white);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-base);
   }
 
   .footer-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     text-decoration: underline;
   }
 
@@ -290,29 +276,29 @@ const socialLinks = [
 
   .service-area {
     font-size: var(--text-sm);
-    color: var(--light-gray);
+    color: var(--text-muted);
   }
 
   .service-area a {
-    color: var(--light-gray);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-base);
   }
 
   .service-area a:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   .service-area:not(:last-child)::after {
     content: '•';
     margin-left: var(--space-2);
-    color: var(--c21-gold);
+    color: var(--rule-strong);
   }
 
   .service-note {
     margin-top: var(--space-3);
     font-size: var(--text-sm);
-    color: var(--c21-gold);
+    color: var(--text-muted);
     font-weight: var(--font-medium);
   }
 
@@ -324,42 +310,24 @@ const socialLinks = [
   }
 
   .social-link {
-    color: var(--white);
+    color: var(--text-secondary);
     text-decoration: none;
     font-weight: var(--font-medium);
     transition: color var(--transition-base);
   }
 
   .social-link:hover {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
   }
 
   /* Footer Branding */
-  .footer-branding {
-    margin-top: var(--space-4);
-  }
 
-  .century21-badge {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
 
-  .badge-text {
-    font-size: var(--text-xs);
-    color: var(--light-gray);
-  }
 
-  .badge-logo {
-    font-size: var(--text-lg);
-    font-weight: var(--font-bold);
-    color: var(--c21-gold);
-    letter-spacing: 1px;
-  }
 
   /* Footer Bottom */
   .footer-bottom {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid var(--rule);
     padding-top: var(--space-6);
   }
 
@@ -373,7 +341,7 @@ const socialLinks = [
 
   .copyright {
     font-size: var(--text-sm);
-    color: var(--light-gray);
+    color: var(--text-muted);
     margin: 0;
   }
 

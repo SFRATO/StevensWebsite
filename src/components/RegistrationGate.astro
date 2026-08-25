@@ -1,0 +1,896 @@
+---
+/**
+ * Registration gate — blocks a listing page until the visitor registers.
+ *
+ * ---------------------------------------------------------------------------
+ * TWO DECISIONS RECORDED HERE ON PURPOSE, both made by Steven (2026-08-23):
+ *
+ * 1. The "Non-Agent MLS Access" framing. Flagged at design time: this is one
+ *    manually-posted listing, not an IDX/VOW feed, so the wording overstates
+ *    what the page is. Steven reviewed that and chose to keep it. If Bright
+ *    ever raises a participation-rules question, this comment is the record of
+ *    when and why the wording was adopted.
+ *
+ * 2. Gating the WHOLE page rather than just the extra photos and full details.
+ *    A full-viewport panel obscuring main content on mobile is a documented
+ *    Google negative ranking signal, and the increment-gating pattern (5 photos
+ *    and the description open, the rest gated) is what Zillow and Realtor
+ *    actually do. Steven asked for the whole page. That is what `gatedSelector`
+ *    is for: point it at '#listing-gallery, #listing-details' and this becomes
+ *    increment-gating with no code change.
+ * ---------------------------------------------------------------------------
+ *
+ * NOT CLOAKING. The HTTP response is byte-identical for every requester and the
+ * gate is uniform client-side JS. Never add a user-agent check to skip the gate
+ * for Googlebot — that single line would turn a legitimate gate into a
+ * penalisable cloak.
+ */
+import { LICENSE_LINE } from '../data/contact';
+
+interface Props {
+  /** Element to blur + inert. See decision 2 above. */
+  gatedSelector?: string;
+  /** Human label for the analytics event, e.g. 'Listing Gate — 37 Wesley Ln'. */
+  sourceLocation: string;
+  /** Written into the lead record so Steven knows which property they asked about. */
+  address: string;
+  town: string;
+  zipcode?: string;
+  eyebrow?: string;
+  headline?: string;
+  subcopy?: string;
+}
+
+const {
+  gatedSelector = '#listing-gated',
+  sourceLocation,
+  address,
+  town,
+  zipcode = '',
+  eyebrow = 'First-time registration required',
+  headline = 'Direct MLS Access without an Agent',
+  subcopy = 'Get complete pricing, photos, and details.',
+} = Astro.props;
+---
+
+{/*
+  Both of these are siblings of the gated element, never children — a blurred,
+  inert ancestor would take them with it.
+*/}
+
+<div
+  class="gate-overlay"
+  id="gate-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="gate-headline"
+  aria-hidden="true"
+  data-gated-selector={gatedSelector}
+  data-source-location={sourceLocation}
+  data-address={address}
+  data-town={town}
+  data-zipcode={zipcode}
+>
+  <div class="gate-panel">
+    <div class="gate-head">
+      {/* Same mark as Footer.astro. Displaying it is good practice and carries
+          no membership requirement — unlike the REALTOR(R) and MLS marks in the
+          reference design, which require NAR membership / MLS participation. */}
+      <svg
+        class="gate-eho"
+        width="44" height="44" viewBox="0 0 40 40"
+        fill="none" xmlns="http://www.w3.org/2000/svg"
+        role="img" aria-label="Equal Housing Opportunity"
+      >
+        <rect width="40" height="40" fill="var(--text-primary)" />
+        <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="var(--ink-900)" />
+      </svg>
+
+      <div class="gate-head-text">
+        <h2 class="gate-headline" id="gate-headline">{headline}</h2>
+        <p class="gate-eyebrow">{eyebrow}</p>
+      </div>
+    </div>
+
+    <p class="gate-property">
+      <strong>{address}:</strong> {subcopy}
+    </p>
+
+    <form class="gate-form" id="gate-form" novalidate>
+      {/* Honeypot — dropped server-side in handle-market-report.ts. */}
+      <p class="gate-hp" aria-hidden="true">
+        <label for="gate-bot-field">Do not fill this in</label>
+        <input type="text" id="gate-bot-field" name="bot-field" tabindex="-1" autocomplete="off" />
+      </p>
+
+      <div class="gate-field">
+        <label for="gate-name">Name</label>
+        <input type="text" id="gate-name" name="name" autocomplete="name" required
+               aria-describedby="gate-name-error" />
+        <p class="gate-error" id="gate-name-error" hidden></p>
+      </div>
+
+      <div class="gate-field">
+        <label for="gate-email">Email</label>
+        <input type="email" id="gate-email" name="email" autocomplete="email" required
+               inputmode="email" aria-describedby="gate-email-error" />
+        <p class="gate-error" id="gate-email-error" aria-live="polite" hidden></p>
+      </div>
+
+      <div class="gate-field">
+        <label for="gate-phone">Phone</label>
+        <input type="tel" id="gate-phone" name="phone" autocomplete="tel" required
+               inputmode="tel" aria-describedby="gate-phone-error" />
+        <p class="gate-error" id="gate-phone-error" hidden></p>
+      </div>
+
+      <div class="gate-consent">
+        <input type="checkbox" id="gate-terms" name="terms" required
+               aria-describedby="gate-terms-error" />
+        <label for="gate-terms">
+          I agree to the <a href="/privacy/" target="_blank" rel="noopener">Terms &amp; Conditions</a>
+        </label>
+      </div>
+      <p class="gate-error" id="gate-terms-error" hidden></p>
+
+      {/*
+        role="alert" so a screen reader announces a failed submit without the
+        focus move having to carry the whole message.
+      */}
+      <p class="gate-error gate-summary" id="gate-summary-error" role="alert" hidden></p>
+
+      <button type="submit" class="gate-submit">Submit</button>
+    </form>
+
+    <p class="gate-footnote">{LICENSE_LINE}</p>
+  </div>
+
+{/*
+  The collapsed state. Escape moves focus HERE rather than releasing the gate —
+  see the WCAG note in the script.
+*/}
+<div class="gate-bar" id="gate-bar" hidden>
+  <p class="gate-bar-text"><strong>{eyebrow}</strong> — registration required to view this listing.</p>
+  <button type="button" class="gate-bar-btn" id="gate-bar-btn">Register to view</button>
+</div>
+
+<script>
+  import { trackEvent } from '@utils/analytics';
+  import { identifyLead, isKnownLead } from '@utils/leadIdentity';
+  import { hasGateAccess, grantGateAccess } from '@utils/gateAccess';
+
+  const html = document.documentElement;
+
+  /**
+   * `inert` removes descendants from the tab order, hit-testing AND the
+   * accessibility tree in one attribute. Where it is genuinely unsupported we
+   * fall back to aria-hidden — but ONLY there, because aria-hidden over
+   * focusable content is itself a WCAG failure.
+   */
+  const INERT_SUPPORTED = 'inert' in HTMLElement.prototype;
+
+  const FOCUSABLE =
+    'button:not([disabled]), [href], input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])';
+
+  // Queried fresh each call — view transitions re-render these elements.
+  const overlay = () => document.getElementById('gate-overlay');
+  const bar = () => document.getElementById('gate-bar');
+
+  /**
+   * Per-page config rides on the overlay's data attributes rather than
+   * `define:vars`, which would force this script inline and break the imports
+   * above. Reading it fresh each call also survives view transitions.
+   */
+  const cfg = (key: string): string => overlay()?.dataset[key] ?? '';
+
+  const gated = () =>
+    document.querySelector<HTMLElement>(cfg('gatedSelector') || '#listing-gated');
+
+  let scrollY = 0;
+  let lastFocused: HTMLElement | null = null;
+
+  // --- state -----------------------------------------------------------------
+
+  function applyGate(): void {
+    const el = gated();
+    if (!el) return;
+    html.classList.add('listing-gated');
+    if (INERT_SUPPORTED) el.inert = true;
+    else el.setAttribute('aria-hidden', 'true');
+  }
+
+  function releaseGate(): void {
+    const el = gated();
+    html.classList.remove('listing-gated');
+    if (el) {
+      el.inert = false;
+      el.removeAttribute('aria-hidden');
+    }
+    unlockScroll();
+    const o = overlay();
+    o?.classList.remove('visible');
+    o?.setAttribute('aria-hidden', 'true');
+    bar()?.setAttribute('hidden', '');
+
+    // CookieConsent held its banner back while the gate was up. Now it is the
+    // visitor's turn to answer that question.
+    window.dispatchEvent(new CustomEvent('sf:gate-released'));
+  }
+
+  function lockScroll(): void {
+    if (html.classList.contains('scroll-locked')) return;
+    scrollY = window.scrollY;
+    html.classList.add('scroll-locked');
+    document.body.style.top = `-${scrollY}px`;
+  }
+
+  function unlockScroll(): void {
+    if (!html.classList.contains('scroll-locked')) return;
+    html.classList.remove('scroll-locked');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY);
+  }
+
+  function openPanel(): void {
+    const o = overlay();
+    if (!o) return;
+    lastFocused = document.activeElement as HTMLElement | null;
+    lockScroll();
+    o.classList.add('visible');
+    o.setAttribute('aria-hidden', 'false');
+    bar()?.setAttribute('hidden', '');
+    document.getElementById('gate-name')?.focus();
+    trackEvent('Engagement', 'Listing Gate Shown', cfg('town'));
+  }
+
+  /**
+   * Escape collapses the PANEL. It does NOT release the GATE.
+   *
+   * WCAG 2.1.2 (No Keyboard Trap) requires that focus can be moved away using
+   * standard keys. It does not require that the gated content become readable.
+   * So: focus lands on the docked bar, and the header, skip link and footer all
+   * sit OUTSIDE the gated element and stay reachable — there is always
+   * somewhere to go. Scroll is unlocked here deliberately, so a keyboard user
+   * can reach the footer and the phone number.
+   *
+   * Removing this branch WOULD be a trap. Do not remove it. (Same reasoning as
+   * the note at ExitIntentPopup.astro's Escape handler.)
+   */
+  function collapsePanel(): void {
+    const o = overlay();
+    if (!o) return;
+    o.classList.remove('visible');
+    o.setAttribute('aria-hidden', 'true');
+    unlockScroll();
+    const b = bar();
+    b?.removeAttribute('hidden');
+    (b?.querySelector('button') ?? lastFocused)?.focus();
+    trackEvent('Engagement', 'Listing Gate Collapsed');
+  }
+
+  // --- validation ------------------------------------------------------------
+  // Reward early, punish late: validate on submit, then re-validate on blur once
+  // the visitor has already seen an error. The submit button is NEVER disabled —
+  // a disabled button leaves the tab order and announces nothing, which on a
+  // BLOCKING gate is a dead end rather than an inconvenience.
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const digits = (s: string) => s.replace(/\D/g, '');
+
+  function validate(form: HTMLFormElement) {
+    const fd = new FormData(form);
+    const name = String(fd.get('name') ?? '').trim();
+    const email = String(fd.get('email') ?? '').trim();
+    const phone = String(fd.get('phone') ?? '').trim();
+
+    const errs: Array<[string, string]> = [];
+    if (name.length < 2) errs.push(['gate-name', 'Please enter your name.']);
+    if (!EMAIL_RE.test(email)) errs.push(['gate-email', 'Please enter a valid email address.']);
+
+    const d = digits(phone);
+    if (!(d.length === 10 || (d.length === 11 && d[0] === '1'))) {
+      errs.push(['gate-phone', 'Please enter a 10-digit phone number.']);
+    }
+
+    if (!fd.get('terms')) {
+      errs.push(['gate-terms', 'Please accept the Terms & Conditions to continue.']);
+    }
+
+    return { name, email, phone, errs };
+  }
+
+  function clearErrors(form: HTMLFormElement): void {
+    form.querySelectorAll<HTMLElement>('.gate-error').forEach((el) => {
+      el.textContent = '';
+      el.hidden = true;
+    });
+    form.querySelectorAll<HTMLElement>('[aria-invalid]').forEach((el) =>
+      el.removeAttribute('aria-invalid'),
+    );
+  }
+
+  function showErrors(errs: Array<[string, string]>): void {
+    for (const [id, message] of errs) {
+      document.getElementById(id)?.setAttribute('aria-invalid', 'true');
+      const el = document.getElementById(`${id}-error`);
+      if (el) {
+        el.textContent = message;
+        el.hidden = false;
+      }
+    }
+  }
+
+  function showSummary(message: string): void {
+    const el = document.getElementById('gate-summary-error');
+    if (!el) return;
+    el.textContent = message;
+    el.hidden = false;
+  }
+
+  // --- submit ----------------------------------------------------------------
+
+  /**
+   * A failure the SERVER can explain — as opposed to a network blip.
+   *
+   * The previous version threw away the response body and surfaced only a status
+   * code, so a validation 400 ("did you mean gmail.com?") reached the visitor as
+   * a generic "try again" — advice that could never work, on the one form that
+   * blocks the whole page.
+   */
+  class SubmitError extends Error {
+    constructor(
+      message: string,
+      readonly code?: string,
+      readonly field?: string,
+      readonly suggestion?: string,
+      readonly canOverride?: boolean,
+    ) {
+      super(message);
+    }
+  }
+
+  const post = async (body: Record<string, string>) => {
+    const response = await fetch('/api/market-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(body).toString(),
+    });
+    if (!response.ok) {
+      const p = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+      throw new SubmitError(
+        (p.error as string) || `Submission failed (${response.status})`,
+        p.code as string | undefined,
+        p.field as string | undefined,
+        p.suggestion as string | undefined,
+        p.canOverride as boolean | undefined,
+      );
+    }
+    return (await response.json().catch(() => ({}))) as { lead_token?: string };
+  };
+
+  /**
+   * The address the server last rejected with an overridable verdict.
+   *
+   * Re-submitting it unchanged sends email-confirmed=1, so a soft rejection can
+   * be overruled exactly once and the gate can never become unpassable. Hard
+   * verdicts (disposable, dead domain) never set canOverride, so they correctly
+   * persist — those addresses genuinely cannot receive mail.
+   */
+  let lastRejectedEmail: string | null = null;
+
+  /** "Did you mean …?" with a one-click fix and a one-click override. */
+  function showEmailSuggestion(form: HTMLFormElement, message: string, suggestion: string): void {
+    const input = document.getElementById('gate-email') as HTMLInputElement | null;
+    const el = document.getElementById('gate-email-error');
+    if (!input || !el) return;
+
+    const typed = input.value.trim();
+    input.setAttribute('aria-invalid', 'true');
+    el.textContent = message + ' ';
+
+    const use = document.createElement('button');
+    use.type = 'button';
+    use.className = 'gate-suggest';
+    use.textContent = `Use ${suggestion}`;
+    use.addEventListener('click', () => {
+      input.value = suggestion;
+      lastRejectedEmail = null;
+      clearErrors(form);
+      // requestSubmit() re-runs our submit handler; form.submit() would bypass
+      // it entirely and do a full-page POST.
+      form.requestSubmit();
+    });
+
+    const keep = document.createElement('button');
+    keep.type = 'button';
+    keep.className = 'gate-suggest gate-suggest-keep';
+    keep.textContent = 'Keep what I typed';
+    keep.addEventListener('click', () => {
+      lastRejectedEmail = typed; // arms the override for the resubmit
+      clearErrors(form);
+      form.requestSubmit();
+    });
+
+    el.append(use, document.createTextNode(' '), keep);
+    el.hidden = false;
+  }
+
+  function bindForm(form: HTMLFormElement): void {
+    if (form.dataset.bound) return;
+    form.dataset.bound = '1';
+
+    let submitted = false;
+
+    form.addEventListener(
+      'blur',
+      (e) => {
+        if (!submitted) return;
+        const t = e.target as HTMLElement;
+        if (!t.id?.startsWith('gate-')) return;
+        clearErrors(form);
+        showErrors(validate(form).errs);
+      },
+      true,
+    );
+
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLElement;
+      const el = document.getElementById(`${t.id}-error`);
+      if (el) {
+        el.hidden = true;
+        t.removeAttribute('aria-invalid');
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitted = true;
+
+      const { name, email, phone, errs } = validate(form);
+      clearErrors(form);
+      document.getElementById('gate-summary-error')!.hidden = true;
+
+      if (errs.length) {
+        showErrors(errs);
+        document.getElementById(errs[0][0])?.focus();
+        trackEvent('Lead', 'Listing Gate Invalid', errs[0][0]);
+        return;
+      }
+
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const label = btn.textContent ?? 'Unlock this listing';
+      btn.disabled = true; // transient, for the duration of the request only
+      btn.textContent = 'Verifying…';
+
+      try {
+        const result = await post({
+          'form-name': 'listing-registration',
+          // 'contact', NOT 'market-report'. handle-market-report.ts derives the
+          // type from `submission-type` alone — `form-name` is a passthrough —
+          // which is why the old formName="listing-inquiry" silently classified
+          // as a market report and fired generate-pdf at someone asking about a
+          // specific house.
+          'submission-type': 'contact',
+          'source-location': cfg('sourceLocation'),
+          'source-path': window.location.pathname,
+          town: cfg('town'),
+          zipcode: cfg('zipcode'),
+          message: `Registered for full listing detail: ${cfg('address')}`,
+          'bot-field': String(new FormData(form).get('bot-field') ?? ''),
+          // Honour a deliberate re-submit of an address we softly rejected, so
+          // a "did you mean" can never become a dead end.
+          'email-confirmed': lastRejectedEmail && lastRejectedEmail === email ? '1' : '',
+          name,
+          email,
+          phone,
+        });
+
+        // MarketReportForm never calls identifyLead(), which is why someone who
+        // converted there is not isKnownLead(). The gate must do it itself.
+        await identifyLead(email, result.lead_token ?? null);
+        // Consent-independent and non-identifying — without this, a visitor who
+        // declined cookies is re-gated in every new tab. See utils/gateAccess.ts.
+        grantGateAccess();
+
+        trackEvent('Lead', 'Listing Gate Registered', cfg('town'));
+        releaseGate();
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = label;
+
+        // A problem with the ADDRESS belongs next to the field, with aria-invalid
+        // set — it reads as "fix this", not "the site is broken". The summary is
+        // reserved for genuine server failures where retrying is the right advice.
+        if (err instanceof SubmitError && err.field === 'email') {
+          if (err.suggestion) {
+            showEmailSuggestion(form, err.message, err.suggestion);
+          } else {
+            showErrors([['gate-email', err.message]]);
+          }
+          lastRejectedEmail = err.canOverride ? email : null;
+          document.getElementById('gate-email')?.focus();
+          trackEvent('Lead', 'Listing Gate Email Rejected', err.code ?? 'unknown');
+          return;
+        }
+
+        showSummary("We couldn't verify that just now. Please try again in a moment.");
+        trackEvent('Lead', 'Listing Gate Failed');
+      }
+    });
+  }
+
+  // --- init ------------------------------------------------------------------
+
+  function bindOnce(): void {
+    if (document.body.dataset.gateBound) return;
+    document.body.dataset.gateBound = '1';
+
+    document.addEventListener('keydown', (e) => {
+      const o = overlay();
+      if (!o?.classList.contains('visible')) return;
+
+      if (e.key === 'Escape') {
+        collapsePanel();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const items = Array.from(o.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+        (el) => el.offsetParent !== null || el === document.activeElement,
+      );
+      if (!items.length) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      // Wrap at both ends, and pull focus back in if it escaped the dialog.
+      if (e.shiftKey && (active === first || !o.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !o.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
+  function initGate(): void {
+    // Navigating AWAY from a listing page under view transitions must not leave
+    // a stale listing-gated / scroll-locked class on <html>. Release FIRST, then
+    // bail — a bare return here strands the whole site behind a blur.
+    if (!document.getElementById('gate-overlay')) {
+      html.classList.remove('listing-gated');
+      unlockScroll();
+      return;
+    }
+
+    bindOnce();
+
+    const form = document.getElementById('gate-form') as HTMLFormElement | null;
+    if (form) bindForm(form);
+
+    const barBtn = document.getElementById('gate-bar-btn');
+    if (barBtn && !barBtn.dataset.bound) {
+      barBtn.dataset.bound = '1';
+      barBtn.addEventListener('click', openPanel);
+    }
+
+    if (isKnownLead() || hasGateAccess()) {
+      releaseGate();
+      return;
+    }
+
+    applyGate();
+
+    // The panel opens straight away, whatever the cookie banner is doing. An
+    // earlier version showed only the docked bar until consent was answered, so
+    // the visitor met a "Register to view" BUTTON and had to click it before the
+    // fields appeared — one gratuitous step in front of the whole page. The
+    // banner is suppressed while the gate is up instead (CookieConsent.astro
+    // checks html.listing-gated) and raised on release, so the two never stack.
+    openPanel();
+  }
+
+  document.addEventListener('astro:page-load', initGate);
+</script>
+
+<style>
+  .gate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    background: rgba(4, 5, 7, 0.72);
+    backdrop-filter: blur(2px);
+    overflow-y: auto;
+  }
+
+  .gate-overlay.visible {
+    display: flex;
+  }
+
+  /* The cookie banner sits at --z-popover and covers the bottom of the screen.
+     Same compensation as ExitIntentPopup's `html.consent-open` rule. */
+  :global(html.consent-open) .gate-overlay {
+    padding-bottom: 180px;
+  }
+
+  .gate-panel {
+    width: 100%;
+    max-width: 460px;
+    background: var(--surface-1);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg, var(--shadow-md));
+    padding: var(--space-7) var(--space-6);
+    margin: auto;
+  }
+
+  /* Logo beside the headline, matching the reference layout. */
+  .gate-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .gate-eho {
+    flex: 0 0 auto;
+  }
+
+  .gate-headline {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  /* Italic, as in the reference — it reads as a qualifier on the headline
+     rather than a second heading. */
+  .gate-eyebrow {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--text-muted);
+    margin: var(--space-1) 0 0;
+  }
+
+  .gate-property {
+    text-align: center;
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-body);
+    margin: var(--space-4) 0 var(--space-5);
+  }
+
+  .gate-property strong {
+    color: var(--text-primary);
+  }
+
+  /* The fields sit on their own inset panel, as in the reference (which uses a
+     brand-red block; ours uses the site's raised surface — a red box would be
+     the only red on the site and would read as an error state). */
+  .gate-form {
+    display: grid;
+    gap: var(--space-4);
+    background: var(--ink-900);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+  }
+
+  .gate-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .gate-consent input[type='checkbox'] {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .gate-consent label {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-body);
+    cursor: pointer;
+  }
+
+  .gate-consent a {
+    color: var(--accent);
+  }
+
+  .gate-consent input[aria-invalid='true'] {
+    outline: 2px solid var(--accent-red);
+    outline-offset: 2px;
+  }
+
+  .gate-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .gate-field {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .gate-field label {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+
+  .gate-field input {
+    min-width: 0;
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-3);
+    color: var(--text-primary);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-family: var(--font-ui);
+    transition: all var(--transition-base);
+  }
+
+  .gate-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-wash);
+  }
+
+  .gate-field input[aria-invalid='true'] {
+    border-color: var(--accent-red);
+  }
+
+  .gate-error {
+    color: var(--accent-red);
+    font-size: var(--text-sm);
+    font-family: var(--font-ui);
+    margin: 0;
+  }
+
+  /* Inline actions inside the email error line. clearErrors() sets
+     textContent = '' which removes them, so there is nothing to clean up. */
+  .gate-suggest {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: 4px var(--space-3);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+  }
+  .gate-suggest:hover { background: var(--accent-bright); }
+  .gate-suggest:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+
+  .gate-suggest-keep {
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+  }
+  .gate-suggest-keep:hover { color: var(--text-primary); background: transparent; }
+
+  .gate-submit {
+    justify-self: end;
+    min-width: 140px;
+    padding: var(--space-3) var(--space-6);
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+    font-family: var(--font-ui);
+    cursor: pointer;
+    min-height: 48px;
+    transition: all var(--transition-base);
+  }
+
+  .gate-submit:hover:not(:disabled) {
+    background-color: var(--accent-bright);
+    box-shadow: var(--glow-soft);
+  }
+
+  .gate-submit:focus-visible {
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 2px;
+  }
+
+  .gate-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .gate-footnote {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: var(--leading-body);
+    margin: var(--space-5) 0 0;
+  }
+
+  /* --- collapsed state ---------------------------------------------------- */
+
+  .gate-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-fixed);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3) var(--space-5);
+    padding: var(--space-4);
+    background: rgba(12, 14, 17, 0.94);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--rule-strong);
+  }
+
+  .gate-bar[hidden] {
+    display: none;
+  }
+
+  :global(html.consent-open) .gate-bar {
+    bottom: 180px;
+  }
+
+  .gate-bar-text {
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    text-align: center;
+  }
+
+  .gate-bar-text strong {
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    font-size: var(--text-xs);
+  }
+
+  .gate-bar-btn {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-5);
+    background-color: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+  }
+
+  .gate-bar-btn:hover {
+    background-color: var(--accent-bright);
+  }
+
+  .gate-bar-btn:focus-visible {
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 2px;
+  }
+</style>

@@ -62,8 +62,8 @@ const { quote, author, location, rating = 5, context } = Astro.props;
 
 <style>
   .testimonial-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     padding: var(--space-5);
     display: flex;
@@ -74,15 +74,17 @@ const { quote, author, location, rating = 5, context } = Astro.props;
   .stars {
     display: flex;
     gap: 2px;
-    color: var(--c21-gold);
+    color: var(--text-primary);
   }
 
   .quote {
     font-size: var(--text-sm);
-    color: var(--charcoal);
+    color: var(--text-primary);
     line-height: 1.7;
     margin: 0;
-    font-style: italic;
+    /* Deliberately upright: Rokkitt has no italic, and a synthesized slant on a
+       slab serif at quote size is visibly wrong. The quotation marks and the
+       serif itself carry the voice. */
   }
 
   .attribution {
@@ -96,7 +98,7 @@ const { quote, author, location, rating = 5, context } = Astro.props;
   .author {
     font-weight: 700;
     font-size: var(--text-sm);
-    color: var(--charcoal);
+    color: var(--text-primary);
   }
 
   .sep {
@@ -113,8 +115,8 @@ const { quote, author, location, rating = 5, context } = Astro.props;
     margin-left: auto;
     padding: 0.15rem 0.5rem;
     border-radius: 999px;
-    background: #fef9ee;
-    color: var(--c21-gold-dark);
+    background: var(--accent-wash);
+    color: var(--text-primary);
     font-size: 0.7rem;
     font-weight: 700;
   }

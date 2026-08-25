@@ -9,7 +9,7 @@ const lastUpdated = 'February 2026';
 ---
 
 <BaseLayout
-  title="Privacy Policy | Steven Frato Real Estate"
+  title="Privacy Policy"
   description="Privacy policy for stevenfrato.com. Learn how we collect, use, and protect your personal information."
 >
   <section class="privacy-page">
@@ -104,11 +104,6 @@ const lastUpdated = 'February 2026';
               <strong>Legal Requirements:</strong> I may disclose your information if
               required by law or in response to valid requests by public authorities.
             </li>
-            <li>
-              <strong>Century 21:</strong> As a Century 21 agent, certain information
-              may be shared within the Century 21 network to facilitate real estate
-              transactions you initiate.
-            </li>
           </ul>
         </section>
 
@@ -131,6 +126,18 @@ const lastUpdated = 'February 2026';
             through one of our forms, this lets us tie the pages you view on this
             Site to your record so the market updates we send reflect the areas you
             are actually looking at. We do not track your activity on other websites.
+          </p>
+
+          <h3>Strictly Necessary Cookies</h3>
+          <p>
+            One cookie is set regardless of your choice, because the Site cannot
+            deliver a feature you asked for without it. When you register to view a
+            property listing, we store a cookie named <code>sf_gate_ok</code>
+            containing only the value <code>1</code>. It records that this browser
+            has completed registration, so you are not asked to register again every
+            time you open a listing. It contains no name, no email, no identifier of
+            any kind, is not readable by our analytics, and is never used to track
+            you across other websites. It expires after 90 days.
           </p>
 
           <h3>Your Choice</h3>
@@ -226,10 +233,6 @@ const lastUpdated = 'February 2026';
               <strong>Email:</strong>
               <a href="mailto:sf@stevenfrato.com">sf@stevenfrato.com</a>
             </li>
-            <li>
-              <strong>Address:</strong>
-              136 Farnsworth Ave, Bordentown, NJ 08505
-            </li>
           </ul>
         </section>
       </div>
@@ -286,8 +289,8 @@ const lastUpdated = 'February 2026';
     min-height: 44px;
     padding: var(--space-3) var(--space-5);
     background: var(--cta-primary);
-    color: var(--white);
-    border: 2px solid var(--cta-primary);
+    color: var(--accent-ink);
+    border: 1px solid var(--cta-primary);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
@@ -301,6 +304,8 @@ const lastUpdated = 'February 2026';
   }
 
   .consent-status {
+    /* Rokkitt ships no italic; the browser would fake one. Meta text uses the UI face, which has a real italic. */
+    font-family: var(--font-ui);
     font-size: var(--text-sm);
     color: var(--text-secondary);
     font-style: italic;
@@ -308,7 +313,7 @@ const lastUpdated = 'February 2026';
 
   .privacy-page {
     padding: var(--space-12) 0;
-    background: var(--white);
+    background: var(--surface-1);
   }
 
   .privacy-page h1 {
@@ -375,7 +380,7 @@ const lastUpdated = 'February 2026';
   }
 
   .policy-section a {
-    color: var(--c21-gold);
+    color: var(--accent-bright);
     text-decoration: none;
   }
 

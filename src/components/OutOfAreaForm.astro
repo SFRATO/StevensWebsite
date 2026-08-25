@@ -82,14 +82,22 @@ const formId = `ooa-form-${Math.random().toString(36).slice(2, 9)}`;
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: new URLSearchParams(new FormData(form) as any).toString(),
           });
-          if (!res.ok) throw new Error('submit failed');
+          if (!res.ok) {
+            // See MarketReportForm — surface the server's reason, not a generic one.
+            const payload = await res.json().catch(() => ({}));
+            throw new Error(payload.error || 'submit failed');
+          }
           container.style.display = 'none';
           success.style.display = 'block';
           success.scrollIntoView({ behavior: 'smooth', block: 'center' });
           trackEvent('Lead', 'Out of Area Inquiry');
-        } catch {
+        } catch (err) {
           if (btn) { btn.disabled = false; btn.textContent = 'Get in touch'; }
-          alert('There was an error submitting the form. Please try again or call (609) 789-0126.');
+          alert(
+            err instanceof Error && err.message && err.message !== 'submit failed'
+              ? err.message
+              : 'There was an error submitting the form. Please try again or call (609) 789-0126.'
+          );
         }
       });
     });

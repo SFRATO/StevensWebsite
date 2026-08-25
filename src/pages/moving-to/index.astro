@@ -17,7 +17,7 @@ const schema = generateBreadcrumbSchema([
 ---
 
 <BaseLayout
-  title="Moving to South & Central NJ? Local Real Estate Guides | Steven Frato"
+  title="Moving to South & Central NJ? Local Real Estate Guides"
   description="Free moving guides for Burlington, Mercer, and Middlesex County NJ towns. Learn about home prices, commutes, schools, and lifestyle before you move."
   schema={schema}
 >
@@ -50,19 +50,19 @@ const schema = generateBreadcrumbSchema([
 
 <style>
   .hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%);
     padding: var(--space-12) 0 var(--space-10);
-    color: #fff;
+    color: var(--text-primary);
   }
 
   h1 {
     font-family: var(--font-heading);
     font-size: clamp(1.75rem, 4vw, 2.75rem);
     margin: 0 0 var(--space-3);
-    color: #fff;
+    color: var(--text-primary);
   }
 
-  .hero-sub { font-size: var(--text-base); color: #ccc; margin: 0; max-width: 600px; line-height: 1.7; }
+  .hero-sub { font-size: var(--text-base); color: var(--text-muted); margin: 0; max-width: 600px; line-height: 1.7; }
 
   .guides-section { padding: var(--space-12) 0; }
 
@@ -71,10 +71,10 @@ const schema = generateBreadcrumbSchema([
   .county-group h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-6);
     padding-bottom: var(--space-3);
-    border-bottom: 2px solid var(--c21-gold);
+    border-bottom: 2px solid var(--rule-strong);
     display: inline-block;
   }
 
@@ -90,8 +90,8 @@ const schema = generateBreadcrumbSchema([
   .guide-card {
     display: flex;
     flex-direction: column;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.75rem;
     padding: var(--space-5);
     text-decoration: none;
@@ -100,14 +100,14 @@ const schema = generateBreadcrumbSchema([
   }
 
   .guide-card:hover {
-    border-color: var(--c21-gold);
-    box-shadow: 0 4px 16px rgba(201, 156, 51, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(61, 139, 255, 0.12);
     transform: translateY(-2px);
   }
 
-  .guide-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--charcoal); margin: 0; }
+  .guide-card h3 { font-size: var(--text-base); font-weight: 700; color: var(--text-primary); margin: 0; }
 
   .guide-card p { font-size: var(--text-sm); color: var(--text-secondary); margin: 0; flex: 1; line-height: 1.6; }
 
-  .card-cta { font-size: var(--text-sm); color: var(--c21-gold); font-weight: 600; margin-top: var(--space-2); }
+  .card-cta { font-size: var(--text-sm); color: var(--accent-bright); font-weight: 600; margin-top: var(--space-2); }
 </style>

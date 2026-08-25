@@ -49,8 +49,8 @@ const currentYear = new Date().getFullYear();
 ---
 
 <BaseLayout
-  title={`What Is My NJ Home Worth? | Free Home Valuation ${currentYear} | Steven Frato`}
-  description="Find out what your New Jersey home is worth. Free home value reports for Burlington, Mercer, and Middlesex County towns. Instant estimates or personalized CMA from a local Century 21 agent."
+  title={`What Is My NJ Home Worth? | Free Home Valuation ${currentYear}`}
+  description="Find out what your New Jersey home is worth. Free home value reports for Burlington, Mercer, and Middlesex County towns. Instant estimates or a personalized CMA from a local agent."
   schema={schema}
 >
   <section class="hv-hero">
@@ -117,9 +117,9 @@ const currentYear = new Date().getFullYear();
 
 <style>
   .hv-hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--ink-850) 0%, var(--ink-800) 100%);
     padding: var(--space-12) 0 var(--space-10);
-    color: #fff;
+    color: var(--text-primary);
     text-align: center;
   }
 
@@ -127,12 +127,12 @@ const currentYear = new Date().getFullYear();
     font-family: var(--font-heading);
     font-size: clamp(1.75rem, 4vw, 3rem);
     margin: 0 0 var(--space-3);
-    color: #fff;
+    color: var(--text-primary);
   }
 
   .hero-sub {
     font-size: var(--text-lg);
-    color: #ccc;
+    color: var(--text-muted);
     margin: 0 0 var(--space-6);
     max-width: 560px;
     margin-left: auto;
@@ -149,8 +149,8 @@ const currentYear = new Date().getFullYear();
   .btn-primary {
     display: inline-block;
     padding: 1rem 2rem;
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;
@@ -158,13 +158,15 @@ const currentYear = new Date().getFullYear();
     transition: all 0.2s;
   }
 
-  .btn-primary:hover { background: var(--c21-gold-dark); transform: translateY(-1px); }
+  /* Was `.btn-primary: hover` — the space made the selector invalid, so this
+     hover never applied. */
+  .btn-primary:hover { background: var(--accent-bright); box-shadow: var(--glow-soft); transform: translateY(-1px); }
 
   .btn-outline {
     display: inline-block;
     padding: 1rem 2rem;
     border: 2px solid rgba(255,255,255,0.5);
-    color: #fff;
+    color: var(--text-primary);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;
@@ -172,16 +174,16 @@ const currentYear = new Date().getFullYear();
     transition: all 0.2s;
   }
 
-  .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+  .btn-outline:hover { border-color: var(--rule-strong); background: rgba(255,255,255,0.08); }
 
-  .tool-promo { padding: var(--space-8) 0; background: #fef9ee; border-bottom: 1px solid #e2e8f0; }
+  .tool-promo { padding: var(--space-8) 0; background: var(--accent-wash); border-bottom: 1px solid var(--rule); }
 
   .promo-card {
     display: flex;
     align-items: center;
     gap: var(--space-6);
-    background: #fff;
-    border: 2px solid var(--c21-gold);
+    background: var(--surface-1);
+    border: 2px solid var(--rule-strong);
     border-radius: 1rem;
     padding: var(--space-6);
   }
@@ -195,7 +197,7 @@ const currentYear = new Date().getFullYear();
   .promo-text h2 {
     font-family: var(--font-heading);
     font-size: var(--text-xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-2);
   }
 
@@ -204,8 +206,8 @@ const currentYear = new Date().getFullYear();
   .promo-btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;
@@ -219,7 +221,7 @@ const currentYear = new Date().getFullYear();
   .towns-section > .container > h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-2);
   }
 
@@ -230,15 +232,15 @@ const currentYear = new Date().getFullYear();
   .county-heading {
     font-family: var(--font-heading);
     font-size: var(--text-lg);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-4);
     padding-bottom: var(--space-2);
-    border-bottom: 2px solid var(--c21-gold);
+    border-bottom: 2px solid var(--rule-strong);
     display: inline-block;
   }
 
   .county-heading a { color: inherit; text-decoration: none; }
-  .county-heading a:hover { color: var(--c21-gold); }
+  .county-heading a: hover { color: var(--text-primary); }
 
   .towns-grid {
     display: grid;
@@ -254,26 +256,26 @@ const currentYear = new Date().getFullYear();
     flex-direction: column;
     gap: 0.3rem;
     padding: var(--space-3) var(--space-4);
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-1);
+    border: 1px solid var(--rule);
     border-radius: 0.5rem;
     text-decoration: none;
     transition: all 0.15s;
   }
 
   .town-card:hover {
-    border-color: var(--c21-gold);
-    box-shadow: 0 4px 12px rgba(201,156,51,0.1);
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(61, 139, 255, 0.12);
   }
 
-  .town-name { font-weight: 600; color: var(--charcoal); font-size: var(--text-sm); }
-  .town-price { font-size: 0.8rem; color: var(--c21-gold); font-weight: 700; }
+  .town-name { font-weight: 600; color: var(--text-primary); font-size: var(--text-sm); }
+  .town-price { font-family: var(--font-heading); font-variant-numeric: tabular-nums; font-size: 0.8rem; color: var(--text-primary); font-weight: 700; }
   .market-tag { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 999px; font-weight: 600; text-transform: capitalize; align-self: flex-start; }
-  .tag-seller { background: #dcfce7; color: #15803d; }
-  .tag-buyer { background: #fef2f2; color: #991b1b; }
-  .tag-balanced { background: #fef9ee; color: #92400e; }
+  .tag-seller { background: rgba(74, 222, 128, 0.12); color: var(--accent-green); }
+  .tag-buyer { background: rgba(255, 107, 107, 0.12); color: var(--accent-red); }
+  .tag-balanced { background: var(--accent-wash); color: var(--text-secondary); }
 
-  .cma-section { padding: var(--space-12) 0; background: #f8fafc; border-top: 1px solid #e2e8f0; }
+  .cma-section { padding: var(--space-12) 0; background: var(--surface-2); border-top: 1px solid var(--rule); }
 
   .cma-box {
     max-width: 560px;
@@ -284,7 +286,7 @@ const currentYear = new Date().getFullYear();
   .cma-box h2 {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
-    color: var(--charcoal);
+    color: var(--text-primary);
     margin: 0 0 var(--space-3);
   }
 
@@ -293,8 +295,8 @@ const currentYear = new Date().getFullYear();
   .cta-btn {
     display: inline-block;
     padding: 1rem 2.5rem;
-    background: var(--c21-gold);
-    color: #fff;
+    background: var(--accent);
+    color: var(--accent-ink);
     border-radius: 0.5rem;
     font-weight: 700;
     text-decoration: none;

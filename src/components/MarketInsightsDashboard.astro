@@ -42,9 +42,6 @@ const fmtYoY = (v: number | null) => {
 };
 
 // Data freshness
-const lastUpdated = counties[0]?.period_end
-  ? new Date(counties[0].period_end).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  : 'Recently';
 ---
 
 <section class="market-insights">
@@ -52,7 +49,7 @@ const lastUpdated = counties[0]?.period_end
     <div class="section-header">
       <h2>Live Market Data — Updated Monthly</h2>
       <p class="section-subtitle">
-        Real numbers from recent sales across Burlington, Mercer, and Middlesex Counties. Data through {lastUpdated}.
+        Real numbers from recent sales across Burlington, Mercer, and Middlesex Counties. Data through monthly.
       </p>
     </div>
 
@@ -188,7 +185,7 @@ const lastUpdated = counties[0]?.period_end
   }
 
   .insight-card {
-    background: var(--white);
+    background: var(--surface-1);
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
@@ -203,7 +200,7 @@ const lastUpdated = counties[0]?.period_end
   .insight-card:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-4px);
-    border-color: var(--c21-gold);
+    border-color: var(--accent);
   }
 
   .card-icon {
@@ -212,7 +209,8 @@ const lastUpdated = counties[0]?.period_end
     justify-content: center;
     width: 64px;
     height: 64px;
-    background: linear-gradient(135deg, var(--c21-gold-light), var(--c21-gold));
+    background: var(--accent-wash-strong);
+    border: 1px solid var(--accent-line);
     border-radius: var(--radius-full);
     color: var(--white);
     margin-bottom: var(--space-2);
@@ -252,31 +250,35 @@ const lastUpdated = counties[0]?.period_end
   }
 
   .stat-value {
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
     font-size: var(--text-2xl);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     font-weight: var(--font-bold);
     white-space: nowrap;
   }
 
-  .seller-val { color: #16a34a; }
+  .seller-val { color: var(--accent-green); }
 
   .stat-sublabel {
     font-size: var(--text-xs);
     color: var(--text-secondary);
   }
 
-  .stat-sublabel.positive { color: #16a34a; font-weight: 600; }
-  .stat-sublabel.negative { color: #dc2626; font-weight: 600; }
+  .stat-sublabel.positive { color: var(--accent-green); font-weight: 600; }
+  .stat-sublabel.negative { color: var(--accent-red); font-weight: 600; }
 
   .card-source {
     font-size: var(--text-sm);
-    color: var(--c21-gold);
+    color: var(--text-primary);
     font-weight: 600;
     padding-top: var(--space-2);
     border-top: 1px solid var(--border-color);
   }
 
   .disclaimer {
+    /* Rokkitt ships no italic; the browser would fake one. Meta text uses the UI face, which has a real italic. */
+    font-family: var(--font-ui);
     text-align: center;
     font-size: var(--text-sm);
     color: var(--text-secondary);

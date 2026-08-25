@@ -1,10 +1,11 @@
-/* Global Styles for Steven Frato Century 21 Real Estate Website */
+/* Global Styles — Steven Frato Real Estate
+   Dark academia / watchmaker's workshop at night. See variables.css for the
+   accent-discipline rule that governs where electric blue may appear. */
 
 /* Import Design Tokens */
 @import './variables.css';
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+/* Fonts are preloaded in BaseLayout.astro (a chained @import here blocks render). */
 
 /* CSS Reset & Base Styles */
 *,
@@ -20,15 +21,61 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  /* Renders native form controls, scrollbars and autofill dark. Without this,
+     inputs and select menus stay white boxes on the dark page. */
+  color-scheme: dark;
+  background-color: var(--bg-primary);
 }
 
+/* Rokkitt at 500, not 400: reversed out of near-black, the regular weight
+   thins optically and the slab serifs start to break up. */
 body {
-  font-family: var(--font-primary);
+  font-family: var(--font-body);
   font-size: var(--text-base);
-  line-height: var(--leading-normal);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-body);
   color: var(--text-primary);
   background-color: var(--bg-primary);
   min-height: 100vh;
+  position: relative;
+}
+
+/* --- Workshop atmosphere -------------------------------------------------
+   A cool pool of light near the top of the page falling off to near-black at
+   the edges, plus a fine grain so the flat blacks read as a surface rather
+   than as empty space. Both are inert: fixed, non-interactive, no animation. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(61, 139, 255, 0.055) 0%, transparent 60%),
+    radial-gradient(100% 100% at 50% 40%, rgba(255, 255, 255, 0.022) 0%, transparent 70%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Content sits above the atmosphere layers. */
+header,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: var(--accent-wash-strong);
+  color: var(--text-primary);
 }
 
 /* Typography */
@@ -45,16 +92,21 @@ h6 {
   margin-bottom: var(--space-4);
 }
 
+/* Ubuntu Bold sprawls as it scales — the larger the heading, the more it is
+   pulled back. Below ~24px the default fit is already correct. */
 h1 {
   font-size: var(--text-4xl);
+  letter-spacing: var(--tracking-tighter);
 }
 
 h2 {
   font-size: var(--text-3xl);
+  letter-spacing: var(--tracking-tight);
 }
 
 h3 {
   font-size: var(--text-2xl);
+  letter-spacing: -0.01em;
 }
 
 h4 {
@@ -74,18 +126,23 @@ p {
 }
 
 a {
-  color: var(--info-blue);
+  color: var(--accent-bright);
   text-decoration: none;
   transition: color var(--transition-base);
 }
 
 a:hover {
-  color: var(--cta-primary);
+  color: var(--accent);
   text-decoration: underline;
 }
 
-a:focus-visible {
-  outline: 2px solid var(--cta-primary);
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -108,21 +165,53 @@ img {
   display: block;
 }
 
-/* Buttons */
+/* Buttons — operated, not read: Ubuntu. */
 button {
-  font-family: var(--font-primary);
+  font-family: var(--font-ui);
   cursor: pointer;
   border: none;
   background: none;
   padding: 0;
+  color: inherit;
 }
 
-/* Forms */
+/* Forms — dark wells with a hairline edge; the accent only appears on focus. */
 input,
 textarea,
 select {
-  font-family: var(--font-primary);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
+  /* Inputs sit inside body prose, so the weight must be reset explicitly or
+     they inherit Rokkitt's 500 and render Ubuntu Medium. */
+  font-weight: var(--font-normal);
+  color: var(--text-primary);
+  background-color: var(--surface-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+  outline: none;
+}
+
+/* Chrome autofill paints its own near-white background; repaint it dark. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-3) inset;
+  caret-color: var(--text-primary);
 }
 
 /* Container Utility */
@@ -165,8 +254,9 @@ section {
   top: -100px;
   left: 0;
   padding: var(--space-3) var(--space-4);
-  background: var(--cta-primary);
-  color: var(--white);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: var(--font-semibold);
   text-decoration: none;
   z-index: var(--z-tooltip);
 }
@@ -196,22 +286,70 @@ section {
   font-weight: var(--font-semibold);
 }
 
-.text-gold {
-  color: var(--c21-gold);
-}
-
 .text-secondary {
   color: var(--text-secondary);
 }
 
 .bg-gray {
-  background-color: var(--light-gray);
+  background-color: var(--bg-secondary);
 }
 
-/* Button Styles */
+/* Engraved dial-plate label — small, letterspaced, uppercase. Neutral, never accent. */
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* --- UI chrome -----------------------------------------------------------
+   Most chrome is <a> or <span>, not <button>, so it inherits body Rokkitt
+   unless told otherwise — and a slab serif on a nav link or a badge reads as
+   a mistake. This is one rule rather than ~90 scattered declarations because
+   the boundary is a rule of the design system, not a per-component choice:
+   anything you operate or scan takes --font-ui; prose keeps --font-body.
+   58 label spans, 17 badges and 16 nav links resolve here. */
+nav a,
+footer a,
+label,
+legend,
+summary,
+.chip,
+.sticky-cta a,
+.market-tag,
+[class*='-label'],
+[class*='badge'],
+[class*='breadcrumb'],
+[class*='option-'] {
+  font-family: var(--font-ui);
+}
+
+/* Display figures — market data reads as data, not as prose: Ubuntu Bold with
+   tabular numerals so digits line up in stacked rows and comparison columns. */
+.figure {
+  font-family: var(--font-heading);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Hairline rule */
+.hairline {
+  height: 1px;
+  border: 0;
+  background: var(--rule);
+}
+
+/* Button Styles.
+   .btn is applied to <a> as often as to <button>, and an anchor inherits body
+   Rokkitt — so the UI font has to be stated here, not left to the element. */
 .btn {
   display: inline-block;
   padding: var(--space-3) var(--space-6);
+  font-family: var(--font-ui);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   text-align: center;
@@ -219,30 +357,40 @@ section {
   border-radius: var(--radius-md);
   transition: all var(--transition-base);
   cursor: pointer;
-  border: 2px solid transparent;
+  border: 1px solid transparent;
 }
 
+/* The lit sign: accent fill with near-black text (~8:1) rather than the
+   marginal white-on-blue ratio. */
 .btn-primary {
-  background-color: var(--cta-primary);
-  color: var(--white);
+  background-color: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
 }
 
 .btn-primary:hover {
-  background-color: var(--cta-primary-hover);
+  background-color: var(--accent-bright);
+  color: var(--accent-ink);
   text-decoration: none;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glow);
+}
+
+.btn-primary:active {
+  background-color: var(--accent-deep);
+  transform: translateY(0);
 }
 
 .btn-secondary {
-  background-color: var(--white);
-  color: var(--cta-primary);
-  border-color: var(--cta-primary);
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--rule-strong);
 }
 
 .btn-secondary:hover {
-  background-color: var(--cta-primary);
-  color: var(--white);
+  background-color: var(--accent-wash);
+  border-color: var(--accent);
+  color: var(--accent-bright);
   text-decoration: none;
 }
 
@@ -251,9 +399,10 @@ section {
   font-size: var(--text-lg);
 }
 
-/* Card Styles */
+/* Card Styles — panel on the bench, hairline edge, lamp catches it on hover. */
 .card {
-  background: var(--white);
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--shadow-md);
@@ -261,6 +410,8 @@ section {
 }
 
 .card:hover {
+  background: var(--surface-2);
+  border-color: var(--accent-line);
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
 }
@@ -280,15 +431,15 @@ section {
 }
 
 @media (min-width: 768px) {
-  .md\\:grid-2 {
+  .md\:grid-2 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .md\\:grid-3 {
+  .md\:grid-3 {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .md\\:grid-4 {
+  .md\:grid-4 {
     grid-template-columns: repeat(4, 1fr);
   }
 }
@@ -303,5 +454,91 @@ section {
 @media (min-width: 768px) {
   .hide-desktop {
     display: none;
+  }
+}
+
+/* Reduced Motion — global. Previously only the popup and consent banner
+   honored this, while every card and button hover still translated. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover,
+  .btn-primary:hover,
+  .btn:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   Modal primitives — shared
+   ============================================================================
+   There is no modal system in this codebase; these are the first pieces of one.
+   ExitIntentPopup.astro predates them and still rolls its own focus trap and
+   overlay. Collapsing the two is worth doing later; deliberately NOT done here,
+   because that component works and this change should not risk it.
+   ========================================================================== */
+
+/* `inert` is the primary mechanism: one attribute removes descendants from the
+   tab order, from hit-testing, AND from the accessibility tree. Baseline since
+   2023. These two declarations cover the pre-2023 browser tail only — they are
+   NOT the mechanism. Note we deliberately do not add `aria-hidden` here: on an
+   ancestor of focusable content that is itself a WCAG failure, which is the bug
+   `inert` was invented to fix. JS applies aria-hidden only where inert is
+   genuinely unsupported. */
+[inert] {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Body scroll lock. `position: fixed` plus a negative `top` preserves the scroll
+   position; plain `overflow: hidden` on <body> is ignored by iOS Safari. The JS
+   that adds this class is responsible for setting and clearing body.style.top
+   and for restoring scrollTop on release. */
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+}
+html.scroll-locked body {
+  position: fixed;
+  width: 100%;
+}
+
+/* Reserve the scrollbar so locking scroll does not shift the layout underneath
+   an overlay. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* ---------------------------------------------------------------------------
+   The listing registration gate (see RegistrationGate.astro)
+   ---------------------------------------------------------------------------
+   Applied by JS only. No-JS visitors and non-rendering crawlers get the page
+   unobstructed — that is the point: the HTTP response is byte-identical for
+   every requester, so this is a gate, not cloaking.
+
+   WARNING: `filter` establishes a containing block for `position: fixed`
+   descendants. NOTHING position:fixed may live inside the gated element.
+   `position: sticky` is unaffected. Today StickyCTA, CookieConsent and
+   ExitIntentPopup all mount outside <main> in BaseLayout, so they are safe.
+   -------------------------------------------------------------------------- */
+html.listing-gated #listing-gated {
+  filter: blur(9px) saturate(0.7);
+  transition: filter var(--transition-slow);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.listing-gated #listing-gated {
+    transition: none;
   }
 }

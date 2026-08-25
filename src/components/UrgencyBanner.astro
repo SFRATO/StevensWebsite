@@ -27,7 +27,7 @@ const urgencyMessage = marketType === 'seller'
   </svg>
   <div class="banner-content">
     <strong>Data updated {lastUpdated}</strong>
-    <span class="separator">|</span>
+    <span class="separator" aria-hidden="true">|</span>
     <span>{urgencyMessage}</span>
     {priceChangeYoY !== null && priceChangeYoY !== undefined && (
       <span class="price-change">
@@ -43,8 +43,8 @@ const urgencyMessage = marketType === 'seller'
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
-    background: linear-gradient(90deg, rgba(201, 156, 51, 0.15) 0%, rgba(201, 156, 51, 0.05) 100%);
-    border-left: 3px solid var(--c21-gold);
+    background: linear-gradient(90deg, rgba(61, 139, 255, 0.18) 0%, rgba(61, 139, 255, 0.08) 100%);
+    border-left: 3px solid var(--rule-strong);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);
     color: var(--text-primary);
@@ -52,7 +52,7 @@ const urgencyMessage = marketType === 'seller'
   }
 
   .urgency-banner svg {
-    color: var(--c21-gold);
+    color: var(--text-primary);
     flex-shrink: 0;
   }
 
