@@ -81,8 +81,5 @@ verify_jwt = true
 [functions.send-behavior-triggers]
 verify_jwt = true
 
-[functions.send-lead-notification]
-verify_jwt = true
-
 [analytics]
 enabled = false

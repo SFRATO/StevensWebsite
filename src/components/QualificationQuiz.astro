@@ -721,7 +721,11 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
               parseInt(leadScoreInput?.value || '0')
             );
           } else {
-            throw new Error('Form submission failed');
+            // Surface the server's actual reason. A 400 here means something
+            // specific and fixable (bad email, typo suggestion); the old generic
+            // message sent a fully-qualified lead into a hopeless retry loop.
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error || 'Form submission failed');
           }
         } catch (error) {
           // Re-enable button on error
@@ -734,7 +738,16 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
               Get My Free Report
             `;
           }
-          alert('There was an error submitting the form. Please try again or call us directly.');
+          const msg =
+            error instanceof Error && error.message
+              ? error.message
+              : 'There was an error submitting the form. Please try again or call us directly.';
+          alert(msg);
+          // The email field lives on this same final step, so there is nowhere to
+          // navigate back to — just put the cursor where the problem is.
+          if (/email/i.test(msg)) {
+            form.querySelector<HTMLInputElement>('input[name="email"]')?.focus();
+          }
         }
       });
     });

@@ -350,13 +350,38 @@ const displayStat = statLine ?? fallbackStat;
     el.hidden = !message;
   };
 
+  /** Same shape as RegistrationGate's — a failure the server can explain. */
+  class SubmitError extends Error {
+    constructor(
+      message: string,
+      readonly code?: string,
+      readonly field?: string,
+      readonly suggestion?: string,
+      readonly canOverride?: boolean,
+    ) {
+      super(message);
+    }
+  }
+
+  /** Address the server softly rejected; re-submitting it sends the override. */
+  let lastRejectedEmail: string | null = null;
+
   const post = async (body: Record<string, string>) => {
     const response = await fetch('/api/market-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(body).toString(),
     });
-    if (!response.ok) throw new Error(`Submission failed (${response.status})`);
+    if (!response.ok) {
+      const p = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+      throw new SubmitError(
+        (p.error as string) || `Submission failed (${response.status})`,
+        p.code as string | undefined,
+        p.field as string | undefined,
+        p.suggestion as string | undefined,
+        p.canOverride as boolean | undefined,
+      );
+    }
     return (await response.json().catch(() => ({}))) as { lead_token?: string };
   };
 
@@ -507,6 +532,8 @@ const displayStat = statLine ?? fallbackStat;
           'source-location': 'Exit Intent Popup',
           address: 'Not provided',
           'bot-field': String(formData.get('bot-field') ?? ''),
+          // Honour a deliberate re-submit of a softly-rejected address.
+          'email-confirmed': lastRejectedEmail && lastRejectedEmail === email ? '1' : '',
           email,
           zipcode,
           // Real name is asked for in step 2; the server requires a non-empty one.
@@ -525,11 +552,41 @@ const displayStat = statLine ?? fallbackStat;
 
         showStep('exit-popup-step2');
         trackEvent('Engagement', 'Popup Step 2 Shown');
-      } catch {
+      } catch (err) {
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = originalLabel;
         }
+
+        // Show what the server actually said about the address, and offer the
+        // correction. Previously any 400 became "try again", which is advice
+        // that cannot work for a permanently-invalid address.
+        if (err instanceof SubmitError && err.field === 'email') {
+          setError(err.message);
+          lastRejectedEmail = err.canOverride ? email : null;
+
+          if (err.suggestion) {
+            const el = document.getElementById('exit-popup-error');
+            const input = form.querySelector<HTMLInputElement>('input[name="email"]');
+            if (el && input) {
+              const fix = document.createElement('button');
+              fix.type = 'button';
+              fix.className = 'popup-suggest';
+              fix.textContent = `Use ${err.suggestion}`;
+              fix.addEventListener('click', () => {
+                input.value = err.suggestion!;
+                lastRejectedEmail = null;
+                setError(null);
+                form.requestSubmit();
+              });
+              el.append(document.createTextNode(' '), fix);
+            }
+          }
+
+          trackEvent('Lead', 'Exit Popup Email Rejected', err.code ?? 'unknown');
+          return;
+        }
+
         setError("We couldn't save that just now. Please try again in a moment.");
       }
     });
@@ -825,6 +882,21 @@ const displayStat = statLine ?? fallbackStat;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-wash);
   }
+
+  .popup-suggest {
+    display: inline-block;
+    margin-left: var(--space-2);
+    padding: 3px var(--space-3);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+  }
+  .popup-suggest:hover { background: var(--accent-bright); }
+  .popup-suggest:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
 
   .form-error {
     /* --accent-red is tuned for body text on the dark surface (~6:1). */

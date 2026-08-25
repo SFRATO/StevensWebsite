@@ -273,7 +273,11 @@ const deliveryNote = isBuyer
             // Track conversion
             trackEvent('Lead', 'Market Report Request');
           } else {
-            throw new Error('Form submission failed');
+            // Read the body: a 400 carries a specific, actionable reason
+            // (bad email, typo suggestion). Discarding it left the visitor
+            // retrying an address that could never work.
+            const payload = await response.json().catch(() => ({}));
+            throw new Error(payload.error || 'Form submission failed');
           }
         } catch (error) {
           // Re-enable button on error
@@ -286,7 +290,11 @@ const deliveryNote = isBuyer
               Send My Free Report Now
             `;
           }
-          alert('There was an error submitting the form. Please try again or call us directly.');
+          alert(
+            error instanceof Error && error.message
+              ? error.message
+              : 'There was an error submitting the form. Please try again or call us directly.'
+          );
         }
       });
     });

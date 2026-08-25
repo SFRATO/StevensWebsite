@@ -7,6 +7,7 @@
  */
 
 import type { Handler, HandlerEvent, HandlerContext } from "@netlify/functions";
+import { checkEmail } from "./_shared/emailCheck";
 
 interface FormSubmission {
   "form-name": string;
@@ -144,6 +145,49 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       };
     }
 
+    // --- email verification (blocking) ------------------------------------
+    // Bots never get here: the honeypot short-circuits above, so no DNS lookup
+    // is ever spent on one.
+    //
+    // Fails OPEN on any DNS trouble — see _shared/emailCheck.ts. It cannot tell
+    // whether a mailbox exists, only whether the domain can receive mail; what
+    // it does catch is typos, which is where real leads are actually lost.
+    const emailCheck = await checkEmail(formData.email, {
+      // The visitor deliberately re-submitted an address we warned about.
+      allowOverride: params.get("email-confirmed") === "1",
+      // Step 2 of the exit-intent popup re-sends an address that step 1 verified
+      // seconds ago. Re-running DNS there risks rejecting someone mid-funnel for
+      // no gain.
+      syntaxOnly: formData.qualify === "1",
+    });
+
+    // Domain and code only — never the address. This handler is already flagged
+    // for logging full addresses elsewhere; don't add another.
+    console.log("email check:", {
+      ok: emailCheck.ok,
+      code: emailCheck.code,
+      ...emailCheck.trace,
+    });
+
+    if (!emailCheck.ok) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          // `error` stays the human string so ContactForm, which already reads
+          // payload.error, keeps working with no change. Everything else is additive.
+          error: emailCheck.message,
+          field: "email",
+          code: emailCheck.code,
+          suggestion: emailCheck.suggestion,
+          canOverride: emailCheck.canOverride,
+        }),
+      };
+    }
+
+    // Everything downstream — the Supabase forward, generate-pdf, SES — uses the
+    // normalized address, so casing and stray whitespace can't create duplicates.
+    formData.email = emailCheck.normalized;
+
     // Extract UTM parameters from referrer if available
     let utmSource: string | undefined;
     let utmMedium: string | undefined;
@@ -161,10 +205,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
       }
     }
 
+    // No name, no email — this line is for tracing volume and routing, and
+    // Netlify function logs are not a place to accumulate PII. The lead row in
+    // Supabase is the record of who submitted.
     console.log("Market report request received:", {
-      name: formData.name,
+      type: submissionType,
       location: formData["source-location"],
-      email: formData.email,
       town: formData.town,
       zipcode: formData.zipcode,
       interest: formData.interest,

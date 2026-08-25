@@ -14,6 +14,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
 import { createToken } from "../_shared/tokens.ts";
+import { EMAIL as AGENT_EMAIL_DEFAULT } from "../_shared/contact.ts";
 
 // Types
 interface FormSubmissionPayload {
@@ -203,7 +204,29 @@ const DRIP_AUTO_ENROLL =
 
 const SES_SENDER_EMAIL = Deno.env.get("SES_SENDER_EMAIL") || "reports@stevenfrato.com";
 const SES_CONFIGURATION_SET = Deno.env.get("SES_CONFIGURATION_SET") || "steven-frato-emails";
-const STEVEN_EMAIL = "sf@stevenfrato.com";
+/**
+ * Who gets the "new lead" alert.
+ *
+ * Env-driven with _shared/contact.ts as the fallback, so the literal address
+ * lives in one place and a second recipient (assistant, CRM inbound-parse
+ * address) needs an env var rather than a deploy. Comma-separated.
+ *
+ * Every recipient must be a VERIFIED SES identity while the account is in the
+ * SES sandbox, or SES rejects the entire send — hence the validation and the
+ * loud log rather than a silent fallback.
+ */
+const AGENT_NOTIFY_EMAILS: string[] = (() => {
+  const ADDR_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const raw = Deno.env.get("AGENT_NOTIFY_EMAIL") ?? AGENT_EMAIL_DEFAULT;
+  const all = raw.split(",").map((a) => a.trim()).filter(Boolean).slice(0, 10);
+  const bad = all.filter((a) => !ADDR_RE.test(a));
+  if (bad.length) console.error("AGENT_NOTIFY_EMAIL has invalid address(es):", bad);
+  const good = all.filter((a) => ADDR_RE.test(a));
+  return good.length ? good : [AGENT_EMAIL_DEFAULT];
+})();
+
+/** Non-SES escape hatch for "SES itself is broken". Slack/Discord/ntfy webhook. */
+const AGENT_ALERT_WEBHOOK_URL = Deno.env.get("AGENT_ALERT_WEBHOOK_URL") || "";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://stevenfrato.com";
 
 // Initialize clients
@@ -511,7 +534,7 @@ Unsubscribe: ${unsubscribeUrl}
           Text: { Data: textBody, Charset: "UTF-8" },
         },
       },
-      ReplyToAddresses: [STEVEN_EMAIL],
+      ReplyToAddresses: [AGENT_NOTIFY_EMAILS[0]],
       ConfigurationSetName: SES_CONFIGURATION_SET,
     });
 
@@ -602,7 +625,7 @@ async function sendLeadNotification(
   qualification?: QualificationNotificationData,
   /** What they typed, and where they were. Both were previously dropped. */
   context?: { message?: string; sourceLabel?: string }
-): Promise<void> {
+): Promise<string> {
   const submittedAt = new Date().toLocaleString("en-US", {
     dateStyle: "full",
     timeStyle: "short",
@@ -805,28 +828,106 @@ async function sendLeadNotification(
 </html>
   `;
 
-  try {
-    const command = new SendEmailCommand({
-      Source: `Lead Notifications <${SES_SENDER_EMAIL}>`,
-      Destination: {
-        ToAddresses: [STEVEN_EMAIL],
+  const command = new SendEmailCommand({
+    Source: `Lead Notifications <${SES_SENDER_EMAIL}>`,
+    Destination: {
+      ToAddresses: AGENT_NOTIFY_EMAILS,
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+        Charset: "UTF-8",
       },
-      Message: {
-        Subject: {
-          Data: subject,
-          Charset: "UTF-8",
-        },
-        Body: {
-          Html: { Data: htmlBody, Charset: "UTF-8" },
-        },
+      Body: {
+        Html: { Data: htmlBody, Charset: "UTF-8" },
       },
-      ReplyToAddresses: [lead.email],
-    });
+    },
+    ReplyToAddresses: [lead.email],
+    // The welcome email has always set this; this one never did, so notification
+    // bounces never reached the SES event destination and did not count toward
+    // reputation accounting. Safe to add: ses-webhook-handler's processBounce
+    // resolves events via scheduled_emails.ses_message_id and RETURNS EARLY when
+    // no row matches, so a notification bounce cannot mis-mark a lead.
+    ConfigurationSetName: SES_CONFIGURATION_SET,
+  });
 
-    await sesClient.send(command);
-    console.log(`Lead notification sent to Steven (${hasQualification ? qualification.leadTemperature : 'no score'})`);
-  } catch (error) {
-    console.error("Failed to send lead notification:", error);
+  // DELIBERATELY NO try/catch. This used to swallow its own SES error and return
+  // void, which made the caller's retry loop a no-op — it set leadNotified=true
+  // on the first pass every time, so the second attempt never ran and the
+  // "notification FAILED" alarm was unreachable. Callers own the error now.
+  const result = await sesClient.send(command);
+  console.log(
+    `Lead notification sent to ${AGENT_NOTIFY_EMAILS.join(", ")} ` +
+      `(${hasQualification ? qualification.leadTemperature : "no score"}) ses=${result.MessageId}`,
+  );
+  return result.MessageId ?? "";
+}
+
+/**
+ * Send the agent alert with real retries, and report whether it worked.
+ *
+ * Not reusing the file-local withRetry(): that helper expects its callee to
+ * RESOLVE with a supabase-style { data, error } and never catches a throw, so a
+ * throwing SES call would blow straight through it.
+ */
+async function notifyAgent(
+  args: Parameters<typeof sendLeadNotification>,
+  label: string,
+): Promise<{ ok: true; messageId: string } | { ok: false; error: string }> {
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const messageId = await sendLeadNotification(...args);
+      return { ok: true, messageId };
+    } catch (err) {
+      lastErr = err;
+      console.error(`${label}: notification attempt ${attempt}/3 failed:`, err);
+      // SES throttling is the likeliest transient cause; back off before retrying.
+      if (attempt < 3) await new Promise((r) => setTimeout(r, 300 * attempt));
+    }
+  }
+  return { ok: false, error: lastErr instanceof Error ? lastErr.message : String(lastErr) };
+}
+
+/**
+ * Record whether the agent was actually told about this lead.
+ *
+ * The visitor still gets a 200 either way — the lead IS saved, and failing their
+ * request because our alerting broke would be worse. But a silent failure means
+ * a lead nobody ever calls, so it has to be queryable afterwards:
+ *   select * from leads where agent_notified_at is null;
+ */
+async function recordNotifyOutcome(
+  leadId: string,
+  r: { ok: true; messageId: string } | { ok: false; error: string },
+): Promise<void> {
+  try {
+    await supabase
+      .from("leads")
+      .update(
+        r.ok
+          ? { agent_notified_at: new Date().toISOString(), agent_notify_error: null }
+          : { agent_notify_error: r.error.slice(0, 500) },
+      )
+      .eq("id", leadId);
+  } catch (err) {
+    console.error("Could not record notification outcome:", err);
+  }
+
+  if (r.ok || !AGENT_ALERT_WEBHOOK_URL) return;
+
+  // Deliberately NOT over SES — this fires precisely when SES is the thing that
+  // is broken. Never allowed to fail the request.
+  try {
+    await fetch(AGENT_ALERT_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: `Lead alert email FAILED for lead ${leadId}. Check the CRM — nobody was emailed. (${r.error})`,
+      }),
+    });
+  } catch (err) {
+    console.error("Fallback alert webhook also failed:", err);
   }
 }
 
@@ -1063,8 +1164,8 @@ serve(async (req) => {
           .eq("id", existingLead.id)
           .single();
 
-        try {
-          await sendLeadNotification(
+        const notify = await notifyAgent(
+          [
             {
               email: payload.email,
               name: (updates.name as string) || existingLead.name,
@@ -1087,11 +1188,12 @@ serve(async (req) => {
               leadScore: refreshed?.lead_score ?? finalLeadScore,
               leadTemperature: refreshed?.lead_temperature ?? finalLeadTemperature,
               leadPriority: refreshed?.lead_priority ?? finalLeadPriority,
-            }
-          );
-        } catch (notifyErr) {
-          console.error("Returning-lead notification failed:", notifyErr);
-        }
+            },
+            { message: payload.message, sourceLabel: payload["source-location"] },
+          ],
+          `returning lead ${existingLead.id}`,
+        );
+        await recordNotifyOutcome(existingLead.id, notify);
 
         // Leave a trail so behaviour triggers can see the re-engagement.
         await supabase.from("lead_activity").insert({
@@ -1291,52 +1393,43 @@ serve(async (req) => {
         .eq("status", "sending");
     }
 
-    // Send lead notification to Steven (retry once; never fail the request — the
-    // lead is already saved). On persistent failure, log loudly for monitoring.
-    let leadNotified = false;
-    for (let nAttempt = 0; nAttempt < 2 && !leadNotified; nAttempt++) {
-      try {
-        await sendLeadNotification(
-          {
-            email: payload.email,
-            name: payload.name,
-            phone: payload.phone,
-            address: payload.address || "Not provided",
-            town: payload.town || zipData?.town || "Not provided",
-            zipcode: payload.zipcode || "Not provided",
-          },
-          finalInterestType,
-          sourceUrl,
-          {
-            intent: payload.intent || finalInterestType,
-            timeline: payload.timeline,
-            propertyType: payload["property-type"],
-            valueRange: payload["value-range"],
-            budgetRange: payload["budget-range"],
-            importantFactor: payload["important-factor"],
-            preApproved: preApprovedValue,
-            contactPreference: payload["contact-preference"],
-            leadScore: newLead.lead_score || finalLeadScore,
-            leadTemperature: newLead.lead_temperature || finalLeadTemperature,
-            leadPriority: newLead.lead_priority || finalLeadPriority,
-          },
-          {
-            message: payload.message,
-            sourceLabel: payload["source-location"],
-          }
-        );
-        leadNotified = true;
-      } catch (notifyErr) {
-        console.error(`Lead notification attempt ${nAttempt + 1} failed:`, notifyErr);
-      }
-    }
-    if (!leadNotified) {
-      console.error(
-        "ALERT: lead notification FAILED after retries for lead", newLead.id,
-        `(${finalLeadTemperature}) — Steven was NOT pinged; reconcile manually.`
-      );
-      // TODO(reliability): alert a secondary channel (SNS / webhook / backup SES) for HOT leads.
-    }
+    // Tell Steven. Never fails the request — the lead is already saved, and
+    // breaking their submit because our alerting broke would be strictly worse.
+    // But the outcome IS recorded, so a silent failure is queryable afterwards
+    // instead of just vanishing (see recordNotifyOutcome).
+    const notify = await notifyAgent(
+      [
+        {
+          email: payload.email,
+          name: payload.name,
+          phone: payload.phone,
+          address: payload.address || "Not provided",
+          town: payload.town || zipData?.town || "Not provided",
+          zipcode: payload.zipcode || "Not provided",
+        },
+        finalInterestType,
+        sourceUrl,
+        {
+          intent: payload.intent || finalInterestType,
+          timeline: payload.timeline,
+          propertyType: payload["property-type"],
+          valueRange: payload["value-range"],
+          budgetRange: payload["budget-range"],
+          importantFactor: payload["important-factor"],
+          preApproved: preApprovedValue,
+          contactPreference: payload["contact-preference"],
+          leadScore: newLead.lead_score || finalLeadScore,
+          leadTemperature: newLead.lead_temperature || finalLeadTemperature,
+          leadPriority: newLead.lead_priority || finalLeadPriority,
+        },
+        {
+          message: payload.message,
+          sourceLabel: payload["source-location"],
+        },
+      ],
+      `lead ${newLead.id} (${finalLeadTemperature})`,
+    );
+    await recordNotifyOutcome(newLead.id, notify);
 
     // Get campaign slug for response
     const { data: campaign } = await supabase

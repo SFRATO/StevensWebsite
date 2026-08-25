@@ -114,7 +114,7 @@ const {
         <label for="gate-email">Email</label>
         <input type="email" id="gate-email" name="email" autocomplete="email" required
                inputmode="email" aria-describedby="gate-email-error" />
-        <p class="gate-error" id="gate-email-error" hidden></p>
+        <p class="gate-error" id="gate-email-error" aria-live="polite" hidden></p>
       </div>
 
       <div class="gate-field">
@@ -329,15 +329,91 @@ const {
 
   // --- submit ----------------------------------------------------------------
 
+  /**
+   * A failure the SERVER can explain — as opposed to a network blip.
+   *
+   * The previous version threw away the response body and surfaced only a status
+   * code, so a validation 400 ("did you mean gmail.com?") reached the visitor as
+   * a generic "try again" — advice that could never work, on the one form that
+   * blocks the whole page.
+   */
+  class SubmitError extends Error {
+    constructor(
+      message: string,
+      readonly code?: string,
+      readonly field?: string,
+      readonly suggestion?: string,
+      readonly canOverride?: boolean,
+    ) {
+      super(message);
+    }
+  }
+
   const post = async (body: Record<string, string>) => {
     const response = await fetch('/api/market-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(body).toString(),
     });
-    if (!response.ok) throw new Error(`Submission failed (${response.status})`);
+    if (!response.ok) {
+      const p = (await response.json().catch(() => ({}))) as Record<string, unknown>;
+      throw new SubmitError(
+        (p.error as string) || `Submission failed (${response.status})`,
+        p.code as string | undefined,
+        p.field as string | undefined,
+        p.suggestion as string | undefined,
+        p.canOverride as boolean | undefined,
+      );
+    }
     return (await response.json().catch(() => ({}))) as { lead_token?: string };
   };
+
+  /**
+   * The address the server last rejected with an overridable verdict.
+   *
+   * Re-submitting it unchanged sends email-confirmed=1, so a soft rejection can
+   * be overruled exactly once and the gate can never become unpassable. Hard
+   * verdicts (disposable, dead domain) never set canOverride, so they correctly
+   * persist — those addresses genuinely cannot receive mail.
+   */
+  let lastRejectedEmail: string | null = null;
+
+  /** "Did you mean …?" with a one-click fix and a one-click override. */
+  function showEmailSuggestion(form: HTMLFormElement, message: string, suggestion: string): void {
+    const input = document.getElementById('gate-email') as HTMLInputElement | null;
+    const el = document.getElementById('gate-email-error');
+    if (!input || !el) return;
+
+    const typed = input.value.trim();
+    input.setAttribute('aria-invalid', 'true');
+    el.textContent = message + ' ';
+
+    const use = document.createElement('button');
+    use.type = 'button';
+    use.className = 'gate-suggest';
+    use.textContent = `Use ${suggestion}`;
+    use.addEventListener('click', () => {
+      input.value = suggestion;
+      lastRejectedEmail = null;
+      clearErrors(form);
+      // requestSubmit() re-runs our submit handler; form.submit() would bypass
+      // it entirely and do a full-page POST.
+      form.requestSubmit();
+    });
+
+    const keep = document.createElement('button');
+    keep.type = 'button';
+    keep.className = 'gate-suggest gate-suggest-keep';
+    keep.textContent = 'Keep what I typed';
+    keep.addEventListener('click', () => {
+      lastRejectedEmail = typed; // arms the override for the resubmit
+      clearErrors(form);
+      form.requestSubmit();
+    });
+
+    el.append(use, document.createTextNode(' '), keep);
+    el.hidden = false;
+  }
 
   function bindForm(form: HTMLFormElement): void {
     if (form.dataset.bound) return;
@@ -401,6 +477,9 @@ const {
           zipcode: cfg('zipcode'),
           message: `Registered for full listing detail: ${cfg('address')}`,
           'bot-field': String(new FormData(form).get('bot-field') ?? ''),
+          // Honour a deliberate re-submit of an address we softly rejected, so
+          // a "did you mean" can never become a dead end.
+          'email-confirmed': lastRejectedEmail && lastRejectedEmail === email ? '1' : '',
           name,
           email,
           phone,
@@ -415,9 +494,25 @@ const {
 
         trackEvent('Lead', 'Listing Gate Registered', cfg('town'));
         releaseGate();
-      } catch {
+      } catch (err) {
         btn.disabled = false;
         btn.textContent = label;
+
+        // A problem with the ADDRESS belongs next to the field, with aria-invalid
+        // set — it reads as "fix this", not "the site is broken". The summary is
+        // reserved for genuine server failures where retrying is the right advice.
+        if (err instanceof SubmitError && err.field === 'email') {
+          if (err.suggestion) {
+            showEmailSuggestion(form, err.message, err.suggestion);
+          } else {
+            showErrors([['gate-email', err.message]]);
+          }
+          lastRejectedEmail = err.canOverride ? email : null;
+          document.getElementById('gate-email')?.focus();
+          trackEvent('Lead', 'Listing Gate Email Rejected', err.code ?? 'unknown');
+          return;
+        }
+
         showSummary("We couldn't verify that just now. Please try again in a moment.");
         trackEvent('Lead', 'Listing Gate Failed');
       }
@@ -672,6 +767,30 @@ const {
     font-family: var(--font-ui);
     margin: 0;
   }
+
+  /* Inline actions inside the email error line. clearErrors() sets
+     textContent = '' which removes them, so there is nothing to clean up. */
+  .gate-suggest {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: 4px var(--space-3);
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--accent-ink);
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+  }
+  .gate-suggest:hover { background: var(--accent-bright); }
+  .gate-suggest:focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 2px; }
+
+  .gate-suggest-keep {
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--rule-strong);
+  }
+  .gate-suggest-keep:hover { color: var(--text-primary); background: transparent; }
 
   .gate-submit {
     justify-self: end;
