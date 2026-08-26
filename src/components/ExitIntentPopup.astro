@@ -530,6 +530,11 @@ const displayStat = statLine ?? fallbackStat;
         const result = await post({
           'form-name': 'market-report',
           'source-location': 'Exit Intent Popup',
+          // The REAL page path. `source-location` is a human label, and the edge
+          // function used to interpolate it into /market/<label>/ — which produced
+          // links like /market/Exit Intent Popup/ (a 404) in the agent notification.
+          'source-path': window.location.pathname,
+
           address: 'Not provided',
           'bot-field': String(formData.get('bot-field') ?? ''),
           // Honour a deliberate re-submit of a softly-rejected address.
