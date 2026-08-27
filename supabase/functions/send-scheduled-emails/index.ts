@@ -225,7 +225,7 @@ const emailTemplates: Record<
 
       <p>I'll be sending you more insights about the ${town} market over the coming weeks.</p>
 
-      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -250,7 +250,7 @@ Want to discuss your options? Schedule a consultation: ${SITE_URL}/contact/
 
 Best regards,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,
@@ -328,7 +328,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -421,7 +421,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -535,7 +535,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -610,7 +610,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>You can also reach me directly:</p>
       <ul style="list-style: none; padding: 0;">
-        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6097890126" style="color: #C99C33;">(609) 789-0126</a></li>
+        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6094963330" style="color: #C99C33;">(609) 496-3330</a></li>
         <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:sf@stevenfrato.com" style="color: #C99C33;">sf@stevenfrato.com</a></li>
         <li><strong>Text:</strong> Same number - I respond quickly!</li>
       </ul>
@@ -625,7 +625,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -649,7 +649,7 @@ In this no-obligation session, we'll discuss:
 Schedule your free consultation: ${SITE_URL}/contact/
 
 Or reach me directly:
-Phone: (609) 789-0126
+Phone: (609) 496-3330
 Email: sf@stevenfrato.com
 Text: Same number - I respond quickly!
 
@@ -739,7 +739,7 @@ Unsubscribe: ${unsubscribeUrl}`,
         <p style="margin: 0; font-size: 14px; color: #666;">I'd love to learn about what you're looking for in your next home. Reply to this email or give me a call - I'm here to help, no pressure.</p>
       </div>
 
-      <p>Looking forward to helping you find home,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Looking forward to helping you find home,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -769,7 +769,7 @@ Let's start your home search: ${SITE_URL}/contact/
 
 Looking forward to helping you find home,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,
@@ -850,7 +850,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -948,7 +948,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1047,7 +1047,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1122,7 +1122,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>You can also reach me directly:</p>
       <ul style="list-style: none; padding: 0;">
-        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6097890126" style="color: #C99C33;">(609) 789-0126</a></li>
+        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6094963330" style="color: #C99C33;">(609) 496-3330</a></li>
         <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:sf@stevenfrato.com" style="color: #C99C33;">sf@stevenfrato.com</a></li>
         <li><strong>Text:</strong> Same number - I respond quickly!</li>
       </ul>
@@ -1136,7 +1136,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1160,7 +1160,7 @@ In this no-pressure meeting, we'll discuss:
 Schedule your free consultation: ${SITE_URL}/contact/
 
 Or reach me directly:
-Phone: (609) 789-0126
+Phone: (609) 496-3330
 Email: sf@stevenfrato.com
 Text: Same number - I respond quickly!
 
@@ -1240,7 +1240,7 @@ Unsubscribe: ${unsubscribeUrl}`,
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Let's Discuss Your Plan</a>
       </div>
 
-      <p>Looking forward to helping you make your move,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Looking forward to helping you make your move,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -1270,7 +1270,7 @@ Let's discuss your plan: ${SITE_URL}/contact/
 
 Looking forward to helping you make your move,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,
@@ -1339,7 +1339,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1431,7 +1431,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1523,7 +1523,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1616,7 +1616,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1693,7 +1693,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>You can also reach me directly:</p>
       <ul style="list-style: none; padding: 0;">
-        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6097890126" style="color: #C99C33;">(609) 789-0126</a></li>
+        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6094963330" style="color: #C99C33;">(609) 496-3330</a></li>
         <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:sf@stevenfrato.com" style="color: #C99C33;">sf@stevenfrato.com</a></li>
         <li><strong>Text:</strong> Same number - I respond quickly!</li>
       </ul>
@@ -1707,7 +1707,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -1729,7 +1729,7 @@ In this personalized consultation, we'll:
 
 Schedule your strategy session: ${SITE_URL}/contact/
 
-Phone: (609) 789-0126
+Phone: (609) 496-3330
 Email: sf@stevenfrato.com
 Text: Same number!
 
@@ -1811,7 +1811,7 @@ Unsubscribe: ${unsubscribeUrl}`,
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Discuss Investment Opportunities</a>
       </div>
 
-      <p>Looking forward to helping you invest wisely,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Looking forward to helping you invest wisely,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -1840,7 +1840,7 @@ Discuss investment opportunities: ${SITE_URL}/contact/
 
 Looking forward to helping you invest wisely,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,
@@ -1909,7 +1909,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2006,7 +2006,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2106,7 +2106,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2186,7 +2186,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>You can also reach me directly:</p>
       <ul style="list-style: none; padding: 0;">
-        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6097890126" style="color: #C99C33;">(609) 789-0126</a></li>
+        <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6094963330" style="color: #C99C33;">(609) 496-3330</a></li>
         <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:sf@stevenfrato.com" style="color: #C99C33;">sf@stevenfrato.com</a></li>
         <li><strong>Text:</strong> Same number - I respond quickly!</li>
       </ul>
@@ -2200,7 +2200,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2222,7 +2222,7 @@ In this strategy session, we'll discuss:
 
 Schedule investor consultation: ${SITE_URL}/contact/
 
-Phone: (609) 789-0126
+Phone: (609) 496-3330
 Email: sf@stevenfrato.com
 Text: Same number!
 
@@ -2304,7 +2304,7 @@ Unsubscribe: ${unsubscribeUrl}`,
 
       <p>Over the next couple of weeks, I'll share some helpful information about the ${county} real estate market. If you have specific questions before then, don't hesitate to reach out.</p>
 
-      <p>Looking forward to helping you,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Looking forward to helping you,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -2330,7 +2330,7 @@ Let's connect: ${SITE_URL}/contact/
 
 Looking forward to helping you,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,
@@ -2417,7 +2417,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2500,7 +2500,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2560,7 +2560,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       <div style="background: linear-gradient(135deg, rgba(201, 156, 51, 0.1) 0%, rgba(201, 156, 51, 0.2) 100%); padding: 25px; border-radius: 8px; border-left: 4px solid #C99C33; margin: 25px 0;">
         <p style="margin: 0 0 15px; font-weight: 600;">How to Reach Me</p>
         <ul style="margin: 0; padding-left: 20px;">
-          <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6097890126" style="color: #C99C33;">(609) 789-0126</a></li>
+          <li style="margin-bottom: 8px;"><strong>Phone:</strong> <a href="tel:6094963330" style="color: #C99C33;">(609) 496-3330</a></li>
           <li style="margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:sf@stevenfrato.com" style="color: #C99C33;">sf@stevenfrato.com</a></li>
           <li><strong>Text:</strong> Same phone number - I respond quickly!</li>
         </ul>
@@ -2573,7 +2573,7 @@ Unsubscribe: ${unsubscribeUrl}`,
       </div>
 
       <p>Wishing you all the best,</p>
-      <p><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p><strong>Steven Frato</strong><br>(609) 496-3330</p>
 
       <p style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
         <strong>P.S.</strong> This is my last scheduled email, but I'm always just a phone call or email away. Don't hesitate to reach out with any questions.
@@ -2581,7 +2581,7 @@ Unsubscribe: ${unsubscribeUrl}`,
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
-      <p style="margin: 0 0 10px;">(609) 789-0126</p>
+      <p style="margin: 0 0 10px;">(609) 496-3330</p>
       <p style="margin: 0;"><a href="${unsubscribeUrl}" style="color: #999;">Unsubscribe</a></p>
     </div>
   </div>
@@ -2595,7 +2595,7 @@ Hi ${lead.name},
 I'm here whenever you have questions or decide to take the next step with your real estate goals. There's no expiration date on my offer to help.
 
 HOW TO REACH ME:
-- Phone: (609) 789-0126
+- Phone: (609) 496-3330
 - Email: sf@stevenfrato.com
 - Text: Same phone number!
 
@@ -2648,7 +2648,7 @@ function defaultTemplate(
       <div style="text-align: center; margin: 30px 0;">
         <a href="${SITE_URL}/contact/" style="display: inline-block; background: #C99C33; color: white; padding: 14px 35px; text-decoration: none; border-radius: 6px; font-weight: 600;">Get in Touch</a>
       </div>
-      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 789-0126</p>
+      <p>Best regards,<br><strong>Steven Frato</strong><br>(609) 496-3330</p>
     </div>
 
     <div style="border-top: 1px solid #ddd; padding: 20px; font-size: 12px; color: #666; text-align: center;">
@@ -2668,7 +2668,7 @@ Get in touch: ${SITE_URL}/contact/
 
 Best regards,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 
 ---
 Unsubscribe: ${unsubscribeUrl}`,

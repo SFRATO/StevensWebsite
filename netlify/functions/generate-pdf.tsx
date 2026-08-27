@@ -467,7 +467,7 @@ const MarketReportPDF = ({
             discuss your selling options.
           </Text>
           <Text style={styles.ctaContact}>
-            Call (609) 789-0126 or email sf@stevenfrato.com
+            Call (609) 496-3330 or email sf@stevenfrato.com
           </Text>
         </View>
 
@@ -480,7 +480,7 @@ const MarketReportPDF = ({
                 NJ Licensed Real Estate Salesperson
               </Text>
               <Text style={styles.footerContact}>
-                (609) 789-0126 | sf@stevenfrato.com
+                (609) 496-3330 | sf@stevenfrato.com
               </Text>
             </View>
             <View>

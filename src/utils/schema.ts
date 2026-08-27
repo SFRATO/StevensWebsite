@@ -35,7 +35,7 @@ export function generateRealEstateAgentSchema() {
       name: 'Real Broker, LLC',
       url: 'https://www.onereal.com/',
     },
-    telephone: '+1-609-789-0126',
+    telephone: '+1-609-496-3330',
     email: 'sf@stevenfrato.com',
     // Service-area business: no street address is published. A PostalAddress
     // without streetAddress is valid and still satisfies Google's `address`
@@ -96,7 +96,7 @@ export function generateLocalBusinessSchema() {
       name: 'Real Broker, LLC',
       url: 'https://www.onereal.com/',
     },
-    telephone: '+1-609-789-0126',
+    telephone: '+1-609-496-3330',
     priceRange: '$$',
     address: {
       '@type': 'PostalAddress',

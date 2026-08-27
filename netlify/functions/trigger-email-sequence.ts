@@ -379,7 +379,7 @@ function generateWelcomeEmail(data: EmailSequenceRequest, fullAddress: string): 
 
     <p>Best regards,</p>
     <p><strong>Steven Frato</strong><br>
-    (609) 789-0126<br>
+    (609) 496-3330<br>
     sf@stevenfrato.com</p>
   </div>
 
@@ -434,7 +434,7 @@ I'll be sending you more insights about the ${data.town} market over the coming 
 
 Best regards,
 Steven Frato
-(609) 789-0126
+(609) 496-3330
 sf@stevenfrato.com
 
 ---

@@ -10,7 +10,7 @@
 
 export const AGENT_NAME = "Steven Frato";
 
-export const PHONE = "(609) 789-0126";
+export const PHONE = "(609) 496-3330";
 export const EMAIL = "sf@stevenfrato.com";
 
 /* ---------------------------------------------------------------------------

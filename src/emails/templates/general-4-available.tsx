@@ -74,8 +74,8 @@ export const GeneralAvailableEmail: React.FC<GeneralAvailableEmailProps> = ({
                   <tr>
                     <td style={contactLabel}>Phone:</td>
                     <td style={contactValue}>
-                      <Link href="tel:6097890126" style={contactLink}>
-                        (609) 789-0126
+                      <Link href="tel:6094963330" style={contactLink}>
+                        (609) 496-3330
                       </Link>
                     </td>
                   </tr>

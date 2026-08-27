@@ -12,8 +12,8 @@
 
 export const AGENT_NAME = 'Steven Frato';
 
-export const PHONE = '(609) 789-0126';
-export const PHONE_HREF = 'tel:+16097890126';
+export const PHONE = '(609) 496-3330';
+export const PHONE_HREF = 'tel:+16094963330';
 
 export const EMAIL = 'sf@stevenfrato.com';
 export const EMAIL_HREF = 'mailto:sf@stevenfrato.com';

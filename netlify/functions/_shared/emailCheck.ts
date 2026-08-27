@@ -76,7 +76,7 @@ const MODE = (process.env.EMAIL_CHECK_MODE ?? 'enforce').toLowerCase();
  */
 const STRICT_MX = (process.env.EMAIL_CHECK_STRICT_MX ?? 'true').toLowerCase() !== 'false';
 
-const PHONE_FALLBACK = ' You can also call (609) 789-0126 directly.';
+const PHONE_FALLBACK = ' You can also call (609) 496-3330 directly.';
 
 /**
  * Pragmatic, not RFC 5322-complete. A full parser accepts quoted local parts and
