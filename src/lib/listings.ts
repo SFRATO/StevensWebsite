@@ -10,7 +10,13 @@
  * NEVER switch this to the service-role key. It would work, and it would mean a
  * draft could be rendered into a public page by a one-word mistake in a filter.
  */
-import { AGENT_NAME, PHONE } from '../data/contact';
+import {
+  AGENT_NAME,
+  PHONE,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  LICENSE_TYPE,
+} from '../data/contact';
 
 
 export interface Listing {
@@ -104,8 +110,18 @@ export async function getPublishedListings(): Promise<Listing[]> {
  * borrowed listing, so this cannot silently render an empty credit.
  */
 export function attributionLine(l: Listing): string | null {
-  if (l.is_own_listing) return null;
-  return `Listing courtesy of ${l.listing_brokerage}. Marketed by Steven Frato with the listing broker's permission.`;
+  // Steven's OWN listings are listed by his brokerage, so they need a credit
+  // too — this used to return null for them, which was correct only while the
+  // site named no broker at all. N.J.A.C. 11:5-6.1(b) requires the broker's
+  // business name in every advertisement, and a listing page is advertising.
+  if (l.is_own_listing) {
+    return `Listed by ${AGENT_NAME}, ${LICENSE_TYPE}, ${BROKERAGE_NAME} — ${BROKERAGE_DESCRIPTOR}.`;
+  }
+  return (
+    `Listing courtesy of ${l.listing_brokerage}. ` +
+    `Marketed by ${AGENT_NAME}, ${LICENSE_TYPE}, ${BROKERAGE_NAME}, ` +
+    `with the listing broker's permission.`
+  );
 }
 
 /**

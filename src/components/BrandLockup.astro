@@ -1,0 +1,132 @@
+---
+/**
+ * Brand lockup — brokerage over agent.
+ *
+ * N.J.A.C. 11:5-6.1(b)1: "the regular business name of the … broker through
+ * whom that person is licensed shall appear in larger print or be displayed in
+ * a more prominent manner than the name of the … salesperson."
+ *
+ * That is a licensing requirement, not a design preference. This component
+ * exists so the size relationship is expressed ONCE and cannot drift out of
+ * compliance in one place while staying correct in another. Every surface that
+ * shows Steven's name as advertising — header, footer, hero, listing pages —
+ * should render this rather than hand-setting the two names.
+ *
+ * If you restyle it, the brokerage line must stay measurably larger than the
+ * agent line. Do not "fix" the hierarchy to put Steven first.
+ */
+import {
+  AGENT_NAME,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  BROKERAGE_URL,
+  LICENSE_TYPE,
+} from '../data/contact';
+
+interface Props {
+  /** `sm` for the header, `md` for footers/listings, `lg` for the hero. */
+  size?: 'sm' | 'md' | 'lg';
+  /** Render on a navy surface (inverts the text colours). */
+  inverse?: boolean;
+  /**
+   * Link the brokerage name to Real's site. Satisfies (b)3, which requires a
+   * salesperson's page to indicate how to reach the broker's own webpage.
+   * The footer sets this; the header does not, to avoid two competing links.
+   */
+  link?: boolean;
+  /** Show "Licensed Real Estate Broker" under the brokerage — required by (c). */
+  showDescriptor?: boolean;
+  class?: string;
+}
+
+const {
+  size = 'md',
+  inverse = false,
+  link = false,
+  showDescriptor = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={['lockup', `lockup-${size}`, inverse && 'lockup-inverse', className]}>
+  {link ? (
+    <a class="lockup-brokerage" href={BROKERAGE_URL} target="_blank" rel="noopener">
+      {BROKERAGE_NAME}
+    </a>
+  ) : (
+    <span class="lockup-brokerage">{BROKERAGE_NAME}</span>
+  )}
+
+  {showDescriptor && <span class="lockup-descriptor">{BROKERAGE_DESCRIPTOR}</span>}
+
+  <span class="lockup-agent">{AGENT_NAME}</span>
+  <span class="lockup-license">Licensed {LICENSE_TYPE}</span>
+</div>
+
+<style>
+  .lockup {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+  }
+
+  /* The brokerage is deliberately the largest and heaviest element here.
+     See the compliance note in the component docblock. */
+  .lockup-brokerage {
+    font-family: var(--font-heading);
+    font-weight: var(--font-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  a.lockup-brokerage:hover {
+    color: var(--navy-700);
+  }
+
+  .lockup-descriptor {
+    font-family: var(--font-ui);
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .lockup-agent {
+    font-family: var(--font-ui);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .lockup-license {
+    font-family: var(--font-ui);
+    color: var(--text-muted);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+  }
+
+  /* --- sizes. The ratio between brokerage and agent is the compliance-bearing
+         part; the absolute sizes are free to change. -------------------------- */
+
+  .lockup-sm .lockup-brokerage { font-size: var(--text-lg); }
+  .lockup-sm .lockup-agent { font-size: var(--text-xs); }
+  .lockup-sm .lockup-license,
+  .lockup-sm .lockup-descriptor { font-size: 0.625rem; }
+
+  .lockup-md .lockup-brokerage { font-size: var(--text-xl); }
+  .lockup-md .lockup-agent { font-size: var(--text-sm); }
+  .lockup-md .lockup-license,
+  .lockup-md .lockup-descriptor { font-size: var(--text-xs); }
+
+  .lockup-lg .lockup-brokerage { font-size: var(--text-2xl); }
+  .lockup-lg .lockup-agent { font-size: var(--text-base); }
+  .lockup-lg .lockup-license,
+  .lockup-lg .lockup-descriptor { font-size: var(--text-xs); }
+
+  /* --- on navy ------------------------------------------------------------ */
+
+  .lockup-inverse .lockup-brokerage { color: var(--text-on-inverse); }
+  .lockup-inverse a.lockup-brokerage:hover { color: #fff; }
+  .lockup-inverse .lockup-agent { color: var(--text-secondary-inverse); }
+  .lockup-inverse .lockup-license,
+  .lockup-inverse .lockup-descriptor { color: var(--text-muted-inverse); }
+</style>

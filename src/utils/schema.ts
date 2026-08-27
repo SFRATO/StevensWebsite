@@ -20,7 +20,21 @@ export function generateRealEstateAgentSchema() {
     '@context': 'https://schema.org',
     '@type': 'RealEstateAgent',
     name: 'Steven Frato',
-    image: 'https://stevenfrato.com/images/headshot.jpg',
+    image: 'https://stevenfrato.com/images/headshot-2026.jpg',
+    // Steven is a salesperson licensed through Real Broker, LLC. Declaring the
+    // brokerage in structured data mirrors what N.J.A.C. 11:5-6.1(b) requires
+    // on the visible page, and gives search engines the affiliation explicitly
+    // rather than leaving it to be inferred from the footer text.
+    worksFor: {
+      '@type': 'RealEstateOrganization',
+      name: 'Real Broker, LLC',
+      url: 'https://www.onereal.com/',
+    },
+    parentOrganization: {
+      '@type': 'RealEstateOrganization',
+      name: 'Real Broker, LLC',
+      url: 'https://www.onereal.com/',
+    },
     telephone: '+1-609-789-0126',
     email: 'sf@stevenfrato.com',
     // Service-area business: no street address is published. A PostalAddress
@@ -65,9 +79,23 @@ export function generateLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Steven Frato',
-    image: 'https://stevenfrato.com/images/headshot.jpg',
+    image: 'https://stevenfrato.com/images/headshot-2026.jpg',
     '@id': 'https://stevenfrato.com',
     url: 'https://stevenfrato.com',
+    // Steven is a salesperson licensed through Real Broker, LLC. Declaring the
+    // brokerage in structured data mirrors what N.J.A.C. 11:5-6.1(b) requires
+    // on the visible page, and gives search engines the affiliation explicitly
+    // rather than leaving it to be inferred from the footer text.
+    worksFor: {
+      '@type': 'RealEstateOrganization',
+      name: 'Real Broker, LLC',
+      url: 'https://www.onereal.com/',
+    },
+    parentOrganization: {
+      '@type': 'RealEstateOrganization',
+      name: 'Real Broker, LLC',
+      url: 'https://www.onereal.com/',
+    },
     telephone: '+1-609-789-0126',
     priceRange: '$$',
     address: {

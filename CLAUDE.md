@@ -4,7 +4,25 @@ This file provides context for AI assistants (like Claude) working on this codeb
 
 ## Project Overview
 
-This is a real estate website for Steven Frato, an independent licensed real estate salesperson in New Jersey (NJ License #2567370). He works as a service-area agent — the site names the counties served and publishes NO office address and NO brokerage affiliation. The site focuses on seller-focused programmatic SEO with automated market data pages, lead capture, and email nurturing.
+This is a real estate website for Steven Frato, a licensed real estate salesperson in New
+Jersey (NJ License #2567370) **affiliated with Real Broker, LLC** since Aug 2026.
+
+**Advertising compliance is load-bearing here.** N.J.A.C. 11:5-6.1 governs everything the
+site and the drip emails publish:
+- (b) every advertisement must carry Steven's licensed name AND the broker's registered
+  business name — this explicitly covers "all electronic media including E-mail and the Internet"
+- (b)1 the brokerage must appear **in larger print or more prominently** than the salesperson.
+  `BrandLockup.astro` is the single component that enforces this; do not restyle it so that
+  Steven's name becomes dominant
+- (b)3 satisfied by the footer link to `BROKERAGE_URL`. **If that link is removed, the
+  brokerage's main office telephone number becomes mandatory instead**
+- (c) the brokerage name is followed by "Licensed Real Estate Broker" — "realty" and "real
+  estate" alone are expressly prohibited
+- (d) each phone number must be identified, hence `PHONE_LABEL` ("Cell")
+
+Constants live in `src/data/contact.ts`, mirrored in `supabase/functions/_shared/contact.ts`
+for the Deno runtime. No office address is published — the rule makes it optional ("may
+display"), and Steven works as a service-area agent. The site focuses on seller-focused programmatic SEO with automated market data pages, lead capture, and email nurturing.
 
 ## Architecture
 
@@ -113,15 +131,22 @@ interface ZipData {
 ### CSS Variables (from `variables.css`)
 
 ```css
-/* Surfaces — "watchmaker's workshop at night" */
---ink-900: #08090B   /* page */    --ink-800: #101318  /* card */
---rule: #1C222B      /* hairline */ --rule-strong: #2A323E
+/* Surfaces — "daylight studio". Inverted from near-black in Aug 2026. */
+--surface-page: #F7F8FA     /* page */      --surface-raised: #FFFFFF  /* card */
+--surface-sunken: #E9EDF2   /* bands */     --surface-inverse: #0F2742 /* navy */
+--rule: #DDE3EC      /* hairline */         --rule-strong: #C3CDDA
 
-/* Text */
---text-primary: #F4F6F8   --text-secondary: #A2AAB5   --text-muted: #838D9A
+/* Text — every pairing verified >= 4.5:1; --text-muted is the tightest at
+   4.60:1 on --surface-sunken, so do not lighten it. */
+--text-primary: #17202A   --text-secondary: #44536A   --text-muted: #5D6B80
+--text-on-inverse: #F4F7FB  --text-secondary-inverse: #C6D2E0  (on navy)
 
-/* Accent — electric blue, CTAs / active nav / hover ONLY, never headings or body */
---accent: #3D8BFF   --accent-bright: #6FB2FF   --accent-ink: #06070A
+/* Accent — navy. CTAs / links / active nav / hover ONLY, never headings or body */
+--navy-700: #1E4A73 (--accent)   --navy-500: #2C6AA8   --accent-ink: #FFFFFF
+
+/* ELECTRIC BLUE IS NOT A TEXT COLOUR. --accent-glow (#3D8BFF) is 3.12:1 on the
+   page — it is the haze, gradient stops and the focus ring, nothing else. */
+--accent-glow: #3D8BFF
 
 /* Spacing Scale */
 --space-1 through --space-16
@@ -132,8 +157,18 @@ interface ZipData {
 --font-body: 'Rokkitt'     /* prose */
 ```
 
-Century 21 gold (`--c21-gold*`) and Playfair/Inter are **retired**. See the
-ACCENT DISCIPLINE and TYPE DISCIPLINE blocks at the top of `variables.css`.
+Century 21 gold (`--c21-gold*`) and Playfair/Inter are **retired**, as are
+`--off-white` / `--light-gray` / `--charcoal` / `--dark-gray` (they named light
+colours while resolving to near-black; deleted rather than repointed so stray
+references fail loudly). See the ACCENT DISCIPLINE and TYPE DISCIPLINE blocks at
+the top of `variables.css`.
+
+**The `--ink-*` ramp still exists but now holds LIGHT values** — kept only because
+~80 call sites reference it. Use `--surface-*` in new code.
+
+The blue haze is `body::before` in `global.css` plus `.hero::before` on the
+homepage. It survived the inversion at roughly double the alpha, because a tint
+needs more weight on white than on black to register.
 
 ### Component Styling Pattern
 

@@ -1,6 +1,16 @@
 import * as React from "react";
 import { Section, Text, Link, Hr } from "@react-email/components";
-import { AGENT_NAME, PHONE, EMAIL, LICENSE_LINE, MAILING_ADDRESS } from "../../data/contact";
+import {
+  AGENT_NAME,
+  PHONE,
+  PHONE_LABEL,
+  EMAIL,
+  LICENSE_LINE,
+  MAILING_ADDRESS,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  LICENSE_TYPE,
+} from "../../data/contact";
 
 interface FooterProps {
   unsubscribeUrl?: string;
@@ -13,8 +23,21 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
       {/* CAN-SPAM requires a physical postal address. MAILING_ADDRESS is empty
           until Steven supplies one — the line is omitted rather than rendered
           blank. See the TODO in src/data/contact.ts. */}
+      {/* N.J.A.C. 11:5-6.1(a) names "all electronic media including E-mail",
+          so a drip email is advertising and carries the same obligations as the
+          website: (b)1 the brokerage must be MORE PROMINENT than the
+          salesperson — hence the type sizes below, which are load-bearing, not
+          decorative — (c) the descriptor, and (d) each phone number labelled.
+          Every one of the ~29 templates imports this component, so fixing it
+          here covers all of them. */}
       <Text style={contact}>
-        <strong>{AGENT_NAME}</strong>
+        <strong style={brokerageName}>{BROKERAGE_NAME}</strong>
+        <br />
+        <span style={brokerageDescriptor}>{BROKERAGE_DESCRIPTOR}</span>
+        <br />
+        <span style={agentName}>
+          {AGENT_NAME}, {LICENSE_TYPE}
+        </span>
         <br />
         {MAILING_ADDRESS && (
           <>
@@ -22,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({ unsubscribeUrl }) => {
             <br />
           </>
         )}
-        {PHONE} | {EMAIL}
+        {PHONE_LABEL} {PHONE} | {EMAIL}
       </Text>
       <Text style={links}>
         <Link href="https://stevenfrato.com" style={link}>
@@ -69,6 +92,23 @@ const contact: React.CSSProperties = {
   lineHeight: "1.6",
   textAlign: "center" as const,
   margin: "0 0 15px",
+};
+
+/* Deliberately larger than agentName — see the compliance note above. */
+const brokerageName: React.CSSProperties = {
+  fontSize: "17px",
+  color: "#1a1a1a",
+  letterSpacing: "-0.01em",
+};
+
+const brokerageDescriptor: React.CSSProperties = {
+  fontSize: "12px",
+  color: "#666",
+};
+
+const agentName: React.CSSProperties = {
+  fontSize: "13px",
+  color: "#666",
 };
 
 const links: React.CSSProperties = {

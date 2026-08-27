@@ -70,12 +70,13 @@ const tools = [
   { href: '/tools/proceeds-calculator/', label: 'Proceeds Calculator', copy: 'Your estimated take-home after NJ closing costs.' },
   { href: '/tools/affordability-calculator/', label: 'Affordability Calculator', copy: 'How much home you can actually afford in central NJ.' },
 ];
+import BrandLockup from '@components/BrandLockup.astro';
 ---
 
 <BaseLayout
   title="NJ Realtor — Burlington County Real Estate"
   description="Steven Frato, licensed NJ realtor (License #2567370). I help buyers and sellers in Burlington County get into a home for the lowest price and start building equity. Call (609) 789-0126."
-  ogImage="/images/headshot.jpg"
+  ogImage="/images/headshot-2026.jpg"
   schema={generateWebsiteSchema()}
 >
   <!--
@@ -88,8 +89,9 @@ const tools = [
     <div class="container hero-inner">
       <div class="hero-copy">
         {/* The name lives here rather than in the H1: /about/ owns the brand
-            query, and the headline is better spent on the value proposition. */}
-        <p class="eyebrow hero-eyebrow">Steven Frato &middot; Licensed NJ Agent</p>
+            query, and the headline is better spent on the value proposition.
+            Brokerage sits above the name per N.J.A.C. 11:5-6.1(b)1. */}
+        <div class="hero-eyebrow"><BrandLockup size="lg" /></div>
 
         <h1 class="hero-headline">Get in a house and start building your equity.</h1>
 
@@ -108,6 +110,7 @@ const tools = [
           <p class="hero-call-line">
             or call
             <a href="tel:+16097890126" class="hero-call">(609) 789-0126</a>
+            <span class="hero-call-label">cell</span>
           </p>
         </div>
 
@@ -122,8 +125,28 @@ const tools = [
         </p>
       </div>
 
+      {/* The portrait takes the right column. It is masked rather than framed:
+          a radial mask-image feathers the studio backdrop into the page haze so
+          it reads as part of the gradient instead of a photo in a box. */}
+      <div class="hero-portrait" aria-hidden="true">
+        <picture>
+          <source srcset="/images/headshot-2026.webp" type="image/webp" />
+          <img
+            src="/images/headshot-2026.jpg"
+            alt=""
+            width="1536"
+            height="1024"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+      </div>
+
       {/* The product visual: the live data itself. Three rows, one per county,
-          so the panel matches the tri-county claim above and previews Act III. */}
+          so the panel matches the tri-county claim above and previews Act III.
+          Moved out of the right column when the portrait took it — it is now a
+          full-width strip beneath the copy. */}
       <aside class="hero-panel" aria-label="Current market snapshot">
         <p class="hero-panel-head">This month across the counties I serve</p>
 
@@ -157,10 +180,10 @@ const tools = [
       <div class="about-grid">
         <div class="about-portrait" data-reveal>
           <img
-            src="/images/headshot.jpg"
+            src="/images/headshot-2026.jpg"
             alt="Steven Frato, New Jersey licensed real estate salesperson"
-            width="480"
-            height="600"
+            width="1536"
+            height="1024"
             loading="lazy"
           />
         </div>
@@ -358,7 +381,14 @@ const tools = [
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(80% 60% at 50% 0%, var(--accent-wash) 0%, transparent 70%);
+    /* The haze. On the dark theme this was a faint lift off black; on white it
+       has to carry the whole hero, so it is larger, warmer, and anchored to the
+       right where the portrait sits — the photo's light studio backdrop then
+       dissolves into it instead of ending at a hard edge. */
+    background:
+      radial-gradient(70% 70% at 72% 18%, rgba(61, 139, 255, 0.16) 0%, transparent 62%),
+      radial-gradient(90% 60% at 20% 0%, rgba(61, 139, 255, 0.09) 0%, transparent 66%),
+      linear-gradient(to bottom, transparent 55%, rgba(15, 39, 66, 0.05) 100%);
   }
 
   .hero-inner {
@@ -369,7 +399,63 @@ const tools = [
   }
 
   .hero-eyebrow {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
+  }
+
+  /* --- portrait ---------------------------------------------------------- */
+
+  .hero-portrait {
+    position: relative;
+    justify-self: center;
+    width: 100%;
+    max-width: 560px;
+    /* Decorative: the alt text is empty and the element is aria-hidden, because
+       the page already identifies Steven in the lockup directly above. */
+  }
+
+  .hero-portrait img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* Natural 3:2 — never squeezed. The face sits slightly right of centre in
+       the frame, which is why the mask below is offset to match. */
+    -webkit-mask-image: radial-gradient(50% 50% at 54% 44%, #000 58%, transparent 100%);
+    mask-image: radial-gradient(50% 50% at 54% 44%, #000 58%, transparent 100%);
+  }
+
+  @supports not (mask-image: radial-gradient(#000, transparent)) {
+    /* Without masking the studio backdrop would end in a hard rectangle, which
+       is exactly the "photo in a box" look this avoids. A soft frame is the
+       next best thing. */
+    .hero-portrait img {
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+
+  /* --- market snapshot: full-width strip beneath the copy ----------------- */
+
+  .hero-panel {
+    grid-column: 1 / -1;
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-5) var(--space-6);
+  }
+
+  .hero-panel-list {
+    display: grid;
+    gap: 0;
+  }
+
+  .hero-call-label {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    margin-left: var(--space-1);
   }
 
   /* The headline carries the value proposition, so it takes the display slot
@@ -613,12 +699,16 @@ const tools = [
     width: 100%;
     height: auto;
     display: block;
-    filter: grayscale(100%) contrast(1.08) brightness(0.42);
+    /* Was grayscale(100%) contrast(1.08) brightness(0.42) — a deliberate crush
+       that sank the light studio backdrop into the dark room. The room is white
+       now, so the photo is simply shown, with a whisper of desaturation at rest
+       so it settles into the page rather than shouting. */
+    filter: saturate(0.92);
     transition: filter var(--transition-slow), transform var(--transition-slow);
   }
 
   .about-portrait:hover img {
-    filter: grayscale(45%) contrast(1.02) brightness(0.7);
+    filter: saturate(1);
     transform: scale(1.02);
   }
 
@@ -629,9 +719,10 @@ const tools = [
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background:
-      linear-gradient(200deg, rgba(61, 139, 255, 0.16) 0%, transparent 45%),
-      linear-gradient(to top, var(--ink-900) 0%, transparent 55%);
+    /* Only the cool rim of light survives. The second layer used to be a
+       var(--ink-900) bottom-up scrim whose stated job was sinking the light
+       studio backdrop into the dark room — on white it produced a grey smear. */
+    background: linear-gradient(200deg, rgba(61, 139, 255, 0.10) 0%, transparent 45%);
   }
 
   .about-copy h2 {
@@ -888,9 +979,25 @@ const tools = [
     /* Copy left, live data right. Below this the panel stacks under the CTA,
        so the headline and the one action still own the first screen. */
     .hero-inner {
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: var(--space-12);
+      /* Copy left, portrait right, snapshot spanning both beneath. The
+         portrait column is narrower than the old data panel was — the photo
+         is support, the copy is the message. */
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-10) var(--space-12);
       max-width: var(--container-max);
+      align-items: center;
+    }
+
+    /* Three counties across instead of stacked, now that it has full width. */
+    .hero-panel-list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+
+    .hero-panel-row + .hero-panel-row {
+      border-top: 0;
+      border-left: 1px solid var(--rule);
+      padding-left: var(--space-6);
     }
 
     .hero-headline {
