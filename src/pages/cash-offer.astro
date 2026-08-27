@@ -19,8 +19,14 @@
  * META EVENTS. `Lead` is the standard event Meta optimises on, so it fires ONLY
  * after a genuinely qualified submission that the server confirmed with a 2xx.
  * Not on load, not on CTA click, not on form start, not on a disqualification,
- * not on the nurture branch, and not on a failed submit. Custom events carry the
- * rest. Getting this wrong trains the ad account on junk.
+ * not on a failed submit. Custom events carry the rest. Getting this wrong
+ * trains the ad account on junk.
+ *
+ * DISQUALIFICATION IS TERMINAL AND IMMEDIATE. Every disqualifying answer ends
+ * the funnel at its own question — property type (Q2), authorisation (Q3),
+ * timeline (Q4) and existing listing (Q7). All four come before contact capture
+ * at Q8/Q9, so a disqualified visitor is never asked for name, email or phone,
+ * and no record of them can reach the inbox looking like a real lead.
  */
 import LandingLayout from '../layouts/LandingLayout.astro';
 import {
@@ -244,12 +250,42 @@ const REASONS = [
           <input type="hidden" name="fbclid" id="f-fbclid" />
 
           <!-- Q1 -->
+          {/*
+            Three fields, not one. A single free-text box accepted "Main St" — a
+            lead that cannot be located is not a lead. Splitting it also lets the
+            error name the field that is wrong instead of failing the whole
+            question, which on mobile is the difference between one tap and a
+            guess. The parts are recombined into the hidden `address` field below
+            so the wire format, the email template and leads.address are unchanged.
+          */}
           <fieldset class="q active" data-q="1">
             <legend>What is the property address?</legend>
-            <label class="sr-only" for="q-address">Property address</label>
-            <input type="text" id="q-address" name="address" class="text-input"
-                   autocomplete="street-address" placeholder="123 Main St, Bordentown, NJ 08505" />
-            <p class="err" id="err-address" role="alert" hidden></p>
+
+            <div class="field">
+              <label for="q-street">Street address</label>
+              <input type="text" id="q-street" name="street_address" class="text-input"
+                     autocomplete="street-address" placeholder="12 Wesley Lane" />
+              <p class="err" id="err-street_address" role="alert" hidden></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="q-city">Town / City</label>
+                <input type="text" id="q-city" name="city" class="text-input"
+                       autocomplete="address-level2" placeholder="Burlington" />
+                <p class="err" id="err-city" role="alert" hidden></p>
+              </div>
+              <div class="field">
+                <label for="q-zip">ZIP code</label>
+                <input type="text" id="q-zip" name="zip" class="text-input"
+                       autocomplete="postal-code" inputmode="numeric" maxlength="10"
+                       placeholder="08016" />
+                <p class="err" id="err-zip" role="alert" hidden></p>
+              </div>
+            </div>
+
+            {/* Composed on submit from the three fields above. */}
+            <input type="hidden" name="address" id="f-address" />
           </fieldset>
 
           <!-- Q2 -->
@@ -507,6 +543,15 @@ const REASONS = [
       if (name === 'authorized_owner' && value === 'no') {
         return { reason: 'not_authorized_owner', body: POLITE };
       }
+      if (name === 'timeline' && ['6-plus-months', 'researching'].includes(value)) {
+        return {
+          reason: 'timeline_over_6_months',
+          body:
+            'Based on your current timeline, this particular program may not be ' +
+            "the best fit right now. If your plans change and you decide to sell " +
+            "sooner, you're welcome to come back.",
+        };
+      }
       if (name === 'currently_listed' && value === 'yes') {
         return {
           reason: 'currently_listed',
@@ -541,15 +586,53 @@ const REASONS = [
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const digits = (s: string) => s.replace(/\D/g, '');
 
+    /** 5 digits, ZIP+4 optional. */
+    const ZIP_RE = /^\d{5}(-\d{4})?$/;
+    /** New Jersey occupies 07000-08999. The whole state, not the service area —
+     *  a seller in North Jersey is still a New Jersey seller. */
+    const isNjZip = (z: string) => {
+      const n = parseInt(z.slice(0, 5), 10);
+      return n >= 7000 && n <= 8999;
+    };
+
     function validateStep(n: number): boolean {
       switch (n) {
         case 1: {
-          clearErr('address');
-          if (val('address').length < 5) {
-            showErr('address', 'Please enter the property address.');
-            return false;
+          ['street_address', 'city', 'zip'].forEach(clearErr);
+          let ok = true;
+
+          const street = val('street_address');
+          // The digit test is the one that matters. A length check alone lets
+          // "Main Street" through, which is exactly the incomplete address this
+          // question is supposed to reject.
+          if (street.length < 5 || !/\d/.test(street)) {
+            showErr('street_address', 'Please include the street number and name.');
+            ok = false;
           }
-          return true;
+
+          const city = val('city');
+          if (city.length < 2 || !/^[A-Za-z][A-Za-z\s'\-.]*$/.test(city)) {
+            showErr('city', 'Please enter the town or city.');
+            ok = false;
+          }
+
+          const zip = val('zip');
+          if (!ZIP_RE.test(zip)) {
+            showErr('zip', 'Please enter a 5-digit ZIP code.');
+            ok = false;
+          } else if (!isNjZip(zip)) {
+            // The page is addressed to New Jersey homeowners, so an out-of-state
+            // ZIP is a mistake worth catching here rather than after it has
+            // become a lead that cannot be served.
+            showErr('zip', 'That ZIP code is outside New Jersey.');
+            ok = false;
+          }
+
+          if (ok) {
+            const hidden = document.getElementById('f-address') as HTMLInputElement | null;
+            if (hidden) hidden.value = `${street}, ${city}, NJ ${zip}`;
+          }
+          return ok;
         }
         case 2: case 3: case 4: case 5: case 6: case 7: {
           const names: Record<number, string> = {
@@ -690,9 +773,10 @@ const REASONS = [
       // The timeline branch is a NURTURE outcome, not a disqualification: the
       // information is worth having and Steven still gets the email. It simply
       // must not count as a Meta conversion.
-      const timeline = val('timeline');
-      const isNurture = timeline === '6-plus-months' || timeline === 'researching';
-
+      // No nurture branch any more. Every disqualifying answer now ends the
+      // funnel at its own question, all of which come before Q8/Q9 — so anyone
+      // who reaches submit has already passed every rule, and the only outcomes
+      // here are a qualified lead or a server rejection.
       try {
         const res = await fetch('/api/cash-offer', {
           method: 'POST',
@@ -705,8 +789,11 @@ const REASONS = [
           throw new Error(p.error || "We weren't able to submit your information. Please try again.");
         }
 
+        // The SERVER decides. It re-derives status from the raw answers, so a
+        // tampered client cannot promote itself to qualified. Absent or
+        // unexpected values are treated as not-qualified, which fails closed.
         const data = (await res.json().catch(() => ({}))) as { leadStatus?: string };
-        const status = data.leadStatus ?? (isNurture ? 'nurture' : 'qualified');
+        const status = data.leadStatus ?? 'unknown';
 
         fbq('trackCustom', 'SellerFormCompleted', { status });
 
@@ -725,13 +812,9 @@ const REASONS = [
           document.getElementById('screen-success')!.hidden = false;
           document.getElementById('screen-success')!.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
-          fbq('trackCustom', 'SellerLeadDisqualified', { reason: 'timeline_too_long' });
-          endIneligible(
-            'Thanks — I have your information.',
-            "Since you're still exploring, I won't crowd you. I'll follow up with " +
-              "market information for your area, and you're welcome to reach out whenever the timing feels right.",
-            'timeline_too_long',
-          );
+          // Reachable only if the server disagreed with the client — a replayed
+          // or hand-edited submission. End it the same way, with no Lead.
+          endIneligible('Thanks for the information.', POLITE, 'server_rejected');
         }
       } catch (err) {
         // No success screen, and critically NO Lead event, on a failure.

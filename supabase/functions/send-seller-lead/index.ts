@@ -49,7 +49,8 @@ const cors = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type LeadStatus = "qualified" | "nurture";
+/** Qualified only. Anything else is rejected before an email exists. */
+type LeadStatus = "qualified";
 
 interface Payload {
   address: string;
@@ -123,7 +124,7 @@ function buildEmail(p: Payload) {
     timeZone: "America/New_York",
   });
 
-  const statusLabel = p.lead_status === "qualified" ? "Qualified" : "Longer-Term";
+  const statusLabel = "Qualified";
   const reason =
     p.reason_for_selling === "other" && p.reason_other
       ? `Other — ${clean(p.reason_other, 300)}`
@@ -196,10 +197,7 @@ function buildEmail(p: Payload) {
   ].join("\n");
 
   // The address is the one thing that makes a lead actionable at a glance.
-  const subject =
-    p.lead_status === "qualified"
-      ? `NEW QUALIFIED SELLER LEAD — ${clean(p.address, 120)}`
-      : `NEW SELLER LEAD (Longer-Term) — ${clean(p.address, 120)}`;
+  const subject = `NEW QUALIFIED SELLER LEAD — ${clean(p.address, 120)}`;
 
   return { subject, html, text };
 }
@@ -218,6 +216,19 @@ serve(async (req) => {
 
     if (!payload?.email || !payload?.address || !payload?.lead_status) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...cors, "Content-Type": "application/json" },
+      });
+    }
+
+    // This function's ONLY output is a "NEW QUALIFIED SELLER LEAD" email. Refuse
+    // anything else outright rather than emailing it with a softer subject: a
+    // disqualified submission must be structurally incapable of producing a
+    // message that could be mistaken for a real lead in the inbox. The caller
+    // already stops before reaching here, so this is defence in depth.
+    if (payload.lead_status !== "qualified") {
+      console.error("send-seller-lead refused a non-qualified payload:", payload.lead_status);
+      return new Response(JSON.stringify({ error: "Not a qualified lead" }), {
         status: 400,
         headers: { ...cors, "Content-Type": "application/json" },
       });
@@ -266,6 +277,9 @@ serve(async (req) => {
       fbclid: clean(s.fbclid, 255) || null,
       agent_notified_at: new Date().toISOString(),
       seller_funnel: {
+        street_address: (payload as Record<string, unknown>).street_address ?? null,
+        city: (payload as Record<string, unknown>).city ?? null,
+        zip: (payload as Record<string, unknown>).zip ?? null,
         property_type: payload.property_type,
         authorized_owner: payload.authorized_owner,
         timeline: payload.timeline,

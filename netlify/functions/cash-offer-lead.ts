@@ -51,16 +51,25 @@ function rateLimited(key: string): boolean {
 
 // --- qualification ---------------------------------------------------------
 
-type LeadStatus = "qualified" | "nurture" | "disqualified";
+type LeadStatus = "qualified" | "in_progress" | "disqualified";
 type DisqualificationReason =
   | "unsupported_property_type"
-  | "not_authorized_owner"
+  | "not_authorized_to_sell"
   | "currently_listed"
-  | "timeline_too_long";
+  | "timeline_over_6_months";
 
 const ALLOWED_PROPERTY_TYPES = new Set(["single-family", "townhouse"]);
 const QUALIFIED_TIMELINES = new Set(["asap", "1-month", "1-3-months", "3-6-months"]);
-const NURTURE_TIMELINES = new Set(["6-plus-months", "researching"]);
+/** 6+ months and "just researching" are disqualifying, not a nurture bucket:
+ *  the funnel exists to tell Meta what a real seller looks like. */
+const DISQUALIFYING_TIMELINES = new Set(["6-plus-months", "researching"]);
+
+const ZIP_RE = /^\d{5}(-\d{4})?$/;
+/** New Jersey is 07000-08999 — the whole state, not just the service area. */
+const isNjZip = (z: string) => {
+  const n = parseInt(z.slice(0, 5), 10);
+  return n >= 7000 && n <= 8999;
+};
 
 /**
  * Re-derive the outcome from the raw answers.
@@ -76,18 +85,13 @@ function qualify(a: Record<string, string>): {
     return { leadStatus: "disqualified", reason: "unsupported_property_type" };
   }
   if (a.authorized_owner !== "yes") {
-    return { leadStatus: "disqualified", reason: "not_authorized_owner" };
+    return { leadStatus: "disqualified", reason: "not_authorized_to_sell" };
   }
   if (a.currently_listed === "yes") {
     return { leadStatus: "disqualified", reason: "currently_listed" };
   }
-  if (NURTURE_TIMELINES.has(a.timeline)) {
-    // Deliberately NOT "disqualified": the information is still worth keeping and
-    // emailing, it simply must not train Meta as a conversion.
-    return { leadStatus: "nurture", reason: "timeline_too_long" };
-  }
-  if (!QUALIFIED_TIMELINES.has(a.timeline)) {
-    return { leadStatus: "disqualified", reason: "timeline_too_long" };
+  if (DISQUALIFYING_TIMELINES.has(a.timeline) || !QUALIFIED_TIMELINES.has(a.timeline)) {
+    return { leadStatus: "disqualified", reason: "timeline_over_6_months" };
   }
   return { leadStatus: "qualified" };
 }
@@ -125,6 +129,9 @@ const handler: Handler = async (event) => {
 
     const answers = {
       address: get("address"),
+      street_address: get("street_address"),
+      city: get("city"),
+      zip: get("zip"),
       property_type: get("property_type"),
       authorized_owner: get("authorized_owner"),
       timeline: get("timeline"),
@@ -140,13 +147,37 @@ const handler: Handler = async (event) => {
 
     // --- validation --------------------------------------------------------
     const missing = (
-      ["address", "property_type", "authorized_owner", "timeline", "condition",
-       "reason_for_selling", "currently_listed", "first_name", "last_name",
-       "email", "phone"] as const
+      ["street_address", "city", "zip", "property_type", "authorized_owner",
+       "timeline", "condition", "reason_for_selling", "currently_listed",
+       "first_name", "last_name", "email", "phone"] as const
     ).filter((k) => !answers[k]);
     if (missing.length) {
       return json(400, { error: "Some answers are missing. Please go back and complete the form." });
     }
+
+    // Address is validated again here with the same rules as the client. A
+    // browser can post anything, and an address that cannot be located is not a
+    // lead worth emailing or paying Meta to find more of.
+    const street = answers.street_address;
+    if (street.length < 5 || !/\d/.test(street)) {
+      return json(400, {
+        error: "Please include the street number and name.",
+        field: "street_address",
+      });
+    }
+    if (answers.city.length < 2 || !/^[A-Za-z][A-Za-z\s'\-.]*$/.test(answers.city)) {
+      return json(400, { error: "Please enter the town or city.", field: "city" });
+    }
+    if (!ZIP_RE.test(answers.zip)) {
+      return json(400, { error: "Please enter a 5-digit ZIP code.", field: "zip" });
+    }
+    if (!isNjZip(answers.zip)) {
+      return json(400, { error: "That ZIP code is outside New Jersey.", field: "zip" });
+    }
+
+    // Recompose server-side rather than trusting the hidden field the client
+    // built, so the stored address always matches the validated parts.
+    answers.address = `${street}, ${answers.city}, NJ ${answers.zip}`;
 
     if (get("consent") !== "1") {
       return json(400, { error: "Please agree to be contacted so I can follow up about your property." });
