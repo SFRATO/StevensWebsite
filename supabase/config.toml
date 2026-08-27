@@ -71,6 +71,9 @@ verify_jwt = false
 
 # Called server-to-server by netlify/functions/handle-market-report.ts, which
 # already sends `Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY`.
+[functions.send-seller-lead]
+verify_jwt = true
+
 [functions.handle-form-submission]
 verify_jwt = true
 

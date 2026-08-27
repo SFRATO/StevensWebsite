@@ -1,0 +1,99 @@
+---
+/**
+ * LandingLayout — isolated shell for paid-traffic landing pages.
+ *
+ * DELIBERATELY NOT BaseLayout. This is not "BaseLayout with things turned off":
+ * BaseLayout renders a Header, Footer, StickyCTA, ExitIntentPopup, CookieConsent
+ * and a skip link, and exposes exactly one suppression flag. Stripping it would
+ * mean five more booleans threaded through a layout ~357 pages depend on, and a
+ * StickyCTA whose href is computed from a hardcoded pathname chain that would
+ * point a paid visitor straight off the funnel.
+ *
+ * A visitor on a page using this layout has two choices: continue through the
+ * funnel, or leave. THERE ARE NO NAVIGATION LINKS. If you add one, you have
+ * changed what this layout is for. The only permitted outbound links are the
+ * legally required ones in the page's own compliance footer — privacy, terms,
+ * and the broker link N.J.A.C. 11:5-6.1(b)3 requires.
+ *
+ * What IS carried over from BaseLayout: the meta/canonical/robots block, the
+ * font preload chain (loaded here rather than @imported, which chained two
+ * blocking requests before first paint), and the shared Meta Pixel.
+ *
+ * What is deliberately absent, beyond the chrome: ViewTransitions (no internal
+ * navigation to transition between), the site-wide RealEstateAgent/LocalBusiness
+ * JSON-LD (this page is not trying to rank), Matomo/MTM, and the leadIdentity /
+ * leadActivity / scrollNarrative init bundle. Every one of those is weight a
+ * paid landing page pays for on first paint and gets nothing back from.
+ */
+import '../styles/global.css';
+import MetaPixel from '@components/MetaPixel.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Defaults to true — these pages are for ad traffic, not search. */
+  noindex?: boolean;
+  canonical?: string;
+}
+
+const { title, description, noindex = true, canonical } = Astro.props;
+
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site ?? 'https://stevenfrato.com').href;
+const robotsTag = noindex ? 'noindex, nofollow' : 'index, follow';
+
+const FONTS =
+  'https://fonts.googleapis.com/css2?family=Rokkitt:wght@400..700&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400&display=swap';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#F7F8FA" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsTag} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href={FONTS} />
+    <link rel="stylesheet" href={FONTS} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={FONTS} /></noscript>
+
+    <MetaPixel />
+  </head>
+
+  <body>
+    <main id="main-content">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  /* The page-wide blue haze from global.css is a marketing-site device. A landing
+     page wants a calm, fast, uncluttered field — the hero supplies its own
+     gradient. Dropping the fixed layer also removes a full-viewport composited
+     element on mobile, which is free performance on the one page that pays for
+     its traffic. */
+  body::before,
+  body::after {
+    display: none;
+  }
+
+  body {
+    background: var(--surface-page);
+  }
+</style>
