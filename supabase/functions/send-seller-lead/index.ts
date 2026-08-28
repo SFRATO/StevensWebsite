@@ -244,33 +244,75 @@ function buildConfirmation(p: Payload) {
     "We'll review your property and help you compare the investor cash offer " +
       "with the traditional listing option so you can see which route makes the " +
       "most sense for you.",
-    "There's nothing else you need to do right now.",
+    "There's nothing else you need to do right now. We'll be in touch soon.",
   ];
 
   const P = (t: string) =>
     `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#17202A;">${t}</p>`;
 
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#F7F8FA;">
-  <div style="max-width:560px;margin:0 auto;padding:32px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-    <div style="background:#ffffff;border:1px solid #DDE3EC;border-radius:10px;padding:28px 26px;">
-      ${P(greeting)}
-      ${paragraphs.map(P).join("")}
+  // Hosted over HTTPS from the site's own domain rather than CID. CID would mean
+  // rewriting the send path to SendRawEmail with hand-built MIME, for a worse
+  // result: Gmail's web client renders CID inconsistently and several clients
+  // surface them as downloadable attachments.
+  //
+  // NOTE: these resolve only once the site is deployed. A send before that lands
+  // shows alt text instead of images — the message still reads correctly.
+  const ASSETS = "https://www.stevenfrato.com/images/email";
 
-      <div style="margin-top:28px;padding-top:20px;border-top:1px solid #DDE3EC;">
-        <!-- Brokerage above the agent and visibly larger: the requested
-             hierarchy, and what N.J.A.C. 11:5-6.1(b)1 requires of any ad. -->
-        <div style="font-size:18px;font-weight:700;color:#0F2742;line-height:1.3;">${BROKERAGE_NAME}</div>
-        <div style="font-size:15px;color:#17202A;margin-top:6px;">${AGENT_NAME}</div>
-        <div style="font-size:13px;color:#5D6B80;margin-top:2px;">REALTOR&reg;</div>
-      </div>
-    </div>
+  // Table-based because Outlook's Word engine ignores max-width on <img>. Each
+  // image therefore carries a real width ATTRIBUTE as well as the inline style.
+  // display:block removes the baseline gap that otherwise shows as a hairline
+  // under an image in several clients.
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
+<body style="margin:0;padding:0;background:#F7F8FA;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F8FA;">
+    <tr><td align="center" style="padding:28px 12px;">
 
-    <p style="margin:18px 0 0;font-size:11px;line-height:1.6;color:#5D6B80;text-align:center;">
-      ${BROKERAGE_NAME} &mdash; ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.<br />
-      Equal Housing Opportunity.
-    </p>
-  </div></body></html>`;
+      <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+             style="width:100%;max-width:600px;background:#ffffff;border:1px solid #DDE3EC;border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
+        <!-- Banner, flush to the top edge of the card so the two read as one object -->
+        <tr><td style="padding:0;font-size:0;line-height:0;">
+          <img src="${ASSETS}/confirmation-banner.png"
+               alt="${AGENT_NAME} | ${BROKERAGE_NAME}"
+               width="600"
+               style="display:block;width:100%;max-width:600px;height:auto;border:0;" />
+        </td></tr>
+
+        <tr><td style="padding:28px 26px 4px;">
+          ${P(greeting)}
+          ${paragraphs.map(P).join("")}
+        </td></tr>
+
+        <!-- Comfortable separation before the sign-off -->
+        <tr><td align="center" style="padding:20px 26px 32px;">
+          <img src="${ASSETS}/confirmation-signature.png"
+               alt="${AGENT_NAME}, ${BROKERAGE_NAME} — (609) 496-3330 — sf@stevenfrato.com"
+               width="360"
+               style="display:block;width:100%;max-width:360px;height:auto;border:0;margin:0 auto;" />
+        </td></tr>
+
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+
+      <!-- Compliance stays LIVE TEXT outside the card. The signature image carries
+           the same licence and brokerage details, but an image-blocked client would
+           show none of it, and 11:5-6.1 applies whether or not images load. -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
+        <tr><td align="center" style="padding:16px 12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;line-height:1.6;color:#5D6B80;">
+          ${BROKERAGE_NAME} &mdash; ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.<br />
+          Equal Housing Opportunity.
+        </td></tr>
+      </table>
+
+    </td></tr>
+  </table>
+</body></html>`;
+
+  // The plain-text alternative keeps the full written signature, since it has no
+  // images to carry the branding.
   const text = [
     greeting,
     "",
@@ -278,6 +320,7 @@ function buildConfirmation(p: Payload) {
     BROKERAGE_NAME,
     AGENT_NAME,
     "REALTOR(R)",
+    "(609) 496-3330 | sf@stevenfrato.com",
     "",
     `${BROKERAGE_NAME} - ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.`,
     "Equal Housing Opportunity.",
