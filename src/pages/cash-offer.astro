@@ -34,7 +34,7 @@ import {
   PHONE,
   PHONE_HREF,
   PHONE_LABEL,
-  LICENSE_LINE,
+  LICENSE_NUMBER,
   BROKERAGE_NAME,
   BROKERAGE_DESCRIPTOR,
   BROKERAGE_URL,
@@ -408,11 +408,17 @@ const REASONS = [
 
             <label class="consent">
               <input type="checkbox" name="consent" value="1" id="q-consent" />
+              {/*
+                Every clause here is load-bearing, so nothing further can be cut:
+                WHO may contact (both parties named — "his brokerage" was vaguer
+                AND longer), HOW (the channels consent actually covers), and the
+                final sentence, which is what makes this express written consent
+                under the FCC's telemarketing rules rather than a mere notice.
+              */}
               <span>
-                By submitting this form, you agree that {AGENT_NAME} and/or his real
-                estate brokerage may contact you by phone, text, or email regarding
-                your property and real estate options. Consent is not a condition of
-                purchasing any product or service.
+                By submitting, you agree {AGENT_NAME} and {BROKERAGE_NAME} may contact
+                you by phone, text, or email about your property. Consent is not a
+                condition of purchasing any product or service.
               </span>
             </label>
             <p class="err" id="err-consent" role="alert" hidden></p>
@@ -454,7 +460,15 @@ const REASONS = [
         <span>Equal Housing Opportunity</span>
       </div>
 
-      <p class="compliance-line">{LICENSE_LINE}</p>
+      {/*
+        Not LICENSE_LINE here: that constant leads with "Real Broker, LLC —
+        Licensed Real Estate Broker", which the lockup two lines above already
+        states. Repeating it was the filler. The licence number is the only
+        element not already on screen, and N.J.A.C. 11:5-6.1's actual
+        requirements — broker's business name, the brokerage descriptor, and the
+        salesperson's licence status — are all satisfied by the lockup.
+      */}
+      <p class="compliance-line">NJ Real Estate License #{LICENSE_NUMBER}</p>
 
       <p class="compliance-links">
         <a href="/privacy/">Privacy Policy</a>
