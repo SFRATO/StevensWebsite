@@ -464,13 +464,25 @@ serve(async (req) => {
     // email must not lose the lead, show the visitor an error, or suppress the
     // Meta Lead conversion.
     let confirmationSent = false;
-    const RESEND_AFTER_MS = 60 * 60 * 1000;
-    const alreadySent =
-      previousConfirmationAt !== null &&
-      Date.now() - new Date(previousConfirmationAt).getTime() < RESEND_AFTER_MS;
+    let confirmationMessageId: string | undefined;
+    // Five minutes, not an hour. This exists to absorb a double-clicked submit
+    // (milliseconds) or a network-timeout retry (seconds) — an hour buys nothing
+    // extra and makes a genuine second enquiry, plus all iterative testing, look
+    // exactly like a broken feature.
+    const RESEND_AFTER_MS = 5 * 60 * 1000;
+    const sinceLastMs =
+      previousConfirmationAt === null
+        ? null
+        : Date.now() - new Date(previousConfirmationAt).getTime();
+    const alreadySent = sinceLastMs !== null && sinceLastMs < RESEND_AFTER_MS;
 
     if (alreadySent) {
-      console.log("homeowner confirmation suppressed — already sent at", previousConfirmationAt);
+      // Say WHY, with the elapsed time — a bare "suppressed" reads as a failure
+      // to the next person debugging a missing email.
+      console.log(
+        `homeowner confirmation suppressed — one was sent ${Math.round((sinceLastMs ?? 0) / 1000)}s ` +
+          `ago at ${previousConfirmationAt}, inside the ${RESEND_AFTER_MS / 60000} minute window`,
+      );
     } else {
       try {
         const c = buildConfirmation(payload);
@@ -494,7 +506,10 @@ serve(async (req) => {
           }),
         );
         confirmationSent = true;
-        console.log(`homeowner confirmation sent (ses ${conf.MessageId})`);
+        confirmationMessageId = conf.MessageId;
+        console.log(
+          `homeowner confirmation sent to ${payload.email} (ses message id ${conf.MessageId})`,
+        );
 
         if (leadId) {
           await supabase
@@ -513,10 +528,16 @@ serve(async (req) => {
         `persisted=${persisted} confirmation=${confirmationSent}`,
     );
 
-    return new Response(JSON.stringify({ success: true, persisted, confirmationSent }), {
-      status: 200,
-      headers: { ...cors, "Content-Type": "application/json" },
-    });
+    // confirmationMessageId is returned so the Netlify caller can log the
+    // provider's id. Netlify has no AWS credentials, so this is the only way to
+    // see a message id without opening the SES console.
+    return new Response(
+      JSON.stringify({ success: true, persisted, confirmationSent, confirmationMessageId }),
+      {
+        status: 200,
+        headers: { ...cors, "Content-Type": "application/json" },
+      },
+    );
   } catch (err) {
     // Log the real reason server-side; the visitor gets a generic message.
     console.error("send-seller-lead failed:", err);

@@ -1033,7 +1033,12 @@ const REASONS = [
   .field label, .reason-other label {
     font-family: var(--font-ui); font-size: var(--text-sm); color: var(--text-secondary);
   }
-  .field-row { display: grid; gap: var(--space-4); }
+  /* align-items:start is load-bearing. A grid defaults to stretch, so when the
+     ZIP error appeared it grew that column and stretched the Town/City column
+     to match — .field is itself a grid, so the extra height was distributed
+     across its rows and the input visibly dropped and got taller. Same latent
+     bug in the first-name/last-name row. */
+  .field-row { display: grid; gap: var(--space-4); align-items: start; }
   @media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
 
   .text-input {

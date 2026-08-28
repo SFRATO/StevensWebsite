@@ -35,6 +35,11 @@ interface Props {
   /** Written into the lead record so Steven knows which property they asked about. */
   address: string;
   town: string;
+  /**
+   * Listing slug. Scopes the unlock to THIS property, so registering for one
+   * Single Property Website does not open every other one. See utils/gateAccess.ts.
+   */
+  propertyKey: string;
   zipcode?: string;
   eyebrow?: string;
   headline?: string;
@@ -46,6 +51,7 @@ const {
   sourceLocation,
   address,
   town,
+  propertyKey,
   zipcode = '',
   eyebrow = 'First-time registration required',
   headline = 'Direct MLS Access without an Agent',
@@ -69,6 +75,7 @@ const {
   data-source-location={sourceLocation}
   data-address={address}
   data-town={town}
+  data-property-key={propertyKey}
   data-zipcode={zipcode}
 >
   <div class="gate-panel">
@@ -156,7 +163,7 @@ const {
 
 <script>
   import { trackEvent } from '@utils/analytics';
-  import { identifyLead, isKnownLead } from '@utils/leadIdentity';
+  import { identifyLead } from '@utils/leadIdentity';
   import { hasGateAccess, grantGateAccess } from '@utils/gateAccess';
 
   const html = document.documentElement;
@@ -240,7 +247,7 @@ const {
     o.setAttribute('aria-hidden', 'false');
     bar()?.setAttribute('hidden', '');
     document.getElementById('gate-name')?.focus();
-    trackEvent('Engagement', 'Listing Gate Shown', cfg('town'));
+    trackEvent('Engagement', 'Listing Gate Shown', cfg('address'));
   }
 
   /**
@@ -473,6 +480,11 @@ const {
           'submission-type': 'contact',
           'source-location': cfg('sourceLocation'),
           'source-path': window.location.pathname,
+          // Without this the agent notification's Address row reads
+          // "Not provided" — the property was only ever named in the free-text
+          // message and the source label. With more than one listing running,
+          // the email has to say which house at a glance.
+          address: cfg('address'),
           town: cfg('town'),
           zipcode: cfg('zipcode'),
           message: `Registered for full listing detail: ${cfg('address')}`,
@@ -485,14 +497,14 @@ const {
           phone,
         });
 
-        // MarketReportForm never calls identifyLead(), which is why someone who
-        // converted there is not isKnownLead(). The gate must do it itself.
+        // Still identify the lead — behaviour-triggered email depends on it.
+        // It just no longer doubles as proof of registration for a listing.
         await identifyLead(email, result.lead_token ?? null);
         // Consent-independent and non-identifying — without this, a visitor who
         // declined cookies is re-gated in every new tab. See utils/gateAccess.ts.
-        grantGateAccess();
+        grantGateAccess(cfg('propertyKey'));
 
-        trackEvent('Lead', 'Listing Gate Registered', cfg('town'));
+        trackEvent('Lead', 'Listing Gate Registered', cfg('address'));
         releaseGate();
       } catch (err) {
         btn.disabled = false;
@@ -576,7 +588,10 @@ const {
       barBtn.addEventListener('click', openPanel);
     }
 
-    if (isKnownLead() || hasGateAccess()) {
+    // Scoped to this listing only. `isKnownLead()` is deliberately NOT consulted:
+    // an email given to the exit-intent popup identifies a person, it does not
+    // mean they registered for this house. See utils/gateAccess.ts.
+    if (hasGateAccess(cfg('propertyKey'))) {
       releaseGate();
       return;
     }

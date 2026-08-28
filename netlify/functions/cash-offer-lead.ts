@@ -256,6 +256,23 @@ const handler: Handler = async (event) => {
       return json(502, { error: "We weren't able to submit your information. Please try again." });
     }
 
+    // Log the provider's message id so a "the email never arrived" report can be
+    // answered from `netlify logs:function` rather than by guessing. Recipient
+    // and message id only — never a credential, and nothing reaches the browser.
+    try {
+      const delivery = (await res.clone().json()) as {
+        confirmationSent?: boolean;
+        confirmationMessageId?: string;
+      };
+      console.log("cash-offer confirmation:", {
+        to: answers.email,
+        sent: delivery.confirmationSent === true,
+        messageId: delivery.confirmationMessageId ?? null,
+      });
+    } catch {
+      /* body already consumed or not JSON — never fail the lead over a log line */
+    }
+
     return json(200, { success: true, leadStatus });
   } catch (err) {
     console.error("cash-offer handler failed:", err);

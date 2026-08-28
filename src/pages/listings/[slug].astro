@@ -115,20 +115,20 @@ const detailRows: Array<[string, string]> = [
 >
   {/*
     Runs before first paint, so there is no frame in which an unregistered
-    visitor sees the listing sharp. It cannot import modules, so the two key
-    names below are duplicated from src/utils/gateAccess.ts and
-    src/utils/leadIdentity.ts — KEEP THEM IN SYNC. Under view transitions this
-    only fires on a hard load; the gate's own astro:page-load handler is the
-    authoritative path for soft navigations.
+    visitor sees the listing sharp. It cannot import modules, so the key shape
+    below is duplicated from src/utils/gateAccess.ts — KEEP THEM IN SYNC. Under
+    view transitions this only fires on a hard load; the gate's own
+    astro:page-load handler is the authoritative path for soft navigations.
+
+    Scoped to this listing's slug, and sf_lead is deliberately NOT consulted —
+    both for the reasons set out in the gateAccess.ts header.
   */}
-  <script is:inline>
+  <script is:inline define:vars={{ gateKey: `sf_gate_ok_${listing.slug}` }}>
     (function () {
       try {
         var ok =
-          document.cookie.indexOf('sf_gate_ok=1') > -1 ||
-          document.cookie.indexOf('sf_lead=') > -1 ||
-          sessionStorage.getItem('sf_lead_token') ||
-          sessionStorage.getItem('sf_gate_ok');
+          document.cookie.indexOf(gateKey + '=1') > -1 ||
+          sessionStorage.getItem(gateKey) === '1';
         if (!ok) document.documentElement.classList.add('listing-gated');
       } catch (e) {
         /* private mode — the module script re-evaluates on astro:page-load */
@@ -149,6 +149,11 @@ const detailRows: Array<[string, string]> = [
             src={listing.images[0]}
             alt={`${listing.address} — exterior`}
             loading="eager"
+            {/* This is the LCP element on every listing page. Without the hint the
+                browser discovers it at default priority behind the CSS, which
+                Lighthouse flags as "LCP request discovery: fetchpriority=high
+                should be applied". */}
+            fetchpriority="high"
             decoding="async"
           />
           <div class="hero-overlay">
@@ -294,6 +299,7 @@ const detailRows: Array<[string, string]> = [
     address={listing.address}
     town={listing.town}
     zipcode={listing.zipcode ?? ''}
+    propertyKey={listing.slug}
   />
 </BaseLayout>
 
@@ -365,7 +371,25 @@ const detailRows: Array<[string, string]> = [
     justify-content: space-between;
     gap: var(--space-4);
     padding: var(--space-8) var(--space-6) var(--space-5);
-    background: linear-gradient(to top, rgba(4, 5, 7, 0.88) 0%, rgba(4, 5, 7, 0) 100%);
+    /* The MID STOP is what makes the hero text readable, not the bottom stop.
+       The bottom edge is deliberately unchanged at 0.88 — the darkest point of
+       the scrim looks exactly as designed. The original two-stop gradient fell
+       away so fast that both lines sat at roughly half alpha:
+         h1 (#fff)        3.35:1 mobile   <- fails; it clamps to 20.35px/500,
+                                             which is NOT WCAG "large text", so
+                                             it needs 4.5:1, not 3:1
+         .hero-locality   3.81:1 mobile   <- fails
+       Raising the bottom stop does not fix it: 0.94 gave 4.29:1 and 0.97 only
+       4.50:1, while visibly blackening the base. Slowing the falloff instead
+       gives 7.13:1 / 8.72:1 on mobile and 7.78:1 / 8.69:1 on desktop.
+       These numbers were measured off rendered pixels, not calculated — the
+       hero photo is arbitrary, so re-measure before changing them. */
+    background: linear-gradient(
+      to top,
+      rgba(4, 5, 7, 0.88) 0%,
+      rgba(4, 5, 7, 0.75) 60%,
+      rgba(4, 5, 7, 0) 100%
+    );
   }
 
   .hero-id {
@@ -397,7 +421,14 @@ const detailRows: Array<[string, string]> = [
   .hero-locality {
     font-family: var(--font-ui);
     font-size: var(--text-sm);
-    color: var(--text-secondary);
+    /* INVERSE token, because this sits on a dark scrim over a photograph, not
+       on the page. --text-secondary is #44536A, documented in variables.css as
+       "7.34:1 on page" — it is the dark body colour for LIGHT surfaces, and it
+       measured between 1.02:1 and 2.44:1 here, i.e. invisible against a bright
+       sky. Left over from the light-theme inversion, which flipped this token
+       from light to dark and missed the one place it was used on an image.
+       Do not "tidy" this back to --text-secondary. */
+    color: var(--text-secondary-inverse);
     margin: 2px 0 0;
   }
 

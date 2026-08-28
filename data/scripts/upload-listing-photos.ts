@@ -138,6 +138,24 @@ async function main() {
         Authorization: `Bearer ${SERVICE_KEY}`,
         'Content-Type': best.mime,
         'x-upsert': 'true', // re-running replaces rather than erroring
+        // Without this the object is stored with `no-cache`, so every visitor
+        // re-downloads the full hero from origin on every page view — Lighthouse
+        // flags it on the live site as "Use efficient cache lifetimes".
+        //
+        // Format matters: on the raw-body upload path supabase-js sends exactly
+        // `max-age=<n>`. A `public, max-age=...` value is not what the API
+        // expects. Verify with the object list endpoint — metadata.cacheControl
+        // should read `max-age=86400`.
+        //
+        // One day rather than a year on purpose: re-running this script reuses
+        // the same filenames (01.jpg, 02.webp ...), so a long TTL would serve a
+        // stale photo after a re-order.
+        //
+        // NOTE: the /object/public/ origin currently still responds `no-cache`
+        // regardless of this value — Supabase's Smart CDN is what consumes the
+        // stored cacheControl. Setting it correctly here is the prerequisite;
+        // whether the edge honours it depends on the project's plan/CDN config.
+        'cache-control': 'max-age=86400',
       },
       body: best.buf as unknown as BodyInit,
     });

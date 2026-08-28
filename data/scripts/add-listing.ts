@@ -46,6 +46,10 @@ interface ListingFile {
   images?: string[];
   is_own_listing?: boolean;
   listing_brokerage?: string;
+  /** Added by 009_listing_agent.sql. Required to publish a borrowed listing —
+   *  see listings_borrowed_agent_chk. */
+  list_agent_name?: string;
+  list_agent_phone?: string;
   permission_confirmed?: boolean;
   sold_price?: number;
   sold_date?: string;
@@ -122,6 +126,14 @@ async function main() {
           'agreed. Advertising their listing without permission is a licence-board matter.',
       );
     }
+    // listings_borrowed_agent_chk enforces this in the database too. Checking it
+    // here turns an opaque constraint error into an instruction.
+    if (!listing.list_agent_name?.trim()) {
+      fail(
+        'This is another broker\'s listing, so publishing requires "list_agent_name" — ' +
+          'the page credits the listing agent by name, and the database rejects the row without it.',
+      );
+    }
   }
 
   // --- write ----------------------------------------------------------------
@@ -161,6 +173,9 @@ async function main() {
     const body = await res.text();
     if (body.includes('listings_borrowed_attribution_chk')) {
       fail('Database rejected it: a borrowed listing needs brokerage + permission to publish.');
+    }
+    if (body.includes('listings_borrowed_agent_chk')) {
+      fail('Database rejected it: a borrowed listing needs "list_agent_name" to publish.');
     }
     fail(`Supabase rejected the write (${res.status}): ${body.slice(0, 300)}`);
   }
