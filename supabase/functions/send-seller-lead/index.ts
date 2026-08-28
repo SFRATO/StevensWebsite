@@ -18,7 +18,14 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
-import { EMAIL as AGENT_EMAIL_DEFAULT } from "../_shared/contact.ts";
+import {
+  EMAIL as AGENT_EMAIL_DEFAULT,
+  AGENT_NAME,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  LICENSE_NUMBER,
+} from "../_shared/contact.ts";
+import { toDisplayName, formatPropertyAddress } from "../_shared/textCase.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -54,6 +61,10 @@ type LeadStatus = "qualified";
 
 interface Payload {
   address: string;
+  /** The validated parts, used to build the display address. */
+  street_address?: string;
+  city?: string;
+  zip?: string;
   property_type: string;
   authorized_owner: string;
   timeline: string;
@@ -202,6 +213,79 @@ function buildEmail(p: Payload) {
   return { subject, html, text };
 }
 
+
+/**
+ * The homeowner-facing confirmation.
+ *
+ * Deliberately short: an acknowledgement, not a sales email. It repeats only
+ * the first name and the property address — the nine questionnaire answers
+ * belong in Steven's internal notification, not echoed back at the person who
+ * just typed them.
+ *
+ * Names and the street line are normalised for display (see _shared/textCase.ts)
+ * because people type on phones: "jOhN" and "123 MAIN STREET" should not appear
+ * in something we send them. The raw values stay in seller_funnel untouched.
+ */
+function buildConfirmation(p: Payload) {
+  const first = toDisplayName(p.first_name ?? "");
+  const property = formatPropertyAddress(
+    p.street_address ?? "",
+    p.city ?? "",
+    p.zip ?? "",
+  ) || clean(p.address, 250);
+
+  // Falls back to a bare "Hi," rather than ever printing a placeholder.
+  const greeting = first ? `Hi ${first},` : "Hi,";
+
+  const paragraphs = [
+    `Thanks for taking the time to tell us about your property at ${property}.`,
+    "We've received your information and will be in touch soon regarding your " +
+      "cash offer and the other selling options available to you.",
+    "We'll review your property and help you compare the investor cash offer " +
+      "with the traditional listing option so you can see which route makes the " +
+      "most sense for you.",
+    "There's nothing else you need to do right now.",
+  ];
+
+  const P = (t: string) =>
+    `<p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#17202A;">${t}</p>`;
+
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#F7F8FA;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <div style="background:#ffffff;border:1px solid #DDE3EC;border-radius:10px;padding:28px 26px;">
+      ${P(greeting)}
+      ${paragraphs.map(P).join("")}
+
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid #DDE3EC;">
+        <!-- Brokerage above the agent and visibly larger: the requested
+             hierarchy, and what N.J.A.C. 11:5-6.1(b)1 requires of any ad. -->
+        <div style="font-size:18px;font-weight:700;color:#0F2742;line-height:1.3;">${BROKERAGE_NAME}</div>
+        <div style="font-size:15px;color:#17202A;margin-top:6px;">${AGENT_NAME}</div>
+        <div style="font-size:13px;color:#5D6B80;margin-top:2px;">REALTOR&reg;</div>
+      </div>
+    </div>
+
+    <p style="margin:18px 0 0;font-size:11px;line-height:1.6;color:#5D6B80;text-align:center;">
+      ${BROKERAGE_NAME} &mdash; ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.<br />
+      Equal Housing Opportunity.
+    </p>
+  </div></body></html>`;
+
+  const text = [
+    greeting,
+    "",
+    ...paragraphs.flatMap((t) => [t, ""]),
+    BROKERAGE_NAME,
+    AGENT_NAME,
+    "REALTOR(R)",
+    "",
+    `${BROKERAGE_NAME} - ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.`,
+    "Equal Housing Opportunity.",
+  ].join("\n");
+
+  return { subject: "We Received Your Property Information", html, text };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") {
@@ -261,9 +345,16 @@ serve(async (req) => {
     const s = payload.source ?? {};
     const row = {
       email: payload.email.toLowerCase().trim(),
-      name: `${clean(payload.first_name, 80)} ${clean(payload.last_name, 80)}`.trim() || "Seller",
+      // Normalised for display everywhere this lead is shown. The raw values
+      // as typed are preserved verbatim in seller_funnel below.
+      name: `${toDisplayName(clean(payload.first_name, 80))} ${toDisplayName(clean(payload.last_name, 80))}`.trim() || "Seller",
       phone: clean(payload.phone, 20),
-      address: clean(payload.address, 250),
+      address:
+        formatPropertyAddress(
+          clean(payload.street_address ?? "", 120),
+          clean(payload.city ?? "", 80),
+          clean(payload.zip ?? "", 10),
+        ) || clean(payload.address, 250),
       interest_type: "selling",
       submission_type: "cash-offer",
       timeline: clean(payload.timeline, 50),
@@ -277,9 +368,13 @@ serve(async (req) => {
       fbclid: clean(s.fbclid, 255) || null,
       agent_notified_at: new Date().toISOString(),
       seller_funnel: {
-        street_address: (payload as Record<string, unknown>).street_address ?? null,
-        city: (payload as Record<string, unknown>).city ?? null,
-        zip: (payload as Record<string, unknown>).zip ?? null,
+        // RAW as the homeowner typed it — records, debugging, audit. The
+        // normalised forms live in leads.name / leads.address.
+        street_address: payload.street_address ?? null,
+        city: payload.city ?? null,
+        zip: payload.zip ?? null,
+        first_name_raw: payload.first_name ?? null,
+        last_name_raw: payload.last_name ?? null,
         property_type: payload.property_type,
         authorized_owner: payload.authorized_owner,
         timeline: payload.timeline,
@@ -293,21 +388,89 @@ serve(async (req) => {
     };
 
     let persisted = false;
+    let previousConfirmationAt: string | null = null;
+    let leadId: string | null = null;
     try {
-      const { error } = await supabase
+      // `row` deliberately does NOT include confirmation_sent_at. A
+      // merge-duplicates upsert writes only the columns supplied, so any
+      // existing value survives and comes back here — which is what makes the
+      // idempotency check below correct across retries.
+      const { data, error } = await supabase
         .from("leads")
-        .upsert(row, { onConflict: "email" });
-      if (error) console.error("seller lead upsert failed:", error.message);
-      else persisted = true;
+        .upsert(row, { onConflict: "email" })
+        .select("id, confirmation_sent_at")
+        .single();
+      if (error) {
+        console.error("seller lead upsert failed:", error.message);
+      } else {
+        persisted = true;
+        leadId = data?.id ?? null;
+        previousConfirmationAt = data?.confirmation_sent_at ?? null;
+      }
     } catch (dbErr) {
       console.error("seller lead upsert threw:", dbErr);
     }
 
+    // --- homeowner confirmation --------------------------------------------
+    // Everything above is a precondition: the payload was qualified (checked at
+    // the top), the internal notification went out (it throws otherwise), so by
+    // here the lead genuinely exists and Steven genuinely knows about it.
+    //
+    // Wrapped in its own try/catch and NEVER allowed to fail the request. The
+    // lead is saved and the agent notified; a transient SES error on a courtesy
+    // email must not lose the lead, show the visitor an error, or suppress the
+    // Meta Lead conversion.
+    let confirmationSent = false;
+    const RESEND_AFTER_MS = 60 * 60 * 1000;
+    const alreadySent =
+      previousConfirmationAt !== null &&
+      Date.now() - new Date(previousConfirmationAt).getTime() < RESEND_AFTER_MS;
+
+    if (alreadySent) {
+      console.log("homeowner confirmation suppressed — already sent at", previousConfirmationAt);
+    } else {
+      try {
+        const c = buildConfirmation(payload);
+        const conf = await ses.send(
+          new SendEmailCommand({
+            // The display name is QUOTED: it contains a comma, and an unquoted
+            // comma in a From header splits it into two malformed addresses.
+            Source: `"${AGENT_NAME} | ${BROKERAGE_NAME}" <${SES_SENDER_EMAIL}>`,
+            Destination: { ToAddresses: [payload.email] },
+            // A reply from the homeowner goes straight to Steven, not to the
+            // no-reply sending address.
+            ReplyToAddresses: [AGENT_NOTIFY_EMAILS[0]],
+            Message: {
+              Subject: { Data: c.subject, Charset: "UTF-8" },
+              Body: {
+                Html: { Data: c.html, Charset: "UTF-8" },
+                Text: { Data: c.text, Charset: "UTF-8" },
+              },
+            },
+            ConfigurationSetName: SES_CONFIGURATION_SET,
+          }),
+        );
+        confirmationSent = true;
+        console.log(`homeowner confirmation sent (ses ${conf.MessageId})`);
+
+        if (leadId) {
+          await supabase
+            .from("leads")
+            .update({ confirmation_sent_at: new Date().toISOString() })
+            .eq("id", leadId);
+        }
+      } catch (confErr) {
+        // Logged for diagnosis; never surfaced to the homeowner.
+        console.error("homeowner confirmation FAILED (lead is safe):", confErr);
+      }
+    }
+
     console.log(
-      `seller lead emailed (ses ${sent.MessageId}) status=${payload.lead_status} persisted=${persisted}`,
+      `seller lead emailed (ses ${sent.MessageId}) status=${payload.lead_status} ` +
+        `persisted=${persisted} confirmation=${confirmationSent}`,
     );
 
-    return new Response(JSON.stringify({ success: true, persisted }), {
+    return new Response(JSON.stringify({ success: true, persisted, confirmationSent }), {
       status: 200,
       headers: { ...cors, "Content-Type": "application/json" },
     });
