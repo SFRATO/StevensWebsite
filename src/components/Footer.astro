@@ -50,6 +50,7 @@ const socialLinks = [
   { href: 'https://www.linkedin.com/in/steven-frato/', label: 'LinkedIn', icon: 'linkedin' },
   // Add more social links when available
 ];
+import BrandLockup from './BrandLockup.astro';
 ---
 
 <footer class="footer">
@@ -143,15 +144,22 @@ const socialLinks = [
     <!-- Footer Bottom -->
     <div class="footer-bottom">
       <div class="footer-bottom-content">
-        <p class="copyright">
-          © {currentYear} Steven Frato. All rights reserved.
-        </p>
+        <div class="footer-identity">
+          {/* Brokerage over agent, and the brokerage name links to Real's own
+              site — that link is what satisfies N.J.A.C. 11:5-6.1(b)3 in place
+              of publishing a main-office telephone number. Removing it makes
+              the office number mandatory. */}
+          <BrandLockup size="md" link={true} showDescriptor={true} inverse={true} />
+          <p class="copyright">
+            © {currentYear} Steven Frato. All rights reserved.
+          </p>
+        </div>
 
         <div class="footer-logos">
           <div class="equal-housing">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Equal Housing Opportunity">
-              <rect width="40" height="40" fill="var(--text-primary)"/>
-              <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="white"/>
+              <rect width="40" height="40" fill="var(--navy-900)"/>
+              <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="#FFFFFF"/>
             </svg>
             <span class="eho-text">Equal Housing Opportunity</span>
           </div>
@@ -172,9 +180,12 @@ const socialLinks = [
 
 <style>
   .footer {
-    background-color: var(--ink-850);
-    border-top: 1px solid var(--rule);
-    color: var(--text-secondary);
+    /* One of the deliberate navy areas. The site is light; the footer, the
+       market act and the listing hero overlay are where it goes dark on
+       purpose, so the page has rhythm rather than being uniformly white. */
+    background-color: var(--surface-inverse);
+    border-top: 1px solid var(--navy-800);
+    color: var(--text-secondary-inverse);
     padding: var(--space-10) 0 var(--space-6);
     margin-top: var(--space-12);
   }
@@ -206,7 +217,7 @@ const socialLinks = [
   .footer-heading {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
-    color: var(--text-primary);
+    color: var(--text-on-inverse);
     margin-bottom: var(--space-4);
   }
 
@@ -221,7 +232,7 @@ const socialLinks = [
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    color: var(--text-secondary);
+    color: var(--text-secondary-inverse);
     text-decoration: none;
     transition: color var(--transition-base);
   }
@@ -235,7 +246,7 @@ const socialLinks = [
     display: flex;
     align-items: flex-start;
     gap: var(--space-2);
-    color: var(--text-secondary);
+    color: var(--text-secondary-inverse);
   }
 
   .icon {
@@ -254,7 +265,7 @@ const socialLinks = [
   }
 
   .footer-link {
-    color: var(--text-secondary);
+    color: var(--text-secondary-inverse);
     text-decoration: none;
     transition: color var(--transition-base);
   }
@@ -276,11 +287,11 @@ const socialLinks = [
 
   .service-area {
     font-size: var(--text-sm);
-    color: var(--text-muted);
+    color: var(--text-muted-inverse);
   }
 
   .service-area a {
-    color: var(--text-secondary);
+    color: var(--text-secondary-inverse);
     text-decoration: none;
     transition: color var(--transition-base);
   }
@@ -298,7 +309,7 @@ const socialLinks = [
   .service-note {
     margin-top: var(--space-3);
     font-size: var(--text-sm);
-    color: var(--text-muted);
+    color: var(--text-muted-inverse);
     font-weight: var(--font-medium);
   }
 
@@ -310,7 +321,7 @@ const socialLinks = [
   }
 
   .social-link {
-    color: var(--text-secondary);
+    color: var(--text-secondary-inverse);
     text-decoration: none;
     font-weight: var(--font-medium);
     transition: color var(--transition-base);
@@ -327,7 +338,7 @@ const socialLinks = [
 
   /* Footer Bottom */
   .footer-bottom {
-    border-top: 1px solid var(--rule);
+    border-top: 1px solid var(--navy-800);
     padding-top: var(--space-6);
   }
 
@@ -341,7 +352,7 @@ const socialLinks = [
 
   .copyright {
     font-size: var(--text-sm);
-    color: var(--text-muted);
+    color: var(--text-muted-inverse);
     margin: 0;
   }
 
@@ -356,9 +367,15 @@ const socialLinks = [
     align-items: center;
   }
 
+  .footer-identity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
   .disclaimer {
     font-size: var(--text-xs);
-    color: var(--dark-gray);
+    color: var(--text-secondary-inverse);
     max-width: 600px;
     margin: 0;
   }

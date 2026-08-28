@@ -1,0 +1,1129 @@
+---
+/**
+ * /cash-offer — standalone seller funnel for paid Meta traffic.
+ *
+ * This is NOT a page of the website. It is a self-contained conversion funnel
+ * with two exits: complete the form, or leave. There is no header, no footer
+ * navigation, no logo linking home, no sticky CTA, no exit popup. The only
+ * outbound links on the entire page are the three legally required ones in the
+ * compliance footer. If you add a fourth, you have changed what this page is.
+ *
+ * WHAT THE COPY MAY NOT SAY. Steven can present a property to investor buyers
+ * but cannot promise an offer will come back, and nothing in the business
+ * supports a 24-hour guarantee. So: no guaranteed timeline, no guaranteed price,
+ * no implication that every homeowner receives a cash offer, and no suggestion
+ * that a cash offer is financially superior. The honest limitation appears twice
+ * — beside the comparison and above the form — because burying it in a footer
+ * would be technically true and practically misleading.
+ *
+ * META EVENTS. `Lead` is the standard event Meta optimises on, so it fires ONLY
+ * after a genuinely qualified submission that the server confirmed with a 2xx.
+ * Not on load, not on CTA click, not on form start, not on a disqualification,
+ * not on a failed submit. Custom events carry the rest. Getting this wrong
+ * trains the ad account on junk.
+ *
+ * DISQUALIFICATION IS TERMINAL AND IMMEDIATE. Every disqualifying answer ends
+ * the funnel at its own question — property type (Q2), authorisation (Q3),
+ * timeline (Q4) and existing listing (Q7). All four come before contact capture
+ * at Q8/Q9, so a disqualified visitor is never asked for name, email or phone,
+ * and no record of them can reach the inbox looking like a real lead.
+ */
+import LandingLayout from '../layouts/LandingLayout.astro';
+import {
+  AGENT_NAME,
+  PHONE,
+  PHONE_HREF,
+  PHONE_LABEL,
+  LICENSE_NUMBER,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  BROKERAGE_URL,
+} from '../data/contact';
+
+const QUESTIONS = 9;
+
+const PROPERTY_TYPES = [
+  { value: 'single-family', label: 'Single-Family Home' },
+  { value: 'townhouse', label: 'Townhouse' },
+  { value: 'mobile-home', label: 'Mobile Home' },
+  { value: 'commercial', label: 'Commercial Property' },
+  { value: 'other', label: 'Other' },
+];
+
+const TIMELINES = [
+  { value: 'asap', label: 'As soon as possible' },
+  { value: '1-month', label: 'Within 1 month' },
+  { value: '1-3-months', label: '1–3 months' },
+  { value: '3-6-months', label: '3–6 months' },
+  { value: '6-plus-months', label: 'More than 6 months' },
+  { value: 'researching', label: 'Just researching my options' },
+];
+
+const CONDITIONS = [
+  { value: 'excellent', label: 'Excellent / Recently Updated' },
+  { value: 'good', label: 'Good Condition' },
+  { value: 'some-repairs', label: 'Needs Some Repairs or Updating' },
+  { value: 'significant-repairs', label: 'Needs Significant Repairs' },
+  { value: 'fixer-upper', label: 'Major Fixer-Upper' },
+];
+
+const REASONS = [
+  { value: 'relocating', label: 'Relocating' },
+  { value: 'downsizing', label: 'Downsizing' },
+  { value: 'inherited', label: 'Inherited Property' },
+  { value: 'financial', label: 'Financial Reasons' },
+  { value: 'landlord', label: 'Tired of Being a Landlord' },
+  { value: 'divorce', label: 'Divorce / Separation' },
+  { value: 'sell-quickly', label: 'Need to Sell Quickly' },
+  { value: 'buying-another', label: 'Buying Another Home' },
+  { value: 'other', label: 'Other' },
+];
+---
+
+<LandingLayout
+  title="Thinking About Selling Your New Jersey Home? | Steven Frato"
+  description="See what your home-selling options could look like — a direct cash sale or a traditional listing. No obligation, takes about two minutes."
+>
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">New Jersey Homeowners</p>
+      <h1>Thinking About Selling Your New Jersey Home?</h1>
+      <p class="lede">
+        Find out what your options could look like before making a decision.
+        Depending on your situation, selling directly for cash may make sense —
+        or listing traditionally may put more money in your pocket.
+      </p>
+      <button type="button" class="cta" data-scroll-to-form>See My Options</button>
+      <p class="reassure">No obligation. Takes about 2 minutes.</p>
+    </div>
+  </section>
+
+  <!-- ===================== HOW IT WORKS ===================== -->
+  <section class="band">
+    <div class="wrap">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>
+          <span class="step-n" aria-hidden="true">1</span>
+          <h3>Tell Us About Your Property</h3>
+          <p>A few quick questions about the home and your timeline.</p>
+        </li>
+        <li>
+          <span class="step-n" aria-hidden="true">2</span>
+          <h3>We Review Your Situation</h3>
+          <p>I look at the property, local sales data, and what you're trying to do.</p>
+        </li>
+        <li>
+          <span class="step-n" aria-hidden="true">3</span>
+          <h3>See Which Selling Option Makes Sense</h3>
+          <p>We talk through both paths so you can decide with real numbers.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== COMPARISON ===================== -->
+  <section class="compare-section">
+    <div class="wrap">
+      <h2>Two ways to sell</h2>
+      <p class="section-lede">
+        Neither one is automatically better. They trade different things against
+        each other, and which fits depends on your property and your priorities.
+      </p>
+
+      <div class="compare">
+        <div class="col">
+          <h3>Cash / Direct Sale</h3>
+          <p class="col-sub">Prioritizes speed and certainty</p>
+          <p class="col-label">Possible advantages</p>
+          <ul class="pros">
+            <li>Faster closing timeline</li>
+            <li>Little to no preparation work</li>
+            <li>Possibility of selling as-is</li>
+            <li>Few or no showings</li>
+            <li>Fewer moving parts once terms are agreed</li>
+          </ul>
+          <p class="col-label">The tradeoff</p>
+          <ul class="cons">
+            <li>
+              A cash offer may be lower than what the property could sell for on
+              the open market.
+            </li>
+          </ul>
+        </div>
+
+        <div class="col">
+          <h3>Traditional Listing</h3>
+          <p class="col-sub">Prioritizes price</p>
+          <p class="col-label">Possible advantages</p>
+          <ul class="pros">
+            <li>Exposure to the full pool of buyers</li>
+            <li>Competitive, market-based pricing</li>
+            <li>Potential to achieve a higher sale price</li>
+          </ul>
+          <p class="col-label">The tradeoffs</p>
+          <ul class="cons">
+            <li>Longer process</li>
+            <li>Showings and property preparation</li>
+            <li>Inspections and negotiations</li>
+            <li>More uncertainty about timing</li>
+          </ul>
+        </div>
+      </div>
+
+      {/*
+        The honest limitation, stated where the comparison is — not buried below.
+        Steven can take a property to investor buyers; he cannot promise one will
+        make an offer, and nothing supports a 24-hour claim.
+      */}
+      <div class="honesty">
+        <p>
+          <strong>A cash offer isn't available for every property.</strong>
+          Whether one is possible depends on the home and on what investor buyers
+          are looking for at the time — and when an offer is available, it's
+          typically below what the open market would pay. That tradeoff is
+          exactly why it's worth looking at both options.
+        </p>
+      </div>
+
+      <div class="transition">
+        <p>
+          Not sure if a cash offer is the right fit? That's okay. The goal is to
+          look at your situation and help you understand your options. Depending
+          on your property and goals, a traditional listing may put more money in
+          your pocket.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FORM ===================== -->
+  <section class="form-section" id="form">
+    <div class="wrap narrow">
+      <!-- Success -->
+      <div class="outcome" id="screen-success" hidden>
+        <h2 id="success-headline">Thanks. I received your property information.</h2>
+        <p>
+          I'll review what you submitted and reach out to discuss your property
+          and the options that may make the most sense for you.
+        </p>
+        <p class="outcome-contact">
+          If you'd rather talk sooner, {PHONE_LABEL.toLowerCase()}
+          <a href={PHONE_HREF}>{PHONE}</a>.
+        </p>
+      </div>
+
+      <!-- Polite end-state for anyone this program doesn't fit -->
+      <div class="outcome" id="screen-ineligible" hidden>
+        <h2 id="ineligible-headline">Thanks for the information.</h2>
+        <p id="ineligible-body">
+          Based on what you've told us, this particular program may not be the
+          best fit for your property.
+        </p>
+      </div>
+
+      <div id="form-shell">
+        <div class="form-head">
+          <p class="q-count">Question <span id="q-current">1</span> of {QUESTIONS}</p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax={QUESTIONS}
+               aria-valuenow="1" aria-label="Form progress" id="progressbar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <form id="seller-form" novalidate>
+          {/* Honeypot — same convention as every other form on the site. */}
+          <p class="hp" aria-hidden="true">
+            <label for="cof-bot">Do not fill this in</label>
+            <input type="text" id="cof-bot" name="bot-field" tabindex="-1" autocomplete="off" />
+          </p>
+
+          {/* Attribution, populated from the URL on load. */}
+          <input type="hidden" name="landing_url" id="f-landing" />
+          <input type="hidden" name="referrer" id="f-referrer" />
+          <input type="hidden" name="utm_source" id="f-utm_source" />
+          <input type="hidden" name="utm_medium" id="f-utm_medium" />
+          <input type="hidden" name="utm_campaign" id="f-utm_campaign" />
+          <input type="hidden" name="utm_content" id="f-utm_content" />
+          <input type="hidden" name="utm_term" id="f-utm_term" />
+          <input type="hidden" name="fbclid" id="f-fbclid" />
+
+          <!-- Q1 -->
+          {/*
+            Three fields, not one. A single free-text box accepted "Main St" — a
+            lead that cannot be located is not a lead. Splitting it also lets the
+            error name the field that is wrong instead of failing the whole
+            question, which on mobile is the difference between one tap and a
+            guess. The parts are recombined into the hidden `address` field below
+            so the wire format, the email template and leads.address are unchanged.
+          */}
+          <fieldset class="q active" data-q="1">
+            <legend>What is the property address?</legend>
+
+            <div class="field">
+              <label for="q-street">Street address</label>
+              <input type="text" id="q-street" name="street_address" class="text-input"
+                     autocomplete="street-address" placeholder="12 Wesley Lane" />
+              <p class="err" id="err-street_address" role="alert" hidden></p>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="q-city">Town / City</label>
+                <input type="text" id="q-city" name="city" class="text-input"
+                       autocomplete="address-level2" placeholder="Burlington" />
+                <p class="err" id="err-city" role="alert" hidden></p>
+              </div>
+              <div class="field">
+                <label for="q-zip">ZIP code</label>
+                <input type="text" id="q-zip" name="zip" class="text-input"
+                       autocomplete="postal-code" inputmode="numeric" maxlength="10"
+                       placeholder="08016" />
+                <p class="err" id="err-zip" role="alert" hidden></p>
+              </div>
+            </div>
+
+            {/* Composed on submit from the three fields above. */}
+            <input type="hidden" name="address" id="f-address" />
+          </fieldset>
+
+          <!-- Q2 -->
+          <fieldset class="q" data-q="2">
+            <legend>What type of property is it?</legend>
+            <div class="options">
+              {PROPERTY_TYPES.map((o) => (
+                <label class="option">
+                  <input type="radio" name="property_type" value={o.value} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <p class="err" id="err-property_type" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q3 -->
+          <fieldset class="q" data-q="3">
+            <legend>Are you the homeowner or otherwise authorized to sell the property?</legend>
+            <div class="options">
+              <label class="option"><input type="radio" name="authorized_owner" value="yes" /><span>Yes</span></label>
+              <label class="option"><input type="radio" name="authorized_owner" value="no" /><span>No</span></label>
+            </div>
+            <p class="err" id="err-authorized_owner" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q4 -->
+          <fieldset class="q" data-q="4">
+            <legend>How soon are you looking to sell?</legend>
+            <div class="options">
+              {TIMELINES.map((o) => (
+                <label class="option">
+                  <input type="radio" name="timeline" value={o.value} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <p class="err" id="err-timeline" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q5 -->
+          <fieldset class="q" data-q="5">
+            <legend>What is the current condition of the property?</legend>
+            <p class="q-help">There's no wrong answer — this just helps me prepare.</p>
+            <div class="options">
+              {CONDITIONS.map((o) => (
+                <label class="option">
+                  <input type="radio" name="condition" value={o.value} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <p class="err" id="err-condition" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q6 -->
+          {/*
+            FAIR HOUSING. This question can surface divorce, financial hardship and
+            inherited property — familial status and financial circumstance. It
+            exists ONLY to understand the seller's goals so the conversation is
+            useful. It must never influence who is served, and it is deliberately
+            excluded from any scoring or targeting. See migration 011.
+          */}
+          <fieldset class="q" data-q="6">
+            <legend>What is the main reason you're considering selling?</legend>
+            <div class="options">
+              {REASONS.map((o) => (
+                <label class="option">
+                  <input type="radio" name="reason_for_selling" value={o.value} />
+                  <span>{o.label}</span>
+                </label>
+              ))}
+            </div>
+            <div class="reason-other" id="reason-other-wrap" hidden>
+              <label for="q-reason-other">Tell me a little more (optional)</label>
+              <input type="text" id="q-reason-other" name="reason_other" class="text-input" maxlength="200" />
+            </div>
+            <p class="err" id="err-reason_for_selling" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q7 -->
+          <fieldset class="q" data-q="7">
+            <legend>Is the property currently listed for sale with a real estate agent?</legend>
+            <div class="options">
+              <label class="option"><input type="radio" name="currently_listed" value="yes" /><span>Yes</span></label>
+              <label class="option"><input type="radio" name="currently_listed" value="no" /><span>No</span></label>
+            </div>
+            <p class="err" id="err-currently_listed" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q8 -->
+          <fieldset class="q" data-q="8">
+            <legend>What is your name and email address?</legend>
+            <div class="field-row">
+              <div class="field">
+                <label for="q-first">First name</label>
+                <input type="text" id="q-first" name="first_name" class="text-input" autocomplete="given-name" />
+              </div>
+              <div class="field">
+                <label for="q-last">Last name</label>
+                <input type="text" id="q-last" name="last_name" class="text-input" autocomplete="family-name" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="q-email">Email address</label>
+              <input type="email" id="q-email" name="email" class="text-input" autocomplete="email" inputmode="email" />
+            </div>
+            <p class="err" id="err-email" role="alert" hidden></p>
+          </fieldset>
+
+          <!-- Q9 -->
+          <fieldset class="q" data-q="9">
+            <legend>What is the best phone number to reach you?</legend>
+            <div class="field">
+              <label for="q-phone">Phone number</label>
+              <input type="tel" id="q-phone" name="phone" class="text-input"
+                     autocomplete="tel" inputmode="tel" placeholder="(609) 555-0123" />
+            </div>
+            <p class="err" id="err-phone" role="alert" hidden></p>
+
+            <label class="consent">
+              <input type="checkbox" name="consent" value="1" id="q-consent" />
+              {/*
+                Every clause here is load-bearing, so nothing further can be cut:
+                WHO may contact (both parties named — "his brokerage" was vaguer
+                AND longer), HOW (the channels consent actually covers), and the
+                final sentence, which is what makes this express written consent
+                under the FCC's telemarketing rules rather than a mere notice.
+              */}
+              <span>
+                By submitting, you agree {AGENT_NAME} and {BROKERAGE_NAME} may contact
+                you by phone, text, or email about your property. Consent is not a
+                condition of purchasing any product or service.
+              </span>
+            </label>
+            <p class="err" id="err-consent" role="alert" hidden></p>
+          </fieldset>
+
+          <p class="err form-err" id="err-form" role="alert" hidden></p>
+
+          <div class="nav">
+            <button type="button" class="btn-back" id="btn-back" hidden>Back</button>
+            <button type="button" class="btn-next" id="btn-next">Continue</button>
+            <button type="submit" class="btn-next" id="btn-submit" hidden>See My Selling Options</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== COMPLIANCE FOOTER ===================== -->
+  {/*
+    The ONLY outbound links on this page. Privacy and Terms are legally
+    necessary; the brokerage link satisfies N.J.A.C. 11:5-6.1(b)3, which is what
+    this site relies on instead of publishing a main-office phone number.
+    Deliberately not the site Footer component — that carries full navigation.
+  */}
+  <footer class="compliance">
+    <div class="wrap">
+      <div class="compliance-brand">
+        <span class="c-brokerage">{BROKERAGE_NAME}</span>
+        <span class="c-desc">{BROKERAGE_DESCRIPTOR}</span>
+        <span class="c-agent">{AGENT_NAME} · Licensed Salesperson</span>
+      </div>
+
+      <div class="compliance-eho">
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+             role="img" aria-label="Equal Housing Opportunity">
+          <rect width="40" height="40" fill="var(--navy-900)" />
+          <path d="M20 8L8 20h4v12h6V24h4v8h6V20h4L20 8z" fill="#FFFFFF" />
+        </svg>
+        <span>Equal Housing Opportunity</span>
+      </div>
+
+      {/*
+        Not LICENSE_LINE here: that constant leads with "Real Broker, LLC —
+        Licensed Real Estate Broker", which the lockup two lines above already
+        states. Repeating it was the filler. The licence number is the only
+        element not already on screen, and N.J.A.C. 11:5-6.1's actual
+        requirements — broker's business name, the brokerage descriptor, and the
+        salesperson's licence status — are all satisfied by the lockup.
+      */}
+      <p class="compliance-line">NJ Real Estate License #{LICENSE_NUMBER}</p>
+
+      <p class="compliance-links">
+        <a href="/privacy/">Privacy Policy</a>
+        <span aria-hidden="true">·</span>
+        <a href="/terms/">Terms &amp; Conditions</a>
+        <span aria-hidden="true">·</span>
+        <a href={BROKERAGE_URL} target="_blank" rel="noopener">{BROKERAGE_NAME}</a>
+      </p>
+    </div>
+  </footer>
+</LandingLayout>
+
+<script>
+  // ---------------------------------------------------------------------------
+  // Vanilla, no framework. This page is paid traffic; every KB is money.
+  //
+  // The multi-step engine borrows the one good idea from QualificationQuiz: the
+  // questions live in a SINGLE <form> and are only CSS-hidden. Nothing is
+  // re-rendered, so going back preserves every answer for free.
+  // ---------------------------------------------------------------------------
+
+  const TOTAL = 9;
+
+  const form = document.getElementById('seller-form') as HTMLFormElement | null;
+  const shell = document.getElementById('form-shell');
+  const btnNext = document.getElementById('btn-next') as HTMLButtonElement | null;
+  const btnBack = document.getElementById('btn-back') as HTMLButtonElement | null;
+  const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement | null;
+  const fill = document.getElementById('progress-fill');
+  const counter = document.getElementById('q-current');
+  const bar = document.getElementById('progressbar');
+
+  if (form && shell && btnNext && btnBack && btnSubmit) {
+    let current = 1;
+    let started = false;
+    /** Guards against a double Lead on a retried submit. */
+    let leadFired = false;
+
+    const fbq = (...args: unknown[]) => {
+      const f = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+      if (typeof f === 'function') f(...args);
+    };
+
+    const steps = Array.from(form.querySelectorAll<HTMLElement>('.q'));
+    const stepFor = (n: number) => steps.find((s) => s.dataset.q === String(n));
+
+    // --- attribution: read once, on load. A client-side nav or a replaceState
+    // later would drop the query string, and the server only sees the Referer.
+    (() => {
+      const p = new URLSearchParams(window.location.search);
+      const set = (id: string, v: string) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) el.value = v;
+      };
+      set('f-landing', window.location.href.slice(0, 500));
+      set('f-referrer', document.referrer.slice(0, 500));
+      for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
+        set(`f-${k}`, p.get(k) ?? '');
+      }
+      set('f-fbclid', p.get('fbclid') ?? '');
+    })();
+
+    // --- outcomes -----------------------------------------------------------
+
+    function endIneligible(headline: string, body: string, reason: string) {
+      const h = document.getElementById('ineligible-headline');
+      const b = document.getElementById('ineligible-body');
+      if (h) h.textContent = headline;
+      if (b) b.textContent = body;
+      shell!.hidden = true;
+      document.getElementById('screen-ineligible')!.hidden = false;
+      // Custom event only. The standard Lead event is reserved for qualified
+      // sellers — firing it here would teach Meta to find more of these.
+      fbq('trackCustom', 'SellerLeadDisqualified', { reason });
+      document.getElementById('screen-ineligible')!.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    const POLITE =
+      "Based on what you've told us, this particular program may not be the best fit for your property.";
+
+    /** Hard stops, checked as the visitor answers rather than at the end. */
+    function disqualifyingAnswer(name: string, value: string): { reason: string; body: string } | null {
+      if (name === 'property_type' && !['single-family', 'townhouse'].includes(value)) {
+        return { reason: 'unsupported_property_type', body: POLITE };
+      }
+      if (name === 'authorized_owner' && value === 'no') {
+        return { reason: 'not_authorized_owner', body: POLITE };
+      }
+      if (name === 'timeline' && ['6-plus-months', 'researching'].includes(value)) {
+        return {
+          reason: 'timeline_over_6_months',
+          body:
+            'Based on your current timeline, this particular program may not be ' +
+            "the best fit right now. If your plans change and you decide to sell " +
+            "sooner, you're welcome to come back.",
+        };
+      }
+      if (name === 'currently_listed' && value === 'yes') {
+        return {
+          reason: 'currently_listed',
+          body:
+            'Because your property is currently listed with a real estate professional, ' +
+            'this form is not the right fit — and I would not want to interfere with ' +
+            'that relationship. Please continue working with your agent.',
+        };
+      }
+      return null;
+    }
+
+    // --- validation ---------------------------------------------------------
+
+    const showErr = (key: string, msg: string) => {
+      const el = document.getElementById(`err-${key}`);
+      if (el) { el.textContent = msg; el.hidden = false; }
+    };
+    const clearErr = (key: string) => {
+      const el = document.getElementById(`err-${key}`);
+      if (el) { el.textContent = ''; el.hidden = true; }
+    };
+
+    const val = (name: string) => {
+      const el = form!.elements.namedItem(name);
+      if (!el) return '';
+      if (el instanceof RadioNodeList) return el.value;
+      if (el instanceof HTMLInputElement) return el.value.trim();
+      return '';
+    };
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const digits = (s: string) => s.replace(/\D/g, '');
+
+    /** 5 digits, ZIP+4 optional. */
+    const ZIP_RE = /^\d{5}(-\d{4})?$/;
+    /** New Jersey occupies 07000-08999. The whole state, not the service area —
+     *  a seller in North Jersey is still a New Jersey seller. */
+    const isNjZip = (z: string) => {
+      const n = parseInt(z.slice(0, 5), 10);
+      return n >= 7000 && n <= 8999;
+    };
+
+    function validateStep(n: number): boolean {
+      switch (n) {
+        case 1: {
+          ['street_address', 'city', 'zip'].forEach(clearErr);
+          let ok = true;
+
+          const street = val('street_address');
+          // The digit test is the one that matters. A length check alone lets
+          // "Main Street" through, which is exactly the incomplete address this
+          // question is supposed to reject.
+          if (street.length < 5 || !/\d/.test(street)) {
+            showErr('street_address', 'Please include the street number and name.');
+            ok = false;
+          }
+
+          const city = val('city');
+          if (city.length < 2 || !/^[A-Za-z][A-Za-z\s'\-.]*$/.test(city)) {
+            showErr('city', 'Please enter the town or city.');
+            ok = false;
+          }
+
+          const zip = val('zip');
+          if (!ZIP_RE.test(zip)) {
+            showErr('zip', 'Please enter a 5-digit ZIP code.');
+            ok = false;
+          } else if (!isNjZip(zip)) {
+            // The page is addressed to New Jersey homeowners, so an out-of-state
+            // ZIP is a mistake worth catching here rather than after it has
+            // become a lead that cannot be served.
+            showErr('zip', 'That ZIP code is outside New Jersey.');
+            ok = false;
+          }
+
+          if (ok) {
+            const hidden = document.getElementById('f-address') as HTMLInputElement | null;
+            if (hidden) hidden.value = `${street}, ${city}, NJ ${zip}`;
+          }
+          return ok;
+        }
+        case 2: case 3: case 4: case 5: case 6: case 7: {
+          const names: Record<number, string> = {
+            2: 'property_type', 3: 'authorized_owner', 4: 'timeline',
+            5: 'condition', 6: 'reason_for_selling', 7: 'currently_listed',
+          };
+          const name = names[n];
+          clearErr(name);
+          if (!val(name)) {
+            showErr(name, 'Please choose an option to continue.');
+            return false;
+          }
+          return true;
+        }
+        case 8: {
+          clearErr('email');
+          if (!val('first_name') || !val('last_name')) {
+            showErr('email', 'Please enter your first and last name.');
+            return false;
+          }
+          if (!EMAIL_RE.test(val('email'))) {
+            showErr('email', 'Please enter a valid email address.');
+            return false;
+          }
+          return true;
+        }
+        case 9: {
+          clearErr('phone'); clearErr('consent');
+          const d = digits(val('phone'));
+          if (!(d.length === 10 || (d.length === 11 && d[0] === '1'))) {
+            showErr('phone', 'Please enter a valid 10-digit phone number.');
+            return false;
+          }
+          const consent = document.getElementById('q-consent') as HTMLInputElement | null;
+          if (!consent?.checked) {
+            showErr('consent', 'Please agree to be contacted so I can follow up.');
+            return false;
+          }
+          return true;
+        }
+        default:
+          return true;
+      }
+    }
+
+    // --- navigation ---------------------------------------------------------
+
+    function show(n: number) {
+      current = n;
+      steps.forEach((s) => s.classList.toggle('active', s.dataset.q === String(n)));
+      if (counter) counter.textContent = String(n);
+      if (fill) fill.style.width = `${(n / TOTAL) * 100}%`;
+      bar?.setAttribute('aria-valuenow', String(n));
+      btnBack!.hidden = n === 1;
+      btnNext!.hidden = n === TOTAL;
+      btnSubmit!.hidden = n !== TOTAL;
+
+      const first = stepFor(n)?.querySelector<HTMLElement>(
+        'input[type="text"], input[type="email"], input[type="tel"], input[type="radio"]',
+      );
+      // Focus text fields, but not radios — focusing the first radio in a group
+      // reads to a screen reader as though it were already selected.
+      if (first && first.getAttribute('type') !== 'radio') first.focus();
+      else stepFor(n)?.querySelector('legend')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function advance() {
+      if (!validateStep(current)) return;
+      if (current < TOTAL) show(current + 1);
+    }
+
+    btnNext.addEventListener('click', advance);
+    btnBack.addEventListener('click', () => { if (current > 1) show(current - 1); });
+
+    // Enter advances from text inputs. Excluded on the consent checkbox so the
+    // final step can never be submitted by a stray keypress.
+    form.addEventListener('keydown', (e) => {
+      const t = e.target as HTMLElement;
+      if (e.key !== 'Enter') return;
+      if (t instanceof HTMLInputElement && ['text', 'email', 'tel'].includes(t.type)) {
+        e.preventDefault();
+        if (current === TOTAL) btnSubmit!.click();
+        else advance();
+      }
+    });
+
+    // Choosing an option: mark the start once, end the funnel on a hard stop,
+    // otherwise move on without a second click.
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.type !== 'radio') return;
+
+      if (!started) {
+        started = true;
+        fbq('trackCustom', 'SellerFormStarted');
+      }
+
+      if (t.name === 'reason_for_selling') {
+        const wrap = document.getElementById('reason-other-wrap');
+        if (wrap) wrap.hidden = t.value !== 'other';
+      }
+
+      const stop = disqualifyingAnswer(t.name, t.value);
+      if (stop) {
+        endIneligible('Thanks for the information.', stop.body, stop.reason);
+        return;
+      }
+
+      clearErr(t.name);
+      // "Other" needs a beat for the optional text field; everything else can go.
+      if (t.name !== 'reason_for_selling' || t.value !== 'other') {
+        window.setTimeout(() => { if (current < TOTAL) advance(); }, 180);
+      }
+    });
+
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (!started && t.value) {
+        started = true;
+        fbq('trackCustom', 'SellerFormStarted');
+      }
+    });
+
+    // --- submit -------------------------------------------------------------
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep(TOTAL)) return;
+
+      const errForm = document.getElementById('err-form');
+      if (errForm) { errForm.textContent = ''; errForm.hidden = true; }
+
+      // Disabled for the whole request so a double-tap cannot create two leads.
+      btnSubmit!.disabled = true;
+      const original = btnSubmit!.textContent;
+      btnSubmit!.textContent = 'Submitting…';
+
+      // The timeline branch is a NURTURE outcome, not a disqualification: the
+      // information is worth having and Steven still gets the email. It simply
+      // must not count as a Meta conversion.
+      // No nurture branch any more. Every disqualifying answer now ends the
+      // funnel at its own question, all of which come before Q8/Q9 — so anyone
+      // who reaches submit has already passed every rule, and the only outcomes
+      // here are a qualified lead or a server rejection.
+      try {
+        const res = await fetch('/api/cash-offer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString(),
+        });
+
+        if (!res.ok) {
+          const p = (await res.json().catch(() => ({}))) as { error?: string; field?: string };
+          throw new Error(p.error || "We weren't able to submit your information. Please try again.");
+        }
+
+        // The SERVER decides. It re-derives status from the raw answers, so a
+        // tampered client cannot promote itself to qualified. Absent or
+        // unexpected values are treated as not-qualified, which fails closed.
+        const data = (await res.json().catch(() => ({}))) as { leadStatus?: string };
+        const status = data.leadStatus ?? 'unknown';
+
+        fbq('trackCustom', 'SellerFormCompleted', { status });
+
+        if (status === 'qualified' && !leadFired) {
+          // THE standard event, and the only place it is ever fired: a genuinely
+          // qualified seller whose submission the server confirmed.
+          leadFired = true;
+          fbq('track', 'Lead');
+        }
+
+        if (status === 'qualified') {
+          const h = document.getElementById('success-headline');
+          const first = val('first_name');
+          if (h && first) h.textContent = `Thanks, ${first}. I received your property information.`;
+          shell!.hidden = true;
+          document.getElementById('screen-success')!.hidden = false;
+          document.getElementById('screen-success')!.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // Reachable only if the server disagreed with the client — a replayed
+          // or hand-edited submission. End it the same way, with no Lead.
+          endIneligible('Thanks for the information.', POLITE, 'server_rejected');
+        }
+      } catch (err) {
+        // No success screen, and critically NO Lead event, on a failure.
+        btnSubmit!.disabled = false;
+        btnSubmit!.textContent = original;
+        const msg = err instanceof Error && err.message
+          ? err.message
+          : "We weren't able to submit your information. Please try again.";
+        if (errForm) { errForm.textContent = msg; errForm.hidden = false; }
+        console.error('cash-offer submit failed:', err);
+      }
+    });
+
+    show(1);
+  }
+
+  document.querySelector('[data-scroll-to-form]')?.addEventListener('click', () => {
+    document.getElementById('form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+</script>
+
+<style>
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 var(--space-4); }
+  .wrap.narrow { max-width: 640px; }
+
+  h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-3);
+  }
+
+  /* --- hero ---------------------------------------------------------------- */
+  .hero {
+    padding: var(--space-16) 0 var(--space-12);
+    text-align: center;
+    background:
+      radial-gradient(80% 60% at 50% 0%, rgba(61, 139, 255, 0.13) 0%, transparent 65%),
+      var(--surface-page);
+  }
+  .eyebrow {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--navy-700);
+    margin: 0 0 var(--space-4);
+  }
+  .hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-5);
+    text-wrap: balance;
+  }
+  .lede {
+    max-width: 620px;
+    margin: 0 auto var(--space-8);
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+  }
+  .cta {
+    font-family: var(--font-ui);
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--accent-ink);
+    background: var(--navy-700);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--space-4) var(--space-10);
+    min-height: 56px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    transition: background var(--transition-base);
+  }
+  .cta:hover { background: var(--navy-500); }
+  .cta:focus-visible { outline: 3px solid var(--accent-glow); outline-offset: 3px; }
+  .reassure {
+    margin: var(--space-4) 0 0;
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
+  /* --- how it works -------------------------------------------------------- */
+  .band { padding: var(--space-12) 0; background: var(--surface-raised); border-block: 1px solid var(--rule); }
+  .steps { list-style: none; padding: 0; margin: var(--space-8) 0 0; display: grid; gap: var(--space-6); }
+  .steps li { position: relative; padding-left: var(--space-12); }
+  .step-n {
+    position: absolute; left: 0; top: 0;
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    border-radius: var(--radius-full);
+    background: var(--navy-700); color: #fff;
+    font-family: var(--font-ui); font-weight: var(--font-semibold);
+  }
+  .steps h3 { font-family: var(--font-heading); font-size: var(--text-lg); color: var(--text-primary); margin: 0 0 4px; }
+  .steps p { margin: 0; color: var(--text-secondary); }
+  @media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); gap: var(--space-8); } }
+
+  /* --- comparison ---------------------------------------------------------- */
+  .compare-section { padding: var(--space-12) 0; }
+  .section-lede { color: var(--text-secondary); max-width: 640px; margin: 0 0 var(--space-8); }
+  .compare { display: grid; gap: var(--space-6); }
+  @media (min-width: 768px) { .compare { grid-template-columns: 1fr 1fr; gap: var(--space-6); } }
+  .col {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+  .col h3 { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--text-primary); margin: 0 0 2px; }
+  .col-sub { font-family: var(--font-ui); font-size: var(--text-sm); color: var(--text-muted); margin: 0 0 var(--space-5); }
+  .col-label {
+    font-family: var(--font-ui); font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow); text-transform: uppercase;
+    color: var(--text-muted); margin: var(--space-5) 0 var(--space-2);
+  }
+  .pros, .cons { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-2); }
+  .pros li, .cons li { position: relative; padding-left: var(--space-5); color: var(--text-secondary); }
+  .pros li::before, .cons li::before {
+    content: ''; position: absolute; left: 0; top: 0.6em;
+    width: 6px; height: 6px; border-radius: var(--radius-full);
+  }
+  .pros li::before { background: var(--accent-green); }
+  .cons li::before { background: var(--text-muted); }
+
+  .honesty {
+    margin-top: var(--space-6);
+    background: var(--surface-sunken);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-6);
+  }
+  .honesty p { margin: 0; color: var(--text-secondary); line-height: var(--leading-body); }
+  .honesty strong { color: var(--text-primary); }
+  .transition { margin-top: var(--space-6); }
+  .transition p { color: var(--text-secondary); line-height: var(--leading-body); margin: 0; }
+
+  /* --- form ---------------------------------------------------------------- */
+  .form-section { padding: var(--space-12) 0 var(--space-16); background: var(--surface-sunken); }
+
+  .form-head { margin-bottom: var(--space-6); }
+  .q-count {
+    font-family: var(--font-ui); font-size: var(--text-sm);
+    color: var(--text-muted); margin: 0 0 var(--space-2);
+  }
+  .progress { height: 6px; background: var(--rule); border-radius: var(--radius-full); overflow: hidden; }
+  .progress-fill {
+    height: 100%; width: 11%;
+    background: var(--navy-700);
+    transition: width var(--transition-base);
+  }
+
+  #form-shell {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-6);
+  }
+  @media (min-width: 640px) { #form-shell { padding: var(--space-8); } }
+
+  .q { display: none; border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  .q.active { display: block; animation: fade var(--transition-base); }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .q.active { animation: none; } }
+
+  legend {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-5);
+    padding: 0;
+  }
+  .q-help { margin: -12px 0 var(--space-4); color: var(--text-muted); font-size: var(--text-sm); }
+
+  .options { display: grid; gap: var(--space-3); }
+  .option {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    min-height: 56px;
+    background: var(--surface-page);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  .option:hover { border-color: var(--navy-700); }
+  .option input { width: 20px; height: 20px; accent-color: var(--navy-700); flex: 0 0 auto; }
+  .option:has(input:checked) { border-color: var(--navy-700); background: var(--accent-wash); }
+  .option:has(input:focus-visible) { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
+
+  .field { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .field label, .reason-other label {
+    font-family: var(--font-ui); font-size: var(--text-sm); color: var(--text-secondary);
+  }
+  .field-row { display: grid; gap: var(--space-4); }
+  @media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+  .text-input {
+    width: 100%; min-width: 0;
+    padding: var(--space-4);
+    min-height: 52px;
+    font-size: var(--text-base);
+    font-family: var(--font-ui);
+    color: var(--text-primary);
+    background: var(--surface-page);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+  }
+  .text-input:focus { outline: none; border-color: var(--navy-700); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .reason-other { margin-top: var(--space-4); display: grid; gap: var(--space-2); }
+
+  .consent {
+    display: flex; align-items: flex-start; gap: var(--space-3);
+    margin-top: var(--space-5);
+    font-family: var(--font-ui); font-size: var(--text-sm);
+    color: var(--text-secondary); line-height: var(--leading-body);
+    cursor: pointer;
+  }
+  .consent input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--navy-700); flex: 0 0 auto; }
+
+  .err { color: var(--accent-red); font-family: var(--font-ui); font-size: var(--text-sm); margin: var(--space-3) 0 0; }
+  .form-err { margin-top: var(--space-4); }
+
+  .nav { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
+  .btn-next, .btn-back {
+    font-family: var(--font-ui); font-size: var(--text-base); font-weight: var(--font-semibold);
+    border-radius: var(--radius-md); min-height: 52px; padding: var(--space-3) var(--space-8);
+    cursor: pointer; border: 1px solid transparent;
+  }
+  .btn-next { background: var(--navy-700); color: var(--accent-ink); flex: 1; }
+  .btn-next:hover:not(:disabled) { background: var(--navy-500); }
+  .btn-next:disabled { opacity: 0.7; cursor: not-allowed; }
+  .btn-back { background: transparent; color: var(--text-secondary); border-color: var(--rule-strong); }
+  .btn-back:hover { color: var(--text-primary); border-color: var(--navy-700); }
+  .btn-next:focus-visible, .btn-back:focus-visible { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
+
+  /* --- outcomes ------------------------------------------------------------ */
+  .outcome {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8);
+    text-align: center;
+  }
+  .outcome h2 { margin-bottom: var(--space-4); }
+  .outcome p { color: var(--text-secondary); line-height: var(--leading-body); margin: 0 auto; max-width: 460px; }
+  .outcome-contact { margin-top: var(--space-5) !important; }
+  .outcome a { color: var(--navy-700); font-weight: var(--font-semibold); }
+
+  /* --- compliance footer --------------------------------------------------- */
+  .compliance {
+    background: var(--surface-inverse);
+    color: var(--text-secondary-inverse);
+    padding: var(--space-8) 0;
+    text-align: center;
+  }
+  .compliance-brand { display: flex; flex-direction: column; line-height: 1.3; margin-bottom: var(--space-4); }
+  /* Brokerage above the agent and larger — N.J.A.C. 11:5-6.1(b)1. Not a style
+     choice; see BrandLockup.astro for the same rule elsewhere on the site. */
+  .c-brokerage {
+    font-family: var(--font-heading); font-size: var(--text-lg);
+    font-weight: var(--font-bold); color: var(--text-on-inverse);
+  }
+  .c-desc { font-family: var(--font-ui); font-size: var(--text-xs); color: var(--text-muted-inverse); }
+  .c-agent { font-family: var(--font-ui); font-size: var(--text-sm); color: var(--text-secondary-inverse); margin-top: 3px; }
+
+  .compliance-eho {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    font-family: var(--font-ui); font-size: var(--text-xs);
+    color: var(--text-muted-inverse); margin-bottom: var(--space-4);
+  }
+  .compliance-line {
+    font-size: var(--text-xs); color: var(--text-muted-inverse);
+    max-width: 620px; margin: 0 auto var(--space-4); line-height: var(--leading-body);
+  }
+  .compliance-links { font-family: var(--font-ui); font-size: var(--text-xs); margin: 0; }
+  .compliance-links a { color: var(--text-secondary-inverse); text-decoration: underline; }
+  .compliance-links a:hover { color: var(--text-on-inverse); }
+  .compliance-links span { margin: 0 var(--space-2); color: var(--text-muted-inverse); }
+
+  /* --- utilities ----------------------------------------------------------- */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+</style>

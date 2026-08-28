@@ -1,0 +1,201 @@
+---
+/**
+ * Terms & Conditions.
+ *
+ * Written because the /cash-offer landing page needs one — Meta's ad review
+ * generally expects a terms link on a lead-generation page, and the site had
+ * none. Deliberately narrow and factual: it describes what this site actually
+ * does and does not do, and invents no disclosure, entity, or guarantee.
+ *
+ * NOT LEGAL ADVICE, and not a substitute for review by a New Jersey attorney
+ * before advertising spend scales.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import {
+  AGENT_NAME,
+  EMAIL,
+  EMAIL_HREF,
+  PHONE,
+  PHONE_HREF,
+  PHONE_LABEL,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  LICENSE_LINE,
+} from '../data/contact';
+
+const lastUpdated = 'August 2026';
+---
+
+<BaseLayout
+  title="Terms & Conditions"
+  description="Terms and conditions for using stevenfrato.com, including what submitting a property enquiry does and does not create."
+>
+  <section class="terms-page">
+    <div class="container">
+      <h1>Terms &amp; Conditions</h1>
+      <p class="last-updated">Last updated: {lastUpdated}</p>
+
+      <div class="policy-content">
+        <section class="policy-section">
+          <h2>Who this site belongs to</h2>
+          <p>
+            stevenfrato.com is operated by {AGENT_NAME}, a licensed New Jersey real
+            estate salesperson affiliated with {BROKERAGE_NAME} &mdash; {BROKERAGE_DESCRIPTOR}.
+            All real estate services described on this Site are provided through that
+            brokerage.
+          </p>
+          <p>{LICENSE_LINE}</p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Using this site</h2>
+          <p>
+            You may use this Site for your own personal, non-commercial purposes. You
+            agree not to submit false information, to submit information about a
+            property you have no connection to, or to use any automated system to
+            submit forms or extract content.
+          </p>
+          <p>
+            The content, market data, and tools on this Site are provided for general
+            information. Market figures come from third-party sources and are
+            believed reliable but are not guaranteed.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>What submitting a form does &mdash; and does not do</h2>
+          <p>
+            Submitting a form on this Site is a request to be contacted. It is
+            <strong>not</strong> a listing agreement, a buyer agreement, an offer, an
+            acceptance of an offer, or any other binding contract, and it does not by
+            itself create a brokerage or agency relationship between you and
+            {' '}{AGENT_NAME} or {BROKERAGE_NAME}.
+          </p>
+          <p>
+            Any such relationship is created only by a separate written agreement
+            that you sign.
+          </p>
+          <p>
+            You are never required to sell your property through {AGENT_NAME}, and
+            you remain free to speak to other agents, to sell privately, or not to
+            sell at all.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Cash offers and selling options</h2>
+          <p>
+            Some pages on this Site describe two possible ways to sell: a direct or
+            cash sale, and a traditional listing on the open market.
+          </p>
+          <p>
+            <strong>A cash offer is not guaranteed and is not available for every
+            property.</strong> Whether one can be presented depends on the property
+            and on what investor buyers are seeking at the time. Where a cash offer is
+            available, it is typically <em>below</em> what the property might achieve
+            on the open market, in exchange for speed and fewer conditions.
+          </p>
+          <p>
+            Nothing on this Site is a guarantee of a sale, of a sale price, of a
+            timeline, or of any particular financial outcome. Any figures discussed
+            are estimates until they appear in a signed written agreement.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Contact consent</h2>
+          <p>
+            When you submit a form and agree to be contacted, you consent to
+            {' '}{AGENT_NAME} and/or his real estate brokerage contacting you by
+            phone, text, or email regarding your property and real estate options.
+            Consent is not a condition of purchasing any product or service.
+          </p>
+          <p>
+            You can withdraw consent at any time by replying STOP to a text, using
+            the unsubscribe link in any email, or contacting
+            {' '}<a href={EMAIL_HREF}>{EMAIL}</a>. Message and data rates may apply.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Fair housing</h2>
+          <p>
+            This Site and the services described on it are offered in compliance with
+            the federal Fair Housing Act and the New Jersey Law Against
+            Discrimination. Properties and services are made available without regard
+            to race, color, religion, sex, familial status, national origin,
+            disability, or any other protected characteristic.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Third-party links and services</h2>
+          <p>
+            This Site links to and relies on third-party services. Their content and
+            practices are their own, and linking to them is not an endorsement. How
+            information is collected and used on this Site is described in the
+            <a href="/privacy/">Privacy Policy</a>.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>No warranty</h2>
+          <p>
+            This Site is provided on an "as is" basis, without warranties of any
+            kind. Reasonable care is taken to keep it accurate and available, but
+            uninterrupted or error-free operation is not guaranteed.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Changes</h2>
+          <p>
+            These terms may be updated from time to time. The date at the top of this
+            page reflects the most recent change, and continuing to use the Site
+            after a change means you accept the updated terms.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Governing law</h2>
+          <p>
+            These terms are governed by the laws of the State of New Jersey.
+          </p>
+        </section>
+
+        <section class="policy-section">
+          <h2>Contact</h2>
+          <p>
+            Questions about these terms: <a href={EMAIL_HREF}>{EMAIL}</a> or
+            {' '}{PHONE_LABEL.toLowerCase()} <a href={PHONE_HREF}>{PHONE}</a>.
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .terms-page { padding: var(--space-12) 0 var(--space-16); }
+  h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+  .last-updated { color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-10); }
+  .policy-content { max-width: 720px; }
+  .policy-section { margin-bottom: var(--space-10); }
+  .policy-section h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+  }
+  .policy-section p {
+    color: var(--text-secondary);
+    line-height: var(--leading-body);
+    margin-bottom: var(--space-4);
+  }
+  .policy-section a { color: var(--navy-700); }
+</style>

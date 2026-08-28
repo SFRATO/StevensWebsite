@@ -86,6 +86,10 @@ const formId = `quiz-${Math.random().toString(36).substr(2, 9)}`;
     >
       <input type="hidden" name="form-name" value={formName} />
       <input type="hidden" name="source-location" value={location} />
+      {/* The REAL page path, resolved at build time. `source-location` is a
+          human label, and the edge function used to interpolate it into
+          /market/<label>/ — producing 404s in the agent notification. */}
+      <input type="hidden" name="source-path" value={Astro.url.pathname} />
       <input type="hidden" name="lead-score" id={`${formId}-lead-score`} value="0" />
       <input type="hidden" name="lead-temperature" id={`${formId}-lead-temperature`} value="cold" />
 

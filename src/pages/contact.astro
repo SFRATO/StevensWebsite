@@ -8,11 +8,11 @@ import QualificationQuiz from '@components/QualificationQuiz.astro';
 import { generateBreadcrumbSchema, generateFAQSchema } from '@utils/schema';
 
 const faqs = [
-  { question: 'How do I find a good realtor in Burlington County NJ?', answer: 'Look for a licensed NJ realtor who specializes in your specific county and has data-driven knowledge of local market conditions. Steven Frato is a licensed NJ agent (License #2567370) serving Burlington, Mercer, and Middlesex Counties with up-to-date market data for every town and zip code in the area. You can reach him directly at (609) 789-0126.' },
+  { question: 'How do I find a good realtor in Burlington County NJ?', answer: 'Look for a licensed NJ realtor who specializes in your specific county and has data-driven knowledge of local market conditions. Steven Frato is a licensed NJ agent (License #2567370) serving Burlington, Mercer, and Middlesex Counties with up-to-date market data for every town and zip code in the area. You can reach him directly at (609) 496-3330.' },
   { question: 'Does Steven Frato work with first-time home buyers?', answer: 'Yes. First-time buyers are a specialty. Steven walks you through pre-approval, offer strategy, inspection, attorney review, and closing — step by step. He can also connect you with trusted local lenders and attorneys who know Burlington, Mercer, and Middlesex County transactions.' },
   { question: 'How much does it cost to hire a real estate agent in NJ?', answer: 'For sellers, the total commission is typically 4–6% of the sale price, split between the listing agent and buyer\'s agent. For buyers, representation is generally free — the seller pays the commission. There\'s no upfront cost to consult with Steven or get a free market report.' },
   { question: 'What areas does Steven Frato serve?', answer: 'Steven serves Burlington County (Moorestown, Mount Laurel, Medford, Evesham, Bordentown, and more), Mercer County (Princeton, West Windsor, Hamilton, Trenton, Lawrenceville, and more), and Middlesex County (South Brunswick, Old Bridge, East Brunswick, Edison, and more). All 3 counties, all 130+ towns.' },
-  { question: 'How do I schedule a free real estate consultation?', answer: 'Fill out the form on this page, call (609) 789-0126, or email sf@stevenfrato.com. Steven typically responds within a few hours during business hours. Consultations are free and come with no obligation — you\'ll receive a personalized market report for your area.' },
+  { question: 'How do I schedule a free real estate consultation?', answer: 'Fill out the form on this page, call (609) 496-3330, or email sf@stevenfrato.com. Steven typically responds within a few hours during business hours. Consultations are free and come with no obligation — you\'ll receive a personalized market report for your area.' },
 ];
 
 const schema = [
@@ -26,7 +26,7 @@ const schema = [
 
 <BaseLayout
   title="Contact a Realtor in Burlington County NJ"
-  description="Looking for a realtor in Burlington, Mercer, or Middlesex County NJ? Contact Steven Frato for a free consultation — buyers and sellers welcome. Call (609) 789-0126."
+  description="Looking for a realtor in Burlington, Mercer, or Middlesex County NJ? Contact Steven Frato for a free consultation — buyers and sellers welcome. Call (609) 496-3330."
   schema={schema}
 >
   <!-- Page Header -->
@@ -61,7 +61,7 @@ const schema = [
               </div>
               <div>
                 <div class="contact-label">Phone</div>
-                <a href="tel:+16097890126" class="contact-link">(609) 789-0126</a>
+                <a href="tel:+16094963330" class="contact-link">(609) 496-3330</a>
               </div>
             </div>
 
@@ -173,13 +173,13 @@ const schema = [
 
   .page-header h1 {
     font-size: var(--text-4xl);
-    color: var(--white);
+    color: var(--text-primary);
     margin-bottom: var(--space-3);
   }
 
   .subtitle {
     font-size: var(--text-lg);
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-secondary);
     line-height: var(--leading-relaxed);
     max-width: 700px;
     margin: 0 auto;
@@ -188,7 +188,7 @@ const schema = [
   /* Contact Section */
   .contact-section {
     padding: var(--space-12) 0;
-    background: var(--light-gray);
+    background: var(--surface-sunken);
   }
 
   .contact-grid {
@@ -246,7 +246,7 @@ const schema = [
     justify-content: center;
     background: var(--accent-wash-strong);
     border-radius: var(--radius-md);
-    color: var(--white);
+    color: var(--text-primary);
   }
 
   .contact-label {
@@ -298,7 +298,7 @@ const schema = [
   }
 
   .service-areas li {
-    background: var(--light-gray);
+    background: var(--surface-sunken);
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
     font-size: var(--text-sm);

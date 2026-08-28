@@ -226,7 +226,7 @@ const templates: Record<string, Renderer> = {
          ${statsBlock(zip)}
          <p>If you're weighing a move, the useful question usually isn't "what is my home worth" in the abstract &mdash; it's what it would realistically sell for in this specific market, this season.</p>
          <p style="margin:24px 0;"><a href="${cta}" style="display:inline-block;background:#8A6A12;color:#ffffff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;">Get a ${town} home value estimate</a></p>
-         <p>Happy to talk it through with no pressure either way &mdash; just reply to this email or call (609) 789-0126.</p>
+         <p>Happy to talk it through with no pressure either way &mdash; just reply to this email or call (609) 496-3330.</p>
          <p>&mdash; Steven</p>`,
         unsubscribeUrl,
       ),
@@ -234,7 +234,7 @@ const templates: Record<string, Renderer> = {
         zip
           ? `Median sale price: ${formatCurrency(zip.median_sale_price)}\nYear over year: ${formatPercent(zip.median_sale_price_yoy)}\nDays on market: ${zip.median_dom ?? "N/A"}\n`
           : ""
-      }\nGet an estimate: ${cta}\n\nOr just reply / call (609) 789-0126.\n\n-- Steven\n\nUnsubscribe: ${unsubscribeUrl}`,
+      }\nGet an estimate: ${cta}\n\nOr just reply / call (609) 496-3330.\n\n-- Steven\n\nUnsubscribe: ${unsubscribeUrl}`,
     };
   },
 

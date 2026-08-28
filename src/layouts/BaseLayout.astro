@@ -46,7 +46,7 @@ interface Props {
 const {
   title,
   description,
-  ogImage = '/images/headshot.jpg', // TODO: replace default with a branded 1200x630 og-default.jpg
+  ogImage = '/images/headshot-2026.jpg', // TODO: replace default with a branded 1200x630 og-default.jpg
   noindex = false,
   canonical,
   schema,
@@ -94,6 +94,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
   stickyCTAHref = '/contact/';
   stickyCTAText = 'Get Free Home Value';
 }
+import MetaPixel from '@components/MetaPixel.astro';
 ---
 
 <!doctype html>
@@ -102,8 +103,8 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#08090B" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#F7F8FA" />
 
     <!-- Primary Meta Tags -->
     <title>{fullTitle}</title>
@@ -262,23 +263,7 @@ if (pathname.match(/^\/market\/[a-z]+-county\/[a-z0-9-]+\/?$/)) {
       });
     </script>
 
-    <!-- Meta Pixel Code -->
-    <script is:inline>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '928988636918000');
-      fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=928988636918000&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
+    <MetaPixel />
   </head>
 
   <body>

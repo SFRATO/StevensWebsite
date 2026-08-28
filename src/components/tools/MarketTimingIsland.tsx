@@ -32,7 +32,7 @@ const s = {
   verdictLabel: { fontFamily: theme.fontUi, fontSize: '0.8rem', textTransform: 'uppercase' as const, letterSpacing: '0.1em', opacity: 0.85 },
   verdictTitle: { fontFamily: theme.fontHeading, fontVariantNumeric: 'tabular-nums' as const, fontSize: '2rem', fontWeight: 700, margin: '0.5rem 0' },
   scoreBar: { display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem', justifyContent: 'center' },
-  scoreTrack: { width: '160px', height: '8px', background: 'rgba(255,255,255,0.3)', borderRadius: '999px', overflow: 'hidden' as const },
+  scoreTrack: { width: '160px', height: '8px', background: 'var(--rule-strong)', borderRadius: '999px', overflow: 'hidden' as const },
   scoreFill: (score: number) => ({
     height: '100%',
     width: `${score}%`,

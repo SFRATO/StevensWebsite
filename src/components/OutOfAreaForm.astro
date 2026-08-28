@@ -25,6 +25,10 @@ const formId = `ooa-form-${Math.random().toString(36).slice(2, 9)}`;
     <form name="out-of-area" method="POST" class="ooa-form" id={formId}>
       <input type="hidden" name="form-name" value="out-of-area" />
       <input type="hidden" name="source-location" value={sourceLocation} />
+      {/* The REAL page path, resolved at build time. `source-location` is a
+          human label, and the edge function used to interpolate it into
+          /market/<label>/ — producing 404s in the agent notification. */}
+      <input type="hidden" name="source-path" value={Astro.url.pathname} />
       <input type="hidden" name="interest" value="buying" />
       <p class="hidden" aria-hidden="true">
         <label>Don't fill this out: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
@@ -96,7 +100,7 @@ const formId = `ooa-form-${Math.random().toString(36).slice(2, 9)}`;
           alert(
             err instanceof Error && err.message && err.message !== 'submit failed'
               ? err.message
-              : 'There was an error submitting the form. Please try again or call (609) 789-0126.'
+              : 'There was an error submitting the form. Please try again or call (609) 496-3330.'
           );
         }
       });

@@ -530,6 +530,11 @@ const displayStat = statLine ?? fallbackStat;
         const result = await post({
           'form-name': 'market-report',
           'source-location': 'Exit Intent Popup',
+          // The REAL page path. `source-location` is a human label, and the edge
+          // function used to interpolate it into /market/<label>/ — which produced
+          // links like /market/Exit Intent Popup/ (a 404) in the agent notification.
+          'source-path': window.location.pathname,
+
           address: 'Not provided',
           'bot-field': String(formData.get('bot-field') ?? ''),
           // Honour a deliberate re-submit of a softly-rejected address.
@@ -717,7 +722,7 @@ const displayStat = statLine ?? fallbackStat;
   .exit-popup-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(4, 5, 7, 0.82);
+    background: var(--scrim-strong);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
@@ -773,7 +778,7 @@ const displayStat = statLine ?? fallbackStat;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(15, 39, 66, 0.06);
     border: none;
     border-radius: var(--radius-full);
     cursor: pointer;
@@ -783,7 +788,7 @@ const displayStat = statLine ?? fallbackStat;
   }
 
   .popup-close:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(15, 39, 66, 0.12);
     color: var(--text-primary);
   }
 

@@ -21,18 +21,20 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  /* Renders native form controls, scrollbars and autofill dark. Without this,
-     inputs and select menus stay white boxes on the dark page. */
-  color-scheme: dark;
+  /* Renders native form controls, scrollbars, select menus and autofill light,
+     matching the page. Was `dark` until the Aug 2026 inversion — these follow
+     color-scheme, not CSS, so this line is the master switch. */
+  color-scheme: light;
   background-color: var(--bg-primary);
 }
 
-/* Rokkitt at 500, not 400: reversed out of near-black, the regular weight
-   thins optically and the slab serifs start to break up. */
+/* Rokkitt at 400 on white. It was 500 under the dark theme because type
+   reversed out of near-black thins optically and the slab serifs start to break
+   up — printing dark-on-light has the opposite problem, so 500 now reads heavy. */
 body {
   font-family: var(--font-body);
   font-size: var(--text-base);
-  font-weight: var(--font-medium);
+  font-weight: var(--font-normal);
   line-height: var(--leading-body);
   color: var(--text-primary);
   background-color: var(--bg-primary);
@@ -50,9 +52,15 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  /* The haze, kept from the dark theme and re-tuned. A blue tint needs roughly
+     double the alpha on white that it needed on near-black to register at all,
+     hence 0.10 rather than 0.055. The second layer used to be a
+     rgba(255,255,255,0.022) vignette lifting the centre off the black; on white
+     that is invisible, so it is now a soft navy floor giving the haze something
+     to sit against. */
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(61, 139, 255, 0.055) 0%, transparent 60%),
-    radial-gradient(100% 100% at 50% 40%, rgba(255, 255, 255, 0.022) 0%, transparent 70%);
+    radial-gradient(120% 80% at 50% -10%, rgba(61, 139, 255, 0.10) 0%, transparent 60%),
+    radial-gradient(100% 60% at 50% 110%, rgba(15, 39, 66, 0.05) 0%, transparent 70%);
 }
 
 body::after {
@@ -61,7 +69,7 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.035;
+  opacity: 0.014;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -126,13 +134,15 @@ p {
 }
 
 a {
-  color: var(--accent-bright);
+  /* Was --accent-bright (#6FB2FF), which measures ~2.2:1 on white. Links are
+     navy, at 8.66:1. See the ELECTRIC BLUE note in variables.css. */
+  color: var(--navy-700);
   text-decoration: none;
   transition: color var(--transition-base);
 }
 
 a:hover {
-  color: var(--accent);
+  color: var(--navy-500);
   text-decoration: underline;
 }
 
@@ -203,16 +213,9 @@ select:focus {
   outline: none;
 }
 
-/* Chrome autofill paints its own near-white background; repaint it dark. */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill {
-  -webkit-text-fill-color: var(--text-primary);
-  -webkit-box-shadow: 0 0 0 1000px var(--surface-3) inset;
-  caret-color: var(--text-primary);
-}
+/* Chrome's autofill background is a pale yellow-white that now sits close
+   enough to --surface-raised to leave alone. The dark theme had to repaint it;
+   the light theme does not. */
 
 /* Container Utility */
 .container {

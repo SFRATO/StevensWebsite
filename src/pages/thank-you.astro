@@ -26,8 +26,8 @@ const formatCurrency = (value: number | null): string => {
   }).format(value);
 };
 
-const phone = '(609) 789-0126';
-const phoneHref = 'tel:+16097890126';
+const phone = '(609) 496-3330';
+const phoneHref = 'tel:+16094963330';
 ---
 
 <BaseLayout
@@ -199,7 +199,7 @@ const phoneHref = 'tel:+16097890126';
 <style>
   .thank-you-page {
     padding: var(--space-16) 0;
-    background: linear-gradient(135deg, var(--surface-1) 0%, var(--off-white) 100%);
+    background: linear-gradient(135deg, var(--surface-1) 0%, var(--surface-sunken) 100%);
     min-height: 80vh;
   }
 
@@ -274,7 +274,7 @@ const phoneHref = 'tel:+16097890126';
     background: var(--accent-wash-strong);
     border: 1px solid var(--accent-line);
     border-radius: var(--radius-full);
-    color: var(--white);
+    color: var(--text-primary);
   }
 
   .timeline-content h3 {
@@ -294,7 +294,7 @@ const phoneHref = 'tel:+16097890126';
     padding: var(--space-6);
     background: var(--ink-850);
     border-radius: var(--radius-lg);
-    color: var(--white);
+    color: var(--text-primary);
   }
 
   .phone-cta p {
@@ -324,13 +324,13 @@ const phoneHref = 'tel:+16097890126';
 
   .btn-outline {
     background: transparent !important;
-    border: 2px solid rgba(255,255,255,0.5) !important;
+    border: 2px solid var(--rule-strong) !important;
     color: var(--text-primary) !important;
     margin-top: var(--space-3);
   }
 
   .btn-outline:hover {
-    background: rgba(255,255,255,0.1) !important;
+    background: var(--surface-sunken) !important;
     border-color: var(--rule-strong) !important;
   }
 

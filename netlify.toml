@@ -13,6 +13,13 @@
   status = 200
 
 # Per-lead on-site activity beacons (src/utils/leadActivity.ts)
+# Seller funnel landing page (/cash-offer). Public endpoint; the SES send happens
+# in the send-seller-lead edge function, since Netlify has no AWS credentials.
+[[redirects]]
+  from = "/api/cash-offer"
+  to = "/.netlify/functions/cash-offer-lead"
+  status = 200
+
 [[redirects]]
   from = "/api/track"
   to = "/.netlify/functions/track-activity"

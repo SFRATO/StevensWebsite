@@ -110,7 +110,7 @@ export const GeneralWelcomeEmail: React.FC<GeneralWelcomeEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              (609) 789-0126
+              (609) 496-3330
             </Text>
           </Section>
 

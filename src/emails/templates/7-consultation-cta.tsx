@@ -97,7 +97,7 @@ export const ConsultationCtaEmail: React.FC<ConsultationCtaEmailProps> = ({
                 Schedule Your Free Consultation
               </Button>
               <Text style={ctaSubtext}>
-                Or call me directly: (609) 789-0126
+                Or call me directly: (609) 496-3330
               </Text>
             </Section>
 
@@ -112,7 +112,7 @@ export const ConsultationCtaEmail: React.FC<ConsultationCtaEmailProps> = ({
               <br />
               <strong>Steven Frato</strong>
               <br />
-              (609) 789-0126
+              (609) 496-3330
             </Text>
 
             <Section style={psSection}>

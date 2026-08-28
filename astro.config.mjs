@@ -140,7 +140,9 @@ export default defineConfig({
         !page.includes('/404') &&
         // /admin is on-demand so it cannot be emitted anyway; this guards against
         // someone later flipping a prerender flag.
-        !page.includes('/admin'),
+        !page.includes('/admin') &&
+        // Paid-traffic landing page: noindex'd and not an SEO surface.
+        !page.includes('/cash-offer'),
     }),
   ],
 });
