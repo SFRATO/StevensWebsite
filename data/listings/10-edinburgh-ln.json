@@ -1,0 +1,49 @@
+{
+  "_comment_1": "Load as draft:  npm run listing:add -- data/listings/10-edinburgh-ln.json",
+  "_comment_2": "Go live:        npm run listing:add -- data/listings/10-edinburgh-ln.json --publish",
+  "_comment_3": "Source: Bright MLS NJBL2118914 (Matrix agent full report, 08/18/2026).",
+
+  "slug": "10-edinburgh-ln-mount-laurel",
+
+  "address": "10 Edinburgh Ln",
+  "town": "Mount Laurel",
+  "county": "Burlington County",
+  "zipcode": "08054",
+  "state": "NJ",
+
+  "price": 649000,
+  "beds": 4,
+  "baths": 2.5,
+  "sqft": 2740,
+  "lot_size": "0.25 acres",
+  "year_built": 1988,
+  "property_type": "single-family",
+  "mls_number": "NJBL2118914",
+
+  "description": "A four-bedroom colonial in Cambridge Estates, on a fully fenced quarter-acre lot. The two-story foyer opens to a vaulted living room lit by an arched transom window, with a formal dining room alongside. The family room sits under a vaulted ceiling with two skylights and a gas fireplace flanked by floor-to-ceiling windows, and sliding doors out to the paver patio. The kitchen has an island, a breakfast area, and a bay window over the counter. Upstairs, the primary suite includes a bay-window sitting area, a walk-in closet, and a renovated bath with a double vanity, skylights, and a tiled walk-in shower with a bench. Three additional bedrooms share a hall bath. Laundry is on the main floor. The roof was replaced in 2022 and the water heater in 2026. Natural gas forced-air heat, central air, and a two-car attached garage with inside access, in the Lenape Regional High School District.",
+
+  "_comment_highlights": "Factual, property-only. Screened against src/lib/ai/fairHousing.ts before any write.",
+  "highlights": [
+    "Roof replaced in 2022; water heater new in 2026",
+    "Vaulted family room with a gas fireplace and two skylights",
+    "Primary suite with a bay-window sitting area and walk-in closet",
+    "Renovated primary bath: double vanity, skylights, tiled walk-in shower",
+    "Two-story foyer and vaulted living room with an arched transom window",
+    "Fully fenced quarter-acre lot with a paver patio",
+    "Kitchen island and breakfast area; main-floor laundry",
+    "Two-car attached garage with inside access, plus lawn sprinkler system"
+  ],
+
+  "_comment_images": "Left empty on purpose. npm run listing:photos writes the Storage URLs directly to the database row — do not paste URLs here.",
+  "images": [],
+
+  "_comment_attribution": "Keller Williams' listing, marketed with the listing broker's permission. All four fields below are required to publish (migrations 008 + 009).",
+  "is_own_listing": false,
+  "listing_brokerage": "Keller Williams Realty - Moorestown",
+  "list_agent_name": "Tom Kim",
+  "list_agent_phone": "(917) 620-5638",
+  "permission_confirmed": true,
+
+  "sold_price": null,
+  "sold_date": null
+}
