@@ -30,11 +30,11 @@
   "_comment_images": "Written back from Supabase Storage after upload. KEEP THESE — add-listing.ts always writes images from this file.",
   "images": [
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/01.jpg",
-    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/02.jpg",
-    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/03.jpg",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/04.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/05.webp",
-    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/06.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/06.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/07.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/08.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/09.webp",
@@ -49,7 +49,7 @@
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/18.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/19.webp",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/20.webp",
-    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/21.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/21.jpg",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/22.jpg",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/23.jpg",
     "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/24.webp"

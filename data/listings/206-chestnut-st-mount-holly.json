@@ -1,0 +1,320 @@
+{
+  "_comment_source": "Bright MLS NJBL2118576, snapshot in /Users/stevie/Listings/206 CHESTNUT. Agent-only remarks (contact number, ShowingTime scheduling, offer-submission email and formatting rules) deliberately excluded.",
+  "_comment_attribution": "Listing Office block was cropped off the snapshot. Set listing_brokerage + list_agent_name before publishing.",
+  "slug": "206-chestnut-st-mount-holly",
+  "address": "206 Chestnut St",
+  "town": "Mount Holly",
+  "county": "Burlington County",
+  "zipcode": "08060",
+  "state": "NJ",
+  "price": 425000,
+  "beds": 4,
+  "baths": 2.5,
+  "sqft": 2612,
+  "lot_size": "0.14 acres",
+  "year_built": 1950,
+  "property_type": "single-family",
+  "mls_number": "NJBL2118576",
+  "description": "An updated Colonial on a quiet street in historic Mount Holly, with 2,612 square feet spread across three levels. The entry foyer opens to flexible space that suits a reading nook or a home office, and the living and dining areas run together into the kitchen. That kitchen carries white shaker soft-close cabinetry, granite counters, a large double island with seating, stainless appliances, and pendant and recessed lighting over a decorative tile backsplash. Hardwood runs through the main level. Three bedrooms and two full baths sit on the first upper floor with a fourth bedroom above, and there is a powder room on the main level. Outside there is a deck and a 0.14-acre lot with alley parking in addition to the driveway. Radiator heat on natural gas, ductless mini-split cooling, public water and sewer. Close to downtown Mount Holly, shopping, dining, parks and public transportation.",
+  "highlights": [
+    "2,612 sq ft across three levels",
+    "Kitchen with white shaker soft-close cabinetry and granite counters",
+    "Large double island with seating and stainless appliances",
+    "Hardwood floors through the main level",
+    "Main-level powder room",
+    "Deck",
+    "Alley parking in addition to the driveway",
+    "Close to downtown Mount Holly and public transportation"
+  ],
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/01.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/04.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/05.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/06.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/07.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/09.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/10.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/11.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/12.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/13.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/14.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/15.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/16.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/17.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/18.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/19.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/206-chestnut-st-mount-holly/20.jpg"
+  ],
+  "is_own_listing": false,
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "Colonial"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Levels",
+            "3"
+          ],
+          [
+            "Year built",
+            "1950"
+          ],
+          [
+            "Above-grade finished",
+            "2,612 sq ft (estimated)"
+          ],
+          [
+            "Construction",
+            "Vinyl siding"
+          ],
+          [
+            "Foundation",
+            "Brick/mortar"
+          ],
+          [
+            "Flooring",
+            "Carpet, hardwood"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "4"
+          ],
+          [
+            "Full bathrooms",
+            "2"
+          ],
+          [
+            "Half bathrooms",
+            "1"
+          ],
+          [
+            "Basement",
+            "Unfinished"
+          ],
+          [
+            "Laundry",
+            "Upper floor"
+          ],
+          [
+            "Fireplace",
+            "None"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Radiator, natural gas"
+          ],
+          [
+            "Cooling",
+            "Ductless / mini-split"
+          ],
+          [
+            "Cooling fuel",
+            "Electric"
+          ],
+          [
+            "Central air",
+            "No"
+          ],
+          [
+            "Hot water",
+            "Natural gas"
+          ],
+          [
+            "Water",
+            "Public"
+          ],
+          [
+            "Sewer",
+            "Public sewer"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Features",
+            "Alley parking, driveway"
+          ],
+          [
+            "Driveway surface",
+            "Asphalt, crushed stone"
+          ]
+        ]
+      },
+      {
+        "title": "Lot",
+        "rows": [
+          [
+            "Lot size",
+            "0.14 acres / 6,247 sq ft"
+          ],
+          [
+            "Lot dimensions",
+            "50 × 125"
+          ],
+          [
+            "Additional parcels",
+            "No"
+          ],
+          [
+            "Zoning",
+            "R3"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Mount Holly Township"
+          ],
+          [
+            "County",
+            "Burlington County"
+          ],
+          [
+            "Cross street",
+            "Rose"
+          ],
+          [
+            "School district",
+            "Mount Holly Township Public Schools"
+          ],
+          [
+            "MLS area",
+            "Mount Holly Twp – Burlington County"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$6,238 (2024)"
+          ],
+          [
+            "Assessed value",
+            "$177,700 (2025)"
+          ],
+          [
+            "Improvements",
+            "$139,700"
+          ],
+          [
+            "Land",
+            "$38,000"
+          ],
+          [
+            "Tax ID",
+            "23-00042-00008"
+          ],
+          [
+            "Block/Lot",
+            "00042 / 00008"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJBL2118576"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Price per sq ft",
+            "$162.71"
+          ],
+          [
+            "Association recreation fee",
+            "No"
+          ]
+        ]
+      }
+    ],
+    "rooms": [
+      {
+        "level": "Main level",
+        "name": "Half bathroom",
+        "size": "1"
+      },
+      {
+        "level": "Upper level 1",
+        "name": "Bedrooms",
+        "size": "3"
+      },
+      {
+        "level": "Upper level 1",
+        "name": "Full bathrooms",
+        "size": "2"
+      },
+      {
+        "level": "Upper level 2",
+        "name": "Bedroom",
+        "size": "1"
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "Open floor plan",
+          "Combination dining / living",
+          "Gourmet kitchen",
+          "Recessed lighting",
+          "Ceiling fan(s)",
+          "Carpet and hardwood flooring",
+          "Upper-floor laundry",
+          "No fireplace"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "Deck(s)",
+          "No pool"
+        ]
+      }
+    ],
+    "disclosures": [
+      "Square footage is estimated and should be independently verified."
+    ]
+  },
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+}

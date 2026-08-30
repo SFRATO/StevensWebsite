@@ -1,0 +1,282 @@
+{
+  "_comment_source": "Bright MLS NJME2080980, snapshot in /Users/stevie/Listings/10 bOXWOOD. Agent-only remarks excluded; the flood-zone note in those remarks is being handled by Steven directly.",
+  "_comment_attribution": "Listing Office block was cropped off the snapshot. Set listing_brokerage + list_agent_name before publishing.",
+  "slug": "10-boxwood-ct-ewing",
+  "address": "10 Boxwood Ct",
+  "town": "Ewing",
+  "county": "Mercer County",
+  "zipcode": "08628",
+  "state": "NJ",
+  "price": 549900,
+  "beds": 4,
+  "baths": 2,
+  "sqft": 2200,
+  "lot_size": "0.34 acres",
+  "year_built": 1960,
+  "property_type": "single-family",
+  "mls_number": "NJME2080980",
+  "description": "A split-level home on a cul-de-sac in Ewing, set on a third of an acre backing to woods with direct access to the Delaware & Raritan Canal towpath. The foyer opens into living space with refinished hardwood, Andersen replacement windows, recessed lighting and crown molding. A large bay window fills the living room, which flows into the formal dining room. The updated eat-in kitchen has stainless double ovens, a cooktop, a custom tile backsplash, abundant cabinetry and generous counter space. The family room sits at the heart of the plan and opens directly onto a screened porch overlooking the wooded rear yard. A first-floor bedroom works as a guest room, home office or playroom, with three more bedrooms and two updated full bathrooms upstairs. Baseboard hot-water heat on natural gas, central air, well water and public sewer. Minutes from TCNJ, Rider University, Capital Health Medical Center, Mercer County Airport, NJ Transit and I-295.",
+  "highlights": [
+    "0.34-acre wooded lot on a cul-de-sac",
+    "Direct access to the Delaware & Raritan Canal towpath",
+    "Screened porch off the family room",
+    "Refinished hardwood floors and Andersen replacement windows",
+    "Eat-in kitchen with stainless double ovens and a cooktop",
+    "First-floor bedroom",
+    "Two updated full bathrooms",
+    "Central air with baseboard hot-water heat"
+  ],
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/01.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/04.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/05.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/06.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/07.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/09.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/10.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/11.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/12.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/13.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/14.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/15.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/16.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/17.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/18.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/10-boxwood-ct-ewing/19.jpg"
+  ],
+  "is_own_listing": false,
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "Bi-level, split level"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Levels",
+            "2"
+          ],
+          [
+            "Year built",
+            "1960"
+          ],
+          [
+            "Above-grade finished",
+            "2,200 sq ft (estimated)"
+          ],
+          [
+            "Assessor above-grade",
+            "2,180 sq ft"
+          ],
+          [
+            "Construction",
+            "Frame"
+          ],
+          [
+            "Foundation",
+            "Crawl space, slab"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "4"
+          ],
+          [
+            "Full bathrooms",
+            "2"
+          ],
+          [
+            "Basement",
+            "None"
+          ],
+          [
+            "Laundry",
+            "Lower floor"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Baseboard hot water, natural gas"
+          ],
+          [
+            "Cooling",
+            "Central A/C"
+          ],
+          [
+            "Cooling fuel",
+            "Electric"
+          ],
+          [
+            "Hot water",
+            "Natural gas"
+          ],
+          [
+            "Water",
+            "Well"
+          ],
+          [
+            "Sewer",
+            "Public sewer"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Features",
+            "Driveway"
+          ]
+        ]
+      },
+      {
+        "title": "Lot",
+        "rows": [
+          [
+            "Lot size",
+            "0.34 acres / 14,758 sq ft"
+          ],
+          [
+            "Lot dimensions",
+            "74.87 × 197.12"
+          ],
+          [
+            "Zoning",
+            "R-1"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Ewing Township"
+          ],
+          [
+            "County",
+            "Mercer County"
+          ],
+          [
+            "School district",
+            "Ewing Township Public Schools"
+          ],
+          [
+            "MLS area",
+            "Ewing Twp – Mercer County"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$10,431 (2025)"
+          ],
+          [
+            "Assessed value",
+            "$257,500 (2025)"
+          ],
+          [
+            "Tax ID",
+            "02-00420-00012"
+          ],
+          [
+            "Block/Lot",
+            "00420 / 00012"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJME2080980"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Price per sq ft",
+            "$249.95"
+          ]
+        ]
+      }
+    ],
+    "rooms": [
+      {
+        "level": "Upper level",
+        "name": "Bedrooms",
+        "size": "3"
+      },
+      {
+        "level": "Upper level",
+        "name": "Full bathrooms",
+        "size": "2"
+      },
+      {
+        "level": "Lower level",
+        "name": "Bedroom",
+        "size": "1"
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "Refinished hardwood floors",
+          "Andersen replacement windows",
+          "Recessed lighting and crown molding",
+          "Bay window in the living room",
+          "Eat-in kitchen with double ovens and cooktop",
+          "Custom tile backsplash",
+          "Six-panel doors",
+          "Lower-floor laundry"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "Screened porch",
+          "Wooded rear yard",
+          "Direct access to the D&R Canal towpath",
+          "No pool"
+        ]
+      }
+    ],
+    "disclosures": [
+      "The fireplace and chimney are sold as-is.",
+      "Microwave, downstairs refrigerator and freezers are excluded; remaining appliances convey as they exist.",
+      "Square footage is estimated and should be independently verified."
+    ]
+  },
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+}

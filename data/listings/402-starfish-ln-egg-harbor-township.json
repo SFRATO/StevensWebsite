@@ -1,0 +1,290 @@
+{
+  "_comment_source": "Bright MLS NJAC2026208, snapshot in /Users/stevie/Listings/402 starfish. Agent-only remarks (ShowingTime booking instructions) deliberately excluded.",
+  "_comment_attribution": "Listing Office block was cropped off the snapshot. Steven is supplying attribution manually — set listing_brokerage + list_agent_name before publishing (listings_borrowed_agent_chk enforces it).",
+  "slug": "402-starfish-ln-egg-harbor-township",
+  "address": "402 Starfish Ln",
+  "town": "Egg Harbor Township",
+  "county": "Atlantic County",
+  "zipcode": "08234",
+  "state": "NJ",
+  "price": 499999,
+  "beds": 4,
+  "baths": 2.5,
+  "sqft": 2100,
+  "lot_size": "80 × 130 ft",
+  "year_built": 2016,
+  "property_type": "single-family",
+  "mls_number": "NJAC2026208",
+  "description": "A 2016-built home in Seapine Estates, a short walk from Bargaintown Park. The main level is open-plan, with a kitchen carrying upgraded tall cabinetry and generous storage that connects to a morning room off to the side for coffee or casual meals. The attached garage enters through a practical drop zone that leads straight into the kitchen. Four bedrooms sit upstairs alongside a second-floor laundry room, and the full basement is partially finished, adding flexible space for a rec room, home office or gym. Natural gas forced-air heat, central air, public water and public sewer. Egg Harbor Township Public Schools, with shopping, dining and the South Jersey beaches close by.",
+  "highlights": [
+    "Built in 2016",
+    "Open-concept main level with a morning room off the kitchen",
+    "Upgraded tall kitchen cabinetry with generous storage",
+    "Attached garage with an interior drop zone into the kitchen",
+    "Second-floor laundry room",
+    "Full basement, partially finished",
+    "Seapine Estates, a short walk from Bargaintown Park",
+    "Natural gas forced-air heat and central air"
+  ],
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/01.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/04.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/05.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/06.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/07.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/09.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/10.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/11.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/12.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/13.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/14.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/15.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/16.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/17.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/18.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/19.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/20.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/21.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/22.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/23.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/24.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/25.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/26.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/27.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/28.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/402-starfish-ln-egg-harbor-township/29.webp"
+  ],
+  "is_own_listing": false,
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "A-Frame"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Levels",
+            "2"
+          ],
+          [
+            "Year built",
+            "2016"
+          ],
+          [
+            "Above-grade finished",
+            "2,100 sq ft (estimated)"
+          ],
+          [
+            "Assessor above-grade",
+            "1,896 sq ft"
+          ],
+          [
+            "Construction",
+            "Frame"
+          ],
+          [
+            "Foundation",
+            "Concrete perimeter"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "4"
+          ],
+          [
+            "Full bathrooms",
+            "2"
+          ],
+          [
+            "Half bathrooms",
+            "1"
+          ],
+          [
+            "Basement",
+            "Full, partially finished"
+          ],
+          [
+            "Laundry",
+            "Second floor"
+          ],
+          [
+            "Fireplace",
+            "None"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Forced air, natural gas"
+          ],
+          [
+            "Cooling",
+            "Central A/C"
+          ],
+          [
+            "Cooling fuel",
+            "Natural gas"
+          ],
+          [
+            "Hot water",
+            "Natural gas"
+          ],
+          [
+            "Water",
+            "Public"
+          ],
+          [
+            "Sewer",
+            "Public sewer"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Garage",
+            "Attached"
+          ],
+          [
+            "Features",
+            "Driveway"
+          ]
+        ]
+      },
+      {
+        "title": "Lot",
+        "rows": [
+          [
+            "Lot dimensions",
+            "80 × 130"
+          ],
+          [
+            "Zoning",
+            "R"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Egg Harbor Township"
+          ],
+          [
+            "County",
+            "Atlantic County"
+          ],
+          [
+            "Subdivision",
+            "Seapine Estates"
+          ],
+          [
+            "School district",
+            "Egg Harbor Township Public Schools"
+          ],
+          [
+            "MLS area",
+            "Egg Harbor Twp – Atlantic County"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$8,318 (2025)"
+          ],
+          [
+            "Assessed value",
+            "$244,600 (2025)"
+          ],
+          [
+            "Improvements",
+            "$195,600"
+          ],
+          [
+            "Land",
+            "$49,000"
+          ],
+          [
+            "Tax ID",
+            "08-05432-00011"
+          ],
+          [
+            "Block/Lot",
+            "05432 / 00011"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJAC2026208"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Price per sq ft",
+            "$238.09"
+          ]
+        ]
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "Open floor plan",
+          "Upgraded tall kitchen cabinetry",
+          "Morning room off the kitchen",
+          "Drop-zone entry from the garage",
+          "Second-floor laundry",
+          "Partially finished basement",
+          "No fireplace"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "No pool"
+        ]
+      }
+    ],
+    "disclosures": [
+      "Some listing images have been virtually staged; original images are also included.",
+      "Square footage is estimated and should be independently verified."
+    ]
+  },
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+}
