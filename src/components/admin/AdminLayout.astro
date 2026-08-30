@@ -1,0 +1,65 @@
+---
+/**
+ * Chrome for the admin console. Intentionally plain — this is an internal tool,
+ * so it shares nothing with the public site's design system and loads none of
+ * its fonts, analytics or consent scripts.
+ */
+import { actions } from 'astro:actions';
+interface Props { title: string }
+const { title } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>{title} · SPW Admin</title>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="/admin/">SPW Admin</a>
+      <nav>
+        <a href="/admin/">Properties</a>
+        <a href="/admin/spw-builder/">New SPW</a>
+        <form method="POST" action={actions.signOut}><button type="submit">Sign out</button></form>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <style is:global>
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+             background:#F7F8FA; color:#17202A; font-size:14px; }
+      header { display:flex; align-items:center; justify-content:space-between; gap:16px;
+               padding:12px 22px; background:#fff; border-bottom:1px solid #DDE3EC; }
+      .brand { font-weight:700; color:#17202A; text-decoration:none; }
+      nav { display:flex; align-items:center; gap:16px; }
+      nav a { color:#44536A; text-decoration:none; }
+      nav a:hover { color:#1E4A73; }
+      nav button { background:none; border:0; color:#44536A; cursor:pointer; font-size:14px; padding:0; }
+      main { max-width:1080px; margin:0 auto; padding:26px 22px 80px; }
+      h1 { font-size:20px; margin:0; }
+      .bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+      .bar-actions { display:flex; gap:10px; align-items:center; }
+      .btn { display:inline-block; padding:8px 14px; font-size:13px; font-weight:600; color:#fff;
+             background:#1E4A73; border:1px solid #1E4A73; border-radius:6px; cursor:pointer; text-decoration:none; }
+      .btn.ghost { background:#fff; color:#1E4A73; }
+      .btn.tiny { padding:5px 10px; font-size:12px; }
+      .btn:disabled { opacity:.5; cursor:default; }
+      table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #DDE3EC; border-radius:8px; overflow:hidden; }
+      th, td { text-align:left; padding:11px 14px; border-bottom:1px solid #EEF1F6; vertical-align:middle; }
+      th { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:#5D6B80; background:#FAFBFD; }
+      tr:last-child td { border-bottom:0; }
+      td.right { text-align:right; display:flex; gap:8px; justify-content:flex-end; }
+      td.right form { display:inline; }
+      .addr { color:#1E4A73; font-weight:600; text-decoration:none; display:block; }
+      .sub { color:#5D6B80; font-size:12px; }
+      .pill { display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:700; }
+      .pill.on { background:#E4F3E8; color:#1B5E2A; }
+      .pill.off { background:#EEF1F6; color:#5D6B80; }
+      .note { padding:10px 13px; border-radius:6px; font-size:13px; margin:0 0 16px; }
+      .note.ok { background:#E4F3E8; border:1px solid #B7DFC2; color:#1B5E2A; }
+      .note.err { background:#FDECEC; border:1px solid #F5C2C2; color:#8A1F1F; }
+    </style>
+  </body>
+</html>

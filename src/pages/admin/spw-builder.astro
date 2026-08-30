@@ -1,0 +1,55 @@
+---
+/**
+ * The SPW builder. On demand, admin-only, never prerendered.
+ *
+ * The page itself only loads data and hands it to the React island; every
+ * mutation goes through src/actions, which re-checks admin membership.
+ */
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+import SpwBuilder from '../../components/admin/SpwBuilder.tsx';
+import { getAllTowns } from '../../data/town-mappings';
+import zipcodes from '../../../data/processed/zipcodes.json';
+
+const slug = Astro.url.searchParams.get('slug');
+const { supabase } = Astro.locals;
+
+const { data: existing } = slug
+  ? await supabase.from('listings').select('*').eq('slug', slug).maybeSingle()
+  : { data: null };
+
+const { data: allSlugs } = await supabase.from('listings').select('slug');
+
+/**
+ * Town suggestions. Union of the two datasets the project already carries.
+ *
+ * These SUGGEST and never gate — zipcodes.json covers only Burlington, Mercer
+ * and Middlesex, and four already-published SPWs (Cherry Hill, Egg Harbor
+ * Township, Bridgeton, Pennsauken) sit outside it. Anything that passes the
+ * format + NJ-ZIP-range check in lib/spw/address.ts is accepted.
+ */
+type Row = { zipcode?: string; city?: string; county?: string };
+const fromZips = (zipcodes as Row[]).map((z) => ({
+  town: String(z.city ?? '').trim(),
+  zipcode: String(z.zipcode ?? '').trim(),
+  county: String(z.county ?? '').trim(),
+}));
+const fromTowns = getAllTowns().map((t) => ({
+  town: t.name,
+  zipcode: t.zipcode ?? '',
+  county: t.county,
+}));
+const seen = new Set<string>();
+const towns = [...fromTowns, ...fromZips]
+  .filter((t) => t.town && !seen.has(`${t.town}|${t.zipcode}`) && seen.add(`${t.town}|${t.zipcode}`))
+  .sort((a, b) => a.town.localeCompare(b.town));
+---
+<AdminLayout title={existing ? 'Edit property' : 'New SPW'}>
+  <SpwBuilder
+    client:load
+    existing={existing}
+    towns={towns}
+    takenSlugs={(allSlugs ?? []).map((r: { slug: string }) => r.slug)}
+  />
+</AdminLayout>

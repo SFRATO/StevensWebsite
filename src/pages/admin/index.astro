@@ -1,0 +1,75 @@
+---
+/**
+ * Property list — the SPW management surface.
+ *
+ * Active = status 'published', Inactive = 'draft'. That single value is what
+ * getPublishedListings(), the confirmation email's card query and the
+ * listings_public_read RLS policy all filter on, so flipping it removes an SPW
+ * from the site AND from the email recommendations with nothing else aware.
+ */
+export const prerender = false;
+
+import { actions } from 'astro:actions';
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+
+const { supabase } = Astro.locals;
+const { data: listings } = await supabase
+  .from('listings')
+  .select('slug, address, town, price, status, images, list_agent_name, listing_brokerage')
+  .order('created_at', { ascending: false });
+
+const published = Astro.getActionResult(actions.publish);
+const money = (n: number | string | null) => {
+  const v = typeof n === 'string' ? Number(n) : n;
+  return typeof v === 'number' && v > 0 ? `$${Math.round(v).toLocaleString('en-US')}` : '—';
+};
+---
+<AdminLayout title="Properties">
+  <div class="bar">
+    <h1>Properties</h1>
+    <div class="bar-actions">
+      <a class="btn" href="/admin/spw-builder/">+ New SPW</a>
+      <form method="POST" action={actions.publish}>
+        <button class="btn ghost" type="submit">Publish changes</button>
+      </form>
+    </div>
+  </div>
+
+  {published && !published.error && (
+    <p class="note ok">Build triggered. Changes are live in about two minutes.</p>
+  )}
+  {published?.error && <p class="note err">{published.error.message}</p>}
+
+  <table>
+    <thead><tr><th>Property</th><th>Price</th><th>Photos</th><th>Attribution</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {(listings ?? []).map((l) => (
+        <tr>
+          <td>
+            <a class="addr" href={`/admin/spw-builder/?slug=${l.slug}`}>{l.address}</a>
+            <span class="sub">{l.town}</span>
+          </td>
+          <td>{money(l.price)}</td>
+          <td>{l.images?.length ?? 0}</td>
+          <td class="sub">{l.list_agent_name ?? '—'}{l.listing_brokerage ? ` · ${l.listing_brokerage}` : ''}</td>
+          <td>
+            <span class={`pill ${l.status === 'published' ? 'on' : 'off'}`}>
+              {l.status === 'published' ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="right">
+            <form method="POST" action={actions.setStatus}>
+              <input type="hidden" name="slug" value={l.slug} />
+              <input type="hidden" name="status" value={l.status === 'published' ? 'draft' : 'published'} />
+              <button class="btn tiny" type="submit">
+                {l.status === 'published' ? 'Deactivate' : 'Activate'}
+              </button>
+            </form>
+            <a class="btn tiny ghost" href={`/admin/spw-builder/?slug=${l.slug}`}>Edit</a>
+          </td>
+        </tr>
+      ))}
+      {!(listings ?? []).length && <tr><td colspan="6" class="sub">No properties yet.</td></tr>}
+    </tbody>
+  </table>
+</AdminLayout>

@@ -1,0 +1,70 @@
+---
+/**
+ * Admin sign-in. On demand, never prerendered, never in the sitemap.
+ *
+ * WHY THE POST IS HANDLED HERE AND NOT IN AN ACTION
+ * -------------------------------------------------
+ * src/middleware.ts guards '/_actions' as well as '/admin' — deliberately, so no
+ * mutation is ever reachable unauthenticated. That guard also bounces an
+ * unauthenticated POST to /_actions/signIn, which makes signing in impossible.
+ * Rather than punch an exception through the guard, the credential exchange
+ * happens on this page: /admin/login is the single path the middleware already
+ * lets through without a session, so nothing about the guard has to weaken.
+ */
+export const prerender = false;
+
+const { supabase } = Astro.locals;
+let error: string | null = Astro.url.searchParams.get('e') === 'forbidden'
+  ? 'That account is not an admin.'
+  : null;
+
+if (Astro.request.method === 'POST') {
+  const form = await Astro.request.formData();
+  const email = String(form.get('email') ?? '').trim();
+  const password = String(form.get('password') ?? '');
+
+  const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (authError) {
+    // Deliberately generic. Distinguishing "no such user" from "wrong password"
+    // is a free account-enumeration oracle on an admin console.
+    error = 'Invalid email or password.';
+  } else {
+    const next = String(form.get('next') ?? '');
+    return Astro.redirect(next.startsWith('/admin') ? next : '/admin/', 302);
+  }
+}
+
+const next = Astro.url.searchParams.get('next') ?? '';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <title>Sign in</title>
+  </head>
+  <body>
+    <main class="wrap">
+      <form method="POST">
+        <h1>SPW Admin</h1>
+        {error && <p class="err">{error}</p>}
+        <input type="hidden" name="next" value={next} />
+        <label>Email<input type="email" name="email" required autocomplete="username" autofocus /></label>
+        <label>Password<input type="password" name="password" required autocomplete="current-password" /></label>
+        <button type="submit">Sign in</button>
+      </form>
+    </main>
+    <style>
+      :root { color-scheme: light; }
+      body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#F7F8FA; color:#17202A; }
+      .wrap { min-height:100vh; display:grid; place-items:center; padding:24px; }
+      form { width:100%; max-width:340px; background:#fff; border:1px solid #DDE3EC; border-radius:10px; padding:28px; display:grid; gap:14px; }
+      h1 { margin:0 0 6px; font-size:20px; }
+      label { display:grid; gap:6px; font-size:13px; color:#44536A; }
+      input { padding:10px 12px; font-size:15px; border:1px solid #C3CDDA; border-radius:6px; }
+      button { margin-top:6px; padding:11px; font-size:15px; font-weight:600; color:#fff; background:#1E4A73; border:0; border-radius:6px; cursor:pointer; }
+      .err { margin:0; padding:9px 11px; background:#FDECEC; border:1px solid #F5C2C2; border-radius:6px; color:#8A1F1F; font-size:13px; }
+    </style>
+  </body>
+</html>
