@@ -47,7 +47,31 @@ export const onRequest = defineMiddleware(async (context, next) => {
   try {
     supabase = createSupabaseServerClient(context);
   } catch (err) {
-    console.error('[admin] Supabase client could not be created:', err);
+    // Distinguish "the variables are absent" from "they are present and
+    // something else broke". Without this split, any failure inside the
+    // Supabase SDK would be reported as a configuration problem and send the
+    // reader off to check Netlify for no reason.
+    const missing = ['SUPABASE_URL', 'SUPABASE_ANON_KEY'].filter((k) => !process.env[k]);
+    console.error(
+      `[admin] Supabase client could not be created. Missing: ${missing.join(', ') || 'nothing'}.`,
+      err,
+    );
+    if (!missing.length) {
+      return new Response(
+        `<!doctype html><meta charset="utf-8"><title>Admin unavailable</title>
+         <div style="font:15px/1.6 system-ui;max-width:38rem;margin:10vh auto;padding:0 1.5rem">
+           <h1 style="font-size:19px">Admin console failed to start</h1>
+           <p>Both <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> are reaching the
+              function, so this is <strong>not</strong> a missing environment variable. The client
+              itself failed to initialise:</p>
+           <pre style="font-size:12.5px;background:#F7F8FA;border:1px solid #DDE3EC;border-radius:6px;padding:10px;white-space:pre-wrap">${
+             String((err as Error)?.message ?? err).slice(0, 300).replace(/[<>]/g, '')
+           }</pre>
+           <p style="color:#5D6B80;font-size:13px">The public site is unaffected.</p>
+         </div>`,
+        { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
+      );
+    }
 
     /**
      * Report WHICH variable is absent, by name only.
