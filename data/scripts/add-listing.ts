@@ -53,6 +53,8 @@ interface ListingFile {
   permission_confirmed?: boolean;
   sold_price?: number;
   sold_date?: string;
+  /** Rich MLS-style detail. Shape: ListingDetails in src/lib/listings.ts. */
+  details?: unknown;
 }
 
 function fail(msg: string): never {

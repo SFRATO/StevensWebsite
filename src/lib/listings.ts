@@ -19,6 +19,29 @@ import {
 } from '../data/contact';
 
 
+/**
+ * Optional rich detail for a listing page — grouped MLS-style facts, room
+ * dimensions, feature lists and material disclosures.
+ *
+ * Every key is independently optional and each maps to exactly one page
+ * section, so a listing can carry all of it, some of it, or none. Listings
+ * created before migration 013 have `details: null` and render the original
+ * flat Details list instead.
+ *
+ * Stored as JSONB (013_listing_details.sql). The database does not enforce this
+ * shape — the page does, by rendering only what it recognises.
+ */
+export interface ListingDetails {
+  /** Grouped fact rows: Structure, Systems & Utilities, Parking, Taxes, Terms. */
+  factGroups?: Array<{ title: string; rows: Array<[string, string]> }>;
+  /** Room dimensions, grouped by level in render order. */
+  rooms?: Array<{ level: string; name: string; size?: string }>;
+  /** Interior / Exterior / Accessibility feature lists. */
+  featureGroups?: Array<{ title: string; items: string[] }>;
+  /** Material as-is facts a buyer should see before enquiring. */
+  disclosures?: string[];
+}
+
 export interface Listing {
   id: string;
   slug: string;
@@ -46,6 +69,7 @@ export interface Listing {
   sold_price: number | null;
   sold_date: string | null;
   published_at: string | null;
+  details: ListingDetails | null;
 }
 
 const SELECT_COLUMNS = [
@@ -53,7 +77,7 @@ const SELECT_COLUMNS = [
   'price', 'beds', 'baths', 'sqft', 'lot_size', 'year_built', 'property_type',
   'mls_number', 'description', 'highlights', 'images',
   'is_own_listing', 'listing_brokerage', 'list_agent_name', 'list_agent_phone',
-  'sold_price', 'sold_date', 'published_at',
+  'sold_price', 'sold_date', 'published_at', 'details',
 ].join(',');
 
 /**

@@ -1,0 +1,378 @@
+{
+  "_comment_source": "Facts supplied by Steven from Bright MLS NJCD2121344. Agent-only content (showing instructions, lockbox, offer submission) is deliberately excluded.",
+  "_comment_run": "npm run listing:add -- data/listings/100-kingsdale-ave-cherry-hill.json --publish",
+  "slug": "100-kingsdale-ave-cherry-hill",
+  "address": "100 Kingsdale Ave",
+  "town": "Cherry Hill",
+  "county": "Camden County",
+  "zipcode": "08003",
+  "state": "NJ",
+  "price": 725000,
+  "beds": 5,
+  "baths": 3,
+  "sqft": 2686,
+  "year_built": 1979,
+  "property_type": "single-family",
+  "mls_number": "NJCD2121344",
+  "_comment_description": "Original copy written from the supplied facts — not the MLS public remarks.",
+  "description": "A center-hall Colonial in Fox Hollow with 2,686 square feet across three levels and five bedrooms. The room that sets it apart is the 20 x 17 conservatory at the back of the house: cathedral ceilings, built-in cabinetry, recessed lighting, window seats, and a wall of windows that opens onto the patio. The rest of the main level holds a formal living room and dining room, a large eat-in kitchen with upgraded counters and stainless appliances, a family room off the kitchen with a wood-burning fireplace, main-floor laundry, and a fifth bedroom with a full bathroom alongside it that works as a guest room or a home office. Four more bedrooms are upstairs, including an ensuite primary, served by two additional full baths. The basement is fully finished and adds usable space below grade. Outside, a stamped concrete front porch and a brick patio with a slate extension look out over a large flat yard with mature landscaping and a brick-outlined walkway. Hardwood runs through much of the home, and there is a two-car attached garage with inside access plus four driveway spaces. The roof is approximately five years old and the hot water heater approximately three. Convenient to Routes 70 and 73, I-295 and the New Jersey Turnpike.",
+  "highlights": [
+    "20 x 17 conservatory with cathedral ceilings, built-ins and patio access",
+    "Fifth bedroom and a full bathroom on the main level",
+    "Wood-burning fireplace in the family room off the kitchen",
+    "Full finished basement",
+    "Large flat yard with brick patio and slate extension",
+    "Hardwood floors through much of the home",
+    "Two-car attached garage with inside access, six total parking spaces",
+    "Roll-in shower and modified bathroom",
+    "Roof approximately 5 years old, hot water heater approximately 3 years old"
+  ],
+  "_comment_images": "Written back from Supabase Storage after upload. KEEP THESE — add-listing.ts always writes images from this file.",
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/01.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/02.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/04.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/05.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/06.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/07.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/09.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/10.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/11.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/12.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/13.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/14.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/15.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/16.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/17.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/18.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/19.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/20.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/21.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/22.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/23.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/100-kingsdale-ave-cherry-hill/24.webp"
+  ],
+  "_comment_attribution": "NOT Steven's listing. Listing agent Kelli Fishbein, Keller Williams Realty.",
+  "is_own_listing": false,
+  "listing_brokerage": "Keller Williams Realty",
+  "list_agent_name": "Kelli Fishbein",
+  "permission_confirmed": true,
+  "_comment_details": "Rich consumer-facing MLS detail. Shape: ListingDetails in src/lib/listings.ts.",
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "Colonial"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Stories",
+            "3"
+          ],
+          [
+            "Year built",
+            "1979"
+          ],
+          [
+            "Above-grade finished",
+            "2,686 sq ft"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "5"
+          ],
+          [
+            "Full bathrooms",
+            "3"
+          ],
+          [
+            "Basement",
+            "Full, fully finished"
+          ],
+          [
+            "Fireplace",
+            "1, wood-burning"
+          ],
+          [
+            "Laundry",
+            "Main floor"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Forced air, natural gas"
+          ],
+          [
+            "Cooling",
+            "Central A/C"
+          ],
+          [
+            "Cooling fuel",
+            "Electric"
+          ],
+          [
+            "Hot water",
+            "Natural gas"
+          ],
+          [
+            "Water",
+            "Public"
+          ],
+          [
+            "Sewer",
+            "Public"
+          ],
+          [
+            "Roof age",
+            "Approximately 5 years"
+          ],
+          [
+            "HVAC age",
+            "Approximately 10 years"
+          ],
+          [
+            "Hot water heater age",
+            "Approximately 3 years"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Garage",
+            "2-car attached, front entry"
+          ],
+          [
+            "Garage access",
+            "Inside access"
+          ],
+          [
+            "Driveway",
+            "4 spaces"
+          ],
+          [
+            "Total parking",
+            "6 spaces"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Cherry Hill Township"
+          ],
+          [
+            "County",
+            "Camden County"
+          ],
+          [
+            "Subdivision",
+            "Fox Hollow"
+          ],
+          [
+            "Cross street",
+            "Partridge Lane"
+          ],
+          [
+            "School district",
+            "Cherry Hill Township Public Schools"
+          ],
+          [
+            "Zoning",
+            "Residential"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$15,522 (2025)"
+          ],
+          [
+            "Assessed value",
+            "$330,200"
+          ],
+          [
+            "Improvements",
+            "$247,600"
+          ],
+          [
+            "Land",
+            "$82,600"
+          ],
+          [
+            "Tax ID",
+            "09-00518 19-00024"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJCD2121344"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Acceptable financing",
+            "Cash, Conventional, FHA, VA"
+          ],
+          [
+            "Possession",
+            "Immediate"
+          ]
+        ]
+      }
+    ],
+    "rooms": [
+      {
+        "level": "Main level",
+        "name": "Living room",
+        "size": "15 × 8"
+      },
+      {
+        "level": "Main level",
+        "name": "Dining room",
+        "size": "11 × 13"
+      },
+      {
+        "level": "Main level",
+        "name": "Family room",
+        "size": "17 × 11"
+      },
+      {
+        "level": "Main level",
+        "name": "Kitchen",
+        "size": "11 × 19"
+      },
+      {
+        "level": "Main level",
+        "name": "Conservatory",
+        "size": "20 × 17"
+      },
+      {
+        "level": "Main level",
+        "name": "Bedroom 5",
+        "size": "14 × 13"
+      },
+      {
+        "level": "Main level",
+        "name": "Full bathroom",
+        "size": "1"
+      },
+      {
+        "level": "Upper level",
+        "name": "Primary bedroom (ensuite)",
+        "size": "15 × 13"
+      },
+      {
+        "level": "Upper level",
+        "name": "Bedroom 2",
+        "size": "13 × 11"
+      },
+      {
+        "level": "Upper level",
+        "name": "Bedroom 3",
+        "size": "13 × 10"
+      },
+      {
+        "level": "Upper level",
+        "name": "Bedroom 4",
+        "size": "11 × 13"
+      },
+      {
+        "level": "Upper level",
+        "name": "Full bathrooms",
+        "size": "2"
+      },
+      {
+        "level": "Lower level",
+        "name": "Finished basement",
+        "size": "Full"
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "Hardwood floors",
+          "Wood-burning fireplace",
+          "Built-ins",
+          "Large eat-in kitchen",
+          "Family room off the kitchen",
+          "Formal dining room",
+          "Upgraded countertops",
+          "Stainless steel appliances",
+          "Main-floor laundry",
+          "Entry-level bedroom",
+          "Primary bathroom",
+          "Stall shower",
+          "Tub shower",
+          "Walk-in shower"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "Extensive hardscaping",
+          "Stamped concrete front porch",
+          "Brick patio with slate extension",
+          "Large flat usable yard",
+          "Mature landscaping",
+          "Brick-outlined walkway",
+          "Exterior lighting",
+          "Gutter system",
+          "Sidewalks and street lights",
+          "No pool"
+        ]
+      },
+      {
+        "title": "Accessibility",
+        "items": [
+          "2+ access exits",
+          "Modified bathroom",
+          "Roll-in shower"
+        ]
+      }
+    ],
+    "disclosures": [
+      "The fireplace has not been used in many years and is being sold as-is.",
+      "Existing appliances, light fixtures and window treatments are included in as-is condition.",
+      "Room dimensions are approximate and should be independently verified."
+    ]
+  }
+}

@@ -103,6 +103,35 @@ const detailRows: Array<[string, string]> = [
   listing.county ? ['County', listing.county] : null,
   isSold && listing.sold_date ? ['Sold', listing.sold_date] : null,
 ].filter(Boolean) as Array<[string, string]>;
+
+/**
+ * Rich detail (migration 013). Every block is optional and absent on listings
+ * created before it, which is why each is guarded individually below rather
+ * than behind one `details &&`.
+ */
+const d = listing.details ?? null;
+const factGroups = d?.factGroups?.filter((g) => g.rows?.length) ?? [];
+const featureGroups = d?.featureGroups?.filter((g) => g.items?.length) ?? [];
+const disclosures = d?.disclosures?.filter(Boolean) ?? [];
+
+/**
+ * Rooms arrive flat with a `level` on each. Group them in first-seen order so
+ * the page reads Main / Upper / Lower without hardcoding those level names —
+ * a ranch or a split has different ones.
+ */
+const roomLevels: Array<{ level: string; rooms: typeof d.rooms }> = [];
+for (const room of d?.rooms ?? []) {
+  const bucket = roomLevels.find((r) => r.level === room.level);
+  if (bucket) bucket.rooms!.push(room);
+  else roomLevels.push({ level: room.level, rooms: [room] });
+}
+
+/**
+ * factGroups REPLACES the flat list rather than joining it — the groups carry
+ * the same core rows (beds, baths, sq ft, year, MLS #) plus everything else, so
+ * rendering both would print each fact twice.
+ */
+const showLegacyDetails = factGroups.length === 0 && detailRows.length > 0;
 ---
 
 <BaseLayout
@@ -236,7 +265,42 @@ const detailRows: Array<[string, string]> = [
               </section>
             )}
 
-            {detailRows.length > 0 && (
+            {featureGroups.length > 0 && (
+              <section class="block">
+                <h2>Features</h2>
+                <div class="feature-groups">
+                  {featureGroups.map((g) => (
+                    <div class="feature-group">
+                      <h3>{g.title}</h3>
+                      <ul class="highlights">
+                        {g.items.map((i) => <li>{i}</li>)}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {roomLevels.length > 0 && (
+              <section class="block">
+                <h2>Rooms</h2>
+                {roomLevels.map((lvl) => (
+                  <div class="room-level">
+                    <h3>{lvl.level}</h3>
+                    <dl class="details">
+                      {lvl.rooms!.map((r) => (
+                        <div class="detail-row">
+                          <dt>{r.name}</dt>
+                          <dd>{r.size ?? '—'}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </section>
+            )}
+
+            {showLegacyDetails && (
               <section class="block" id="listing-details">
                 <h2>Details</h2>
                 <dl class="details">
@@ -244,6 +308,33 @@ const detailRows: Array<[string, string]> = [
                     <div class="detail-row"><dt>{k}</dt><dd>{v}</dd></div>
                   ))}
                 </dl>
+              </section>
+            )}
+
+            {factGroups.length > 0 && (
+              <section class="block" id="listing-details">
+                <h2>Property details</h2>
+                <div class="fact-groups">
+                  {factGroups.map((g) => (
+                    <div class="fact-group">
+                      <h3>{g.title}</h3>
+                      <dl class="details">
+                        {g.rows.map(([k, v]) => (
+                          <div class="detail-row"><dt>{k}</dt><dd>{v}</dd></div>
+                        ))}
+                      </dl>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {disclosures.length > 0 && (
+              <section class="block">
+                <h2>Disclosures</h2>
+                <ul class="disclosures">
+                  {disclosures.map((x) => <li>{x}</li>)}
+                </ul>
               </section>
             )}
 
@@ -624,6 +715,51 @@ const detailRows: Array<[string, string]> = [
     padding: var(--space-3) 0;
     border-bottom: 1px solid var(--rule);
   }
+  /* --- rich detail sections (migration 013) ------------------------------
+     Only render on listings that carry `details`. They deliberately reuse
+     .block, .details, .detail-row and .highlights so the new sections inherit
+     the established rhythm instead of introducing a second visual language. */
+  .fact-groups,
+  .feature-groups {
+    display: grid;
+    gap: var(--space-6) var(--space-8);
+    /* Two columns where there is room, one below ~640px. auto-fit rather than a
+       media query so a section with a single group does not leave a dead column. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    align-items: start;
+  }
+  .fact-group h3,
+  .feature-group h3,
+  .room-level h3 {
+    font-family: var(--font-ui);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-3);
+  }
+  .room-level + .room-level { margin-top: var(--space-6); }
+
+  /* Fact groups sit INSIDE an already-narrow grid column, so the inherited
+     two-column row layout would make four effective columns and wrap every
+     value. One row per line here; the legacy #listing-details list on listings
+     without `details` keeps its two-column layout untouched. */
+  .fact-group .details { grid-template-columns: 1fr; }
+  /* The inherited `capitalize` exists to render the raw `single-family` enum as
+     "Single Family". These values are authored prose and are already correct —
+     capitalize would turn "sq ft" into "Sq Ft" and "wood-burning" into
+     "Wood-Burning". */
+  .fact-group .detail-row dd { text-transform: none; }
+  .disclosures {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+  }
+  .disclosures li + li { margin-top: var(--space-2); }
+
   .detail-row dt { color: var(--text-muted); font-family: var(--font-ui); font-size: var(--text-sm); }
   .detail-row dd {
     color: var(--text-primary);
