@@ -4,7 +4,16 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
+  # 22, not 20, and this is load-bearing — do not lower it.
+  #
+  # @supabase/realtime-js requires a global WebSocket, which Node only exposes
+  # unflagged from v22. supabase-js constructs its realtime client eagerly, so on
+  # Node 20 the /admin console's createServerClient() throws
+  # "Node.js detected but native WebSocket not found" and every admin route 503s.
+  # The public site is unaffected, which is what makes it easy to miss: the
+  # failure appears only in the Astro SSR function, never in a local dev run on a
+  # newer Node. Node 20 also reached end-of-life in April 2026.
+  NODE_VERSION = "22"
 
 # Redirects for form submissions to function
 [[redirects]]
