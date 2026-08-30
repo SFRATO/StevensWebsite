@@ -1,6 +1,6 @@
 {
   "_comment_source": "Bright MLS NJME2080980, snapshot in /Users/stevie/Listings/10 bOXWOOD. Agent-only remarks excluded; the flood-zone note in those remarks is being handled by Steven directly.",
-  "_comment_attribution": "Listing Office block was cropped off the snapshot. Set listing_brokerage + list_agent_name before publishing.",
+  "_comment_attribution": "Listing agent Stefanie Prettyman, Real Broker, LLC. Supplied by Steven from the Listing Office block.",
   "slug": "10-boxwood-ct-ewing",
   "address": "10 Boxwood Ct",
   "town": "Ewing",
@@ -278,5 +278,9 @@
       "Square footage is estimated and should be independently verified."
     ]
   },
-  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file.",
+  "listing_brokerage": "Real Broker, LLC",
+  "list_agent_name": "Stefanie Prettyman",
+  "list_agent_phone": "(609) 954-5206",
+  "permission_confirmed": true
 }

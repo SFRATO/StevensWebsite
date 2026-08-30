@@ -1,6 +1,6 @@
 {
   "_comment_source": "Bright MLS NJAC2026208, snapshot in /Users/stevie/Listings/402 starfish. Agent-only remarks (ShowingTime booking instructions) deliberately excluded.",
-  "_comment_attribution": "Listing Office block was cropped off the snapshot. Steven is supplying attribution manually — set listing_brokerage + list_agent_name before publishing (listings_borrowed_agent_chk enforces it).",
+  "_comment_attribution": "Listing agent Shanta Comeaux-Brookins, Real Broker, LLC. Supplied by Steven from the Listing Office block.",
   "slug": "402-starfish-ln-egg-harbor-township",
   "address": "402 Starfish Ln",
   "town": "Egg Harbor Township",
@@ -286,5 +286,9 @@
       "Square footage is estimated and should be independently verified."
     ]
   },
-  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file.",
+  "listing_brokerage": "Real Broker, LLC",
+  "list_agent_name": "Shanta Comeaux-Brookins",
+  "list_agent_phone": "(609) 317-0799",
+  "permission_confirmed": true
 }

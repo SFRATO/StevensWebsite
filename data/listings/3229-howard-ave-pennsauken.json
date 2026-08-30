@@ -1,0 +1,386 @@
+{
+  "_comment_source": "Bright MLS NJCD2124070, snapshot in /Users/stevie/Listings/3229 Howard. Agent-only remarks and showing/lockbox details excluded. Open-house date omitted as transient.",
+  "slug": "3229-howard-ave-pennsauken",
+  "address": "3229 Howard Ave",
+  "town": "Pennsauken",
+  "county": "Camden County",
+  "zipcode": "08109",
+  "state": "NJ",
+  "price": 389900,
+  "beds": 3,
+  "baths": 1,
+  "sqft": 2016,
+  "lot_size": "0.21 acres",
+  "year_built": 1964,
+  "property_type": "single-family",
+  "mls_number": "NJCD2124070",
+  "description": "A fully renovated split-level on a quiet no-through street in Pennsauken Township, with 2,016 square feet across two levels. The upper level opens into a light-filled living room with an oversized window, a wainscoted accent wall and recessed lighting that carries through the home, all over newly custom-stained hardwood floors. The kitchen just off the living room is white and new: Calacatta quartz counters, a fresh backsplash, stainless appliances, luxury vinyl plank flooring and a breakfast bar with stools, with the dining room adjacent. Three bedrooms sit down the hall, each with a large closet and a brushed-nickel ceiling fan, and one connects Jack-and-Jill style to the renovated full bathroom finished with a gray tile floor, Calacatta shower tile and a white vanity. Downstairs is a large walkout family room with luxury vinyl plank, recessed lighting, an under-stair storage closet and a new sliding glass door out to the patio; the opposite side of the lower level is a very large partially finished space. Mechanical and electrical work runs throughout, including a new 150-amp panel and service line, new meter and disconnect boxes, new outlets and switches, and new smoke and carbon monoxide detectors. Outside there is a new charcoal roof, black shutters and exterior lighting, a new stone driveway and stone-and-brick walkway, and a wood-fenced 0.21-acre lot with a patio and front porch. Natural gas forced-air heat, central air, public water and public sewer.",
+  "highlights": [
+    "Fully renovated split-level, 2,016 sq ft",
+    "Newly custom-stained hardwood floors",
+    "White kitchen with Calacatta quartz counters and stainless appliances",
+    "Breakfast bar off the kitchen with adjacent dining room",
+    "Jack-and-Jill connection between a bedroom and the full bath",
+    "Large walkout family room with a sliding door to the patio",
+    "New 150-amp electrical panel and service line",
+    "New charcoal roof, stone driveway and stone-and-brick walkway",
+    "Wood-fenced 0.21-acre lot with patio and front porch"
+  ],
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/01.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/04.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/05.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/06.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/07.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/09.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/10.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/11.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/12.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/13.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/14.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/15.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/16.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/17.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/18.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/19.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/20.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/21.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/22.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/23.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/24.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/25.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/26.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/27.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/28.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/29.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/30.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/31.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/32.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/33.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/34.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/35.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/36.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/37.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/3229-howard-ave-pennsauken/38.jpg"
+  ],
+  "is_own_listing": false,
+  "listing_brokerage": "Real Broker, LLC",
+  "list_agent_name": "Chris Brann",
+  "list_agent_phone": "(609) 610-4301",
+  "permission_confirmed": true,
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "Split level"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Levels",
+            "2"
+          ],
+          [
+            "Year built",
+            "1964"
+          ],
+          [
+            "Property condition",
+            "Excellent"
+          ],
+          [
+            "Above-grade finished",
+            "2,016 sq ft (assessor)"
+          ],
+          [
+            "Construction",
+            "Block"
+          ],
+          [
+            "Foundation",
+            "Block"
+          ],
+          [
+            "Roof",
+            "Shingle"
+          ],
+          [
+            "Flooring",
+            "Ceramic tile, hardwood, luxury vinyl plank"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "3"
+          ],
+          [
+            "Full bathrooms",
+            "1"
+          ],
+          [
+            "Basement",
+            "Full, daylight, partially finished"
+          ],
+          [
+            "Laundry",
+            "Lower floor"
+          ],
+          [
+            "Fireplace",
+            "None"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Forced air, natural gas"
+          ],
+          [
+            "Cooling",
+            "Central A/C"
+          ],
+          [
+            "Cooling fuel",
+            "Electric"
+          ],
+          [
+            "Electric service",
+            "150 amps"
+          ],
+          [
+            "Hot water",
+            "Electric"
+          ],
+          [
+            "Water",
+            "Public"
+          ],
+          [
+            "Sewer",
+            "Public sewer"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Driveway",
+            "2 spaces"
+          ],
+          [
+            "Total parking",
+            "2 spaces"
+          ],
+          [
+            "Features",
+            "Driveway, on street, stone driveway"
+          ]
+        ]
+      },
+      {
+        "title": "Lot",
+        "rows": [
+          [
+            "Lot size",
+            "0.21 acres / 9,165 sq ft"
+          ],
+          [
+            "Fencing",
+            "Wood"
+          ],
+          [
+            "Zoning",
+            "Residential"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Pennsauken Township"
+          ],
+          [
+            "County",
+            "Camden County"
+          ],
+          [
+            "Subdivision",
+            "Centennial Walk"
+          ],
+          [
+            "Cross street",
+            "Park Ave"
+          ],
+          [
+            "School district",
+            "Pennsauken Township Public Schools"
+          ],
+          [
+            "MLS area",
+            "Pennsauken Twp – Camden County"
+          ],
+          [
+            "Transportation",
+            "Bus stop less than 1 mile"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$6,461 (2025)"
+          ],
+          [
+            "Assessed value",
+            "$284,400 (2025)"
+          ],
+          [
+            "Improvements",
+            "$221,300"
+          ],
+          [
+            "Land",
+            "$63,100"
+          ],
+          [
+            "Tax ID",
+            "27-03310-00023"
+          ],
+          [
+            "Block/Lot",
+            "03310 / 00023"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJCD2124070"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Price per sq ft",
+            "$193.40"
+          ]
+        ]
+      }
+    ],
+    "rooms": [
+      {
+        "level": "Main level",
+        "name": "Living room",
+        "size": "17 × 15"
+      },
+      {
+        "level": "Main level",
+        "name": "Dining room",
+        "size": "8 × 8"
+      },
+      {
+        "level": "Main level",
+        "name": "Kitchen",
+        "size": "14 × 8"
+      },
+      {
+        "level": "Main level",
+        "name": "Bedroom 1",
+        "size": "13 × 12"
+      },
+      {
+        "level": "Main level",
+        "name": "Bedroom 2",
+        "size": "13 × 12"
+      },
+      {
+        "level": "Main level",
+        "name": "Bedroom 3",
+        "size": "12 × 8"
+      },
+      {
+        "level": "Main level",
+        "name": "Bathroom",
+        "size": "8 × 7"
+      },
+      {
+        "level": "Lower level",
+        "name": "Family room",
+        "size": "23 × 13"
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "Wood floors",
+          "Upgraded countertops",
+          "Combination kitchen/dining",
+          "Recessed lighting",
+          "Wainscoting",
+          "Ceiling fan(s)",
+          "Tub shower",
+          "Stainless steel appliances",
+          "Built-in microwave",
+          "Dishwasher",
+          "Energy-efficient appliances",
+          "Gas oven/range",
+          "Lower-floor laundry"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "Patio(s)",
+          "Porch(es)",
+          "Wood fencing",
+          "Stone driveway",
+          "No pool"
+        ]
+      },
+      {
+        "title": "Accessibility",
+        "items": [
+          "2+ access exits"
+        ]
+      }
+    ],
+    "disclosures": [
+      "Windows, sliding doors, all appliances and the wall heat/AC unit are in working order and are being sold as-is.",
+      "Refrigerator, washer and dryer are included.",
+      "Square footage and room dimensions are approximate and should be independently verified."
+    ]
+  },
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+}

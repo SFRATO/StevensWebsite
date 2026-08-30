@@ -1,6 +1,6 @@
 {
   "_comment_source": "Bright MLS NJBL2118576, snapshot in /Users/stevie/Listings/206 CHESTNUT. Agent-only remarks (contact number, ShowingTime scheduling, offer-submission email and formatting rules) deliberately excluded.",
-  "_comment_attribution": "Listing Office block was cropped off the snapshot. Set listing_brokerage + list_agent_name before publishing.",
+  "_comment_attribution": "Listing agent Sharif Hatab, EXP Realty, LLC. Supplied by Steven from the Listing Office block.",
   "slug": "206-chestnut-st-mount-holly",
   "address": "206 Chestnut St",
   "town": "Mount Holly",
@@ -316,5 +316,9 @@
       "Square footage is estimated and should be independently verified."
     ]
   },
-  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file.",
+  "listing_brokerage": "EXP Realty, LLC",
+  "list_agent_name": "Sharif Hatab",
+  "list_agent_phone": "(609) 757-9883",
+  "permission_confirmed": true
 }

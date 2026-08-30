@@ -1,0 +1,309 @@
+{
+  "_comment_source": "Bright MLS NJCB2030462, snapshot in /Users/stevie/Listings/76 Rockville. Agent-only remarks, showing/lockbox details and owner name excluded.",
+  "slug": "76-rockville-rd-bridgeton",
+  "address": "76 Rockville Rd",
+  "town": "Bridgeton",
+  "county": "Cumberland County",
+  "zipcode": "08302",
+  "state": "NJ",
+  "price": 279000,
+  "beds": 4,
+  "baths": 2,
+  "sqft": 1600,
+  "lot_size": "1.2 acres",
+  "year_built": 1972,
+  "property_type": "single-family",
+  "mls_number": "NJCB2030462",
+  "description": "A renovated bi-level in Bridgeton set on a 1.2-acre lot, with four bedrooms and two full bathrooms across 1,600 square feet. New luxury vinyl plank flooring runs through the home. The kitchen has been redone with white cabinetry and a gas range, and opens to the living and dining areas on the main level, where three of the bedrooms and one of the full bathrooms are also located. The lower level holds the fourth bedroom, the second full bathroom, the family room and the laundry. Both bathrooms are new, with tub-shower units and marble-look flooring. Hot-water heat on oil, well water and a private septic system, on a large lot backing to mature trees. Bridgeton Public Schools, with possession available in 0–30 days.",
+  "highlights": [
+    "Renovated bi-level with four bedrooms and two full baths",
+    "1.2-acre lot backing to mature trees",
+    "New luxury vinyl plank flooring throughout",
+    "Updated kitchen with white cabinetry and a gas range",
+    "Two newly finished full bathrooms",
+    "Fourth bedroom, second full bath and family room on the lower level",
+    "Lower-level laundry",
+    "Attic storage"
+  ],
+  "images": [
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/01.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/02.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/03.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/04.jpg",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/05.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/06.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/07.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/08.webp",
+    "https://vvyrkazsnbkwwvzlcqzx.supabase.co/storage/v1/object/public/listing-photos/76-rockville-rd-bridgeton/09.webp"
+  ],
+  "is_own_listing": false,
+  "listing_brokerage": "Real Broker, LLC",
+  "list_agent_name": "John Natale",
+  "list_agent_phone": "(732) 757-7251",
+  "permission_confirmed": true,
+  "details": {
+    "factGroups": [
+      {
+        "title": "Structure",
+        "rows": [
+          [
+            "Property type",
+            "Single family"
+          ],
+          [
+            "Style",
+            "Bi-level"
+          ],
+          [
+            "Structure",
+            "Detached"
+          ],
+          [
+            "Levels",
+            "2"
+          ],
+          [
+            "Year built",
+            "1972"
+          ],
+          [
+            "Above-grade finished",
+            "1,600 sq ft"
+          ],
+          [
+            "Assessor above-grade",
+            "912 sq ft"
+          ],
+          [
+            "Total rooms",
+            "8"
+          ],
+          [
+            "Construction",
+            "Frame"
+          ],
+          [
+            "Foundation",
+            "Slab"
+          ],
+          [
+            "Ownership",
+            "Fee simple"
+          ]
+        ]
+      },
+      {
+        "title": "Interior",
+        "rows": [
+          [
+            "Bedrooms",
+            "4"
+          ],
+          [
+            "Full bathrooms",
+            "2"
+          ],
+          [
+            "Basement",
+            "None"
+          ],
+          [
+            "Attic",
+            "Yes"
+          ],
+          [
+            "Laundry",
+            "Lower floor"
+          ]
+        ]
+      },
+      {
+        "title": "Systems & utilities",
+        "rows": [
+          [
+            "Heating",
+            "Hot water"
+          ],
+          [
+            "Heating fuel",
+            "Oil"
+          ],
+          [
+            "Cooling",
+            "None"
+          ],
+          [
+            "Hot water",
+            "Electric"
+          ],
+          [
+            "Water",
+            "Well"
+          ],
+          [
+            "Sewer",
+            "Private septic tank"
+          ]
+        ]
+      },
+      {
+        "title": "Parking",
+        "rows": [
+          [
+            "Features",
+            "Driveway"
+          ]
+        ]
+      },
+      {
+        "title": "Lot",
+        "rows": [
+          [
+            "Lot size",
+            "1.2 acres / 43,560 sq ft (estimated)"
+          ],
+          [
+            "Zoning",
+            "AG"
+          ]
+        ]
+      },
+      {
+        "title": "Location & schools",
+        "rows": [
+          [
+            "Municipality",
+            "Bridgeton City"
+          ],
+          [
+            "County",
+            "Cumberland County"
+          ],
+          [
+            "School district",
+            "Bridgeton Public Schools"
+          ],
+          [
+            "MLS area",
+            "Bridgeton City – Cumberland County"
+          ]
+        ]
+      },
+      {
+        "title": "Taxes & assessment",
+        "rows": [
+          [
+            "Annual taxes",
+            "$4,346 (2025)"
+          ],
+          [
+            "Assessed value",
+            "$146,100 (2021)"
+          ],
+          [
+            "Improvements",
+            "$101,100"
+          ],
+          [
+            "Land",
+            "$45,000"
+          ],
+          [
+            "Tax ID",
+            "05-00041-00007 01"
+          ],
+          [
+            "Block/Lot",
+            "00041 / 00007 01"
+          ]
+        ]
+      },
+      {
+        "title": "Listing",
+        "rows": [
+          [
+            "MLS #",
+            "NJCB2030462"
+          ],
+          [
+            "Status",
+            "Active"
+          ],
+          [
+            "Price per sq ft",
+            "$174.38"
+          ],
+          [
+            "Possession",
+            "0–30 days CD"
+          ]
+        ]
+      }
+    ],
+    "rooms": [
+      {
+        "level": "Main level",
+        "name": "Kitchen"
+      },
+      {
+        "level": "Main level",
+        "name": "Living room"
+      },
+      {
+        "level": "Main level",
+        "name": "Dining room"
+      },
+      {
+        "level": "Main level",
+        "name": "Bedrooms",
+        "size": "3"
+      },
+      {
+        "level": "Main level",
+        "name": "Full bathroom",
+        "size": "1"
+      },
+      {
+        "level": "Lower level",
+        "name": "Family room"
+      },
+      {
+        "level": "Lower level",
+        "name": "Bedroom",
+        "size": "1"
+      },
+      {
+        "level": "Lower level",
+        "name": "Full bathroom",
+        "size": "1"
+      },
+      {
+        "level": "Lower level",
+        "name": "Laundry"
+      }
+    ],
+    "featureGroups": [
+      {
+        "title": "Interior features",
+        "items": [
+          "New luxury vinyl plank flooring",
+          "Updated kitchen with gas range",
+          "Two newly finished full bathrooms",
+          "Attic",
+          "Lower-floor laundry"
+        ]
+      },
+      {
+        "title": "Exterior features",
+        "items": [
+          "No pool"
+        ]
+      }
+    ],
+    "disclosures": [
+      "Listing photographs have been digitally enhanced.",
+      "Square footage is approximate and should be independently verified. The assessor records 912 sq ft above grade against the 1,600 sq ft listed."
+    ]
+  },
+  "_comment_images": "Written back after upload. KEEP THESE — add-listing.ts always writes images from this file."
+}
