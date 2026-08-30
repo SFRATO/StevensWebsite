@@ -33,7 +33,33 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (!isGuarded(path)) return next();
 
   const { createSupabaseServerClient } = await import('./lib/supabase/server');
-  const supabase = createSupabaseServerClient(context);
+
+  /**
+   * A missing env var must not become a bare 500.
+   *
+   * createSupabaseServerClient throws when SUPABASE_URL / SUPABASE_ANON_KEY are
+   * absent. Unhandled, that surfaces as a zero-byte 500 with no Content-Type,
+   * which browsers save to disk as an empty file instead of showing anything —
+   * an unreadable symptom for a one-line configuration problem. Catch it and say
+   * what is wrong.
+   */
+  let supabase;
+  try {
+    supabase = createSupabaseServerClient(context);
+  } catch (err) {
+    console.error('[admin] Supabase client could not be created:', err);
+    return new Response(
+      `<!doctype html><meta charset="utf-8"><title>Admin unavailable</title>
+       <div style="font:15px/1.6 system-ui;max-width:34rem;margin:12vh auto;padding:0 1.5rem">
+         <h1 style="font-size:19px">Admin console is not configured</h1>
+         <p>The server is missing <code>SUPABASE_URL</code> or <code>SUPABASE_ANON_KEY</code>.
+            Add them under <strong>Site configuration &rsaquo; Environment variables</strong>
+            in Netlify, then redeploy.</p>
+         <p style="color:#5D6B80;font-size:13px">The public site is unaffected.</p>
+       </div>`,
+      { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
+    );
+  }
   context.locals.supabase = supabase;
 
   // getUser(), never getSession(): getSession trusts the cookie payload without
