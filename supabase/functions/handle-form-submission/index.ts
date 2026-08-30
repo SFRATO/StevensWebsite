@@ -404,7 +404,7 @@ async function recampaignLead(
  *  different property is still acknowledged. Matches send-seller-lead. */
 const SPW_RESEND_AFTER_MS = 5 * 60 * 1000;
 
-const SPW_ASSETS = "https://www.stevenfrato.com/images/email";
+const SPW_ASSETS_SITE = "https://www.stevenfrato.com";
 
 interface SpwCard {
   slug: string;
@@ -418,14 +418,6 @@ const esc = (v: unknown) =>
   String(v ?? "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-
-/** "$725,000" — PostgREST may hand NUMERIC back as a string, so coerce first. */
-function spwPrice(v: number | string | null): string | null {
-  const n = typeof v === "string" ? Number(v) : v;
-  return typeof n === "number" && Number.isFinite(n) && n > 0
-    ? `$${Math.round(n).toLocaleString("en-US")}`
-    : null;
-}
 
 /**
  * The other published listings, newest first, excluding the one just registered
@@ -465,8 +457,6 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
   const cell = (c: SpwCard) => {
     const url = `${SITE_URL}/listings/${c.slug}/`;
     const hero = c.images?.[0] ?? "";
-    const price = spwPrice(c.price);
-    const sub = [esc(c.address), price].filter(Boolean).join(" &middot; ");
     return `
       <td class="spw-card" width="50%" valign="top" style="padding:0 8px 22px;">
         <a href="${esc(url)}" style="display:block;font-size:17px;line-height:1.3;font-weight:700;color:#1E4A73;text-decoration:none;padding:0 0 8px;">${esc(c.town || c.address)}</a>
@@ -475,7 +465,15 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
                width="266"
                style="display:block;width:100%;max-width:266px;height:auto;border:1px solid #DDE3EC;border-radius:8px;" />
         </a>
-        <div style="padding:8px 0 0;font-size:12px;line-height:1.5;color:#5D6B80;">${sub}</div>
+        <div style="padding:8px 0 10px;font-size:12px;line-height:1.5;color:#5D6B80;">${esc(c.address)}</div>
+        <!-- bgcolor on the CELL, not background-color on the anchor: Outlook's
+             Word engine renders the latter unreliably. -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">
+          <tr><td bgcolor="#1E4A73" style="background-color:#1E4A73;border-radius:6px;">
+            <a href="${esc(url)}"
+               style="display:inline-block;padding:10px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;font-weight:700;line-height:1;color:#ffffff;text-decoration:none;border-radius:6px;">View This Home</a>
+          </td></tr>
+        </table>
       </td>`;
   };
 
@@ -488,7 +486,7 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
       rows.push(`<tr>${pair.map(cell).join("")}${filler}</tr>`);
     }
     cardsHtml = `
-        <tr><td style="padding:6px 18px 0;">
+        <tr><td colspan="2" style="padding:6px 18px 0;">
           <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#17202A;">Other Homes You May Want to See</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
             ${rows.join("")}
@@ -499,12 +497,21 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
   const html = `<!doctype html>
 <html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-  /* Stack the two card columns on a phone. Clients that drop <style> (Outlook
-     desktop, some webmail) simply keep the two-across layout, which already
-     renders correctly at 375px — this is an improvement, not a dependency. */
+  /* Stack the left rail and the card columns on a phone. Clients that drop
+     <style> (Outlook desktop, some webmail) keep the side-by-side layout, which
+     already renders correctly — this is an improvement, not a dependency. */
   @media only screen and (max-width:480px) {
-    .spw-card { display:block !important; width:100% !important; padding:0 0 22px !important; }
+    /* box-sizing is load-bearing: a display:block cell at width:100% PLUS 26px
+       side padding overflows its parent by 52px on a content-box element, and
+       the card's overflow:hidden then clips the message text mid-word. */
+    .spw-card, .spw-rail, .spw-body {
+      display:block !important; width:100% !important;
+      box-sizing:border-box !important; -moz-box-sizing:border-box !important;
+    }
+    .spw-card { padding:0 0 22px !important; }
     .spw-card img { max-width:100% !important; }
+    .spw-rail { text-align:center !important; padding:26px 26px 6px !important; }
+    .spw-body { padding:0 26px 4px !important; }
   }
 </style>
 </head>
@@ -516,26 +523,46 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
              style="width:100%;max-width:600px;background:#ffffff;border:1px solid #DDE3EC;border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-        <tr><td style="padding:28px 26px 4px;">
-          ${P(greeting)}
-          ${paragraphs.map(P).join("")}
-        </td></tr>
+        <tr>
+          <!-- Left rail. BROKERAGE SITS ABOVE THE AGENT NAME AND IS NOT SMALLER:
+               N.J.A.C. 11:5-6.1(b)1 requires the brokerage be more prominent than
+               the salesperson. Same rule BrandLockup.astro enforces on the site.
+               Do not reorder or shrink it. -->
+          <td class="spw-rail" width="170" valign="top" style="width:170px;padding:26px 6px 10px 22px;">
+            <img src="${SPW_ASSETS_SITE}/images/headshot-2026-square.jpg"
+                 alt="${esc(AGENT_NAME)}"
+                 width="118"
+                 style="display:block;width:118px;max-width:118px;height:auto;border-radius:50%;border:0;margin:0 0 12px;" />
+            <div style="font-size:12px;line-height:1.35;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#17202A;">${esc(BROKERAGE_NAME)}</div>
+            <div style="font-size:14px;line-height:1.4;font-weight:600;color:#17202A;padding:2px 0 0;">${esc(AGENT_NAME)}</div>
+            <div style="font-size:11px;line-height:1.4;color:#5D6B80;padding:2px 0 8px;">Licensed NJ Real Estate Salesperson</div>
+            <div style="font-size:12px;line-height:1.6;">
+              <a href="tel:+16094963330" style="color:#1E4A73;text-decoration:none;">${esc(PHONE)}</a><br />
+              <a href="mailto:${esc(AGENT_EMAIL)}" style="color:#1E4A73;text-decoration:none;">${esc(AGENT_EMAIL)}</a>
+            </div>
+          </td>
+
+          <td class="spw-body" valign="top" style="padding:28px 26px 4px 10px;">
+            ${P(greeting)}
+            ${paragraphs.map(P).join("")}
+          </td>
+        </tr>
 
         ${cardsHtml}
 
-        <tr><td align="center" style="padding:14px 26px 32px;">
-          <img src="${SPW_ASSETS}/confirmation-signature.png"
-               alt="${esc(AGENT_NAME)}, ${esc(BROKERAGE_NAME)} — ${esc(PHONE)} — ${esc(AGENT_EMAIL)}"
-               width="360"
-               style="display:block;width:100%;max-width:360px;height:auto;border:0;margin:0 auto;" />
+        <tr><td colspan="2" align="center" style="padding:8px 26px 30px;">
+          <div style="font-size:13px;line-height:1.45;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#17202A;">${esc(BROKERAGE_NAME)}</div>
+          <div style="font-size:14px;line-height:1.5;color:#17202A;padding:3px 0 0;">${esc(AGENT_NAME)}</div>
+          <div style="font-size:14px;line-height:1.5;padding:1px 0 0;">
+            <a href="tel:+16094963330" style="color:#1E4A73;text-decoration:none;">${esc(PHONE)}</a>
+          </div>
         </td></tr>
 
       </table>
       <!--[if mso]></td></tr></table><![endif]-->
 
-      <!-- Compliance is LIVE TEXT outside the card. The signature image carries the
-           same licence and brokerage details, but an image-blocked client would show
-           none of it, and 11:5-6.1 applies whether or not images load. -->
+      <!-- Compliance is LIVE TEXT outside the card, so an image-blocked client
+           still shows it. 11:5-6.1 applies whether or not images load. -->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
         <tr><td align="center" style="padding:16px 12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;line-height:1.6;color:#5D6B80;">
           ${esc(BROKERAGE_NAME)} &mdash; ${esc(BROKERAGE_DESCRIPTOR)}. NJ Real Estate License #${esc(LICENSE_NUMBER)}.<br />
@@ -555,20 +582,17 @@ function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
       ? [
           "OTHER HOMES YOU MAY WANT TO SEE",
           "",
-          ...cards.flatMap((c) => {
-            const price = spwPrice(c.price);
-            return [
-              `${c.town || c.address}${price ? ` - ${price}` : ""}`,
-              `${c.address}`,
-              `${SITE_URL}/listings/${c.slug}/`,
-              "",
-            ];
-          }),
+          ...cards.flatMap((c) => [
+            `${c.town || c.address}`,
+            `${c.address}`,
+            `${SITE_URL}/listings/${c.slug}/`,
+            "",
+          ]),
         ]
       : []),
     BROKERAGE_NAME,
     AGENT_NAME,
-    `${PHONE} | ${AGENT_EMAIL}`,
+    PHONE,
     "",
     `${BROKERAGE_NAME} - ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.`,
     "Equal Housing Opportunity.",
