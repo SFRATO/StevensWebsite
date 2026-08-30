@@ -15,6 +15,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SESClient, SendEmailCommand } from "npm:@aws-sdk/client-ses";
 import { createToken } from "../_shared/tokens.ts";
 import { EMAIL as AGENT_EMAIL_DEFAULT } from "../_shared/contact.ts";
+import {
+  AGENT_NAME,
+  BROKERAGE_NAME,
+  BROKERAGE_DESCRIPTOR,
+  LICENSE_NUMBER,
+  PHONE,
+  EMAIL as AGENT_EMAIL,
+} from "../_shared/contact.ts";
+import { toDisplayName } from "../_shared/textCase.ts";
 
 // Types
 interface FormSubmissionPayload {
@@ -377,6 +386,267 @@ async function recampaignLead(
 
   console.log(`Re-campaigned lead ${leadId} to '${interestType}' — ${rows.length} emails queued.`);
   return rows.length;
+}
+
+// ---------------------------------------------------------------------------
+// Single Property Website registration confirmation
+// ---------------------------------------------------------------------------
+// Sent to the visitor after they complete the gate on a /listings/ page. Thanks
+// them, confirms their access, and shows the other active listings to earn a
+// second click.
+//
+// The card data is READ FROM THE listings TABLE at send time — nothing about a
+// property is hardcoded here, so adding or removing a listing needs no edit to
+// this email.
+
+/** How long before the same lead may receive this email again. Absorbs a
+ *  double-clicked submit or a network retry; a genuine later registration on a
+ *  different property is still acknowledged. Matches send-seller-lead. */
+const SPW_RESEND_AFTER_MS = 5 * 60 * 1000;
+
+const SPW_ASSETS = "https://www.stevenfrato.com/images/email";
+
+interface SpwCard {
+  slug: string;
+  town: string | null;
+  address: string;
+  price: number | string | null;
+  images: string[] | null;
+}
+
+const esc = (v: unknown) =>
+  String(v ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+
+/** "$725,000" — PostgREST may hand NUMERIC back as a string, so coerce first. */
+function spwPrice(v: number | string | null): string | null {
+  const n = typeof v === "string" ? Number(v) : v;
+  return typeof n === "number" && Number.isFinite(n) && n > 0
+    ? `$${Math.round(n).toLocaleString("en-US")}`
+    : null;
+}
+
+/**
+ * The other published listings, newest first, excluding the one just registered
+ * on. Capped at six: beyond that the email stops being a short confirmation.
+ */
+async function fetchOtherListings(currentSlug: string): Promise<SpwCard[]> {
+  const query = supabase
+    .from("listings")
+    .select("slug, town, address, price, images")
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(7); // one spare, in case the current slug is inside the window
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("spw-confirmation: listings query failed:", error.message);
+    return [];
+  }
+  return (data ?? [])
+    .filter((l: SpwCard) => l.slug !== currentSlug && (l.images?.length ?? 0) > 0)
+    .slice(0, 6);
+}
+
+function buildSpwConfirmation(firstName: string, cards: SpwCard[]) {
+  const greeting = firstName ? `Hi ${firstName},` : "Hi,";
+  const paragraphs = [
+    "Thanks for registering for agent-free MLS access. You now have access to the full property details, photos, and information available through my Single Property Websites.",
+    "While you're here, take a look at some of the other homes I currently have available below. Your access carries across these property pages, so you will not need to register again.",
+  ];
+
+  const P = (t: string) =>
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#17202A;">${esc(t)}</p>`;
+
+  // Two cards per row. Three-across at a 600px card leaves ~176px hero images,
+  // which is too small to sell a house; two-across gives ~260px and stacks
+  // predictably on a phone.
+  const cell = (c: SpwCard) => {
+    const url = `${SITE_URL}/listings/${c.slug}/`;
+    const hero = c.images?.[0] ?? "";
+    const price = spwPrice(c.price);
+    const sub = [esc(c.address), price].filter(Boolean).join(" &middot; ");
+    return `
+      <td class="spw-card" width="50%" valign="top" style="padding:0 8px 22px;">
+        <a href="${esc(url)}" style="display:block;font-size:17px;line-height:1.3;font-weight:700;color:#1E4A73;text-decoration:none;padding:0 0 8px;">${esc(c.town || c.address)}</a>
+        <a href="${esc(url)}" style="display:block;text-decoration:none;">
+          <img src="${esc(hero)}" alt="${esc(c.address)}${c.town ? `, ${esc(c.town)}` : ""}"
+               width="266"
+               style="display:block;width:100%;max-width:266px;height:auto;border:1px solid #DDE3EC;border-radius:8px;" />
+        </a>
+        <div style="padding:8px 0 0;font-size:12px;line-height:1.5;color:#5D6B80;">${sub}</div>
+      </td>`;
+  };
+
+  let cardsHtml = "";
+  if (cards.length) {
+    const rows: string[] = [];
+    for (let i = 0; i < cards.length; i += 2) {
+      const pair = cards.slice(i, i + 2);
+      const filler = pair.length === 1 ? `<td class="spw-card" width="50%" style="padding:0 8px 22px;"></td>` : "";
+      rows.push(`<tr>${pair.map(cell).join("")}${filler}</tr>`);
+    }
+    cardsHtml = `
+        <tr><td style="padding:6px 18px 0;">
+          <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#17202A;">Other Homes You May Want to See</p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+            ${rows.join("")}
+          </table>
+        </td></tr>`;
+  }
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  /* Stack the two card columns on a phone. Clients that drop <style> (Outlook
+     desktop, some webmail) simply keep the two-across layout, which already
+     renders correctly at 375px — this is an improvement, not a dependency. */
+  @media only screen and (max-width:480px) {
+    .spw-card { display:block !important; width:100% !important; padding:0 0 22px !important; }
+    .spw-card img { max-width:100% !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#F7F8FA;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F7F8FA;">
+    <tr><td align="center" style="padding:28px 12px;">
+
+      <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+             style="width:100%;max-width:600px;background:#ffffff;border:1px solid #DDE3EC;border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+        <tr><td style="padding:28px 26px 4px;">
+          ${P(greeting)}
+          ${paragraphs.map(P).join("")}
+        </td></tr>
+
+        ${cardsHtml}
+
+        <tr><td align="center" style="padding:14px 26px 32px;">
+          <img src="${SPW_ASSETS}/confirmation-signature.png"
+               alt="${esc(AGENT_NAME)}, ${esc(BROKERAGE_NAME)} — ${esc(PHONE)} — ${esc(AGENT_EMAIL)}"
+               width="360"
+               style="display:block;width:100%;max-width:360px;height:auto;border:0;margin:0 auto;" />
+        </td></tr>
+
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+
+      <!-- Compliance is LIVE TEXT outside the card. The signature image carries the
+           same licence and brokerage details, but an image-blocked client would show
+           none of it, and 11:5-6.1 applies whether or not images load. -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
+        <tr><td align="center" style="padding:16px 12px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;line-height:1.6;color:#5D6B80;">
+          ${esc(BROKERAGE_NAME)} &mdash; ${esc(BROKERAGE_DESCRIPTOR)}. NJ Real Estate License #${esc(LICENSE_NUMBER)}.<br />
+          Equal Housing Opportunity.
+        </td></tr>
+      </table>
+
+    </td></tr>
+  </table>
+</body></html>`;
+
+  const text = [
+    greeting,
+    "",
+    ...paragraphs.flatMap((t) => [t, ""]),
+    ...(cards.length
+      ? [
+          "OTHER HOMES YOU MAY WANT TO SEE",
+          "",
+          ...cards.flatMap((c) => {
+            const price = spwPrice(c.price);
+            return [
+              `${c.town || c.address}${price ? ` - ${price}` : ""}`,
+              `${c.address}`,
+              `${SITE_URL}/listings/${c.slug}/`,
+              "",
+            ];
+          }),
+        ]
+      : []),
+    BROKERAGE_NAME,
+    AGENT_NAME,
+    `${PHONE} | ${AGENT_EMAIL}`,
+    "",
+    `${BROKERAGE_NAME} - ${BROKERAGE_DESCRIPTOR}. NJ Real Estate License #${LICENSE_NUMBER}.`,
+    "Equal Housing Opportunity.",
+  ].join("\n");
+
+  return { subject: "You're in — full property access confirmed", html, text };
+}
+
+/**
+ * Send the confirmation, if this submission was a listing-gate registration.
+ *
+ * Never throws: a mail failure must not fail a registration that has already
+ * been accepted and already released the gate in the visitor's browser.
+ */
+async function sendSpwConfirmation(
+  leadId: string,
+  email: string,
+  name: string,
+  sourcePath: string,
+): Promise<void> {
+  try {
+    const match = /^\/listings\/([a-z0-9-]+)\/?$/.exec(sourcePath || "");
+    if (!match) return; // not a Single Property Website registration
+    const currentSlug = match[1];
+
+    const { data: leadRow } = await supabase
+      .from("leads")
+      .select("spw_confirmation_sent_at")
+      .eq("id", leadId)
+      .single();
+
+    const previous = leadRow?.spw_confirmation_sent_at ?? null;
+    if (previous) {
+      const sinceMs = Date.now() - new Date(previous).getTime();
+      if (sinceMs < SPW_RESEND_AFTER_MS) {
+        console.log(
+          `spw-confirmation suppressed — one was sent ${Math.round(sinceMs / 1000)}s ago, ` +
+            `inside the ${SPW_RESEND_AFTER_MS / 60000} minute window`,
+        );
+        return;
+      }
+    }
+
+    const firstName = toDisplayName(String(name ?? "").trim().split(/\s+/)[0] ?? "");
+    const cards = await fetchOtherListings(currentSlug);
+    const c = buildSpwConfirmation(firstName, cards);
+
+    const res = await sesClient.send(
+      new SendEmailCommand({
+        // Quoted display name: it contains a comma, and an unquoted comma in a
+        // From header splits it into two malformed addresses.
+        Source: `"${AGENT_NAME} | ${BROKERAGE_NAME}" <${SES_SENDER_EMAIL}>`,
+        Destination: { ToAddresses: [email] },
+        ReplyToAddresses: [AGENT_NOTIFY_EMAILS[0]],
+        Message: {
+          Subject: { Data: c.subject, Charset: "UTF-8" },
+          Body: {
+            Html: { Data: c.html, Charset: "UTF-8" },
+            Text: { Data: c.text, Charset: "UTF-8" },
+          },
+        },
+        ConfigurationSetName: SES_CONFIGURATION_SET,
+      }),
+    );
+
+    console.log(
+      `spw-confirmation sent to ${email} for ${currentSlug} ` +
+        `with ${cards.length} card(s) (ses ${res.MessageId})`,
+    );
+
+    await supabase
+      .from("leads")
+      .update({ spw_confirmation_sent_at: new Date().toISOString() })
+      .eq("id", leadId);
+  } catch (err) {
+    // Logged, never rethrown — see the docblock.
+    console.error("spw-confirmation failed:", err);
+  }
 }
 
 // Helper: Generate unsubscribe URL. Token is HMAC-signed (see _shared/tokens.ts)
@@ -1207,6 +1477,17 @@ serve(async (req) => {
         });
       }
 
+      // Someone who already exists — most often from the exit-intent popup —
+      // can still be registering on a Single Property Website for the first
+      // time. They get the same confirmation; the suppression window inside
+      // stops a retry from sending twice.
+      await sendSpwConfirmation(
+        existingLead.id,
+        payload.email,
+        (updates.name as string) || existingLead.name || "",
+        payload.source_path || "",
+      );
+
       // Unsubscribed/bounced leads are updated and reported, but never
       // re-enrolled — re-subscribing someone who opted out is not ours to do.
       if (existingLead.status !== "active") {
@@ -1276,6 +1557,17 @@ serve(async (req) => {
     }
 
     console.log("Lead created:", newLead.id);
+
+    // Registration accepted. Everything above this point returns early on
+    // failure — honeypot, validation, insert error — so reaching here means the
+    // visitor genuinely got in. Deliberately NOT gated on DRIP_AUTO_ENROLL,
+    // which is off and would mean this never sends.
+    await sendSpwConfirmation(
+      newLead.id,
+      payload.email,
+      payload.name || "",
+      payload.source_path || "",
+    );
 
     // Get campaign steps for scheduling
     const { data: campaignSteps, error: stepsError } = await supabase

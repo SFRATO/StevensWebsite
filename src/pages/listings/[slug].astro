@@ -157,7 +157,9 @@ const showLegacyDetails = factGroups.length === 0 && detailRows.length > 0;
       try {
         var ok =
           document.cookie.indexOf(gateKey + '=1') > -1 ||
-          sessionStorage.getItem(gateKey) === '1';
+          sessionStorage.getItem(gateKey) === '1' ||
+          document.cookie.indexOf('sf_gate_ok_all=1') > -1 ||
+          sessionStorage.getItem('sf_gate_ok_all') === '1';
         if (!ok) document.documentElement.classList.add('listing-gated');
       } catch (e) {
         /* private mode — the module script re-evaluates on astro:page-load */
