@@ -66,6 +66,11 @@ const money = (n: number | string | null) => {
               </button>
             </form>
             <a class="btn tiny ghost" href={`/admin/spw-builder/?slug=${l.slug}`}>Edit</a>
+            {/* Only for Active properties — an Inactive one is not built, so the link would 404. */}
+            {l.status === 'published' && (
+              <a class="btn tiny ghost" href={`https://www.stevenfrato.com/listings/${l.slug}/`}
+                 target="_blank" rel="noopener noreferrer">View</a>
+            )}
           </td>
         </tr>
       ))}

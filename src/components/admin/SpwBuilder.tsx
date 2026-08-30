@@ -23,6 +23,9 @@ interface Props {
 
 const kb = (n: number) => `${Math.round(n / 1024)}KB`;
 
+/** The public origin. Canonical URLs on the SPW template use www, so match it. */
+const SITE = 'https://www.stevenfrato.com';
+
 export default function SpwBuilder({ existing, towns, takenSlugs }: Props) {
   const editing = Boolean(existing);
   const [f, setF] = useState<MlsExtract & Record<string, any>>(() => fromExisting(existing));
@@ -30,7 +33,7 @@ export default function SpwBuilder({ existing, towns, takenSlugs }: Props) {
   const [slug, setSlug] = useState(existing?.slug ?? '');
   const [photos, setPhotos] = useState<Photo[]>(() => existingPhotos(existing));
   const [busy, setBusy] = useState<string | null>(null);
-  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string; url?: string } | null>(null);
   const [townQuery, setTownQuery] = useState(existing?.town ?? '');
   // Tracked separately from the text: typing and picking both write the same
   // value to town, so comparing the two can never tell them apart.
@@ -162,7 +165,11 @@ export default function SpwBuilder({ existing, towns, takenSlugs }: Props) {
       if (publish) {
         const { error: bErr } = await actions.publish({});
         if (bErr) throw new Error(`Saved, but the build did not trigger: ${bErr.message}`);
-        setMsg({ kind: 'ok', text: `Saved. Building now — /listings/${slug}/ is live in about two minutes.` });
+        setMsg({
+          kind: 'ok',
+          text: 'Saved and building. The page goes live in about two minutes — the site is statically built, so the link 404s until that finishes.',
+          url: `${SITE}/listings/${slug}/`,
+        });
       } else {
         setMsg({ kind: 'ok', text: 'Saved as Inactive. Activate it from Properties when you are ready.' });
       }
@@ -185,7 +192,17 @@ export default function SpwBuilder({ existing, towns, takenSlugs }: Props) {
 
   return (
     <div className="builder">
-      {msg && <p className={`note ${msg.kind}`}>{msg.text}</p>}
+      {msg && (
+        <p className={`note ${msg.kind}`}>
+          {msg.text}
+          {msg.url && (
+            <>
+              {' '}
+              <a className="live" href={msg.url} target="_blank" rel="noopener noreferrer">{msg.url}</a>
+            </>
+          )}
+        </p>
+      )}
       {busy && <p className="note busy">{busy}</p>}
 
       {/* 1 — ADDRESS */}
@@ -434,6 +451,7 @@ export default function SpwBuilder({ existing, towns, takenSlugs }: Props) {
         .note.ok { background:#E4F3E8; border:1px solid #B7DFC2; color:#1B5E2A; }
         .note.err { background:#FDECEC; border:1px solid #F5C2C2; color:#8A1F1F; }
         .note.busy { background:#EEF3FA; border:1px solid #C9D9EC; color:#1E4A73; }
+        .note .live { display:inline-block; margin-top:6px; font-weight:700; color:#1B5E2A; word-break:break-all; }
       `}</style>
     </div>
   );

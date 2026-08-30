@@ -48,14 +48,41 @@ export const onRequest = defineMiddleware(async (context, next) => {
     supabase = createSupabaseServerClient(context);
   } catch (err) {
     console.error('[admin] Supabase client could not be created:', err);
+
+    /**
+     * Report WHICH variable is absent, by name only.
+     *
+     * "SUPABASE_URL or SUPABASE_ANON_KEY" sends you hunting through both. This
+     * checks each one so the page states the fact. Presence only — no value is
+     * ever read into the response, and these names are already public in
+     * .env.example, so nothing is disclosed that the repo does not already say.
+     *
+     * The distinction that matters on Netlify: a variable can be set and still
+     * be invisible here if its SCOPE excludes Functions, or if the site has not
+     * been redeployed since it was added. Either shows up as "missing" below.
+     */
+    const seen = (k: string) => Boolean(process.env[k]);
+    const rows = ['SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY', 'NETLIFY_BUILD_HOOK', 'ANTHROPIC_API_KEY']
+      .map((k) => {
+        const ok = seen(k);
+        const need = k === 'SUPABASE_URL' || k === 'SUPABASE_ANON_KEY';
+        return `<tr><td style="padding:3px 14px 3px 0"><code>${k}</code></td>` +
+          `<td style="padding:3px 0;color:${ok ? '#1B5E2A' : need ? '#8A1F1F' : '#5D6B80'}">` +
+          `${ok ? 'reaching the function' : need ? 'MISSING — required' : 'not set (optional)'}</td></tr>`;
+      })
+      .join('');
+
     return new Response(
       `<!doctype html><meta charset="utf-8"><title>Admin unavailable</title>
-       <div style="font:15px/1.6 system-ui;max-width:34rem;margin:12vh auto;padding:0 1.5rem">
+       <div style="font:15px/1.6 system-ui;max-width:38rem;margin:10vh auto;padding:0 1.5rem">
          <h1 style="font-size:19px">Admin console is not configured</h1>
-         <p>The server is missing <code>SUPABASE_URL</code> or <code>SUPABASE_ANON_KEY</code>.
-            Add them under <strong>Site configuration &rsaquo; Environment variables</strong>
-            in Netlify, then redeploy.</p>
-         <p style="color:#5D6B80;font-size:13px">The public site is unaffected.</p>
+         <p>These are the environment variables as the server-rendered function actually sees them:</p>
+         <table style="font-size:13.5px;border-collapse:collapse;margin:14px 0 18px">${rows}</table>
+         <p>If something reads <strong>MISSING</strong> but you have already set it in Netlify, check
+            two things under <strong>Site configuration &rsaquo; Environment variables</strong>:
+            the variable's <strong>scope</strong> must include <em>Functions</em> (not Builds only),
+            and the site must have been <strong>redeployed since</strong> you added it.</p>
+         <p style="color:#5D6B80;font-size:13px">Values are never shown here. The public site is unaffected.</p>
        </div>`,
       { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
     );
