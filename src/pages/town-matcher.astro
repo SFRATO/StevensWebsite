@@ -1,0 +1,767 @@
+---
+/**
+ * South Jersey Town Matcher — /town-matcher
+ *
+ * A value exchange for Steven's Instagram and Facebook CONTENT, not paid ads:
+ * answer nine short questions, and he personally sends back roughly three towns
+ * that fit plus real homes in budget.
+ *
+ * TWO RULES THIS PAGE EXISTS UNDER
+ * --------------------------------
+ * 1. ORIGIN-NEUTRAL. The same link goes out from every post, so nothing here may
+ *    assume where the visitor lives now — no "leaving Philly", no city, county or
+ *    state. Their origin appears only as an answer they type.
+ * 2. NO `Lead` PIXEL EVENT. /cash-offer fires the standard Meta `Lead` event and
+ *    that is the signal the PAID seller campaigns optimise against. Firing it
+ *    from an unpaid form would mix organic responders into the conversion set
+ *    Meta learns from and degrade the campaigns there is spend on. This page
+ *    fires a distinct custom event instead.
+ *
+ * The step engine is lifted from /cash-offer: one <form novalidate>, steps are
+ * CSS-hidden fieldsets, nothing re-renders — so Back preserves every answer and
+ * a failed submit loses nothing.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { PHONE, PHONE_HREF } from '../data/contact';
+
+const QUESTIONS = 9;
+
+const BUDGETS = [
+  { value: 'under-350k', label: 'Under $350,000' },
+  { value: '350-400k', label: '$350,000 – $400,000' },
+  { value: '400-450k', label: '$400,000 – $450,000' },
+  { value: '450-500k', label: '$450,000 – $500,000' },
+  { value: '500-600k', label: '$500,000 – $600,000' },
+  { value: '600-750k', label: '$600,000 – $750,000' },
+  { value: '750k-plus', label: '$750,000+' },
+];
+const BEDROOMS = [
+  { value: '1', label: '1 bedroom' }, { value: '2', label: '2 bedrooms' },
+  { value: '3', label: '3 bedrooms' }, { value: '4', label: '4 bedrooms' },
+  { value: '5-plus', label: '5 or more' },
+];
+const PROPERTY_TYPES = [
+  { value: 'detached', label: 'Detached single-family home' },
+  { value: 'townhouse', label: 'Townhouse' },
+  { value: 'condo', label: 'Condo' },
+  { value: 'open', label: 'Open to anything' },
+];
+const COMMUTE_FREQUENCY = [
+  { value: '5-days', label: '5 days a week' },
+  { value: '3-4-days', label: '3–4 days a week' },
+  { value: '1-2-days', label: '1–2 days a week' },
+  { value: 'rarely', label: 'Rarely' },
+];
+/**
+ * Place and property attributes only.
+ *
+ * SCHOOLS ARE DELIBERATELY ABSENT. "Good schools" is a well-documented
+ * familial-status proxy under the Fair Housing Act, and these answers are used
+ * to steer someone toward particular towns. Do not add it.
+ */
+const PRIORITIES = [
+  { value: 'larger-yard', label: 'Larger yard' },
+  { value: 'more-square-footage', label: 'More square footage' },
+  { value: 'walkable-downtown', label: 'Walkable downtown' },
+  { value: 'restaurants', label: 'Restaurants and things to do' },
+  { value: 'easy-commuting', label: 'Easy commuting' },
+  { value: 'public-transportation', label: 'Public transportation' },
+  { value: 'quieter', label: 'Quieter neighborhood' },
+  { value: 'affordability', label: 'Affordability' },
+  { value: 'newer-homes', label: 'Newer homes' },
+  { value: 'historic-character', label: 'Historic character' },
+  { value: 'highway-access', label: 'Close to major highways' },
+  { value: 'not-sure', label: 'Not sure yet' },
+];
+const TIMELINES = [
+  { value: '0-3-months', label: 'Right away — 0–3 months' },
+  { value: '3-6-months', label: '3–6 months' },
+  { value: '6-12-months', label: '6–12 months' },
+  { value: 'over-a-year', label: 'More than a year' },
+  { value: 'researching', label: 'Just researching for now' },
+];
+
+/**
+ * Optional copy variants, ALLOWLISTED.
+ *
+ * `?v=` selects one of these; anything unrecognised falls through to the neutral
+ * default. Never render text straight from the query string — that would let
+ * anyone put words in Steven's mouth on his own domain.
+ */
+const SUBHEADS: Record<string, string> = {
+  budget: 'Tell me your budget and what you need, and I’ll show you where it actually goes furthest in South Jersey.',
+  commute: 'Tell me where you commute and what matters to you, and I’ll find the towns that fit around it.',
+  lifestyle: 'Tell me how you want to live, and I’ll find the South Jersey towns that match.',
+};
+const DEFAULT_SUBHEAD =
+  'Answer a few quick questions about your budget, the space you need, your commute, and what matters most to you. I’ll personally review it and send you about three South Jersey towns that fit — plus real homes on the market in your range.';
+const variant = Astro.url.searchParams.get('v') ?? '';
+const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
+---
+
+<BaseLayout
+  title="Where Should You Live in South Jersey?"
+  description="Answer a few quick questions about your budget, space, commute and lifestyle, and I'll send you about three South Jersey towns that fit — plus real homes on the market in your range."
+  suppressExitPopup={true}
+>
+  <section class="tm-hero">
+    <div class="container narrow">
+      <h1>Where Should You Live in South&nbsp;Jersey?</h1>
+      <p class="tm-sub">{subhead}</p>
+      <ul class="tm-promise">
+        <li>About three towns picked for what you actually need</li>
+        <li>Real homes currently on the market in your budget</li>
+        <li>Reviewed and sent personally — no automated report</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="tm-form-section" id="form">
+    <div class="container narrow">
+
+      <!-- Confirmation. Pre-rendered hidden and swapped in place, so there is no
+           navigation and nothing to re-fetch. -->
+      <div class="outcome" id="screen-success" hidden>
+        <h2 id="success-headline">You’re all set.</h2>
+        <p>
+          I’m going to review your budget, housing needs, commute, and the things that
+          matter most to you, then narrow South Jersey down to a few towns I think
+          actually make sense for you.
+        </p>
+        <p>
+          I’ll also pull a few current homes in those areas so you can see what your
+          budget looks like in the real market.
+        </p>
+        <p>Keep an eye on your phone and email — I’ll be reaching out with your matches.</p>
+        <p class="outcome-contact">
+          Want to get a head start? Call or text me directly at
+          <a href={PHONE_HREF}>{PHONE}</a>.
+        </p>
+      </div>
+
+      <div id="form-shell">
+        <div class="form-head">
+          <p class="q-count">Question <span id="q-current">1</span> of {QUESTIONS}</p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax={QUESTIONS}
+               aria-valuenow="1" aria-label="Form progress" id="progressbar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <form id="tm-form" novalidate>
+          <!-- Honeypot. Off-screen, not display:none — some bots skip hidden fields. -->
+          <div class="hp" aria-hidden="true">
+            <label for="tm-bot">Leave this empty</label>
+            <input type="text" id="tm-bot" name="bot-field" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <!-- Attribution, captured invisibly. Never asked as a question. -->
+          <input type="hidden" name="landing_url" id="f-landing" />
+          <input type="hidden" name="referrer" id="f-referrer" />
+          <input type="hidden" name="utm_source" id="f-utm_source" />
+          <input type="hidden" name="utm_medium" id="f-utm_medium" />
+          <input type="hidden" name="utm_campaign" id="f-utm_campaign" />
+          <input type="hidden" name="utm_content" id="f-utm_content" />
+          <input type="hidden" name="utm_term" id="f-utm_term" />
+          <input type="hidden" name="fbclid" id="f-fbclid" />
+          <input type="hidden" name="email-confirmed" id="f-email-confirmed" />
+
+          <fieldset class="q active" data-q="1">
+            <legend>What’s your approximate budget?</legend>
+            <div class="options">
+              {BUDGETS.map((o) => (
+                <label class="option"><input type="radio" name="budget" value={o.value} /><span>{o.label}</span></label>
+              ))}
+            </div>
+            <p class="err" id="err-budget" role="alert" hidden></p>
+          </fieldset>
+
+          <fieldset class="q" data-q="2">
+            <legend>How many bedrooms do you need?</legend>
+            <div class="options">
+              {BEDROOMS.map((o) => (
+                <label class="option"><input type="radio" name="bedrooms" value={o.value} /><span>{o.label}</span></label>
+              ))}
+            </div>
+            <p class="err" id="err-bedrooms" role="alert" hidden></p>
+          </fieldset>
+
+          <fieldset class="q" data-q="3">
+            <legend>What type of home are you looking for?</legend>
+            <div class="options">
+              {PROPERTY_TYPES.map((o) => (
+                <label class="option"><input type="radio" name="property_type" value={o.value} /><span>{o.label}</span></label>
+              ))}
+            </div>
+            <p class="err" id="err-property_type" role="alert" hidden></p>
+          </fieldset>
+
+          <fieldset class="q" data-q="4">
+            <legend>Where do you live now?</legend>
+            <p class="q-help">This just helps me understand your starting point. It doesn’t change your recommendations.</p>
+            <div class="field-row">
+              <div class="field">
+                <label for="q-current-town">Town or city</label>
+                <input type="text" id="q-current-town" name="current_town" class="text-input" autocomplete="address-level2" />
+                <p class="err" id="err-current_town" role="alert" hidden></p>
+              </div>
+              <div class="field">
+                <label for="q-current-state">State</label>
+                <input type="text" id="q-current-state" name="current_state" class="text-input" autocomplete="address-level1" />
+                <p class="err" id="err-current_state" role="alert" hidden></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="q" data-q="5">
+            <legend>Is commuting important to you?</legend>
+            <div class="options">
+              <label class="option"><input type="radio" name="commute_matters" value="yes" /><span>Yes, I commute regularly</span></label>
+              <label class="option"><input type="radio" name="commute_matters" value="no" /><span>No, it’s not a factor</span></label>
+            </div>
+            <p class="err" id="err-commute_matters" role="alert" hidden></p>
+
+            <!-- Revealed on "yes" so the counter stays at nine. -->
+            <div class="followup" id="commute-followup" hidden>
+              <div class="field">
+                <label for="q-commute-dest">Where do you need to get to?</label>
+                <input type="text" id="q-commute-dest" name="commute_destination" class="text-input"
+                       placeholder="A city, town, or employment area" />
+                <p class="err" id="err-commute_destination" role="alert" hidden></p>
+              </div>
+              <p class="sub-legend">How often?</p>
+              <div class="options">
+                {COMMUTE_FREQUENCY.map((o) => (
+                  <label class="option"><input type="radio" name="commute_frequency" value={o.value} /><span>{o.label}</span></label>
+                ))}
+              </div>
+              <p class="err" id="err-commute_frequency" role="alert" hidden></p>
+            </div>
+          </fieldset>
+
+          <fieldset class="q" data-q="6">
+            <legend>What matters most to you in a town?</legend>
+            <p class="q-help">Pick as many as you like.</p>
+            <div class="options options-multi">
+              {PRIORITIES.map((o) => (
+                <label class="option"><input type="checkbox" name="priorities" value={o.value} /><span>{o.label}</span></label>
+              ))}
+            </div>
+            <p class="err" id="err-priorities" role="alert" hidden></p>
+          </fieldset>
+
+          <fieldset class="q" data-q="7">
+            <legend>When are you hoping to move?</legend>
+            <div class="options">
+              {TIMELINES.map((o) => (
+                <label class="option"><input type="radio" name="timeline" value={o.value} /><span>{o.label}</span></label>
+              ))}
+            </div>
+            <p class="err" id="err-timeline" role="alert" hidden></p>
+          </fieldset>
+
+          <fieldset class="q" data-q="8">
+            <legend>Do you rent or own right now?</legend>
+            <div class="options">
+              <label class="option"><input type="radio" name="rent_or_own" value="rent" /><span>I rent</span></label>
+              <label class="option"><input type="radio" name="rent_or_own" value="own" /><span>I own</span></label>
+            </div>
+            <p class="err" id="err-rent_or_own" role="alert" hidden></p>
+
+            <div class="followup" id="sell-followup" hidden>
+              <p class="sub-legend">Would you need to sell before buying your next home?</p>
+              <div class="options">
+                <label class="option"><input type="radio" name="needs_to_sell" value="yes" /><span>Yes, I’d need to sell first</span></label>
+                <label class="option"><input type="radio" name="needs_to_sell" value="no" /><span>No, I wouldn’t</span></label>
+              </div>
+              <p class="err" id="err-needs_to_sell" role="alert" hidden></p>
+            </div>
+          </fieldset>
+
+          <fieldset class="q" data-q="9">
+            <legend>Where should I send your matches?</legend>
+            <p class="q-help">
+              I’ll personally review your answers, pick about three South Jersey towns that fit,
+              pull current homes in your budget, and reach out with what I find.
+            </p>
+            <div class="field-row">
+              <div class="field">
+                <label for="q-first">First name</label>
+                <input type="text" id="q-first" name="first_name" class="text-input" autocomplete="given-name" />
+                <p class="err" id="err-first_name" role="alert" hidden></p>
+              </div>
+              <div class="field">
+                <label for="q-last">Last name</label>
+                <input type="text" id="q-last" name="last_name" class="text-input" autocomplete="family-name" />
+                <p class="err" id="err-last_name" role="alert" hidden></p>
+              </div>
+            </div>
+            <div class="field">
+              <label for="q-email">Email</label>
+              <input type="email" id="q-email" name="email" class="text-input" autocomplete="email" inputmode="email" />
+              <p class="err" id="err-email" role="alert" hidden></p>
+            </div>
+            <div class="field">
+              <label for="q-phone">Phone</label>
+              <input type="tel" id="q-phone" name="phone" class="text-input" autocomplete="tel" inputmode="tel" />
+              <p class="err" id="err-phone" role="alert" hidden></p>
+            </div>
+            <label class="consent">
+              <input type="checkbox" name="consent" value="1" id="q-consent" />
+              <span>
+                I agree to be contacted by Steven Frato by phone, text or email about my
+                results. Consent is not a condition of purchasing any product or service.
+                Message and data rates may apply.
+              </span>
+            </label>
+            <p class="err" id="err-consent" role="alert" hidden></p>
+          </fieldset>
+
+          <p class="err form-err" id="err-form" role="alert" hidden></p>
+
+          <div class="nav">
+            <button type="button" class="btn-back" id="btn-back" hidden>Back</button>
+            <button type="button" class="btn-next" id="btn-next">Continue</button>
+            <button type="submit" class="btn-next" id="btn-submit" hidden>Find My South Jersey Matches</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  /**
+   * Vanilla, no framework — same engine as /cash-offer.
+   *
+   * Every question lives in the SAME <form> and is only CSS-hidden. Nothing is
+   * re-rendered, which is why Back preserves every answer for free and why a
+   * failed submit loses nothing.
+   */
+  const TOTAL = 9;
+
+  function boot() {
+    const form = document.getElementById('tm-form') as HTMLFormElement | null;
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = '1';
+
+    const shell = document.getElementById('form-shell');
+    const btnNext = document.getElementById('btn-next') as HTMLButtonElement | null;
+    const btnBack = document.getElementById('btn-back') as HTMLButtonElement | null;
+    const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement | null;
+    const counter = document.getElementById('q-current');
+    const fill = document.getElementById('progress-fill') as HTMLElement | null;
+    const bar = document.getElementById('progressbar');
+    const errForm = document.getElementById('err-form') as HTMLElement | null;
+    if (!btnNext || !btnBack || !btnSubmit) return;
+
+    let current = 1;
+    let started = false;
+
+    const steps = Array.from(form.querySelectorAll<HTMLElement>('.q'));
+    const stepFor = (n: number) => steps.find((s) => s.dataset.q === String(n));
+
+    const fbq = (...args: unknown[]) => {
+      const f = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+      if (typeof f === 'function') f(...args);
+    };
+
+    // --- attribution: read once, on load. A later client-side nav or a
+    // replaceState would drop the query string, and the server only sees Referer.
+    (() => {
+      const p = new URLSearchParams(window.location.search);
+      const set = (id: string, v: string) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) el.value = v;
+      };
+      set('f-landing', window.location.href.slice(0, 500));
+      set('f-referrer', document.referrer.slice(0, 500));
+      for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
+        set(`f-${k}`, p.get(k) ?? '');
+      }
+      set('f-fbclid', p.get('fbclid') ?? '');
+    })();
+
+    const val = (name: string) =>
+      (form.querySelector(`[name="${name}"]`) as HTMLInputElement | null)?.value.trim() ?? '';
+    const picked = (name: string) =>
+      (form.querySelector(`[name="${name}"]:checked`) as HTMLInputElement | null)?.value ?? '';
+    const checkedAll = (name: string) =>
+      Array.from(form.querySelectorAll<HTMLInputElement>(`[name="${name}"]:checked`)).map((i) => i.value);
+
+    const showErr = (key: string, msg: string) => {
+      const el = document.getElementById(`err-${key}`);
+      if (el) { el.textContent = msg; el.hidden = false; }
+    };
+    const clearErr = (key: string) => {
+      const el = document.getElementById(`err-${key}`);
+      if (el) { el.textContent = ''; el.hidden = true; }
+    };
+
+    function show(n: number) {
+      current = n;
+      steps.forEach((s) => s.classList.toggle('active', s.dataset.q === String(n)));
+      if (counter) counter.textContent = String(n);
+      if (fill) fill.style.width = `${(n / TOTAL) * 100}%`;
+      bar?.setAttribute('aria-valuenow', String(n));
+      btnBack!.hidden = n === 1;
+      btnNext!.hidden = n === TOTAL;
+      btnSubmit!.hidden = n !== TOTAL;
+
+      const first = stepFor(n)?.querySelector<HTMLElement>(
+        'input[type="text"], input[type="email"], input[type="tel"]',
+      );
+      // Focus text fields, never radios — focusing the first radio in a group
+      // reads to a screen reader as though it were already selected.
+      if (first) first.focus();
+      else stepFor(n)?.querySelector('legend')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function validateStep(n: number): boolean {
+      const pick = (name: string, msg = 'Please choose an option to continue.') => {
+        if (!picked(name)) { showErr(name, msg); return false; }
+        clearErr(name); return true;
+      };
+      switch (n) {
+        case 1: return pick('budget');
+        case 2: return pick('bedrooms');
+        case 3: return pick('property_type');
+        case 4: {
+          let ok = true;
+          if (val('current_town').length < 2) { showErr('current_town', 'Please enter your town or city.'); ok = false; }
+          else clearErr('current_town');
+          if (val('current_state').length < 2) { showErr('current_state', 'Please enter your state.'); ok = false; }
+          else clearErr('current_state');
+          return ok;
+        }
+        case 5: {
+          if (!pick('commute_matters')) return false;
+          if (picked('commute_matters') !== 'yes') return true;
+          let ok = true;
+          if (val('commute_destination').length < 2) {
+            showErr('commute_destination', 'Where do you need to commute to?'); ok = false;
+          } else clearErr('commute_destination');
+          if (!picked('commute_frequency')) {
+            showErr('commute_frequency', 'Please choose how often.'); ok = false;
+          } else clearErr('commute_frequency');
+          return ok;
+        }
+        case 6: {
+          if (!checkedAll('priorities').length) {
+            showErr('priorities', 'Please choose at least one — or “Not sure yet”.'); return false;
+          }
+          clearErr('priorities'); return true;
+        }
+        case 7: return pick('timeline');
+        case 8: {
+          if (!pick('rent_or_own')) return false;
+          if (picked('rent_or_own') !== 'own') return true;
+          return pick('needs_to_sell', 'Please let me know if you’d need to sell first.');
+        }
+        case 9: {
+          let ok = true;
+          if (!val('first_name')) { showErr('first_name', 'Please enter your first name.'); ok = false; }
+          else clearErr('first_name');
+          if (!val('last_name')) { showErr('last_name', 'Please enter your last name.'); ok = false; }
+          else clearErr('last_name');
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val('email'))) {
+            showErr('email', 'Please enter a valid email address.'); ok = false;
+          } else clearErr('email');
+          const d = val('phone').replace(/\D/g, '');
+          if (!(d.length === 10 || (d.length === 11 && d[0] === '1'))) {
+            showErr('phone', 'Please enter a valid 10-digit phone number.'); ok = false;
+          } else clearErr('phone');
+          if (!(document.getElementById('q-consent') as HTMLInputElement | null)?.checked) {
+            showErr('consent', 'Please agree to be contacted so I can send your matches.'); ok = false;
+          } else clearErr('consent');
+          return ok;
+        }
+        default: return true;
+      }
+    }
+
+    function advance() {
+      if (!validateStep(current)) return;
+      if (current < TOTAL) show(current + 1);
+    }
+
+    btnNext.addEventListener('click', advance);
+    btnBack.addEventListener('click', () => { if (current > 1) show(current - 1); });
+
+    form.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement;
+
+      if (!started) { started = true; fbq('trackCustom', 'TownMatcherStarted'); }
+
+      // Conditional follow-ups. Revealing rather than adding a step keeps the
+      // counter honest at nine.
+      if (t.name === 'commute_matters') {
+        const fu = document.getElementById('commute-followup');
+        if (fu) fu.hidden = t.value !== 'yes';
+      }
+      if (t.name === 'rent_or_own') {
+        const fu = document.getElementById('sell-followup');
+        if (fu) fu.hidden = t.value !== 'own';
+      }
+
+      // "Not sure yet" is exclusive — it contradicts every other priority.
+      if (t.name === 'priorities' && t.checked) {
+        const boxes = Array.from(form.querySelectorAll<HTMLInputElement>('[name="priorities"]'));
+        if (t.value === 'not-sure') boxes.forEach((b) => { if (b !== t) b.checked = false; });
+        else boxes.forEach((b) => { if (b.value === 'not-sure') b.checked = false; });
+      }
+
+      if (t.type === 'radio') clearErr(t.name);
+      if (t.type === 'checkbox' && t.name === 'priorities') clearErr('priorities');
+
+      // Auto-advance only on a radio that ENDS its step. Steps 5 and 8 have
+      // follow-ups, and step 6 is multi-select, so none of them may auto-advance.
+      const endsStep =
+        (t.name === 'budget' || t.name === 'bedrooms' || t.name === 'property_type' || t.name === 'timeline') ||
+        (t.name === 'commute_matters' && t.value === 'no') ||
+        (t.name === 'rent_or_own' && t.value === 'rent') ||
+        t.name === 'needs_to_sell' ||
+        t.name === 'commute_frequency';
+      if (t.type === 'radio' && endsStep) {
+        window.setTimeout(() => { if (current < TOTAL) advance(); }, 180);
+      }
+    });
+
+    // Enter advances from a text field, but never from the consent checkbox.
+    form.addEventListener('keydown', (e) => {
+      const k = e as KeyboardEvent;
+      const t = k.target as HTMLElement;
+      if (k.key !== 'Enter') return;
+      if (t instanceof HTMLInputElement && t.type !== 'checkbox') {
+        k.preventDefault();
+        if (current < TOTAL) advance();
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep(TOTAL)) return;
+      if (errForm) errForm.hidden = true;
+
+      const original = btnSubmit!.textContent ?? '';
+      btnSubmit!.disabled = true;
+      btnSubmit!.textContent = 'Sending…';
+
+      try {
+        const res = await fetch('/api/town-matcher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form) as unknown as Record<string, string>).toString(),
+        });
+
+        if (!res.ok) {
+          const p = (await res.json().catch(() => ({}))) as { error?: string; field?: string };
+          // Put the server's message on the field it names, not just at the
+          // bottom — /cash-offer discards `field` and it costs clarity.
+          if (p.field) showErr(p.field, p.error ?? 'Please check this answer.');
+          throw new Error(p.error || "We weren't able to submit your information. Please try again.");
+        }
+
+        // Custom event, NOT `Lead`. See the note in the page frontmatter.
+        fbq('trackCustom', 'TownMatcherCompleted');
+
+        const h = document.getElementById('success-headline');
+        // Title-case for display. People type "taylor" on a phone, and the
+        // server already normalises the stored name and the email greeting the
+        // same way — the on-page headline should not be the odd one out.
+        const first = val('first_name').replace(
+          /\S+/g,
+          (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
+        );
+        if (h && first) h.textContent = `You’re all set, ${first}.`;
+        shell!.hidden = true;
+        const success = document.getElementById('screen-success')!;
+        success.hidden = false;
+        success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        // No success card on a failure, and every answer stays on screen.
+        btnSubmit!.disabled = false;
+        btnSubmit!.textContent = original;
+        const msg = err instanceof Error && err.message
+          ? err.message
+          : "We weren't able to submit your information. Please try again.";
+        if (errForm) { errForm.textContent = msg; errForm.hidden = false; }
+        console.error('town-matcher submit failed:', err);
+      }
+    });
+
+    show(1);
+  }
+
+  // astro:page-load, not DOMContentLoaded — it does not re-fire under ViewTransitions.
+  document.addEventListener('astro:page-load', boot);
+</script>
+
+<style>
+  /* Lifted from /cash-offer so the two funnels are visually identical, with
+     additions only for the multi-select grid and the conditional follow-ups. */
+  .narrow { max-width: 680px; }
+
+  .tm-hero { padding: var(--space-12) 0 var(--space-8); }
+  .tm-hero h1 {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-4);
+  }
+  .tm-sub {
+    font-size: var(--text-lg);
+    line-height: var(--leading-body);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-5);
+  }
+  .tm-promise { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+  .tm-promise li {
+    position: relative;
+    padding-left: var(--space-6);
+    font-family: var(--font-ui);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+  .tm-promise li::before {
+    content: '';
+    position: absolute; left: 0; top: 0.55em;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--navy-700);
+  }
+
+  .tm-form-section { padding: 0 0 var(--space-16); }
+
+  #form-shell {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-6);
+  }
+  @media (min-width: 640px) { #form-shell { padding: var(--space-8); } }
+
+  .form-head { margin-bottom: var(--space-6); }
+  .q-count {
+    font-family: var(--font-ui); font-size: var(--text-sm);
+    color: var(--text-muted); margin: 0 0 var(--space-2);
+  }
+  .progress { height: 6px; background: var(--rule); border-radius: var(--radius-full); overflow: hidden; }
+  .progress-fill { height: 100%; width: 11%; background: var(--navy-700); transition: width var(--transition-base); }
+
+  .q { display: none; border: 0; padding: 0; margin: 0; min-inline-size: 0; }
+  .q.active { display: block; animation: fade var(--transition-base); }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .q.active { animation: none; } }
+
+  legend {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+    margin-bottom: var(--space-5);
+    padding: 0;
+  }
+  .q-help { margin: -12px 0 var(--space-4); color: var(--text-muted); font-size: var(--text-sm); }
+  .sub-legend {
+    font-family: var(--font-ui); font-size: var(--text-sm);
+    color: var(--text-secondary); margin: var(--space-5) 0 var(--space-3);
+  }
+
+  .options { display: grid; gap: var(--space-3); }
+  /* Two across from 480px: twelve single-column priorities is a long scroll on
+     a phone, and these labels are short enough to pair. */
+  @media (min-width: 480px) { .options-multi { grid-template-columns: 1fr 1fr; } }
+
+  .option {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    min-height: 56px;
+    background: var(--surface-page);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    color: var(--text-primary);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  .option:hover { border-color: var(--navy-700); }
+  /* A real, visible control — never opacity:0, which leaves it unfocusable. */
+  .option input { width: 20px; height: 20px; accent-color: var(--navy-700); flex: 0 0 auto; }
+  .option:has(input:checked) { border-color: var(--navy-700); background: var(--accent-wash); }
+  .option:has(input:focus-visible) { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
+
+  .followup {
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .field { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
+  .field label { font-family: var(--font-ui); font-size: var(--text-sm); color: var(--text-secondary); }
+  /* align-items:start is load-bearing: a grid defaults to stretch, so an error
+     under one column would grow the other and push its input down. */
+  .field-row { display: grid; gap: var(--space-4); align-items: start; }
+  @media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+  .text-input {
+    width: 100%; min-width: 0;
+    padding: var(--space-4);
+    min-height: 52px;
+    font-size: var(--text-base);
+    font-family: var(--font-ui);
+    color: var(--text-primary);
+    background: var(--surface-page);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-md);
+  }
+  .text-input:focus { outline: none; border-color: var(--navy-700); box-shadow: 0 0 0 3px var(--accent-wash); }
+
+  .consent {
+    display: flex; align-items: flex-start; gap: var(--space-3);
+    margin-top: var(--space-5);
+    font-family: var(--font-ui); font-size: var(--text-sm);
+    color: var(--text-secondary); line-height: var(--leading-body);
+    cursor: pointer;
+  }
+  .consent input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--navy-700); flex: 0 0 auto; }
+
+  .err { color: var(--accent-red); font-family: var(--font-ui); font-size: var(--text-sm); margin: var(--space-3) 0 0; }
+  .form-err { margin-top: var(--space-4); }
+
+  .nav { display: flex; gap: var(--space-3); margin-top: var(--space-6); }
+  .btn-next, .btn-back {
+    font-family: var(--font-ui); font-size: var(--text-base); font-weight: var(--font-semibold);
+    border-radius: var(--radius-md); min-height: 52px; padding: var(--space-3) var(--space-8);
+    cursor: pointer; border: 1px solid transparent;
+  }
+  .btn-next { background: var(--navy-700); color: var(--accent-ink); flex: 1; }
+  .btn-next:hover:not(:disabled) { background: var(--navy-500); }
+  .btn-next:disabled { opacity: 0.7; cursor: not-allowed; }
+  .btn-back { background: transparent; color: var(--text-secondary); border-color: var(--rule-strong); }
+  .btn-back:hover { color: var(--text-primary); border-color: var(--navy-700); }
+  .btn-next:focus-visible, .btn-back:focus-visible { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
+
+  .outcome {
+    background: var(--surface-raised);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: var(--space-8) var(--space-6);
+  }
+  @media (min-width: 640px) { .outcome { padding: var(--space-10) var(--space-8); } }
+  .outcome h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--text-primary);
+    margin: 0 0 var(--space-4);
+  }
+  .outcome p { color: var(--text-secondary); line-height: var(--leading-body); margin: 0 0 var(--space-4); }
+  .outcome-contact { color: var(--text-primary); }
+  .outcome-contact a { color: var(--navy-700); font-weight: var(--font-semibold); }
+
+  /* Off-screen rather than display:none — some bots skip hidden inputs. */
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>

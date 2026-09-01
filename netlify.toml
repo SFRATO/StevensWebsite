@@ -29,6 +29,13 @@
   to = "/.netlify/functions/cash-offer-lead"
   status = 200
 
+# South Jersey Town Matcher (/town-matcher). Public endpoint; the SES send and
+# the Supabase write happen in the send-town-matcher edge function.
+[[redirects]]
+  from = "/api/town-matcher"
+  to = "/.netlify/functions/town-matcher-lead"
+  status = 200
+
 [[redirects]]
   from = "/api/track"
   to = "/.netlify/functions/track-activity"
