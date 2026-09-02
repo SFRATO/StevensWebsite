@@ -48,24 +48,73 @@ function rateLimited(key: string): boolean {
   return false;
 }
 
+// Each set carries the CURRENT values the page renders, plus any LEGACY values
+// already stored on real leads. Dropping the legacy ones would make historic
+// town_matcher JSONB unreadable to the email label map; keeping them costs
+// nothing, because a visitor can only submit what the page offers.
 const BUDGETS = new Set([
-  "under-350k", "350-400k", "400-450k", "450-500k", "500-600k", "600-750k", "750k-plus",
+  "under-350k", "350-450k", "450-550k", "550-650k", "650-750k", "750k-plus",
+  /* legacy $50k bands */ "350-400k", "400-450k", "450-500k", "500-600k", "600-750k",
 ]);
-const BEDROOMS = new Set(["1", "2", "3", "4", "5-plus"]);
+const BEDROOMS = new Set([
+  "2-or-less", "3", "4-or-more",
+  /* legacy per-bedroom */ "1", "2", "4", "5-plus",
+]);
 const PROPERTY_TYPES = new Set(["detached", "townhouse", "condo", "open"]);
-const TIMELINES = new Set(["0-3-months", "3-6-months", "6-12-months", "over-a-year", "researching"]);
+const TIMELINES = new Set([
+  "0-3-months", "3-6-months", "6-12-months", "over-a-year",
+  /* legacy */ "researching",
+]);
 const RENT_OWN = new Set(["rent", "own"]);
 const YES_NO = new Set(["yes", "no"]);
 const COMMUTE_FREQUENCY = new Set(["5-days", "3-4-days", "1-2-days", "rarely"]);
 
 /** Place and property attributes only — see the Fair Housing note in 015. */
 const PRIORITIES = new Set([
-  "larger-yard", "more-square-footage", "walkable-downtown", "restaurants",
-  "easy-commuting", "public-transportation", "quieter", "affordability",
-  "newer-homes", "historic-character", "highway-access", "not-sure",
+  "more-space", "walkable-downtown", "easy-commuting", "newer-homes", "best-value",
+  /* legacy 12-option set */ "larger-yard", "more-square-footage", "restaurants",
+  "public-transportation", "quieter", "affordability", "historic-character",
+  "highway-access", "not-sure",
 ]);
 
 const digits = (s: string) => s.replace(/\D/g, "");
+
+/**
+ * North American Numbering Plan validation, and E.164 normalisation.
+ *
+ * Replaces a bare `length === 10` check, which accepted 123-456-7890 and
+ * 000-000-0000 as valid phone numbers. Deliberately hand-rolled rather than
+ * pulling in libphonenumber-js: that library is ~145KB for one country's rules,
+ * on a page whose entire script budget is under 6KB and whose traffic is mobile
+ * social. The NANP invariants that actually matter are short:
+ *
+ *   - 10 digits, or 11 with a leading country code 1
+ *   - area code and exchange must not begin with 0 or 1
+ *   - N11 codes (411, 611, 911 ...) are services, not subscribers
+ *   - 555-01xx is the reserved fictional range
+ *
+ * Returns E.164 ("+16094963330") so the same person typing "(609) 496-3330" one
+ * day and "6094963330" the next is one record, not two. The SAME rules run in
+ * the browser for instant feedback — this copy is the one that decides.
+ */
+function normalizeUsPhone(raw: string): string | null {
+  let d = digits(raw);
+  if (d.length === 11 && d[0] === "1") d = d.slice(1);
+  if (d.length !== 10) return null;
+
+  const area = d.slice(0, 3);
+  const exchange = d.slice(3, 6);
+
+  if (area[0] === "0" || area[0] === "1") return null;
+  if (exchange[0] === "0" || exchange[0] === "1") return null;
+  // N11 service codes in either position.
+  if (area[1] === "1" && area[2] === "1") return null;
+  if (exchange[1] === "1" && exchange[2] === "1") return null;
+  // 555-0100 through 555-0199 are reserved for fiction.
+  if (exchange === "555" && d.slice(6, 8) === "01") return null;
+
+  return `+1${d}`;
+}
 
 const handler: Handler = async (event) => {
   const json = (status: number, body: unknown) => ({
@@ -156,10 +205,12 @@ const handler: Handler = async (event) => {
       return bad("Please agree to be contacted so I can send you your matches.");
     }
 
-    const d = digits(a.phone);
-    if (!(d.length === 10 || (d.length === 11 && d[0] === "1"))) {
-      return bad("Please enter a valid 10-digit phone number.", "phone");
+    const e164 = normalizeUsPhone(a.phone);
+    if (!e164) {
+      return bad("Please enter a valid U.S. phone number.", "phone");
     }
+    // Store the normalised form; the visitor still sees whatever they typed.
+    a.phone = e164;
 
     // Shared checker: syntax, typo suggestion, disposable domains, MX.
     // Fails open on DNS trouble by design.

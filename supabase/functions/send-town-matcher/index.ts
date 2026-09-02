@@ -70,25 +70,43 @@ interface Payload {
 
 // --- display labels --------------------------------------------------------
 // The wire values are stable slugs; these are only for the two emails.
+// Kept in step with the page's option arrays AND the Netlify allowlists — see
+// the note at the top of src/pages/town-matcher.astro. LEGACY entries are
+// retained so a lead stored under the old option set still renders a readable
+// label in Steven's notification rather than a raw slug.
 const LABEL: Record<string, string> = {
-  "under-350k": "Under $350,000", "350-400k": "$350,000 – $400,000",
-  "400-450k": "$400,000 – $450,000", "450-500k": "$450,000 – $500,000",
-  "500-600k": "$500,000 – $600,000", "600-750k": "$600,000 – $750,000",
-  "750k-plus": "$750,000+",
-  "5-plus": "5+",
+  // budget
+  "under-350k": "Under $350,000", "350-450k": "$350,000 – $450,000",
+  "450-550k": "$450,000 – $550,000", "550-650k": "$550,000 – $650,000",
+  "650-750k": "$650,000 – $750,000", "750k-plus": "$750,000+",
+  // budget — legacy $50k bands
+  "350-400k": "$350,000 – $400,000", "400-450k": "$400,000 – $450,000",
+  "450-500k": "$450,000 – $500,000", "500-600k": "$500,000 – $600,000",
+  "600-750k": "$600,000 – $750,000",
+  // bedrooms
+  "2-or-less": "2 or fewer", "3": "3", "4-or-more": "4 or more",
+  "5-plus": "5+", // legacy
+  // property type
   detached: "Detached single-family", townhouse: "Townhouse", condo: "Condo",
   open: "Open to anything",
+  // timeline
   "0-3-months": "Immediately (0–3 months)", "3-6-months": "3–6 months",
   "6-12-months": "6–12 months", "over-a-year": "More than a year",
-  researching: "Just researching",
+  researching: "Just researching", // legacy
+  // yes/no + tenure + commute cadence
   rent: "Rents", own: "Owns", yes: "Yes", no: "No",
   "5-days": "5 days a week", "3-4-days": "3–4 days a week",
   "1-2-days": "1–2 days a week", rarely: "Rarely",
+  // priorities
+  "more-space": "More space", "walkable-downtown": "Walkable downtown",
+  "easy-commuting": "Easy commuting", "newer-homes": "Newer construction",
+  "best-value": "Best value",
+  // priorities — legacy 12-option set
   "larger-yard": "Larger yard", "more-square-footage": "More square footage",
-  "walkable-downtown": "Walkable downtown", restaurants: "Restaurants and things to do",
-  "easy-commuting": "Easy commuting", "public-transportation": "Public transportation",
+  restaurants: "Restaurants and things to do",
+  "public-transportation": "Public transportation",
   quieter: "Quieter neighborhood", affordability: "Affordability",
-  "newer-homes": "Newer homes", "historic-character": "Historic character",
+  "historic-character": "Historic character",
   "highway-access": "Close to major highways", "not-sure": "Not sure yet",
 };
 const label = (v: string) => LABEL[v] ?? v;
