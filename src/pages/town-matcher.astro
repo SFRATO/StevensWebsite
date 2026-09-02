@@ -896,6 +896,12 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
     transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
     display: inline-flex; align-items: center; justify-content: center; gap: var(--space-3);
   }
+  /* An explicit `display` BEATS the `hidden` attribute. Adding display:inline-flex
+     to centre the spinner made the submit button visible on every step, so the
+     page showed a dead "Find My South Jersey Matches" under the form until you
+     reached step 9. Anything that sets display on these buttons must restore
+     this rule. */
+  .btn-next[hidden], .btn-back[hidden] { display: none !important; }
   .btn-next:hover:not(:disabled) { filter: brightness(1.08); box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .btn-next:active:not(:disabled) { transform: translateY(0); box-shadow: var(--shadow-sm); }
   .btn-next:disabled { opacity: 0.75; cursor: not-allowed; transform: none; }
