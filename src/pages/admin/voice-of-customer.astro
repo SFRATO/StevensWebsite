@@ -1,0 +1,275 @@
+---
+/**
+ * Voice of Customer — research review.
+ *
+ * A third page in the EXISTING admin console: same Supabase Auth, same
+ * admin_users allow-list, same middleware guard on /admin. No new auth.
+ *
+ * Queried through Astro.locals.supabase — the signed-in user's JWT under RLS,
+ * never the service key. voice_of_customer holds names, emails and phone
+ * numbers, so anon has no grant at all (migration 016).
+ *
+ * The quotes ARE the interface. Structured filters exist to narrow the set, but
+ * the reason someone opens this page is to read what people actually wrote.
+ */
+export const prerender = false;
+
+import AdminLayout from '../../components/admin/AdminLayout.astro';
+
+const { supabase } = Astro.locals;
+const qs = Astro.url.searchParams;
+
+const f = {
+  source: qs.get('source') ?? '',
+  budget: qs.get('budget') ?? '',
+  timeline: qs.get('timeline') ?? '',
+  origin: qs.get('origin') ?? '',
+  since: qs.get('since') ?? '',
+  wordsOnly: qs.get('words') === '1',
+};
+
+let query = supabase
+  .from('voice_of_customer')
+  .select('*')
+  .order('submitted_at', { ascending: false })
+  .limit(200);
+
+if (f.source) query = query.eq('source', f.source);
+if (f.budget) query = query.eq('budget', f.budget);
+if (f.timeline) query = query.eq('timeline', f.timeline);
+// ilike, not eq: "Fishtown" should match however it was typed.
+if (f.origin) query = query.ilike('current_town', `%${f.origin}%`);
+if (f.since) query = query.gte('submitted_at', f.since);
+if (f.wordsOnly) {
+  query = query.or('reason_for_moving.not.is.null,hoped_difference.not.is.null,exact_quote.not.is.null');
+}
+
+const { data: rows, error } = await query;
+const entries = rows ?? [];
+
+/** Counts over the FILTERED set, so the summary always describes what's on screen. */
+const tally = (pick: (r: Record<string, any>) => string[] | string | null) => {
+  const out = new Map<string, number>();
+  for (const r of entries) {
+    const v = pick(r);
+    for (const k of Array.isArray(v) ? v : v ? [v] : []) {
+      out.set(k, (out.get(k) ?? 0) + 1);
+    }
+  }
+  return [...out.entries()].sort((a, b) => b[1] - a[1]);
+};
+
+const byPriority = tally((r) => r.priorities);
+const byBudget = tally((r) => r.budget);
+const byTimeline = tally((r) => r.timeline);
+const withWords = entries.filter(
+  (r) => r.reason_for_moving || r.hoped_difference || r.exact_quote,
+).length;
+
+const LABEL: Record<string, string> = {
+  'under-350k': 'Under $350k', '350-450k': '$350–450k', '450-550k': '$450–550k',
+  '550-650k': '$550–650k', '650-750k': '$650–750k', '750k-plus': '$750k+',
+  '350-400k': '$350–400k (legacy)', '400-450k': '$400–450k (legacy)',
+  '450-500k': '$450–500k (legacy)', '500-600k': '$500–600k (legacy)', '600-750k': '$600–750k (legacy)',
+  '0-3-months': '0–3 months', '3-6-months': '3–6 months', '6-12-months': '6–12 months',
+  'over-a-year': 'Over a year', researching: 'Just researching',
+  'more-space': 'More space', 'walkable-downtown': 'Walkable downtown',
+  'easy-commuting': 'Easy commuting', 'newer-homes': 'Newer construction',
+  'best-value': 'Best value', 'larger-yard': 'Larger yard',
+  'more-square-footage': 'More sq ft', restaurants: 'Restaurants',
+  'public-transportation': 'Public transit', quieter: 'Quieter', affordability: 'Affordability',
+  'historic-character': 'Historic character', 'highway-access': 'Highway access',
+  'not-sure': 'Not sure yet',
+  '2-or-less': '2 or fewer', '4-or-more': '4 or more',
+  rent: 'Rents', own: 'Owns', yes: 'Yes', no: 'No',
+  'town-matcher': 'Town Matcher',
+};
+const L = (v: string | null) => (v ? LABEL[v] ?? v : '—');
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const BUDGETS = ['under-350k', '350-450k', '450-550k', '550-650k', '650-750k', '750k-plus'];
+const TIMELINES = ['0-3-months', '3-6-months', '6-12-months', 'over-a-year'];
+const SOURCES = [...new Set(entries.map((r) => r.source))].sort();
+---
+
+<AdminLayout title="Voice of Customer">
+  <div class="bar">
+    <h1>Voice of Customer</h1>
+    <p class="sub">{entries.length} entries · {withWords} with written answers</p>
+  </div>
+
+  {error && <p class="note err">{error.message}</p>}
+
+  <form class="filters" method="GET">
+    <label>Source
+      <select name="source">
+        <option value="">All</option>
+        {SOURCES.map((s) => <option value={s} selected={f.source === s}>{L(s)}</option>)}
+      </select>
+    </label>
+    <label>Budget
+      <select name="budget">
+        <option value="">Any</option>
+        {BUDGETS.map((b) => <option value={b} selected={f.budget === b}>{L(b)}</option>)}
+      </select>
+    </label>
+    <label>Timeline
+      <select name="timeline">
+        <option value="">Any</option>
+        {TIMELINES.map((t) => <option value={t} selected={f.timeline === t}>{L(t)}</option>)}
+      </select>
+    </label>
+    <label>Lives now
+      <input type="text" name="origin" value={f.origin} placeholder="e.g. Fishtown" />
+    </label>
+    <label>Since
+      <input type="date" name="since" value={f.since} />
+    </label>
+    <label class="check">
+      <input type="checkbox" name="words" value="1" checked={f.wordsOnly} />
+      Written answers only
+    </label>
+    <div class="filter-actions">
+      <button class="btn" type="submit">Apply</button>
+      <a class="btn ghost" href="/admin/voice-of-customer/">Reset</a>
+    </div>
+  </form>
+
+  {entries.length > 0 && (
+    <div class="summary">
+      <div>
+        <h2>What they prioritise</h2>
+        <ul>{byPriority.map(([k, n]) => (
+          <li><span>{L(k)}</span><b>{n}</b></li>
+        ))}</ul>
+      </div>
+      <div>
+        <h2>Budget</h2>
+        <ul>{byBudget.map(([k, n]) => (
+          <li><span>{L(k)}</span><b>{n}</b></li>
+        ))}</ul>
+      </div>
+      <div>
+        <h2>Timeline</h2>
+        <ul>{byTimeline.map(([k, n]) => (
+          <li><span>{L(k)}</span><b>{n}</b></li>
+        ))}</ul>
+      </div>
+    </div>
+  )}
+
+  <div class="entries">
+    {entries.map((r) => (
+      <article class="entry">
+        <header>
+          <div>
+            <strong>{[r.first_name, r.last_name].filter(Boolean).join(' ') || 'Anonymous'}</strong>
+            <span class="meta">
+              {r.current_town ? `${r.current_town}${r.current_state ? ', ' + r.current_state : ''}` : 'Origin unknown'}
+              {' · '}{fmtDate(r.submitted_at)}
+              {' · '}<span class="src">{L(r.source)}</span>
+            </span>
+          </div>
+        </header>
+
+        {/* The words come first and unabridged — this is the whole point. */}
+        {r.reason_for_moving && (
+          <blockquote>
+            <p class="q-label">Why they’re considering the move</p>
+            <p class="quote">{r.reason_for_moving}</p>
+          </blockquote>
+        )}
+        {r.hoped_difference && (
+          <blockquote>
+            <p class="q-label">What they hope will be different</p>
+            <p class="quote">{r.hoped_difference}</p>
+          </blockquote>
+        )}
+        {r.exact_quote && (
+          <blockquote>
+            <p class="q-label">Quote</p>
+            <p class="quote">{r.exact_quote}</p>
+          </blockquote>
+        )}
+        {!r.reason_for_moving && !r.hoped_difference && !r.exact_quote && (
+          <p class="no-words">No written answer — structured data only.</p>
+        )}
+
+        <dl class="facts">
+          <div><dt>Budget</dt><dd>{L(r.budget)}</dd></div>
+          <div><dt>Beds</dt><dd>{L(r.bedrooms)}</dd></div>
+          <div><dt>Type</dt><dd>{L(r.property_type)}</dd></div>
+          <div><dt>Timeline</dt><dd>{L(r.timeline)}</dd></div>
+          <div><dt>Tenure</dt><dd>{L(r.rent_or_own)}{r.needs_to_sell === 'yes' ? ' · must sell first' : ''}</dd></div>
+          {r.commute_matters === 'yes' && (
+            <div><dt>Commute</dt><dd>{r.commute_destination} ({L(r.commute_frequency)})</dd></div>
+          )}
+          {r.priorities?.length > 0 && (
+            <div><dt>Priorities</dt><dd>{r.priorities.map(L).join(', ')}</dd></div>
+          )}
+          {(r.utm_source || r.utm_campaign) && (
+            <div><dt>Campaign</dt><dd>{[r.utm_source, r.utm_campaign, r.utm_content].filter(Boolean).join(' / ')}</dd></div>
+          )}
+          {r.email && <div><dt>Contact</dt><dd>{r.email}{r.phone ? ` · ${r.phone}` : ''}</dd></div>}
+        </dl>
+      </article>
+    ))}
+    {!entries.length && <p class="sub">No entries match those filters yet.</p>}
+  </div>
+</AdminLayout>
+
+<style>
+  .bar { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end;
+    background: #fff; border: 1px solid #DDE3EC; border-radius: 8px;
+    padding: 14px 16px; margin-bottom: 18px;
+  }
+  .filters label { display: grid; gap: 5px; font-size: 12px; color: #44536A; }
+  .filters select, .filters input[type="text"], .filters input[type="date"] {
+    font: inherit; font-size: 13.5px; padding: 7px 9px;
+    border: 1px solid #C3CDDA; border-radius: 5px; background: #fff;
+  }
+  .filters .check { flex-direction: row; align-items: center; gap: 7px; }
+  .filters .check input { width: auto; }
+  .filter-actions { display: flex; gap: 8px; margin-left: auto; }
+
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
+    margin-bottom: 22px;
+  }
+  .summary > div { background: #fff; border: 1px solid #DDE3EC; border-radius: 8px; padding: 13px 15px; }
+  .summary h2 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+    color: #5D6B80; margin: 0 0 8px;
+  }
+  .summary ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+  .summary li { display: flex; justify-content: space-between; font-size: 13px; }
+  .summary b { color: #1E4A73; }
+
+  .entries { display: grid; gap: 14px; }
+  .entry { background: #fff; border: 1px solid #DDE3EC; border-radius: 10px; padding: 18px 20px; }
+  .entry header { margin-bottom: 12px; }
+  .entry .meta { display: block; font-size: 12px; color: #5D6B80; margin-top: 2px; }
+  .src { color: #1E4A73; }
+
+  /* Quotes are set larger than the surrounding chrome on purpose. */
+  blockquote { margin: 0 0 12px; padding: 11px 14px; background: #F7F9FC;
+               border-left: 3px solid #1E4A73; border-radius: 0 6px 6px 0; }
+  .q-label { margin: 0 0 5px; font-size: 11px; text-transform: uppercase;
+             letter-spacing: .05em; color: #5D6B80; }
+  .quote {
+    margin: 0; font-size: 15px; line-height: 1.6; color: #17202A;
+    /* Preserve the line breaks people actually typed. */
+    white-space: pre-wrap;
+  }
+  .no-words { margin: 0 0 12px; font-size: 13px; color: #5D6B80; font-style: italic; }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding-top: 4px;
+           border-top: 1px solid #EEF1F6; }
+  .facts > div { display: flex; gap: 6px; font-size: 12.5px; padding-top: 8px; }
+  .facts dt { color: #5D6B80; }
+  .facts dd { margin: 0; color: #17202A; }
+</style>

@@ -64,6 +64,7 @@ interface Payload {
   commute_matters: string; commute_destination: string; commute_frequency: string;
   priorities: string[]; timeline: string;
   rent_or_own: string; needs_to_sell: string;
+  reason_for_moving?: string; hoped_difference?: string;
   first_name: string; last_name: string; email: string; phone: string;
   source?: Record<string, string>;
 }
@@ -302,6 +303,10 @@ serve(async (req) => {
         needs_to_sell: p.needs_to_sell || null,
         first_name_raw: p.first_name,
         last_name_raw: p.last_name,
+        // Duplicated into the lead as well as voice_of_customer: if the VOC
+        // insert below ever fails, the customer's own words are not lost.
+        reason_for_moving: p.reason_for_moving || null,
+        hoped_difference: p.hoped_difference || null,
       },
     };
 
@@ -379,8 +384,56 @@ serve(async (req) => {
       console.error("town-matcher confirmation failed:", err);
     }
 
+    // ---- 4. VOICE OF CUSTOMER (research, strictly secondary) --------------
+    // Runs last and swallows its own errors. The lead is stored, Steven has been
+    // notified and the visitor has been emailed by this point — losing any of
+    // that over a research insert would be the wrong trade every time.
+    let vocStored = false;
+    try {
+      const { error: vocError } = await supabase.from("voice_of_customer").insert({
+        lead_id: leadId,
+        source: "town-matcher",
+        source_detail: s.utm_campaign || s.utm_source || null,
+        source_url: s.landing_url || null,
+        // VERBATIM. Nothing above or below this line rewrites these strings.
+        reason_for_moving: p.reason_for_moving || null,
+        hoped_difference: p.hoped_difference || null,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        email: p.email,
+        phone: p.phone,
+        current_town: p.current_town || null,
+        current_state: p.current_state || null,
+        budget: p.budget,
+        bedrooms: p.bedrooms,
+        property_type: p.property_type,
+        commute_matters: p.commute_matters,
+        commute_destination: p.commute_destination || null,
+        commute_frequency: p.commute_frequency || null,
+        priorities: p.priorities ?? [],
+        timeline: p.timeline,
+        rent_or_own: p.rent_or_own,
+        needs_to_sell: p.needs_to_sell || null,
+        utm_source: s.utm_source || null,
+        utm_medium: s.utm_medium || null,
+        utm_campaign: s.utm_campaign || null,
+        utm_content: s.utm_content || null,
+        utm_term: s.utm_term || null,
+        fbclid: s.fbclid || null,
+        referrer: s.referrer || null,
+        landing_url: s.landing_url || null,
+      });
+      if (vocError) throw vocError;
+      vocStored = true;
+      console.log("voice_of_customer row stored for lead", leadId);
+    } catch (err) {
+      // Logged, never rethrown. The answers also live on the lead's
+      // town_matcher JSONB, so the words survive this failing.
+      console.error("voice_of_customer insert failed (lead is unaffected):", err);
+    }
+
     return new Response(
-      JSON.stringify({ success: true, leadId, notified, confirmationSent }),
+      JSON.stringify({ success: true, leadId, notified, confirmationSent, vocStored }),
       { status: 200, headers: { ...cors, "Content-Type": "application/json" } },
     );
   } catch (err) {

@@ -155,6 +155,11 @@ const handler: Handler = async (event) => {
       timeline: get("timeline"),
       rent_or_own: get("rent_or_own"),
       needs_to_sell: get("needs_to_sell"),
+      // Voice of Customer, optional and free-form. Capped for length ONLY —
+      // never trimmed of content, re-cased, punctuation-normalised or cleaned
+      // up. The exact wording is the research asset.
+      reason_for_moving: (params.get("reason_for_moving") ?? "").trim().slice(0, 2000),
+      hoped_difference: (params.get("hoped_difference") ?? "").trim().slice(0, 2000),
       first_name: get("first_name"),
       last_name: get("last_name"),
       email: get("email"),

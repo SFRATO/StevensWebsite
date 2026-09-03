@@ -24,7 +24,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { PHONE, PHONE_HREF } from '../data/contact';
 
-const QUESTIONS = 9;
+const QUESTIONS = 10;
 
 /**
  * WIRE VALUES ARE DUPLICATED IN TWO OTHER FILES. Change all three together:
@@ -292,7 +292,29 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
             </div>
           </fieldset>
 
+          <!--
+            Voice of Customer. Both questions on ONE step, and genuinely optional
+            — a Skip button sits beside Continue here so opting out is a single
+            deliberate tap rather than a fight with an empty field. Answers are
+            stored verbatim; nothing downstream rewrites them.
+          -->
           <fieldset class="q" data-q="9">
+            <legend>Tell me a bit more <span class="legend-optional">(optional)</span></legend>
+            <div class="field">
+              <label for="q-reason">What’s making you consider moving to South Jersey?</label>
+              <p class="field-help">There’s no wrong answer — I want to understand what’s making you consider the move.</p>
+              <textarea id="q-reason" name="reason_for_moving" class="text-input textarea"
+                        rows="4" maxlength="2000"></textarea>
+            </div>
+            <div class="field">
+              <label for="q-hoped">What’s the biggest thing you’re hoping will be different after you move?</label>
+              <p class="field-help">More space, an easier lifestyle, a yard, being closer to family — whatever matters most to you.</p>
+              <textarea id="q-hoped" name="hoped_difference" class="text-input textarea"
+                        rows="4" maxlength="2000"></textarea>
+            </div>
+          </fieldset>
+
+          <fieldset class="q" data-q="10">
             <legend>Where should I send your matches?</legend>
             <p class="q-help">
               I’ll personally review your answers, pick about three South Jersey towns that fit,
@@ -335,6 +357,7 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
 
           <div class="nav">
             <button type="button" class="btn-back" id="btn-back" hidden>Back</button>
+            <button type="button" class="btn-skip" id="btn-skip" hidden>Skip</button>
             <button type="button" class="btn-next" id="btn-next">Continue</button>
             <button type="submit" class="btn-next" id="btn-submit" hidden>
               <span class="btn-label">Find My South Jersey Matches</span>
@@ -355,7 +378,7 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
    * re-rendered, which is why Back preserves every answer for free and why a
    * failed submit loses nothing.
    */
-  const TOTAL = 9;
+  const TOTAL = 10;
 
   function boot() {
     const form = document.getElementById('tm-form') as HTMLFormElement | null;
@@ -366,6 +389,9 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
     const btnNext = document.getElementById('btn-next') as HTMLButtonElement | null;
     const btnBack = document.getElementById('btn-back') as HTMLButtonElement | null;
     const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement | null;
+    const btnSkip = document.getElementById('btn-skip') as HTMLButtonElement | null;
+    /** The one step a visitor may pass without answering anything. */
+    const OPTIONAL_STEP = 9;
     const counter = document.getElementById('q-current');
     const fill = document.getElementById('progress-fill') as HTMLElement | null;
     const bar = document.getElementById('progressbar');
@@ -467,6 +493,8 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
       btnBack!.hidden = n === 1;
       btnNext!.hidden = n === TOTAL;
       btnSubmit!.hidden = n !== TOTAL;
+      // Skip appears only on the optional Voice of Customer step.
+      if (btnSkip) btnSkip.hidden = n !== OPTIONAL_STEP;
 
       const first = stepFor(n)?.querySelector<HTMLElement>(
         'input[type="text"], input[type="email"], input[type="tel"]',
@@ -518,7 +546,9 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
           if (picked('rent_or_own') !== 'own') return true;
           return pick('needs_to_sell', 'Please let me know if you’d need to sell first.');
         }
-        case 9: {
+        // Step 9 is the optional Voice of Customer step — nothing to validate.
+        case 9: return true;
+        case 10: {
           let ok = true;
           if (!val('first_name')) { showErr('first_name', 'Please enter your first name.'); ok = false; }
           else clearErr('first_name');
@@ -547,6 +577,8 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
 
     btnNext.addEventListener('click', advance);
     btnBack.addEventListener('click', () => { if (current > 1) show(current - 1, 'back'); });
+    // Skip leaves whatever was typed in place — it advances, it does not clear.
+    btnSkip?.addEventListener('click', () => { if (current < TOTAL) show(current + 1); });
 
     form.addEventListener('change', (e) => {
       const t = e.target as HTMLInputElement;
@@ -864,6 +896,28 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
   }
   .text-input:focus { outline: none; border-color: var(--navy-700); box-shadow: 0 0 0 3px var(--accent-wash); }
 
+  /* Voice of Customer free-response. Roomy enough to invite a real answer
+     rather than three words, and vertically resizable for the people who want
+     to write more. */
+  .textarea {
+    min-height: 108px;
+    line-height: var(--leading-body);
+    resize: vertical;
+    font-family: var(--font-ui);
+  }
+  .field-help {
+    margin: -2px 0 var(--space-1);
+    font-size: var(--text-sm);
+    line-height: var(--leading-body);
+    color: var(--text-muted);
+  }
+  .legend-optional {
+    font-family: var(--font-ui);
+    font-size: var(--text-base);
+    font-weight: var(--font-normal);
+    color: var(--text-muted);
+  }
+
   .consent {
     display: flex; align-items: flex-start; gap: var(--space-3);
     margin-top: var(--space-5);
@@ -901,7 +955,7 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
      page showed a dead "Find My South Jersey Matches" under the form until you
      reached step 9. Anything that sets display on these buttons must restore
      this rule. */
-  .btn-next[hidden], .btn-back[hidden] { display: none !important; }
+  .btn-next[hidden], .btn-back[hidden], .btn-skip[hidden] { display: none !important; }
   .btn-next:hover:not(:disabled) { filter: brightness(1.08); box-shadow: var(--shadow-md); transform: translateY(-1px); }
   .btn-next:active:not(:disabled) { transform: translateY(0); box-shadow: var(--shadow-sm); }
   .btn-next:disabled { opacity: 0.75; cursor: not-allowed; transform: none; }
@@ -921,8 +975,16 @@ const subhead = SUBHEADS[variant] ?? DEFAULT_SUBHEAD;
     .btn-next { transition: none; }
     .btn-next.is-busy .spinner { animation-duration: 2s; }
   }
-  .btn-back { background: transparent; color: var(--text-secondary); border-color: var(--rule-strong); }
-  .btn-back:hover { color: var(--text-primary); border-color: var(--navy-700); }
+  .btn-back, .btn-skip { background: transparent; color: var(--text-secondary); border-color: var(--rule-strong); }
+  .btn-back:hover, .btn-skip:hover { color: var(--text-primary); border-color: var(--navy-700); }
+  /* Skip shares the Back treatment: available, clearly secondary to Continue. */
+  .btn-skip {
+    font-family: var(--font-ui); font-size: var(--text-base); font-weight: var(--font-semibold);
+    border-radius: var(--radius-lg); min-height: 54px;
+    padding: var(--space-3) var(--space-5);
+    cursor: pointer; border: 1px solid var(--rule-strong);
+  }
+  .btn-skip:focus-visible { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
   .btn-next:focus-visible, .btn-back:focus-visible { outline: 3px solid var(--accent-glow); outline-offset: 2px; }
 
   .outcome {
